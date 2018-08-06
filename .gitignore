@@ -1,0 +1,6 @@
+node_modules
+**/**/dist
+**/**/.cache
+**/**/samples/piano
+**/**/samples/drummer
+**/**/samples/MetronomeUp.wav
