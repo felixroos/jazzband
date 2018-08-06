@@ -6,7 +6,7 @@ import { kick, snare, hihat, ride } from './samples/drumset.js';
 export class Drummer {
     style: string;
     soundbank: Soundbank;
-    ready: Promise<[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]>;
+    ready: Promise<any[]>;
     styles: any;
 
     constructor(props: any = {}) {

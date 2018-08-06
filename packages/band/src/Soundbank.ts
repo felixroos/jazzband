@@ -6,7 +6,7 @@ export class Soundbank {
     context: AudioContext;
     overlap: any;
     clock: any;
-    preload: Promise<[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]>;
+    preload: Promise<any[]>;
     onTrigger: any;
     constructor(options: any = {}) {
         this.onTrigger = options.onTrigger || (() => { });

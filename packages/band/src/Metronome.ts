@@ -3,7 +3,7 @@ import { metronomeUp } from './samples/metronome.js';
 
 export class Metronome {
     soundbank: Soundbank;
-    ready: Promise<[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]>;
+    ready: Promise<any[]>;
     constructor(props: any = {}) {
         this.soundbank = new Soundbank({ preload: [metronomeUp], context: props.context });
         this.ready = this.soundbank.preload;
