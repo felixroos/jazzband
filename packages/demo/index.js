@@ -1,4 +1,5 @@
 import Band from '../band/src/Band';
+// import Band from '../band/dist/Band';
 
 window.onload = function () {
     const button = document.getElementById('play');
