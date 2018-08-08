@@ -8,15 +8,24 @@ export class Soundbank {
     clock: any;
     preload: Promise<any[]>;
     onTrigger: any;
+    sources: any;
+    gain: GainNode;
     constructor(options: any = {}) {
         this.onTrigger = options.onTrigger || (() => { });
         this.onStop = options.onStop || (() => { });
         this.context = options.context || new AudioContext();
+        this.gain = this.context.createGain();
+        this.gain.connect(this.context.destination);
         this.overlap = options.overlap;
         this.clock = new WAAClock(this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
         if (options.preload) {
+            this.sources = options.preload;
             this.preload = this.loadSources(options.preload)
         }
+    }
+
+    setGain(value) {
+        this.gain.gain.value = value;
     }
 
     trigger(indices) {
@@ -44,10 +53,11 @@ export class Soundbank {
             });
     }
 
-    getSource(buffer, context = this.context) {
-        const source = context.createBufferSource();
+    getSource(buffer, connect?) {
+        const source = this.context.createBufferSource();
+        connect = connect || this.gain;
         source.buffer = buffer;
-        source.connect(context.destination);
+        source.connect(connect);
         return source;
     }
 
@@ -56,13 +66,13 @@ export class Soundbank {
             console.error('not all sources loaded!!!');
             return [];
         }
-        return sources.map(source => this.getSource(this.buffers[source].buffer, context));
+        return sources.map(source => this.getSource(this.buffers[source].buffer));
     }
 
     // loads a sound file into the context
     loadSource(src, context = this.context) {
         return this.getBuffer(src, context)
-            .then(decodedData => this.getSource(decodedData, context));
+            .then(decodedData => this.getSource(decodedData));
     }
 
     // loads multiple sources into the context
@@ -107,7 +117,15 @@ export class Soundbank {
         })
     }
 
-    playSources(sources, deadline = 0, interval = 0) {
+    playSource(source, { deadline, interval, gain }) {
+        const gainNode = this.context.createGain();
+        const sound = this.getSource(this.buffers[source].buffer, gainNode);
+        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+        gainNode.connect(this.context.destination);
+        this.playSounds([sound], deadline, interval)
+    }
+
+    /* playSources(sources, deadline = 0, interval = 0) {
         if (this.hasLoaded(sources, this.context)) {
             this.playSounds(this.getSources(sources, this.context), deadline, interval)
         } else {
@@ -115,5 +133,5 @@ export class Soundbank {
             this.loadSources(sources, this.context)
                 .then(sounds => this.playSounds(sounds, deadline, interval));
         }
-    }
+    } */
 }

@@ -1,8 +1,8 @@
 node_modules
 **/**/dist/*.wav
+**/**/.cache
 packages/demo/dist
 packages/band/dist/Band.map
-**/**/.cache
 **/**/samples/piano
 **/**/samples/drummer
 **/**/samples/MetronomeUp.wav

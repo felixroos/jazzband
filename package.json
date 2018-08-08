@@ -2,11 +2,13 @@
   "name": "jazzband",
   "version": "0.0.1",
   "description": "A Virtual Jazz Band that plays chords with the Web Audio API.",
-  "main": "packages/band/dist/Band.js",
+  "main": "packages/jazzband/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build ./packages/band/src/Band.ts --out-dir ./packages/band/dist",
-    "demo": "parcel ./packages/demo/index.html --out-dir ./packages/demo/dist"
+    "build": "parcel build ./packages/jazzband/src/index.ts --out-dir ./packages/jazzband",
+    "watch": "parcel watch ./packages/jazzband/src/index.ts --out-dir ./packages/jazzband",
+    "demo": "parcel ./packages/demo/index.html --out-dir ./packages/demo/dist --no-hmr",
+    "demo-build": "parcel build ./packages/demo/index.html --out-dir ./packages/demo/dist"
   },
   "repository": {
     "type": "git",

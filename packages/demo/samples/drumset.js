@@ -8,3 +8,4 @@ export const kick = k;
 export const snare = s;
 export const hihat = h;
 export const ride = r;
+export const drumset = [kick, snare, hihat, ride];

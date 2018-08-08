@@ -47,7 +47,7 @@ import k61 from "./piano/61.wav";
 import k62 from "./piano/62.wav";
 import k63 from "./piano/63.wav";
 
-export const sounds = [
+export const piano = [
   k16,
   k17,
   k18,

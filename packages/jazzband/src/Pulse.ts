@@ -1,17 +1,20 @@
 import WAAClock from 'waaclock';
 
 export class Pulse {
-    defaultProps = {
-        bpm: 90,
-        cycle: 4
+    defaults = {
+        bpm: 120,
+        cycle: 4,
+        delay: 0
     }
     props: any;
     context: any;
     clock: any;
+    events = [];
+    callbackAtTime: false;
     constructor(
         props
     ) {
-        this.props = Object.assign({}, this.defaultProps, props);
+        this.props = Object.assign({}, this.defaults, props);
         this.context = this.props.context || new AudioContext();
         this.clock = this.props.clock || new WAAClock(this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
     }
@@ -32,9 +35,18 @@ export class Pulse {
                 start,
                 pulse: this,
                 cycle: this.props.cycle,
+                timeout: null
             };
-            item['timeout'] = this.clock.setTimeout((event) =>
-                callback(Object.assign(item, { event, deadline: event.deadline })), start);
+            start += this.props.delay;
+            if (this.callbackAtTime) {
+                start += this.context.currentTime;
+                item.timeout = this.clock.callbackAtTime((event) =>
+                    callback(Object.assign(item, { event, deadline: event.deadline })), start);
+            } else {
+                item.timeout = this.clock.setTimeout((event) =>
+                    callback(Object.assign(item, { event, deadline: event.deadline })), start);
+            }
+            this.events.push(item.timeout);
             return item;
         }
         const childLength = length / children.length;
@@ -60,10 +72,24 @@ export class Pulse {
 
 
     start() {
+        console.log('start with', this.events.length, 'events');
+        const criticalEvents = 6000;
+        if (this.events.length > criticalEvents) {
+            console.warn('more than ', criticalEvents, 'events received. Consider using less "times" to keep the timing precies');
+        }
         this.clock.start();
     }
 
     stop() {
         this.clock.stop();
+    }
+
+    changeTempo(newTempo, timeout = 0.2) {
+        const factor = this.props.bpm / newTempo;
+        this.props.bpm = newTempo;
+        const events = this.events.filter(e => {
+            return e.deadline - this.context.currentTime > timeout;
+        });
+        this.clock.timeStretch(this.context.currentTime, events, factor)
     }
 }
