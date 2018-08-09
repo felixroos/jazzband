@@ -8,7 +8,7 @@ export default class Band {
     defaults = {
         times: 1,
         cycle: 4,
-        division: 3, // rhythm division (3=swing,2=binary)
+        division: 3, // rhythm division (3=ternary,2=binary)
         transpose: 0,
         style: 'Medium Swing'
     }

@@ -47,14 +47,23 @@ export function getPath(path, measures, traveled = []) {
     return this.getPath(path.slice(1), measures[path[0]], traveled.concat(path[0]));
 }
 
-export function resolveChords(pattern, measures, path) {
+export function resolveChords(pattern, measures, path, divisions = []) {
     if (Array.isArray(pattern)) {
-        return pattern.map((p, i) => this.resolveChords(p, measures, path.concat([i])));
+        // division: array of children lengths down the path (to calculate fraction)
+        divisions = [].concat(divisions, [pattern.length]);
+        return pattern.map((p, i) => this.resolveChords(p, measures, path.concat([i]), divisions));
     }
     if (pattern === 0) {
         return 0;
     }
-    return { chord: this.getPath(path, measures), value: pattern };
+    //const split = (pattern + '').split('.');
+    //const gain = parseFloat('0.' + split[1]); //digit(s) after .
+    //const fraction = (parseInt(split[0]) || 1) * divisions.reduce((f, d) => f / d, 1000); // fraction of one
+    const fraction = pattern * divisions.reduce((f, d) => f / d, 1000); // fraction of one
+    if (fraction === 0) {
+        console.warn('fraction is 0', pattern);
+    }
+    return { chord: this.getPath(path, measures), pattern, /* gain, */ path, divisions, fraction };
 }
 
 export function hasOff(pattern, division = 3) {
@@ -63,6 +72,7 @@ export function hasOff(pattern, division = 3) {
 
 // replaces offs on last beat with next chord + erases next one
 export function offbeatReducer(settings) {
+    // TODO: find out why some offbeats sound sketchy
     return (measures, bar, index) => {
         const last = index > 0 ? measures[index - 1] : null;
         if (last && this.hasOff(last[settings.cycle - 1], settings.division)) {
@@ -72,7 +82,6 @@ export function offbeatReducer(settings) {
         return measures.concat([bar]);
     };
 }
-
 
 export function invertInterval(interval) {
     if (Interval.semitones(interval) < 0) {

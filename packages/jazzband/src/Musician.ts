@@ -10,9 +10,6 @@ export class Musician {
         this.instrument = instrument;
         this.ready = this.instrument ? this.instrument.ready : Promise.resolve();
     }
-    bar({ tick, measures, settings }) {
-        console.log('bar', tick, measures, settings);
-    }
     play({ pulse, measures, settings }) {
         console.log('play..', pulse, measures, settings);
     }

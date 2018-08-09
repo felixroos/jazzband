@@ -8,6 +8,7 @@ export class Instrument {
     soundbank: Soundbank;
     ready: Promise<any>;
     samples: string[]; // array of sources
+    context: any;
     constructor({ samples, context, onPlay, onStop, midiOffset }: any = {}) {
         this.onPlay = onPlay;
         this.midiOffset = midiOffset || this.midiOffset;
@@ -22,6 +23,7 @@ export class Instrument {
             You can also Call init with a context to setup the Instrument later`);
             return;
         }
+        this.context = context;
         if (this.samples) {
             this.soundbank = new Soundbank({
                 context,
