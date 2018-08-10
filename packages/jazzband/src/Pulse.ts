@@ -90,6 +90,7 @@ export class Pulse {
         const events = this.events.filter(e => {
             return e.deadline - this.context.currentTime > timeout;
         });
+        // TODO: stretch durations?!
         this.clock.timeStretch(this.context.currentTime, events, factor)
     }
 }

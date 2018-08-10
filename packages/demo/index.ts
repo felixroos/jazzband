@@ -5,43 +5,51 @@ import standards from './standards.json';
 import { randomElement } from '../jazzband/src/util';
 
 console.log('jazz', jazz);
-const standard = randomElement(standards/* .filter(s=>s.style==='Funk') */);
+const standard = randomElement(standards/* .filter(s=>s.title.includes('Ipanema')) */);
+/** 
+ * Songs that sound good:
+ * - Raincheck
+ */
 console.log('standard', standard, standard.music.measures);
 let keyboard, bass, drums;
 
 const context = new AudioContext();
-const organic = false;
+const organic = true;
+const mix = context.createGain();
+mix.gain.value = 0.9;
+mix.connect(context.destination);
 
+// setup waveforms
 const gains = {
     sine: 0.7,
-    triangle: 0.6,
-    //square: 0.4,
+    triangle: 0.5,
+    //square: 0.2,
     /* sawtooth: 0.3 */
 };
-
 const [w1, w2] = [randomElement(Object.keys(gains)), randomElement(Object.keys(gains))];
 console.log(w1, w2);
 
+// setup instruments
 if (organic) {
-    keyboard = new jazz.Instrument({ samples: piano, midiOffset: 36, context });
-    //    bass = new jazz.Instrument({ samples: piano, midiOffset: 36, context });
-    bass = new jazz.Synthesizer({ context, duration: 400, gain: gains[w1], type: w1 });
-
-
+    keyboard = new jazz.Sampler({ samples: piano, midiOffset: 36, mix });
+    bass = new jazz.Sampler({ samples: piano, midiOffset: 36, mix });
+    //bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
+    drums = new jazz.Sampler({ samples: drumset, mix });
 } else {
-    bass = new jazz.Synthesizer({ context, duration: 400, gain: gains[w1], type: w1 });
-    keyboard = new jazz.Synthesizer({ context, duration: 400, gain: gains[w2], type: w2 });
-
+    bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
+    keyboard = new jazz.Synthesizer({ duration: 400, gain: gains[w2], type: w2, mix });
+    // drums = new jazz.PlasticDrums({ mix });
+    drums = new jazz.Sampler({ samples: drumset, mix });
 }
-drums = new jazz.Instrument({ context, samples: drumset });
 
-const pianist = new jazz.Pianist({ instrument: keyboard, context });
-const bassist = new jazz.Bassist({ instrument: bass, context });
-const drummer = new jazz.Drummer({ instrument: drums, context });
+// setup musicians and band
+const pianist = new jazz.Pianist(keyboard);
+const bassist = new jazz.Bassist(bass);
+const drummer = new jazz.Drummer(drums);
 const band = new jazz.Band({ musicians: [pianist, bassist, drummer], context });
 
-
 window.onload = function () {
+    // buttons
     const playJazz = document.getElementById('jazz');
     const playFunk = document.getElementById('funk');
     const pause = document.getElementById('pause');
@@ -51,12 +59,12 @@ window.onload = function () {
 
     playJazz.addEventListener('click', () => {
         //band.comp(['D-7', 'G7', 'C^7', 'C^7'], { times: 5, bpm: 160, style: standard.style });
-        band.comp(standard.music.measures, { /* exact: true, */ times: 3, cycle: 4, bpm: 130, style: standard.style });
+        band.comp(standard.music.measures, { arpeggio: false, times: 5, cycle: 4, bpm: 90 + Math.random() * 100, style: standard.style });
     })
     playFunk.addEventListener('click', () => {
         //band.comp(['C-7', 'C^7'], { times: 10, bpm: 90, style: 'Funk' });
         //band.comp(['C-7', ['C^7', 'F^7'], 'A-7', ['Ab-7', 'Db7']], { times: 5, bpm: 90, style: 'Funk' });
-        band.comp(standard.music.measures, { times: 3, bpm: 90, style: 'Funk' });
+        band.comp(standard.music.measures, { arpeggio: false, times: 5, bpm: 90, style: 'Funk' });
     })
 
     stop.addEventListener('click', () => {

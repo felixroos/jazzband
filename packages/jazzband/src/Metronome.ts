@@ -5,7 +5,7 @@ export class Metronome {
     soundbank: Soundbank;
     ready: Promise<any[]>;
     constructor(props: any = {}) {
-        this.soundbank = new Soundbank({ preload: [metronome], context: props.context });
+        this.soundbank = new Sampler({ preload: [metronome], context: props.context });
         this.ready = this.soundbank.preload;
     }
     bar(tick) {

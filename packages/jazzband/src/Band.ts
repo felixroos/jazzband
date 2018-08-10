@@ -1,5 +1,5 @@
 import { Pulse } from './Pulse';
-import { Musician } from './Musician';
+import { Musician } from './musicians/Musician';
 
 export default class Band {
     props: any;
@@ -27,6 +27,7 @@ export default class Band {
     }
 
     comp(measures, settings) {
+        console.log('band.comp', settings);
         if (this.pulse) {
             this.pulse.stop();
         }

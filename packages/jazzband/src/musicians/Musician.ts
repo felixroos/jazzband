@@ -1,9 +1,9 @@
-import { Instrument } from "./Instrument";
+import { Instrument } from "../instruments/Instrument";
 
 export class Musician {
     ready: Promise<any>;
     instrument: Instrument;
-    constructor({ instrument }) {
+    constructor(instrument) {
         if (!instrument) {
             console.warn('musician has no instrument', this);
         }

@@ -1,16 +1,16 @@
 
-import { resolveChords, getTonalChord } from '../util';
-import { Musician } from '../Musician';
-import { Chord, Interval, Distance } from 'tonal';
-import { funk } from '../grooves/Funk';
+import { resolveChords, getTonalChord, randomElement } from '../util';
+import { Musician } from './Musician';
+import { Chord, Distance } from 'tonal';
+import { funk } from '../grooves/funk';
 import { swing } from '../grooves/swing';
 
 export default class Bassist extends Musician {
     styles: { [key: string]: any };
     defaults = { style: 'Medium Swing' }
 
-    constructor(props: any = {}) {
-        super(props);
+    constructor(instrument) {
+        super(instrument);
         this.styles = {
             'Funk': funk.bass,
             'Medium Swing': swing.bass,
@@ -20,10 +20,10 @@ export default class Bassist extends Musician {
     play({ measures, pulse, settings }) {
         const track = this.styles[settings.style] || this.styles[this.defaults.style];
         measures = measures
-            .map(measure => track({ measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
+            .map(measure => track({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
             .map((pattern, i) => resolveChords(pattern, measures, [i]));
         pulse.tickArray(measures, (current) => {
-            this.playBass(current, measures);
+            this.playBass(current, measures, pulse);
         });
     }
 
@@ -33,14 +33,16 @@ export default class Bassist extends Musician {
         return Distance.transpose(tokens[0] + octave, interval);
     }
 
-    playBass({ value, cycle, path, deadline, interval }, measures) {
+    playBass({ value, cycle, path, deadline, interval }, measures, pulse) {
         let note;
+        const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
         const octave = 2;
         if (value.value === 1 && value.chord.split('/').length > 1) {
             note = value.chord.split('/')[1] + octave;
         } else {
-            note = this.getStep(value.pattern, getTonalChord(value.chord), octave);
+            note = this.getStep(steps[path[1]], getTonalChord(value.chord), octave);
         }
-        this.instrument.playNotes([note], { deadline, interval, gain: 0.7 });
+        const duration = value.fraction * pulse.getMeasureLength();
+        this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration });
     }
 }

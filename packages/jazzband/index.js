@@ -633,6 +633,7 @@ var Pulse = /** @class */function () {
         var events = this.events.filter(function (e) {
             return e.deadline - _this.context.currentTime > timeout;
         });
+        // TODO: stretch durations?!
         this.clock.timeStretch(this.context.currentTime, events, factor);
     };
     return Pulse;
@@ -671,6 +672,7 @@ var Band = /** @class */function () {
     };
     Band.prototype.comp = function (measures, settings) {
         var _this = this;
+        console.log('band.comp', settings);
         if (this.pulse) {
             this.pulse.stop();
         }
@@ -3343,13 +3345,12 @@ function intervalMatrix(from, to) {
     });
 }
 exports.intervalMatrix = intervalMatrix;
-},{"tonal":"../../../node_modules/tonal/index.js"}],"Musician.ts":[function(require,module,exports) {
+},{"tonal":"../../../node_modules/tonal/index.js"}],"musicians/Musician.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
 var Musician = /** @class */function () {
-    function Musician(_a) {
-        var instrument = _a.instrument;
+    function Musician(instrument) {
         if (!instrument) {
             console.warn('musician has no instrument', this);
         }
@@ -3369,16 +3370,13 @@ exports.Musician = Musician;
 "use strict";
 
 exports.__esModule = true;
+var util_1 = require("../util");
 exports.funk = {
-    //chords: () => [1.5, [0, 3], 0, 1],
-    //chords: () => [[4, 0], 0, 0, 0],
-    //chords: () => [[2, 0, 0, 0], 0, 2, 0],
     chords: function chords() {
-        return [[2, 0, 0, 1], 0, [0, .6], [0, 3.5, 0, 0]];
+        return util_1.randomElement([[[2, 0, 0, 1], 0, [0, .6], [0, 3.5, 0, 0]], [[1, 0, 0, 5], 0, [0, .6], [1, .5, 0, 0]], [[1, 0, 0, 5], 0, [0, .6], [.5, 0, 2, 0]], [[1, 0, 0, 5], 0, [0, .6], [0, 2, 0, 1]], [[3, 0, 0, 0], 0, 2, 0]]);
     },
-    //bass: () => [[1, 0, 0, 5], [0, 1], 3, [0, 5]],
     bass: function bass() {
-        return [1, 3, 1, 5];
+        return util_1.randomElement([[[2, 0, 0, 1], [0, 1], 1, [0, 1]], [[2, 0, 0, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]]]);
     },
     kick: function kick(t) {
         return [[[1, .7], 0, [0, 1], 0]];
@@ -3390,7 +3388,7 @@ exports.funk = {
         return [[.5, .6], [.4, .7], [.3, .6], [.5, .7]];
     }
 };
-},{}],"grooves/swing.ts":[function(require,module,exports) {
+},{"../util":"util.ts"}],"grooves/swing.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -3405,22 +3403,33 @@ exports.swing = {
         var r = Math.random() > 0.5 ? .6 : 0;
         var t = settings.cycle + "/" + measure.length;
         if (t === '4/1') {
-            return util_1.randomElement([[[1, 0], [0, 0, 7], 0, 0], [1, [0, 0, 2], 0, off()], [[0, 0, 1], 0, 2, 0], [[0, 0, 4], 0, 1, 0], [2, 0, 0, 0], [3, 0, 0, 0], [1, 0, r, off()], [[0, 0, 2], 0, r, 0], [2, [0, 0, 2], 0, off()]]); //, [2, 1, 1]
+            return util_1.randomElement([[[1, 0], [0, 0, 7], 0, 0], [1, [0, 0, 2], 0, off()], [[0, 0, 1], 0, 2, 0], [[0, 0, 4], 0, 1, 0], [2, 0, 0, 0], [3, 0, 0, 0], [1, 0, r, off()], [[0, 0, 2], 0, r, 0], [1.5, [0, 0, 2], 0, off()]]); //, [2, 1, 1]
         }
         if (t === '4/2') {
-            return util_1.randomElement([[[1, 0], [0, 0, 7], 0, 0], [1, [0, 0, 2], 0, 0], [1, 0, .7, off()], [[1, 0, 0], 0, .7, off()], [[4, 0, 0], [0, 0, 2.8], 0, off()]]);
+            return util_1.randomElement([[[1, 0], [0, 0, 7], 0, 0], [1, [0, 0, 2], 0, 0], [1, 0, 2, 0], [2, 0, 1, 0], [1, 0, .7, off()], [[1, 0, 0], 0, .7, off()], [[4, 0, 0], [0, 0, 2.8], 0, off()]]);
         }
         if (t === '4/3') {
-            return [1, [0, 0, .8], [0, 0, 1], 0];
+            return [1, [0, 0, 2], [0, 0, 4], 0];
         }
         if ('4/4') {
-            return util_1.randomElement([[1, .7, 1, .8], [[1, 0, .6], [0, 0, .7], 0, .8]]);
+            return util_1.randomElement([[1, 1, 1, 1], [[1, 0, 2], [0, 0, 2], 0, 1]]);
         }
     },
     bass: function bass() {
-        return util_1.randomElement([[1, util_1.randomElement([3, 5]), 1, util_1.randomElement([3, 5])]]);
+        return util_1.randomElement([[1, 1, 1, 1]]);
     },
-    ride: function ride() {
+    crash: function crash(_a) {
+        var measures = _a.measures,
+            index = _a.index;
+        var fill = index !== 0 && index % measures.length === 0;
+        if (fill) {
+            return [4, 0, 0, 0];
+        }
+        return [0, 0, 0, 0];
+    },
+    ride: function ride(_a) {
+        var measures = _a.measures,
+            index = _a.index;
         return util_1.randomElement([[.6, [.9, 0, 1], .6, [.9, 0, 1]], [.6, [.4, 0, 1], .8, [0, 0, 1]], [.6, .9, [.6, 0, 1], 1], [.6, .9, .6, [.9, 0, 1]]], [3, 2, 1, 2]);
     },
     hihat: function hihat() {
@@ -3453,16 +3462,13 @@ exports.__esModule = true;
 var tonal_1 = require("tonal");
 var tonal_2 = require("tonal");
 var util_1 = require("../util");
-var Musician_1 = require("../Musician");
+var Musician_1 = require("./Musician");
 var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Pianist = /** @class */function (_super) {
     __extends(Pianist, _super);
-    function Pianist(props) {
-        if (props === void 0) {
-            props = {};
-        }
-        var _this = _super.call(this, props) || this;
+    function Pianist(instrument, props) {
+        var _this = _super.call(this, instrument) || this;
         _this.playedNotes = [];
         _this.playedPatterns = [];
         _this.defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
@@ -3480,6 +3486,7 @@ var Pianist = /** @class */function (_super) {
             measures = _a.measures,
             settings = _a.settings;
         var pattern = this.styles[settings.style] || this.styles[this.defaults.style];
+        var measureLength = pulse.getMeasureLength();
         if (settings.exact) {
             return pulse.tickArray(measures, function (t) {
                 _this.playChord(t.value, { deadline: t.deadline });
@@ -3488,7 +3495,7 @@ var Pianist = /** @class */function (_super) {
         measures = measures
         // generate random patterns
         .map(function (measure) {
-            return pattern({ pulse: pulse, measure: measure, settings: settings }).slice(0, Math.floor(settings.cycle));
+            return pattern({ measures: measures, pulse: pulse, measure: measure, settings: settings }).slice(0, Math.floor(settings.cycle));
         })
         // fill in chords
         .map(function (pattern, i) {
@@ -3497,12 +3504,17 @@ var Pianist = /** @class */function (_super) {
         // fix chords at last offbeat
         .reduce(util_1.offbeatReducer(settings), []);
         pulse.tickArray(measures, function (_a) {
-            var tick = _a.tick,
+            var path = _a.path,
                 value = _a.value,
                 deadline = _a.deadline;
-            var duration = value.fraction * pulse.getMeasureLength();
+            var interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / 60;
+            if (path[0] % 2 === 0 && !path[1] && !path[2]) {
+                interval = Math.random() / (settings.bpm / 4);
+            }
+            var duration = settings.arpeggio ? interval : value.fraction * measureLength;
+            var slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
             var gain = value.gain || 0.7;
-            _this.playChord(value.chord, { deadline: deadline, gain: gain, duration: duration });
+            _this.playChord(value.chord, { deadline: deadline, gain: gain, duration: duration, interval: interval, slice: slice });
         });
     };
     Pianist.prototype.getLastVoicing = function () {
@@ -3517,11 +3529,13 @@ var Pianist = /** @class */function (_super) {
                 return util_1.minInterval(a, b, false);
             })[0];
             if (!tonal_1.Distance.transpose(before[intervals.indexOf(smallest)], smallest)) {
-                console.log('ALARM', before[intervals.indexOf(smallest)], smallest);
+                console.warn('ALARM', before[intervals.indexOf(smallest)], smallest, intervals);
             }
             return tonal_1.Distance.transpose(before[intervals.indexOf(smallest)], smallest);
+        }).filter(function (n) {
+            return !!n;
         });
-        return near;
+        return near && near.length ? near : scorenotes;
     };
     // plays the given notes at the given interval
     Pianist.prototype.playNotes = function (scorenotes, _a) {
@@ -3530,18 +3544,10 @@ var Pianist = /** @class */function (_super) {
             interval = _a.interval,
             gain = _a.gain,
             duration = _a.duration;
-        if (!scorenotes || !scorenotes.length) {
-            return;
-        }
         if (this.props.intelligentVoicings && this.getLastVoicing()) {
             scorenotes = this.getVoicing(scorenotes, this.getLastVoicing(), tonic);
         }
         this.playedNotes.push([].concat(scorenotes));
-        // scorenotes[0] = Distance.transpose(scorenotes[0], '-P8');
-        if (!this.instrument) {
-            console.warn('Pianist has no instrument...');
-            return;
-        }
         this.instrument.playNotes(scorenotes, { deadline: deadline, interval: interval, gain: gain, duration: duration });
     };
     Pianist.prototype.playChord = function (chord, settings) {
@@ -3550,38 +3556,19 @@ var Pianist = /** @class */function (_super) {
             return i.replace('13', '6');
         }).map(function (root) {
             return tonal_1.Distance.transpose(chord[0] + '3', root);
-        }).slice(this.props.noTonic ? 1 : 0);
+        });
+        if (notes.length > 3 && settings.noTonic) {
+            notes = notes.slice(this.props.noTonic ? 1 : 0);
+        }
+        if (settings.slice) {
+            notes = notes.slice(0, settings.slice ? settings.slice : notes.length);
+        }
         this.playNotes(notes, settings);
     };
     return Pianist;
 }(Musician_1.Musician);
 exports["default"] = Pianist;
-},{"tonal":"../../../node_modules/tonal/index.js","../util":"util.ts","../Musician":"Musician.ts","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"grooves/Funk.ts":[function(require,module,exports) {
-"use strict";
-
-exports.__esModule = true;
-exports.funk = {
-    //chords: () => [1.5, [0, 3], 0, 1],
-    //chords: () => [[4, 0], 0, 0, 0],
-    //chords: () => [[2, 0, 0, 0], 0, 2, 0],
-    chords: function chords() {
-        return [[2, 0, 0, 1], 0, [0, .6], [0, 3.5, 0, 0]];
-    },
-    //bass: () => [[1, 0, 0, 5], [0, 1], 3, [0, 5]],
-    bass: function bass() {
-        return [1, 3, 1, 5];
-    },
-    kick: function kick(t) {
-        return [[[1, .7], 0, [0, 1], 0]];
-    },
-    snare: function snare(t) {
-        return [0, 1, [0, .2, 0, 0], [1, 0, 0, .6]];
-    },
-    hihat: function hihat(t) {
-        return [[.5, .6], [.4, .7], [.3, .6], [.5, .7]];
-    }
-};
-},{}],"musicians/Drummer.ts":[function(require,module,exports) {
+},{"tonal":"../../../node_modules/tonal/index.js","../util":"util.ts","./Musician":"musicians/Musician.ts","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Drummer.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -3604,25 +3591,23 @@ var __extends = this && this.__extends || function () {
     };
 }();
 exports.__esModule = true;
-var Musician_1 = require("../Musician");
-var Funk_1 = require("../grooves/Funk");
+var Musician_1 = require("./Musician");
+var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Drummer = /** @class */function (_super) {
     __extends(Drummer, _super);
-    function Drummer(props) {
-        if (props === void 0) {
-            props = {};
-        }
-        var _this = _super.call(this, props) || this;
+    function Drummer(instrument) {
+        var _this = _super.call(this, instrument) || this;
         _this.set = {
             kick: 0,
             snare: 1,
             hihat: 2,
-            ride: 3
+            ride: 3,
+            crash: 4
         };
         _this.defaults = { style: 'Medium Swing' };
         _this.styles = {
-            'Funk': { kick: Funk_1.funk.kick, snare: Funk_1.funk.snare, hihat: Funk_1.funk.hihat },
+            'Funk': { kick: funk_1.funk.kick, snare: funk_1.funk.snare, hihat: funk_1.funk.hihat },
             'Medium Swing': { ride: swing_1.swing.ride, hihat: swing_1.swing.hihat }
         };
         return _this;
@@ -3634,8 +3619,8 @@ var Drummer = /** @class */function (_super) {
             settings = _a.settings;
         var tracks = this.styles[settings.style] || this.styles[this.defaults.style];
         Object.keys(tracks).forEach(function (key) {
-            var patterns = measures.map(function (measure) {
-                return tracks[key]({ measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
+            var patterns = measures.map(function (measure, index) {
+                return tracks[key]({ measures: measures, index: index, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
             });
             pulse.tickArray(patterns, function (_a) {
                 var deadline = _a.deadline,
@@ -3647,7 +3632,7 @@ var Drummer = /** @class */function (_super) {
     return Drummer;
 }(Musician_1.Musician);
 exports["default"] = Drummer;
-},{"../Musician":"Musician.ts","../grooves/Funk":"grooves/Funk.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Bassist.ts":[function(require,module,exports) {
+},{"./Musician":"musicians/Musician.ts","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Bassist.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -3671,20 +3656,17 @@ var __extends = this && this.__extends || function () {
 }();
 exports.__esModule = true;
 var util_1 = require("../util");
-var Musician_1 = require("../Musician");
+var Musician_1 = require("./Musician");
 var tonal_1 = require("tonal");
-var Funk_1 = require("../grooves/Funk");
+var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Bassist = /** @class */function (_super) {
     __extends(Bassist, _super);
-    function Bassist(props) {
-        if (props === void 0) {
-            props = {};
-        }
-        var _this = _super.call(this, props) || this;
+    function Bassist(instrument) {
+        var _this = _super.call(this, instrument) || this;
         _this.defaults = { style: 'Medium Swing' };
         _this.styles = {
-            'Funk': Funk_1.funk.bass,
+            'Funk': funk_1.funk.bass,
             'Medium Swing': swing_1.swing.bass
         };
         return _this;
@@ -3696,12 +3678,12 @@ var Bassist = /** @class */function (_super) {
             settings = _a.settings;
         var track = this.styles[settings.style] || this.styles[this.defaults.style];
         measures = measures.map(function (measure) {
-            return track({ measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
+            return track({ measures: measures, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
         }).map(function (pattern, i) {
             return util_1.resolveChords(pattern, measures, [i]);
         });
         pulse.tickArray(measures, function (current) {
-            _this.playBass(current, measures);
+            _this.playBass(current, measures, pulse);
         });
     };
     Bassist.prototype.getStep = function (step, chord, octave) {
@@ -3714,193 +3696,36 @@ var Bassist = /** @class */function (_super) {
         });
         return tonal_1.Distance.transpose(tokens[0] + octave, interval);
     };
-    Bassist.prototype.playBass = function (_a, measures) {
+    Bassist.prototype.playBass = function (_a, measures, pulse) {
         var value = _a.value,
             cycle = _a.cycle,
             path = _a.path,
             deadline = _a.deadline,
             interval = _a.interval;
         var note;
+        var steps = [1, util_1.randomElement([3, 5]), 1, util_1.randomElement([3, 5])];
         var octave = 2;
         if (value.value === 1 && value.chord.split('/').length > 1) {
             note = value.chord.split('/')[1] + octave;
         } else {
-            note = this.getStep(value.pattern, util_1.getTonalChord(value.chord), octave);
+            note = this.getStep(steps[path[1]], util_1.getTonalChord(value.chord), octave);
         }
-        this.instrument.playNotes([note], { deadline: deadline, interval: interval, gain: 0.7 });
+        var duration = value.fraction * pulse.getMeasureLength();
+        this.instrument.playNotes([note], { deadline: deadline, interval: interval, gain: 0.7, duration: duration });
     };
     return Bassist;
 }(Musician_1.Musician);
 exports["default"] = Bassist;
-},{"../util":"util.ts","../Musician":"Musician.ts","tonal":"../../../node_modules/tonal/index.js","../grooves/Funk":"grooves/Funk.ts","../grooves/swing":"grooves/swing.ts"}],"Soundbank.ts":[function(require,module,exports) {
-"use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-    return mod && mod.__esModule ? mod : { "default": mod };
-};
-exports.__esModule = true;
-var waaclock_1 = __importDefault(require("waaclock"));
-var Soundbank = /** @class */function () {
-    function Soundbank(options) {
-        if (options === void 0) {
-            options = {};
-        }
-        this.buffers = {};
-        this.onTrigger = options.onTrigger || function () {};
-        this.onStop = options.onStop || function () {};
-        this.context = options.context || new AudioContext();
-        this.gain = this.context.createGain();
-        this.gain.connect(this.context.destination);
-        this.overlap = options.overlap;
-        this.clock = new waaclock_1["default"](this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
-        if (options.preload) {
-            this.sources = options.preload;
-            this.preload = this.loadSources(options.preload);
-        }
-    }
-    Soundbank.prototype.setGain = function (value) {
-        this.gain.gain.value = value;
-    };
-    Soundbank.prototype.trigger = function (indices) {
-        this.onTrigger(indices); // TODO: fix
-    };
-    Soundbank.prototype.stop = function (indices) {
-        this.onStop(indices); // TODO: fix
-    };
-    // returns buffer from buffer cache or loads buffer data from source
-    Soundbank.prototype.getBuffer = function (src, context) {
-        var _this = this;
-        if (context === void 0) {
-            context = this.context;
-        }
-        if (this.buffers[src] && this.buffers[src].context === context) {
-            // console.log('buffer already present');
-            return Promise.resolve(this.buffers[src].buffer);
-        }
-        return fetch(src).then(function (res) {
-            return res.arrayBuffer();
-        }).then(function (buffer) {
-            return new Promise(function (resolve, reject) {
-                context.decodeAudioData(buffer, function (decodedData) {
-                    _this.buffers[src] = { buffer: decodedData, context: context };
-                    resolve(decodedData);
-                });
-            });
-        });
-    };
-    Soundbank.prototype.getSource = function (buffer, connect) {
-        var source = this.context.createBufferSource();
-        connect = connect || this.gain;
-        source.buffer = buffer;
-        source.connect(connect);
-        return source;
-    };
-    Soundbank.prototype.getSources = function (sources, context) {
-        var _this = this;
-        if (context === void 0) {
-            context = this.context;
-        }
-        if (!this.hasLoaded(sources)) {
-            console.error('not all sources loaded!!!');
-            return [];
-        }
-        return sources.map(function (source) {
-            return _this.getSource(_this.buffers[source].buffer);
-        });
-    };
-    // loads a sound file into the context
-    Soundbank.prototype.loadSource = function (src, context) {
-        var _this = this;
-        if (context === void 0) {
-            context = this.context;
-        }
-        return this.getBuffer(src, context).then(function (decodedData) {
-            return _this.getSource(decodedData);
-        });
-    };
-    // loads multiple sources into the context
-    Soundbank.prototype.loadSources = function (sources, context) {
-        var _this = this;
-        if (context === void 0) {
-            context = this.context;
-        }
-        sources.forEach(function (source, i) {
-            if (!source) {
-                console.warn("note at index " + i + " cannot be played!");
-            }
-        });
-        return Promise.all(sources.filter(function (source) {
-            return !!source;
-        }).map(function (source) {
-            return _this.loadSource(source, context);
-        }));
-    };
-    Soundbank.prototype.hasLoaded = function (sources, context) {
-        var _this = this;
-        if (context === void 0) {
-            context = this.context;
-        }
-        return sources.reduce(function (allLoaded, src) {
-            return allLoaded && _this.buffers[src] && _this.buffers[src].context === context;
-        }, true);
-    };
-    Soundbank.prototype.playSounds = function (sounds, deadline, interval) {
-        var _this = this;
-        if (deadline === void 0) {
-            deadline = 0;
-        }
-        if (interval === void 0) {
-            interval = 0;
-        }
-        if (!this.overlap) {
-            //this.clock.stop();
-        }
-        if (!this.clock._started) {
-            this.clock.start();
-        }
-        if (interval === 0) {
-            this.trigger(sounds.map(function (s, i) {
-                return i;
-            }));
-        }
-        sounds.forEach(function (sound, i) {
-            if (interval === 0) {
-                sound.start(deadline);
-            } else {
-                _this.clock.setTimeout(function (event) {
-                    _this.trigger([i]);
-                    sound.start(event.deadline);
-                }, interval * i);
-            }
-            _this.clock.setTimeout(function () {
-                _this.stop([i]);
-            }, interval * i + sound.buffer.duration);
-        });
-    };
-    Soundbank.prototype.playSource = function (source, _a) {
-        var deadline = _a.deadline,
-            interval = _a.interval,
-            gain = _a.gain;
-        var gainNode = this.context.createGain();
-        var sound = this.getSource(this.buffers[source].buffer, gainNode);
-        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-        gainNode.connect(this.context.destination);
-        this.playSounds([sound], deadline, interval);
-    };
-    return Soundbank;
-}();
-exports.Soundbank = Soundbank;
-},{"waaclock":"../../../node_modules/waaclock/index.js"}],"Instrument.ts":[function(require,module,exports) {
+},{"../util":"util.ts","./Musician":"musicians/Musician.ts","tonal":"../../../node_modules/tonal/index.js","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"instruments/Instrument.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
-var Soundbank_1 = require("./Soundbank");
-var util_1 = require("./util");
+var util_1 = require("../util");
 var Instrument = /** @class */function () {
     function Instrument(_a) {
         var _b = _a === void 0 ? {} : _a,
-            samples = _b.samples,
             context = _b.context,
+            mix = _b.mix,
             onPlay = _b.onPlay,
             onStop = _b.onStop,
             midiOffset = _b.midiOffset;
@@ -3908,31 +3733,17 @@ var Instrument = /** @class */function () {
         this.onPlay = onPlay;
         this.midiOffset = midiOffset || this.midiOffset;
         this.onStop = onStop;
-        this.samples = samples;
-        this.init(context);
+        this.init({ context: context, mix: mix });
     }
-    Instrument.prototype.init = function (context) {
-        var _this = this;
-        if (!context) {
-            console.warn("you should pass a context to a new Instrument. \n            You can also Call init with a context to setup the Instrument later");
+    Instrument.prototype.init = function (_a) {
+        var context = _a.context,
+            mix = _a.mix;
+        if (!context && (!mix || !mix.context)) {
+            console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
             return;
         }
-        this.context = context;
-        if (this.samples) {
-            this.soundbank = new Soundbank_1.Soundbank({
-                context: context,
-                preload: this.samples,
-                onTrigger: function onTrigger(indices) {
-                    if (_this.onPlay) {
-                        _this.onPlay(indices);
-                    }
-                }, onStop: function onStop(indices) {
-                    if (_this.onPlay) {
-                        _this.onStop(indices);
-                    }
-                }
-            });
-        }
+        this.context = context || mix.context;
+        this.mix = mix || this.context.destination;
     };
     Instrument.prototype.playNotes = function (notes, settings) {
         var _this = this;
@@ -3941,20 +3752,15 @@ var Instrument = /** @class */function () {
         }), settings);
     };
     Instrument.prototype.playKeys = function (keys, settings) {
-        var _this = this;
         if (this.onPlay) {
             return this.onPlay(keys);
         }
-        if (this.soundbank) {
-            keys.map(function (key) {
-                _this.soundbank.playSource(_this.soundbank.sources[key], settings);
-            });
-        }
+        // TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
     };
     return Instrument;
 }();
 exports.Instrument = Instrument;
-},{"./Soundbank":"Soundbank.ts","./util":"util.ts"}],"instruments/Synthesizer.ts":[function(require,module,exports) {
+},{"../util":"util.ts"}],"instruments/Synthesizer.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -3977,7 +3783,7 @@ var __extends = this && this.__extends || function () {
     };
 }();
 exports.__esModule = true;
-var Instrument_1 = require("../Instrument");
+var Instrument_1 = require("./Instrument");
 var tonal_1 = require("tonal");
 var Synthesizer = /** @class */function (_super) {
     __extends(Synthesizer, _super);
@@ -3985,11 +3791,11 @@ var Synthesizer = /** @class */function (_super) {
         var _this = _super.call(this, props) || this;
         _this.duration = 200;
         _this.type = 'sine';
-        _this.gain = 0.8;
-        _this.attack = .1;
-        _this.decay = .1;
-        _this.sustain = .5;
-        _this.release = .05;
+        _this.gain = 0.9;
+        _this.attack = .05;
+        _this.decay = .05;
+        _this.sustain = .4;
+        _this.release = .1;
         _this.duration = props.duration || _this.duration;
         _this.type = props.type || _this.type;
         _this.gain = props.gain || _this.gain;
@@ -4013,7 +3819,7 @@ var Synthesizer = /** @class */function (_super) {
         var gainNode = this.context.createGain();
         oscNode.connect(gainNode);
         gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-        gainNode.connect(this.context.destination);
+        gainNode.connect(this.mix);
         oscNode.frequency.value = frequency;
         return { oscNode: oscNode, gainNode: gainNode };
     };
@@ -4035,7 +3841,9 @@ var Synthesizer = /** @class */function (_super) {
         var _this = this;
         _super.prototype.playKeys.call(this, keys, settings); // fires callback   
         var time = this.context.currentTime + settings.deadline / 1000;
-        keys.map(function (key) {
+        var interval = settings.interval || 0;
+        keys.map(function (key, i) {
+            var delay = i * interval;
             var _a = [settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
                 attack = _a[0],
                 decay = _a[1],
@@ -4044,14 +3852,307 @@ var Synthesizer = /** @class */function (_super) {
                 duration = _a[4],
                 gain = _a[5];
             var voice = _this.getVoice(_this.type, 0, tonal_1.Note.freq(key));
-            _this.adsr({ attack: attack, decay: decay, sustain: sustain, release: release, gain: gain, duration: duration }, time, voice.gainNode.gain);
-            voice.oscNode.start(settings.deadline);
+            _this.adsr({ attack: attack, decay: decay, sustain: sustain, release: release, gain: gain, duration: duration }, time + delay, voice.gainNode.gain);
+            voice.oscNode.start(settings.deadline + delay);
         });
     };
     return Synthesizer;
 }(Instrument_1.Instrument);
 exports.Synthesizer = Synthesizer;
-},{"../Instrument":"Instrument.ts","tonal":"../../../node_modules/tonal/index.js"}],"index.ts":[function(require,module,exports) {
+},{"./Instrument":"instruments/Instrument.ts","tonal":"../../../node_modules/tonal/index.js"}],"instruments/Sampler.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+exports.__esModule = true;
+var Instrument_1 = require("./Instrument");
+var Sampler = /** @class */function (_super) {
+    __extends(Sampler, _super);
+    function Sampler(options) {
+        if (options === void 0) {
+            options = {};
+        }
+        var _this = _super.call(this, options) || this;
+        _this.buffers = {};
+        _this.gain = _this.context.createGain();
+        _this.gain.connect(_this.context.destination);
+        // this.overlap = options.overlap;
+        if (options.samples) {
+            _this.sources = options.samples;
+            _this.ready = _this.loadSources(options.samples);
+        }
+        return _this;
+    }
+    Sampler.prototype.setGain = function (value) {
+        this.gain.gain.value = value;
+    };
+    // returns buffer from buffer cache or loads buffer data from source
+    Sampler.prototype.getBuffer = function (src, context) {
+        var _this = this;
+        if (context === void 0) {
+            context = this.context;
+        }
+        if (this.buffers[src] && this.buffers[src].context === context) {
+            // console.log('buffer already present');
+            return Promise.resolve(this.buffers[src].buffer);
+        }
+        return fetch(src).then(function (res) {
+            return res.arrayBuffer();
+        }).then(function (buffer) {
+            return new Promise(function (resolve, reject) {
+                context.decodeAudioData(buffer, function (decodedData) {
+                    _this.buffers[src] = { buffer: decodedData, context: context };
+                    resolve(decodedData);
+                });
+            });
+        });
+    };
+    Sampler.prototype.getSource = function (buffer, connect) {
+        var source = this.context.createBufferSource();
+        connect = connect || this.gain;
+        source.buffer = buffer;
+        source.connect(connect);
+        return source;
+    };
+    Sampler.prototype.getSources = function (sources, context) {
+        var _this = this;
+        if (context === void 0) {
+            context = this.context;
+        }
+        if (!this.hasLoaded(sources)) {
+            console.error('not all sources loaded!!!');
+            return [];
+        }
+        return sources.map(function (source) {
+            return _this.getSource(_this.buffers[source].buffer);
+        });
+    };
+    // loads a sound file into the context
+    Sampler.prototype.loadSource = function (src, context) {
+        var _this = this;
+        if (context === void 0) {
+            context = this.context;
+        }
+        return this.getBuffer(src, context).then(function (decodedData) {
+            return _this.getSource(decodedData);
+        });
+    };
+    // loads multiple sources into the context
+    Sampler.prototype.loadSources = function (sources, context) {
+        var _this = this;
+        if (context === void 0) {
+            context = this.context;
+        }
+        sources.forEach(function (source, i) {
+            if (!source) {
+                console.warn("note at index " + i + " cannot be played!");
+            }
+        });
+        return Promise.all(sources.filter(function (source) {
+            return !!source;
+        }).map(function (source) {
+            return _this.loadSource(source, context);
+        }));
+    };
+    Sampler.prototype.hasLoaded = function (sources, context) {
+        var _this = this;
+        if (context === void 0) {
+            context = this.context;
+        }
+        return sources.reduce(function (allLoaded, src) {
+            return allLoaded && _this.buffers[src] && _this.buffers[src].context === context;
+        }, true);
+    };
+    Sampler.prototype.playSounds = function (sounds, deadline, interval) {
+        if (deadline === void 0) {
+            deadline = 0;
+        }
+        if (interval === void 0) {
+            interval = 0;
+        }
+        sounds.forEach(function (sound, i) {
+            return sound.start(deadline + interval * i);
+        });
+    };
+    Sampler.prototype.playSource = function (source, _a) {
+        var deadline = _a.deadline,
+            interval = _a.interval,
+            gain = _a.gain;
+        var gainNode = this.context.createGain();
+        var sound = this.getSource(this.buffers[source].buffer, gainNode);
+        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+        gainNode.connect(this.mix);
+        this.playSounds([sound], deadline, interval);
+    };
+    /* playSources(sources, deadline = 0, interval = 0) {
+        if (this.hasLoaded(sources, this.context)) {
+            this.playSounds(this.getSources(sources, this.context), deadline, interval)
+        } else {
+            console.warn('need to load');
+            this.loadSources(sources, this.context)
+                .then(sounds => this.playSounds(sounds, deadline, interval));
+        }
+    } */
+    Sampler.prototype.playKeys = function (keys, settings) {
+        var _this = this;
+        _super.prototype.playKeys.call(this, keys, settings);
+        keys.map(function (key) {
+            _this.playSource(_this.sources[key], settings);
+        });
+    };
+    return Sampler;
+}(Instrument_1.Instrument);
+exports.Sampler = Sampler;
+},{"./Instrument":"instruments/Instrument.ts"}],"instruments/Kick.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+var Kick = /** @class */function () {
+    function Kick(context) {
+        this.context = context;
+    }
+    Kick.prototype.setup = function () {
+        this.osc = this.context.createOscillator();
+        this.gain = this.context.createGain();
+        this.osc.connect(this.gain);
+        this.gain.connect(this.context.destination);
+    };
+    Kick.prototype.trigger = function (time) {
+        this.setup();
+        this.osc.frequency.setValueAtTime(150, time);
+        this.gain.gain.setValueAtTime(1, time);
+        this.osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+        this.gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        this.osc.start(time);
+        this.osc.stop(time + 0.5);
+    };
+    return Kick;
+}();
+exports.Kick = Kick;
+},{}],"instruments/Snare.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+var Snare = /** @class */function () {
+    function Snare(context) {
+        this.context = context;
+    }
+    Snare.prototype.noiseBuffer = function () {
+        var bufferSize = this.context.sampleRate;
+        var buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+        var output = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+        }
+        return buffer;
+    };
+    Snare.prototype.setup = function () {
+        this.noise = this.context.createBufferSource();
+        this.noise.buffer = this.noiseBuffer();
+        var noiseFilter = this.context.createBiquadFilter();
+        noiseFilter.type = 'highpass';
+        noiseFilter.frequency.value = 1000;
+        this.noise.connect(noiseFilter);
+        this.noiseEnvelope = this.context.createGain();
+        noiseFilter.connect(this.noiseEnvelope);
+        this.noiseEnvelope.connect(this.context.destination);
+        this.osc = this.context.createOscillator();
+        this.osc.type = 'triangle';
+        this.oscEnvelope = this.context.createGain();
+        this.osc.connect(this.oscEnvelope);
+        this.oscEnvelope.connect(this.context.destination);
+    };
+    ;
+    Snare.prototype.trigger = function (time) {
+        this.setup();
+        this.noiseEnvelope.gain.setValueAtTime(1, time);
+        this.noiseEnvelope.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        this.noise.start(time);
+        this.osc.frequency.setValueAtTime(100, time);
+        this.oscEnvelope.gain.setValueAtTime(0.7, time);
+        this.oscEnvelope.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        this.osc.start(time);
+        this.osc.stop(time + 0.2);
+        this.noise.stop(time + 0.2);
+    };
+    ;
+    return Snare;
+}();
+exports.Snare = Snare;
+},{}],"instruments/PlasticDrums.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+exports.__esModule = true;
+var Instrument_1 = require("./Instrument");
+var Kick_1 = require("./Kick");
+var Snare_1 = require("./Snare");
+var PlasticDrums = /** @class */function (_super) {
+    __extends(PlasticDrums, _super);
+    function PlasticDrums(options) {
+        var _this = _super.call(this, options) || this;
+        _this.keys = [new Kick_1.Kick(_this.context), new Snare_1.Snare(_this.context)];
+        return _this;
+    }
+    PlasticDrums.prototype.playKeys = function (keys, _a) {
+        var _this = this;
+        var deadline = _a.deadline,
+            gain = _a.gain,
+            value = _a.value;
+        var sounds = keys.filter(function (key) {
+            return !!_this.keys[key];
+        }).map(function (key) {
+            return _this.keys[key];
+        });
+        if (sounds.length < keys.length) {
+            var missing = keys.filter(function (key) {
+                return !_this.keys[key];
+            });
+            console.warn('PlasticDrums missing keys:', missing);
+        }
+        sounds.forEach(function (sound) {
+            return sound.trigger(deadline);
+        });
+    };
+    return PlasticDrums;
+}(Instrument_1.Instrument);
+exports.PlasticDrums = PlasticDrums;
+},{"./Instrument":"instruments/Instrument.ts","./Kick":"instruments/Kick.ts","./Snare":"instruments/Snare.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -4062,11 +4163,13 @@ var Band_1 = __importDefault(require("./Band"));
 var Pianist_1 = __importDefault(require("./musicians/Pianist"));
 var Drummer_1 = __importDefault(require("./musicians/Drummer"));
 var Bassist_1 = __importDefault(require("./musicians/Bassist"));
-var Instrument_1 = require("./Instrument");
-var Musician_1 = require("./Musician");
+var Instrument_1 = require("./instruments/Instrument");
+var Musician_1 = require("./musicians/Musician");
 var Synthesizer_1 = require("./instruments/Synthesizer");
-exports["default"] = { Band: Band_1["default"], Pianist: Pianist_1["default"], Bassist: Bassist_1["default"], Drummer: Drummer_1["default"], Instrument: Instrument_1.Instrument, Musician: Musician_1.Musician, Synthesizer: Synthesizer_1.Synthesizer };
-},{"./Band":"Band.ts","./musicians/Pianist":"musicians/Pianist.ts","./musicians/Drummer":"musicians/Drummer.ts","./musicians/Bassist":"musicians/Bassist.ts","./Instrument":"Instrument.ts","./Musician":"Musician.ts","./instruments/Synthesizer":"instruments/Synthesizer.ts"}],"../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var Sampler_1 = require("./instruments/Sampler");
+var PlasticDrums_1 = require("./instruments/PlasticDrums");
+exports["default"] = { Band: Band_1["default"], Pianist: Pianist_1["default"], Bassist: Bassist_1["default"], Drummer: Drummer_1["default"], Instrument: Instrument_1.Instrument, Musician: Musician_1.Musician, Synthesizer: Synthesizer_1.Synthesizer, Sampler: Sampler_1.Sampler, PlasticDrums: PlasticDrums_1.PlasticDrums };
+},{"./Band":"Band.ts","./musicians/Pianist":"musicians/Pianist.ts","./musicians/Drummer":"musicians/Drummer.ts","./musicians/Bassist":"musicians/Bassist.ts","./instruments/Instrument":"instruments/Instrument.ts","./musicians/Musician":"musicians/Musician.ts","./instruments/Synthesizer":"instruments/Synthesizer.ts","./instruments/Sampler":"instruments/Sampler.ts","./instruments/PlasticDrums":"instruments/PlasticDrums.ts"}],"../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -4095,7 +4198,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '59589' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '51905' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 

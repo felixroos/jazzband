@@ -1,39 +1,25 @@
-import WAAClock from 'waaclock';
+import { Instrument } from './Instrument';
 
-export class Soundbank {
+export class Sampler extends Instrument {
     buffers = {};
-    onStop: any;
     context: AudioContext;
     overlap: any;
-    clock: any;
-    preload: Promise<any[]>;
-    onTrigger: any;
+    samples: Promise<any[]>;
     sources: any;
     gain: GainNode;
     constructor(options: any = {}) {
-        this.onTrigger = options.onTrigger || (() => { });
-        this.onStop = options.onStop || (() => { });
-        this.context = options.context || new AudioContext();
+        super(options);
         this.gain = this.context.createGain();
         this.gain.connect(this.context.destination);
-        this.overlap = options.overlap;
-        this.clock = new WAAClock(this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
-        if (options.preload) {
-            this.sources = options.preload;
-            this.preload = this.loadSources(options.preload)
+        // this.overlap = options.overlap;
+        if (options.samples) {
+            this.sources = options.samples;
+            this.ready = this.loadSources(options.samples)
         }
     }
 
     setGain(value) {
         this.gain.gain.value = value;
-    }
-
-    trigger(indices) {
-        this.onTrigger(indices); // TODO: fix
-    }
-
-    stop(indices) {
-        this.onStop(indices); // TODO: fix
     }
     // returns buffer from buffer cache or loads buffer data from source
     getBuffer(src, context = this.context) {
@@ -92,36 +78,14 @@ export class Soundbank {
     }
 
     playSounds(sounds, deadline = 0, interval = 0) {
-        if (!this.overlap) {
-            //this.clock.stop();
-        }
-        if (!this.clock._started) {
-            this.clock.start();
-        }
-
-        if (interval === 0) {
-            this.trigger(sounds.map((s, i) => i));
-        }
-        sounds.forEach((sound, i) => {
-            if (interval === 0) {
-                sound.start(deadline);
-            } else {
-                this.clock.setTimeout((event) => {
-                    this.trigger([i]);
-                    sound.start(event.deadline);
-                }, interval * i);
-            }
-            this.clock.setTimeout(() => {
-                this.stop([i]);
-            }, (interval * i) + sound.buffer.duration);
-        })
+        sounds.forEach((sound, i) => sound.start(deadline + interval * i))
     }
 
     playSource(source, { deadline, interval, gain }) {
         const gainNode = this.context.createGain();
         const sound = this.getSource(this.buffers[source].buffer, gainNode);
         gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-        gainNode.connect(this.context.destination);
+        gainNode.connect(this.mix);
         this.playSounds([sound], deadline, interval)
     }
 
@@ -134,4 +98,11 @@ export class Soundbank {
                 .then(sounds => this.playSounds(sounds, deadline, interval));
         }
     } */
+
+    playKeys(keys: number[], settings) {
+        super.playKeys(keys, settings);
+        keys.map(key => {
+            this.playSource(this.sources[key], settings);
+        });
+    }
 }
