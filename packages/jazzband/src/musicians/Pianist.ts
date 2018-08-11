@@ -11,6 +11,7 @@ export default class Pianist extends Musician {
     playedPatterns = [];
     defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
     min = Math.min;
+    rollFactor = 3; // how much keyroll effect? controls interval between notes
     styles = {
         'Funk': funk.chords,
         'Medium Swing': swing.chords
@@ -39,9 +40,10 @@ export default class Pianist extends Musician {
             // fix chords at last offbeat
             .reduce(offbeatReducer(settings), []);
         pulse.tickArray(measures, ({ path, value, deadline }) => {
-            let interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / 60;
+            const humanFactor = settings.bpm / (this.rollFactor || 1);
+            let interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / (humanFactor * 20);
             if (path[0] % 2 === 0 && !path[1] && !path[2]) {
-                interval = Math.random() / (settings.bpm / 4);
+                interval = Math.random() / humanFactor;
             }
             const duration = settings.arpeggio ? interval : value.fraction * measureLength;
             const slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;

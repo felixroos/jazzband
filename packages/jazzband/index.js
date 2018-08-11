@@ -3473,6 +3473,7 @@ var Pianist = /** @class */function (_super) {
         _this.playedPatterns = [];
         _this.defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
         _this.min = Math.min;
+        _this.rollFactor = 3; // how much keyroll effect? controls interval between notes
         _this.styles = {
             'Funk': funk_1.funk.chords,
             'Medium Swing': swing_1.swing.chords
@@ -3507,9 +3508,10 @@ var Pianist = /** @class */function (_super) {
             var path = _a.path,
                 value = _a.value,
                 deadline = _a.deadline;
-            var interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / 60;
+            var humanFactor = settings.bpm / (_this.rollFactor || 1);
+            var interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / (humanFactor * 20);
             if (path[0] % 2 === 0 && !path[1] && !path[2]) {
-                interval = Math.random() / (settings.bpm / 4);
+                interval = Math.random() / humanFactor;
             }
             var duration = settings.arpeggio ? interval : value.fraction * measureLength;
             var slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;

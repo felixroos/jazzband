@@ -4,17 +4,9 @@ import { drumset } from './samples/drumset';
 import standards from './standards.json';
 import { randomElement } from '../jazzband/src/util';
 
-console.log('jazz', jazz);
-const standard = randomElement(standards/* .filter(s=>s.title.includes('Ipanema')) */);
-/** 
- * Songs that sound good:
- * - Raincheck
- */
-console.log('standard', standard, standard.music.measures);
 let keyboard, bass, drums;
 
 const context = new AudioContext();
-const organic = true;
 const mix = context.createGain();
 mix.gain.value = 0.9;
 mix.connect(context.destination);
@@ -24,12 +16,14 @@ const gains = {
     sine: 0.7,
     triangle: 0.5,
     //square: 0.2,
-    /* sawtooth: 0.3 */
+    sawtooth: 0.2
 };
 const [w1, w2] = [randomElement(Object.keys(gains)), randomElement(Object.keys(gains))];
 console.log(w1, w2);
 
+
 // setup instruments
+const organic = false;
 if (organic) {
     keyboard = new jazz.Sampler({ samples: piano, midiOffset: 36, mix });
     bass = new jazz.Sampler({ samples: piano, midiOffset: 36, mix });
@@ -48,6 +42,17 @@ const bassist = new jazz.Bassist(bass);
 const drummer = new jazz.Drummer(drums);
 const band = new jazz.Band({ musicians: [pianist, bassist, drummer], context });
 
+function getStandard() {
+    /** 
+     * Songs that sound good:
+     * - Raincheck
+     */
+    const standard = randomElement(standards/* .filter(s=>s.title.includes('Ipanema')) */);
+    console.log('standard', standard, standard.music.measures);
+    return standard;
+}
+
+
 window.onload = function () {
     // buttons
     const playJazz = document.getElementById('jazz');
@@ -56,16 +61,26 @@ window.onload = function () {
     const stop = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
+    const next = document.getElementById('next');
+    let standard/*  = getStandard(); */
 
-    playJazz.addEventListener('click', () => {
-        //band.comp(['D-7', 'G7', 'C^7', 'C^7'], { times: 5, bpm: 160, style: standard.style });
-        band.comp(standard.music.measures, { arpeggio: false, times: 5, cycle: 4, bpm: 90 + Math.random() * 100, style: standard.style });
-    })
-    playFunk.addEventListener('click', () => {
+    function funk() {
         //band.comp(['C-7', 'C^7'], { times: 10, bpm: 90, style: 'Funk' });
         //band.comp(['C-7', ['C^7', 'F^7'], 'A-7', ['Ab-7', 'Db7']], { times: 5, bpm: 90, style: 'Funk' });
-        band.comp(standard.music.measures, { arpeggio: false, times: 5, bpm: 90, style: 'Funk' });
+        band.comp(standard.music.measures, { arpeggio: false, times: 3, bpm: 90, style: 'Funk' });
+    }
+
+    function jazz() {
+        //band.comp(['D-7', 'G7', 'C^7', 'C^7'], { times: 5, bpm: 160, style: standard.style });
+        band.comp(standard.music.measures, { arpeggio: false, times: 3, cycle: 4, bpm: 90 + Math.random() * 100, style: standard.style });
+    }
+
+    /* playJazz.addEventListener('click', () => {
+        jazz();
     })
+    playFunk.addEventListener('click', () => {
+        funk()
+    }) */
 
     stop.addEventListener('click', () => {
         band.pulse.stop();
@@ -78,4 +93,19 @@ window.onload = function () {
         band.pulse.changeTempo(band.pulse.props.bpm + 10);
         console.log('tempo', band.pulse.props.bpm);
     });
+
+    next.addEventListener('click', () => {
+        if (band.pulse) {
+            band.pulse.stop();
+        }
+        standard = getStandard();
+        setTimeout(() => {
+
+            if (Math.random() > .5) {
+                funk()
+            } else {
+                jazz();
+            }
+        }, 500);
+    })
 }
