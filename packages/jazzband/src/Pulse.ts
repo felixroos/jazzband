@@ -16,7 +16,7 @@ export class Pulse {
     ) {
         this.props = Object.assign({}, this.defaults, props);
         this.context = this.props.context || new AudioContext();
-        this.clock = this.props.clock || new WAAClock(this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
+        this.clock = this.props.clock || new WAAClock(this.context, { toleranceEarly: 0.1, toleranceLate: 0 });
     }
 
     getMeasureLength(bpm = this.props.bpm, beatsPerMeasure = this.props.cycle) {

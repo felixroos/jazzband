@@ -550,7 +550,7 @@ var Pulse = /** @class */function () {
         this.events = [];
         this.props = Object.assign({}, this.defaults, props);
         this.context = this.props.context || new AudioContext();
-        this.clock = this.props.clock || new waaclock_1["default"](this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
+        this.clock = this.props.clock || new waaclock_1["default"](this.context, { toleranceEarly: 0.1, toleranceLate: 0 });
     }
     Pulse.prototype.getMeasureLength = function (bpm, beatsPerMeasure) {
         if (bpm === void 0) {
@@ -3471,6 +3471,7 @@ var Pianist = /** @class */function (_super) {
         var _this = _super.call(this, instrument) || this;
         _this.playedNotes = [];
         _this.playedPatterns = [];
+        _this.playedChords = [];
         _this.defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
         _this.min = Math.min;
         _this.rollFactor = 3; // how much keyroll effect? controls interval between notes
@@ -3553,6 +3554,15 @@ var Pianist = /** @class */function (_super) {
         this.instrument.playNotes(scorenotes, { deadline: deadline, interval: interval, gain: gain, duration: duration });
     };
     Pianist.prototype.playChord = function (chord, settings) {
+        if (chord === 'N.C.') {
+            console.log('N.C.');
+            return;
+        }
+        if (!chord || chord === 'x') {
+            // repeat
+            chord = this.playedChords[this.playedChords.length - 1];
+        }
+        this.playedChords.push(chord);
         chord = tonal_2.Chord.tokenize(util_1.getTonalChord(chord));
         var notes = tonal_2.Chord.intervals(chord[1]).map(function (i) {
             return i.replace('13', '6');
@@ -3667,6 +3677,7 @@ var Bassist = /** @class */function (_super) {
     function Bassist(instrument) {
         var _this = _super.call(this, instrument) || this;
         _this.defaults = { style: 'Medium Swing' };
+        _this.playedChords = [];
         _this.styles = {
             'Funk': funk_1.funk.bass,
             'Medium Swing': swing_1.swing.bass
@@ -3704,13 +3715,22 @@ var Bassist = /** @class */function (_super) {
             path = _a.path,
             deadline = _a.deadline,
             interval = _a.interval;
+        var chord = value.chord;
+        if (chord === 'N.C.') {
+            return;
+        }
+        if (!chord || chord === 'x') {
+            // repeat // TODO: support 'r' 
+            chord = this.playedChords[this.playedChords.length - 1];
+        }
+        this.playedChords.push(chord);
         var note;
         var steps = [1, util_1.randomElement([3, 5]), 1, util_1.randomElement([3, 5])];
         var octave = 2;
-        if (value.value === 1 && value.chord.split('/').length > 1) {
-            note = value.chord.split('/')[1] + octave;
+        if (value.value === 1 && chord.split('/').length > 1) {
+            note = chord.split('/')[1] + octave;
         } else {
-            note = this.getStep(steps[path[1]], util_1.getTonalChord(value.chord), octave);
+            note = this.getStep(steps[path[1]], util_1.getTonalChord(chord), octave);
         }
         var duration = value.fraction * pulse.getMeasureLength();
         this.instrument.playNotes([note], { deadline: deadline, interval: interval, gain: 0.7, duration: duration });
@@ -4200,7 +4220,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '51905' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '62891' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 

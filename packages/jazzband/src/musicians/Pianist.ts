@@ -9,6 +9,7 @@ import { swing } from '../grooves/swing';
 export default class Pianist extends Musician {
     playedNotes = [];
     playedPatterns = [];
+    playedChords = [];
     defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
     min = Math.min;
     rollFactor = 3; // how much keyroll effect? controls interval between notes
@@ -82,6 +83,14 @@ export default class Pianist extends Musician {
     }
 
     playChord(chord, settings) {
+        if (chord === 'N.C.') {
+            console.log('N.C.');
+            return;
+        }
+        if (!chord || chord === 'x') { // repeat
+            chord = this.playedChords[this.playedChords.length - 1];
+        }
+        this.playedChords.push(chord);
         chord = Chord.tokenize(getTonalChord(chord));
 
         let notes = Chord.intervals(chord[1])

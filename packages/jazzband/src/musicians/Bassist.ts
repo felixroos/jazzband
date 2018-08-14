@@ -8,6 +8,7 @@ import { swing } from '../grooves/swing';
 export default class Bassist extends Musician {
     styles: { [key: string]: any };
     defaults = { style: 'Medium Swing' }
+    playedChords: string[] = [];
 
     constructor(instrument) {
         super(instrument);
@@ -34,13 +35,21 @@ export default class Bassist extends Musician {
     }
 
     playBass({ value, cycle, path, deadline, interval }, measures, pulse) {
+        let chord = value.chord;
+        if (chord === 'N.C.') {
+            return;
+        }
+        if (!chord || chord === 'x') { // repeat // TODO: support 'r' 
+            chord = this.playedChords[this.playedChords.length - 1];
+        }
+        this.playedChords.push(chord);
         let note;
         const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
         const octave = 2;
-        if (value.value === 1 && value.chord.split('/').length > 1) {
-            note = value.chord.split('/')[1] + octave;
+        if (value.value === 1 && chord.split('/').length > 1) {
+            note = chord.split('/')[1] + octave;
         } else {
-            note = this.getStep(steps[path[1]], getTonalChord(value.chord), octave);
+            note = this.getStep(steps[path[1]], getTonalChord(chord), octave);
         }
         const duration = value.fraction * pulse.getMeasureLength();
         this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration });
