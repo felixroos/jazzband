@@ -11,4 +11,4 @@ import { Trio } from './Trio';
 import * as util from './util';
 import { Pulse } from './Pulse';
 
-export default { Trio, Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, PlasticDrums, Pulse, util };
+export { Trio, Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, PlasticDrums, Pulse, util };

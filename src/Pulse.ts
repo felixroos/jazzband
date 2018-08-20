@@ -12,7 +12,7 @@ export class Pulse {
     events = [];
     callbackAtTime: false;
     constructor(
-        props
+        props = {}
     ) {
         this.props = Object.assign({}, this.defaults, props);
         this.context = this.props.context || new AudioContext();

@@ -1,4 +1,4 @@
-import jazz from '../dist';
+import * as jazz from '../dist';
 import link from './playlists/1350.json';
 //import link from './playlists/zw.json';
 import { RealParser } from '../src/RealParser';
