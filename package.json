@@ -35,7 +35,8 @@
     "babel-jest": "^23.4.2",
     "jest": "^23.5.0",
     "tone": "^0.12.80",
-    "ts-jest": "^23.1.4"
+    "ts-jest": "^23.1.4",
+    "typescript": "^3.0.1"
   },
   "dependencies": {
     "ireal-reader": "^1.2.5",

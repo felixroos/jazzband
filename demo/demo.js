@@ -50,7 +50,7 @@ window.onload = function () {
     const randomInstruments = document.getElementById('instruments');
     let standard/*  = getStandard(); */
 
-    function play(groove: any = swing) {
+    function play(groove = swing) {
         console.log('groove', groove);
         const bpm = 70 + Math.random() * 100;
         //const bpm = 120;

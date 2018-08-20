@@ -10,7 +10,7 @@ export class Pulse {
     context: any;
     clock: any;
     events = [];
-    callbackAtTime: false;
+    callbackAtTime = false;
     constructor(
         props = {}
     ) {
