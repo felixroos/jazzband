@@ -1,4 +1,5 @@
 import { Instrument } from './Instrument';
+import { adsr } from '../util';
 
 export class Sampler extends Instrument {
     buffers = {};
@@ -6,11 +7,21 @@ export class Sampler extends Instrument {
     overlap: any;
     samples: Promise<any[]>;
     sources: any;
-    gain: GainNode;
+    gainNode: GainNode;
+    duration = 10000;
+    type = 'sine';
+    gain = 1;
+    attack = 0;
+    decay = 0;
+    sustain = 1;
+    release = .2;
+
     constructor(options: any = {}) {
         super(options);
-        this.gain = this.context.createGain();
-        this.gain.connect(this.context.destination);
+        this.gain = options.gain || this.gain;
+        this.gainNode = this.context.createGain();
+        this.gainNode.connect(this.context.destination);
+        this.duration = options.duration || this.duration;
         // this.overlap = options.overlap;
         if (options.samples) {
             this.sources = options.samples;
@@ -18,9 +29,6 @@ export class Sampler extends Instrument {
         }
     }
 
-    setGain(value) {
-        this.gain.gain.value = value;
-    }
     // returns buffer from buffer cache or loads buffer data from source
     getBuffer(src, context = this.context) {
         if (this.buffers[src] && this.buffers[src].context === context) {
@@ -41,7 +49,7 @@ export class Sampler extends Instrument {
 
     getSource(buffer, connect?) {
         const source = this.context.createBufferSource();
-        connect = connect || this.gain;
+        connect = connect || this.gainNode;
         source.buffer = buffer;
         source.connect(connect);
         return source;
@@ -81,12 +89,23 @@ export class Sampler extends Instrument {
         sounds.forEach((sound, i) => sound.start(deadline + interval * i))
     }
 
-    playSource(source, { deadline, interval, gain }) {
+    playSource(source, settings) {
         const gainNode = this.context.createGain();
         const sound = this.getSource(this.buffers[source].buffer, gainNode);
-        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+        const [attack, decay, sustain, release, duration, gain] =
+            [
+                settings.attack || this.attack,
+                settings.decay || this.decay,
+                settings.sustain || this.sustain,
+                settings.release || this.release,
+                (settings.duration || this.duration) / 1000,
+                (settings.gain || 1) * this.gain
+            ]
+        const time = settings.deadline || this.context.currentTime;
+        //gainNode.gain.value = typeof settings.gain === 'number' ? settings.gain : this.gain;
         gainNode.connect(this.mix);
-        this.playSounds([sound], deadline, interval)
+        adsr({ attack, decay, sustain, release, gain, duration, }, time, gainNode.gain);
+        this.playSounds([sound], settings.deadline || 0, 0)
     }
 
     /* playSources(sources, deadline = 0, interval = 0) {

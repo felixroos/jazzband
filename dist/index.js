@@ -103,7 +103,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   // Override the current require with this new one
   return newRequire;
-})({"../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/node_modules/process/browser.js":[function(require,module,exports) {
+})({"../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/node_modules/process/browser.js":[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {};
@@ -290,7 +290,7 @@ process.chdir = function (dir) {
 process.umask = function () {
     return 0;
 };
-},{}],"../../../node_modules/waaclock/lib/WAAClock.js":[function(require,module,exports) {
+},{}],"../node_modules/waaclock/lib/WAAClock.js":[function(require,module,exports) {
 var process = require("process");
 var isBrowser = (typeof window !== 'undefined')
 
@@ -526,13 +526,13 @@ WAAClock.prototype._absTime = function(relTime) {
 WAAClock.prototype._relTime = function(absTime) {
   return absTime - this.context.currentTime
 }
-},{"process":"../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/node_modules/process/browser.js"}],"../../../node_modules/waaclock/index.js":[function(require,module,exports) {
+},{"process":"../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/node_modules/process/browser.js"}],"../node_modules/waaclock/index.js":[function(require,module,exports) {
 var WAAClock = require('./lib/WAAClock')
 
 module.exports = WAAClock
 if (typeof window !== 'undefined') window.WAAClock = WAAClock
 
-},{"./lib/WAAClock":"../../../node_modules/waaclock/lib/WAAClock.js"}],"Pulse.ts":[function(require,module,exports) {
+},{"./lib/WAAClock":"../node_modules/waaclock/lib/WAAClock.js"}],"Pulse.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -550,7 +550,7 @@ var Pulse = /** @class */function () {
         this.events = [];
         this.props = Object.assign({}, this.defaults, props);
         this.context = this.props.context || new AudioContext();
-        this.clock = this.props.clock || new waaclock_1["default"](this.context, { toleranceEarly: 0.1, toleranceLate: 0 });
+        this.clock = this.props.clock || new waaclock_1["default"](this.context, { toleranceEarly: 0.1, toleranceLate: 0.1 });
     }
     Pulse.prototype.getMeasureLength = function (bpm, beatsPerMeasure) {
         if (bpm === void 0) {
@@ -561,7 +561,7 @@ var Pulse = /** @class */function () {
         }
         return 60 / bpm * beatsPerMeasure;
     };
-    Pulse.prototype.arrayPulse = function (children, length, path, start, callback) {
+    Pulse.prototype.arrayPulse = function (children, length, path, start, callback, deadline) {
         var _this = this;
         if (length === void 0) {
             length = 1;
@@ -572,6 +572,7 @@ var Pulse = /** @class */function () {
         if (start === void 0) {
             start = 0;
         }
+        //TODO: return promise on next one (for chaining)
         if (!Array.isArray(children)) {
             if (children === 0) {
                 return 0;
@@ -585,13 +586,14 @@ var Pulse = /** @class */function () {
                 cycle: this.props.cycle,
                 timeout: null
             };
-            start += this.props.delay;
+            start += this.props.delay; // TODO: be able to add delay from arrayPulse fn directly
             if (this.callbackAtTime) {
-                start += this.context.currentTime;
+                start += deadline ? deadline : this.context.currentTime;
                 item_1.timeout = this.clock.callbackAtTime(function (event) {
                     return callback(Object.assign(item_1, { event: event, deadline: event.deadline }));
                 }, start);
             } else {
+                start += (deadline || this.context.currentTime) - this.context.currentTime;
                 item_1.timeout = this.clock.setTimeout(function (event) {
                     return callback(Object.assign(item_1, { event: event, deadline: event.deadline }));
                 }, start);
@@ -603,17 +605,27 @@ var Pulse = /** @class */function () {
         return {
             length: length,
             children: children.map(function (el, i) {
-                return _this.arrayPulse(el, childLength, path.concat([i]), start + i * childLength, callback);
+                return _this.arrayPulse(el, childLength, path.concat([i]), start + i * childLength, callback, deadline);
             })
         };
     };
-    Pulse.prototype.tickArray = function (array, callback, length) {
+    Pulse.prototype.tickArray = function (array, callback, deadline, length) {
+        var _this = this;
+        array.push(1);
         var l = length || this.getMeasureLength() * array.length;
-        this.clock.start();
-        return this.arrayPulse(array, l, [], 0, callback);
+        this.start();
+        return new Promise(function (resolve, reject) {
+            _this.arrayPulse(array, l, [], 0, function (tick, start) {
+                if (tick.path[0] === array.length - 1) {
+                    resolve(tick);
+                } else {
+                    callback(tick, start);
+                }
+            }, deadline);
+        });
     };
     Pulse.prototype.start = function () {
-        console.log('start with', this.events.length, 'events');
+        // console.log('start with', this.events.length, 'events');
         var criticalEvents = 6000;
         if (this.events.length > criticalEvents) {
             console.warn('more than ', criticalEvents, 'events received. Consider using less "times" to keep the timing precies');
@@ -639,7 +651,7 @@ var Pulse = /** @class */function () {
     return Pulse;
 }();
 exports.Pulse = Pulse;
-},{"waaclock":"../../../node_modules/waaclock/index.js"}],"Band.ts":[function(require,module,exports) {
+},{"waaclock":"../node_modules/waaclock/index.js"}],"Band.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -650,7 +662,6 @@ var Band = /** @class */function () {
             context = _b.context,
             musicians = _b.musicians;
         this.defaults = {
-            times: 1,
             cycle: 4,
             division: 3,
             transpose: 0,
@@ -671,8 +682,6 @@ var Band = /** @class */function () {
         });
     };
     Band.prototype.comp = function (measures, settings) {
-        var _this = this;
-        console.log('band.comp', settings);
         if (this.pulse) {
             this.pulse.stop();
         }
@@ -680,13 +689,12 @@ var Band = /** @class */function () {
         measures = measures.map(function (m) {
             return !Array.isArray(m) ? [m] : m;
         });
-        if (settings.times > 1) {
-            measures = new Array(settings.times).fill(1).reduce(function (song) {
-                return song.concat(measures);
-            }, []);
-        }
+        this.play(measures, settings);
+    };
+    Band.prototype.play = function (measures, settings) {
+        var _this = this;
         this.ready().then(function () {
-            _this.pulse = new Pulse_1.Pulse(settings);
+            _this.pulse = settings.pulse || new Pulse_1.Pulse(settings);
             _this.musicians.forEach(function (musician) {
                 return musician.play({ pulse: _this.pulse, measures: measures, settings: settings });
             });
@@ -696,7 +704,7 @@ var Band = /** @class */function () {
     return Band;
 }();
 exports["default"] = Band;
-},{"./Pulse":"Pulse.ts"}],"../../../node_modules/tonal-note/build/es6.js":[function(require,module,exports) {
+},{"./Pulse":"Pulse.ts"}],"../node_modules/tonal-note/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1119,7 +1127,7 @@ var simplify = exports.simplify = function (note, sameAcc) {
 var enharmonic = exports.enharmonic = function (note) {
   return simplify(note, false);
 };
-},{}],"../../../node_modules/tonal-array/build/es6.js":[function(require,module,exports) {
+},{}],"../node_modules/tonal-array/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1283,7 +1291,7 @@ var permutations = exports.permutations = function (arr) {
     }));
   }, []);
 };
-},{"tonal-note":"../../../node_modules/tonal-note/build/es6.js"}],"../../../node_modules/tonal-interval/build/es6.js":[function(require,module,exports) {
+},{"tonal-note":"../node_modules/tonal-note/build/es6.js"}],"../node_modules/tonal-interval/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1658,7 +1666,7 @@ var fromSemitones = exports.fromSemitones = function (num) {
   var o = Math.floor(n / 12);
   return d * (IN[c] + 7 * o) + IQ[c];
 };
-},{}],"../../../node_modules/tonal-distance/build/es6.js":[function(require,module,exports) {
+},{}],"../node_modules/tonal-distance/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1987,7 +1995,7 @@ function semitones(from, to) {
   var t = (0, _tonalNote.props)(to);
   return f.midi !== null && t.midi !== null ? t.midi - f.midi : f.chroma !== null && t.chroma !== null ? (t.chroma - f.chroma + 12) % 12 : null;
 }
-},{"tonal-note":"../../../node_modules/tonal-note/build/es6.js","tonal-interval":"../../../node_modules/tonal-interval/build/es6.js"}],"../../../node_modules/tonal-dictionary/build/data/scales.json":[function(require,module,exports) {
+},{"tonal-note":"../node_modules/tonal-note/build/es6.js","tonal-interval":"../node_modules/tonal-interval/build/es6.js"}],"../node_modules/tonal-dictionary/build/data/scales.json":[function(require,module,exports) {
 module.exports = {
   "chromatic": ["1P 2m 2M 3m 3M 4P 4A 5P 6m 6M 7m 7M"],
   "lydian": ["1P 2M 3M 4A 5P 6M 7M"],
@@ -2090,7 +2098,7 @@ module.exports = {
   "six tone symmetric": ["1P 2m 3M 4P 5A 6M"]
 }
 ;
-},{}],"../../../node_modules/tonal-dictionary/build/data/chords.json":[function(require,module,exports) {
+},{}],"../node_modules/tonal-dictionary/build/data/chords.json":[function(require,module,exports) {
 module.exports = {
   "4": ["1P 4P 7m 10m", ["quartal"]],
   "64": ["5P 8P 10M"],
@@ -2209,7 +2217,7 @@ module.exports = {
   "madd9": ["1P 3m 5P 9M"]
 }
 ;
-},{}],"../../../node_modules/tonal-pcset/build/es6.js":[function(require,module,exports) {
+},{}],"../node_modules/tonal-pcset/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2464,7 +2472,7 @@ function filter(set, notes) {
   }
   return notes.filter(includes(set));
 }
-},{"tonal-note":"../../../node_modules/tonal-note/build/es6.js","tonal-interval":"../../../node_modules/tonal-interval/build/es6.js","tonal-array":"../../../node_modules/tonal-array/build/es6.js"}],"../../../node_modules/tonal-dictionary/build/es6.js":[function(require,module,exports) {
+},{"tonal-note":"../node_modules/tonal-note/build/es6.js","tonal-interval":"../node_modules/tonal-interval/build/es6.js","tonal-array":"../node_modules/tonal-array/build/es6.js"}],"../node_modules/tonal-dictionary/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2576,7 +2584,7 @@ var scale = exports.scale = dictionary(_scales2.default);
  */
 var chord = exports.chord = dictionary(_chords2.default);
 var pcset = exports.pcset = combine(scale, chord);
-},{"./data/scales.json":"../../../node_modules/tonal-dictionary/build/data/scales.json","./data/chords.json":"../../../node_modules/tonal-dictionary/build/data/chords.json","tonal-pcset":"../../../node_modules/tonal-pcset/build/es6.js"}],"../../../node_modules/tonal-scale/build/es6.js":[function(require,module,exports) {
+},{"./data/scales.json":"../node_modules/tonal-dictionary/build/data/scales.json","./data/chords.json":"../node_modules/tonal-dictionary/build/data/chords.json","tonal-pcset":"../node_modules/tonal-pcset/build/es6.js"}],"../node_modules/tonal-scale/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2830,7 +2838,7 @@ var subsets = exports.subsets = function (name) {
     return isSubset((0, _tonalDictionary.scale)(name));
   });
 };
-},{"tonal-note":"../../../node_modules/tonal-note/build/es6.js","tonal-pcset":"../../../node_modules/tonal-pcset/build/es6.js","tonal-distance":"../../../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../../../node_modules/tonal-dictionary/build/es6.js","tonal-array":"../../../node_modules/tonal-array/build/es6.js"}],"../../../node_modules/tonal-chord/build/es6.js":[function(require,module,exports) {
+},{"tonal-note":"../node_modules/tonal-note/build/es6.js","tonal-pcset":"../node_modules/tonal-pcset/build/es6.js","tonal-distance":"../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../node_modules/tonal-dictionary/build/es6.js","tonal-array":"../node_modules/tonal-array/build/es6.js"}],"../node_modules/tonal-chord/build/es6.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3038,7 +3046,7 @@ function tokenize(name) {
     return [p[0] + p[1] + p[2], p[3]];
   }
 }
-},{"tonal-note":"../../../node_modules/tonal-note/build/es6.js","tonal-distance":"../../../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../../../node_modules/tonal-dictionary/build/es6.js","tonal-pcset":"../../../node_modules/tonal-pcset/build/es6.js"}],"../../../node_modules/tonal/index.js":[function(require,module,exports) {
+},{"tonal-note":"../node_modules/tonal-note/build/es6.js","tonal-distance":"../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../node_modules/tonal-dictionary/build/es6.js","tonal-pcset":"../node_modules/tonal-pcset/build/es6.js"}],"../node_modules/tonal/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3197,11 +3205,152 @@ const chord = exports.chord = Dictionary.chord;
  * Tonal.scale("major") // => ["1P", "2M", "3M"...]
  */
 const scale = exports.scale = Dictionary.scale;
-},{"tonal-array":"../../../node_modules/tonal-array/build/es6.js","tonal-note":"../../../node_modules/tonal-note/build/es6.js","tonal-interval":"../../../node_modules/tonal-interval/build/es6.js","tonal-distance":"../../../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../../../node_modules/tonal-dictionary/build/es6.js","tonal-scale":"../../../node_modules/tonal-scale/build/es6.js","tonal-chord":"../../../node_modules/tonal-chord/build/es6.js","tonal-pcset":"../../../node_modules/tonal-pcset/build/es6.js"}],"util.ts":[function(require,module,exports) {
+},{"tonal-array":"../node_modules/tonal-array/build/es6.js","tonal-note":"../node_modules/tonal-note/build/es6.js","tonal-interval":"../node_modules/tonal-interval/build/es6.js","tonal-distance":"../node_modules/tonal-distance/build/es6.js","tonal-dictionary":"../node_modules/tonal-dictionary/build/es6.js","tonal-scale":"../node_modules/tonal-scale/build/es6.js","tonal-chord":"../node_modules/tonal-chord/build/es6.js","tonal-pcset":"../node_modules/tonal-pcset/build/es6.js"}],"instruments/Instrument.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+var util_1 = require("../util");
+var Instrument = /** @class */function () {
+    function Instrument(_a) {
+        var _b = _a === void 0 ? {} : _a,
+            context = _b.context,
+            gain = _b.gain,
+            mix = _b.mix,
+            onPlay = _b.onPlay,
+            onStop = _b.onStop,
+            midiOffset = _b.midiOffset;
+        this.midiOffset = 0;
+        this.gain = 1;
+        this.onPlay = onPlay;
+        this.midiOffset = midiOffset || this.midiOffset;
+        this.onStop = onStop;
+        this.gain = gain || this.gain;
+        this.init({ context: context, mix: mix });
+    }
+    Instrument.prototype.init = function (_a) {
+        var context = _a.context,
+            mix = _a.mix;
+        if (!context && (!mix || !mix.context)) {
+            console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
+            return;
+        }
+        this.context = context || mix.context;
+        this.mix = mix || this.context.destination;
+    };
+    Instrument.prototype.playNotes = function (notes, settings) {
+        var _this = this;
+        this.playKeys(notes.map(function (note) {
+            return util_1.getMidi(note, _this.midiOffset);
+        }), settings);
+    };
+    Instrument.prototype.playKeys = function (keys, settings) {
+        if (this.onPlay) {
+            return this.onPlay(keys);
+        }
+        // TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
+    };
+    return Instrument;
+}();
+exports.Instrument = Instrument;
+},{"../util":"util.ts"}],"instruments/Synthesizer.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+exports.__esModule = true;
+var Instrument_1 = require("./Instrument");
+var tonal_1 = require("tonal");
+var util_1 = require("../util");
+var Synthesizer = /** @class */function (_super) {
+    __extends(Synthesizer, _super);
+    function Synthesizer(props) {
+        var _this = _super.call(this, props) || this;
+        _this.duration = 200;
+        _this.type = 'sine';
+        _this.gain = 0.9;
+        _this.attack = .05;
+        _this.decay = .05;
+        _this.sustain = .4;
+        _this.release = .1;
+        _this.duration = props.duration || _this.duration;
+        _this.type = props.type || _this.type;
+        _this.gain = props.gain || _this.gain;
+        return _this;
+    }
+    Synthesizer.prototype.init = function (context) {
+        _super.prototype.init.call(this, context);
+    };
+    Synthesizer.prototype.getVoice = function (type, gain, frequency) {
+        if (type === void 0) {
+            type = 'sine';
+        }
+        if (gain === void 0) {
+            gain = 0;
+        }
+        if (frequency === void 0) {
+            frequency = 440;
+        }
+        var oscNode = this.context.createOscillator();
+        oscNode.type = type;
+        var gainNode = this.context.createGain();
+        oscNode.connect(gainNode);
+        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+        gainNode.connect(this.mix);
+        oscNode.frequency.value = frequency;
+        return { oscNode: oscNode, gainNode: gainNode };
+    };
+    Synthesizer.prototype.lowestGain = function (a, b) {
+        return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
+    };
+    Synthesizer.prototype.playKeys = function (keys, settings) {
+        var _this = this;
+        if (settings === void 0) {
+            settings = {};
+        }
+        _super.prototype.playKeys.call(this, keys, settings); // fires callback   
+        //const time = this.context.currentTime + settings.deadline / 1000;
+        var time = settings.deadline || this.context.currentTime;
+        var interval = settings.interval || 0;
+        keys.map(function (key, i) {
+            var delay = i * interval;
+            var _a = [settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
+                attack = _a[0],
+                decay = _a[1],
+                sustain = _a[2],
+                release = _a[3],
+                duration = _a[4],
+                gain = _a[5];
+            var voice = _this.getVoice(_this.type, 0, tonal_1.Note.freq(key));
+            util_1.adsr({ attack: attack, decay: decay, sustain: sustain, release: release, gain: gain, duration: duration }, time + delay, voice.gainNode.gain);
+            voice.oscNode.start(settings.deadline + delay);
+        });
+    };
+    return Synthesizer;
+}(Instrument_1.Instrument);
+exports.Synthesizer = Synthesizer;
+},{"./Instrument":"instruments/Instrument.ts","tonal":"../node_modules/tonal/index.js","../util":"util.ts"}],"util.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
 var tonal_1 = require("tonal");
+var Synthesizer_1 = require("./instruments/Synthesizer");
 function randomNumber(n) {
     return Math.floor(Math.random() * n);
 }
@@ -3345,7 +3494,34 @@ function intervalMatrix(from, to) {
     });
 }
 exports.intervalMatrix = intervalMatrix;
-},{"tonal":"../../../node_modules/tonal/index.js"}],"musicians/Musician.ts":[function(require,module,exports) {
+function randomSynth(mix, allowed) {
+    if (allowed === void 0) {
+        allowed = ['sine', 'triangle', 'square', 'sawtooth'];
+    }
+    var gains = {
+        sine: 0.9,
+        triangle: 0.8,
+        square: 0.2,
+        sawtooth: 0.3
+    };
+    var wave = randomElement(allowed);
+    return new Synthesizer_1.Synthesizer({ gain: gains[wave], type: wave, mix: mix });
+}
+exports.randomSynth = randomSynth;
+function adsr(_a, time, param) {
+    var attack = _a.attack,
+        decay = _a.decay,
+        sustain = _a.sustain,
+        release = _a.release,
+        gain = _a.gain,
+        duration = _a.duration;
+    // console.log('adsr', attack, decay, sustain, release, gain, duration, time);
+    param.linearRampToValueAtTime(gain, time + attack);
+    param.setTargetAtTime(sustain * gain, time + Math.min(attack + decay, duration), decay);
+    param.setTargetAtTime(0, time + Math.max(duration - attack - decay, attack + decay, duration), release);
+}
+exports.adsr = adsr;
+},{"tonal":"../node_modules/tonal/index.js","./instruments/Synthesizer":"instruments/Synthesizer.ts"}],"musicians/Musician.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -3366,29 +3542,7 @@ var Musician = /** @class */function () {
     return Musician;
 }();
 exports.Musician = Musician;
-},{}],"grooves/funk.ts":[function(require,module,exports) {
-"use strict";
-
-exports.__esModule = true;
-var util_1 = require("../util");
-exports.funk = {
-    chords: function chords() {
-        return util_1.randomElement([[[2, 0, 0, 1], 0, [0, .6], [0, 3.5, 0, 0]], [[1, 0, 0, 5], 0, [0, .6], [1, .5, 0, 0]], [[1, 0, 0, 5], 0, [0, .6], [.5, 0, 2, 0]], [[1, 0, 0, 5], 0, [0, .6], [0, 2, 0, 1]], [[3, 0, 0, 0], 0, 2, 0]]);
-    },
-    bass: function bass() {
-        return util_1.randomElement([[[2, 0, 0, 1], [0, 1], 1, [0, 1]], [[2, 0, 0, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]]]);
-    },
-    kick: function kick(t) {
-        return [[[1, .7], 0, [0, 1], 0]];
-    },
-    snare: function snare(t) {
-        return [0, 1, [0, .2, 0, 0], [1, 0, 0, .6]];
-    },
-    hihat: function hihat(t) {
-        return [[.5, .6], [.4, .7], [.3, .6], [.5, .7]];
-    }
-};
-},{"../util":"util.ts"}],"grooves/swing.ts":[function(require,module,exports) {
+},{}],"grooves/swing.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -3463,22 +3617,20 @@ var tonal_1 = require("tonal");
 var tonal_2 = require("tonal");
 var util_1 = require("../util");
 var Musician_1 = require("./Musician");
-var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Pianist = /** @class */function (_super) {
     __extends(Pianist, _super);
     function Pianist(instrument, props) {
+        if (props === void 0) {
+            props = {};
+        }
         var _this = _super.call(this, instrument) || this;
         _this.playedNotes = [];
         _this.playedPatterns = [];
         _this.playedChords = [];
-        _this.defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
+        _this.defaults = { intelligentVoicings: true, groove: swing_1.swing, noTonic: true };
         _this.min = Math.min;
         _this.rollFactor = 3; // how much keyroll effect? controls interval between notes
-        _this.styles = {
-            'Funk': funk_1.funk.chords,
-            'Medium Swing': swing_1.swing.chords
-        };
         _this.props = Object.assign({}, _this.defaults, props || {});
         return _this;
     }
@@ -3487,11 +3639,16 @@ var Pianist = /** @class */function (_super) {
         var pulse = _a.pulse,
             measures = _a.measures,
             settings = _a.settings;
-        var pattern = this.styles[settings.style] || this.styles[this.defaults.style];
+        var groove = settings.groove || this.defaults.groove;
+        var pattern = groove['chords'];
+        if (!pattern) {
+            console.warn('style has no chords..');
+            return;
+        }
         var measureLength = pulse.getMeasureLength();
         if (settings.exact) {
             return pulse.tickArray(measures, function (t) {
-                _this.playChord(t.value, { deadline: t.deadline });
+                _this.playChord(t.value, { deadline: t.deadline + settings.delay });
             });
         }
         measures = measures
@@ -3516,9 +3673,9 @@ var Pianist = /** @class */function (_super) {
             }
             var duration = settings.arpeggio ? interval : value.fraction * measureLength;
             var slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
-            var gain = value.gain || 0.7;
+            var gain = value.gain || _this.instrument.gain;
             _this.playChord(value.chord, { deadline: deadline, gain: gain, duration: duration, interval: interval, slice: slice });
-        });
+        }, settings.deadline);
     };
     Pianist.prototype.getLastVoicing = function () {
         return this.playedNotes.length ? this.playedNotes[this.playedNotes.length - 1] : null;
@@ -3566,7 +3723,8 @@ var Pianist = /** @class */function (_super) {
         chord = tonal_2.Chord.tokenize(util_1.getTonalChord(chord));
         var notes = tonal_2.Chord.intervals(chord[1]).map(function (i) {
             return i.replace('13', '6');
-        }).map(function (root) {
+        }) // TODO: better control over octave
+        .map(function (root) {
             return tonal_1.Distance.transpose(chord[0] + '3', root);
         });
         if (notes.length > 3 && settings.noTonic) {
@@ -3580,7 +3738,7 @@ var Pianist = /** @class */function (_super) {
     return Pianist;
 }(Musician_1.Musician);
 exports["default"] = Pianist;
-},{"tonal":"../../../node_modules/tonal/index.js","../util":"util.ts","./Musician":"musicians/Musician.ts","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Drummer.ts":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","../util":"util.ts","./Musician":"musicians/Musician.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Drummer.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -3604,7 +3762,6 @@ var __extends = this && this.__extends || function () {
 }();
 exports.__esModule = true;
 var Musician_1 = require("./Musician");
-var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Drummer = /** @class */function (_super) {
     __extends(Drummer, _super);
@@ -3617,11 +3774,7 @@ var Drummer = /** @class */function (_super) {
             ride: 3,
             crash: 4
         };
-        _this.defaults = { style: 'Medium Swing' };
-        _this.styles = {
-            'Funk': { kick: funk_1.funk.kick, snare: funk_1.funk.snare, hihat: funk_1.funk.hihat },
-            'Medium Swing': { ride: swing_1.swing.ride, hihat: swing_1.swing.hihat }
-        };
+        _this.defaults = { groove: swing_1.swing };
         return _this;
     }
     Drummer.prototype.play = function (_a) {
@@ -3629,22 +3782,25 @@ var Drummer = /** @class */function (_super) {
         var measures = _a.measures,
             pulse = _a.pulse,
             settings = _a.settings;
-        var tracks = this.styles[settings.style] || this.styles[this.defaults.style];
-        Object.keys(tracks).forEach(function (key) {
+        var groove = settings.groove || this.defaults.groove;
+        Object.keys(groove).filter(function (t) {
+            return Object.keys(_this.set).includes(t);
+        }) // only use drum set patterns
+        .forEach(function (key) {
             var patterns = measures.map(function (measure, index) {
-                return tracks[key]({ measures: measures, index: index, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
+                return groove[key]({ measures: measures, index: index, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
             });
             pulse.tickArray(patterns, function (_a) {
                 var deadline = _a.deadline,
                     value = _a.value;
                 _this.instrument.playKeys([_this.set[key]], { deadline: deadline, gain: value });
-            });
+            }, settings.deadline);
         });
     };
     return Drummer;
 }(Musician_1.Musician);
 exports["default"] = Drummer;
-},{"./Musician":"musicians/Musician.ts","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Bassist.ts":[function(require,module,exports) {
+},{"./Musician":"musicians/Musician.ts","../grooves/swing":"grooves/swing.ts"}],"musicians/Bassist.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -3670,18 +3826,13 @@ exports.__esModule = true;
 var util_1 = require("../util");
 var Musician_1 = require("./Musician");
 var tonal_1 = require("tonal");
-var funk_1 = require("../grooves/funk");
 var swing_1 = require("../grooves/swing");
 var Bassist = /** @class */function (_super) {
     __extends(Bassist, _super);
     function Bassist(instrument) {
         var _this = _super.call(this, instrument) || this;
-        _this.defaults = { style: 'Medium Swing' };
+        _this.defaults = { groove: swing_1.swing };
         _this.playedChords = [];
-        _this.styles = {
-            'Funk': funk_1.funk.bass,
-            'Medium Swing': swing_1.swing.bass
-        };
         return _this;
     }
     Bassist.prototype.play = function (_a) {
@@ -3689,19 +3840,20 @@ var Bassist = /** @class */function (_super) {
         var measures = _a.measures,
             pulse = _a.pulse,
             settings = _a.settings;
-        var track = this.styles[settings.style] || this.styles[this.defaults.style];
+        var groove = settings.groove || this.defaults.groove;
+        var pattern = groove['bass'];
         measures = measures.map(function (measure) {
-            return track({ measures: measures, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
+            return pattern({ measures: measures, measure: measure, settings: settings, pulse: pulse }).slice(0, Math.floor(settings.cycle));
         }).map(function (pattern, i) {
             return util_1.resolveChords(pattern, measures, [i]);
         });
-        pulse.tickArray(measures, function (current) {
-            _this.playBass(current, measures, pulse);
-        });
+        pulse.tickArray(measures, function (tick) {
+            _this.playBass(tick, measures, pulse);
+        }, settings.deadline);
     };
     Bassist.prototype.getStep = function (step, chord, octave) {
         if (octave === void 0) {
-            octave = 2;
+            octave = 1;
         }
         var tokens = tonal_1.Chord.tokenize(util_1.getTonalChord(chord));
         var interval = tonal_1.Chord.intervals(tokens[1]).find(function (i) {
@@ -3726,7 +3878,7 @@ var Bassist = /** @class */function (_super) {
         this.playedChords.push(chord);
         var note;
         var steps = [1, util_1.randomElement([3, 5]), 1, util_1.randomElement([3, 5])];
-        var octave = 2;
+        var octave = 1;
         if (value.value === 1 && chord.split('/').length > 1) {
             note = chord.split('/')[1] + octave;
         } else {
@@ -3738,173 +3890,31 @@ var Bassist = /** @class */function (_super) {
     return Bassist;
 }(Musician_1.Musician);
 exports["default"] = Bassist;
-},{"../util":"util.ts","./Musician":"musicians/Musician.ts","tonal":"../../../node_modules/tonal/index.js","../grooves/funk":"grooves/funk.ts","../grooves/swing":"grooves/swing.ts"}],"instruments/Instrument.ts":[function(require,module,exports) {
+},{"../util":"util.ts","./Musician":"musicians/Musician.ts","tonal":"../node_modules/tonal/index.js","../grooves/swing":"grooves/swing.ts"}],"instruments/Sampler.ts":[function(require,module,exports) {
 "use strict";
 
+var __extends = this && this.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
 exports.__esModule = true;
+var Instrument_1 = require("./Instrument");
 var util_1 = require("../util");
-var Instrument = /** @class */function () {
-    function Instrument(_a) {
-        var _b = _a === void 0 ? {} : _a,
-            context = _b.context,
-            mix = _b.mix,
-            onPlay = _b.onPlay,
-            onStop = _b.onStop,
-            midiOffset = _b.midiOffset;
-        this.midiOffset = 0;
-        this.onPlay = onPlay;
-        this.midiOffset = midiOffset || this.midiOffset;
-        this.onStop = onStop;
-        this.init({ context: context, mix: mix });
-    }
-    Instrument.prototype.init = function (_a) {
-        var context = _a.context,
-            mix = _a.mix;
-        if (!context && (!mix || !mix.context)) {
-            console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
-            return;
-        }
-        this.context = context || mix.context;
-        this.mix = mix || this.context.destination;
-    };
-    Instrument.prototype.playNotes = function (notes, settings) {
-        var _this = this;
-        this.playKeys(notes.map(function (note) {
-            return util_1.getMidi(note, _this.midiOffset);
-        }), settings);
-    };
-    Instrument.prototype.playKeys = function (keys, settings) {
-        if (this.onPlay) {
-            return this.onPlay(keys);
-        }
-        // TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
-    };
-    return Instrument;
-}();
-exports.Instrument = Instrument;
-},{"../util":"util.ts"}],"instruments/Synthesizer.ts":[function(require,module,exports) {
-"use strict";
-
-var __extends = this && this.__extends || function () {
-    var _extendStatics = function extendStatics(d, b) {
-        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-            d.__proto__ = b;
-        } || function (d, b) {
-            for (var p in b) {
-                if (b.hasOwnProperty(p)) d[p] = b[p];
-            }
-        };
-        return _extendStatics(d, b);
-    };
-    return function (d, b) {
-        _extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-exports.__esModule = true;
-var Instrument_1 = require("./Instrument");
-var tonal_1 = require("tonal");
-var Synthesizer = /** @class */function (_super) {
-    __extends(Synthesizer, _super);
-    function Synthesizer(props) {
-        var _this = _super.call(this, props) || this;
-        _this.duration = 200;
-        _this.type = 'sine';
-        _this.gain = 0.9;
-        _this.attack = .05;
-        _this.decay = .05;
-        _this.sustain = .4;
-        _this.release = .1;
-        _this.duration = props.duration || _this.duration;
-        _this.type = props.type || _this.type;
-        _this.gain = props.gain || _this.gain;
-        return _this;
-    }
-    Synthesizer.prototype.init = function (context) {
-        _super.prototype.init.call(this, context);
-    };
-    Synthesizer.prototype.getVoice = function (type, gain, frequency) {
-        if (type === void 0) {
-            type = 'sine';
-        }
-        if (gain === void 0) {
-            gain = 0;
-        }
-        if (frequency === void 0) {
-            frequency = 440;
-        }
-        var oscNode = this.context.createOscillator();
-        oscNode.type = type;
-        var gainNode = this.context.createGain();
-        oscNode.connect(gainNode);
-        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-        gainNode.connect(this.mix);
-        oscNode.frequency.value = frequency;
-        return { oscNode: oscNode, gainNode: gainNode };
-    };
-    Synthesizer.prototype.lowestGain = function (a, b) {
-        return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
-    };
-    Synthesizer.prototype.adsr = function (_a, time, param) {
-        var attack = _a.attack,
-            decay = _a.decay,
-            sustain = _a.sustain,
-            release = _a.release,
-            gain = _a.gain,
-            duration = _a.duration;
-        param.linearRampToValueAtTime(gain, time + attack);
-        param.setTargetAtTime(gain * sustain, time + Math.min(attack + decay, duration), decay);
-        param.setTargetAtTime(0, time + Math.max(duration - attack - decay, attack + decay, duration), release);
-    };
-    Synthesizer.prototype.playKeys = function (keys, settings) {
-        var _this = this;
-        _super.prototype.playKeys.call(this, keys, settings); // fires callback   
-        var time = this.context.currentTime + settings.deadline / 1000;
-        var interval = settings.interval || 0;
-        keys.map(function (key, i) {
-            var delay = i * interval;
-            var _a = [settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
-                attack = _a[0],
-                decay = _a[1],
-                sustain = _a[2],
-                release = _a[3],
-                duration = _a[4],
-                gain = _a[5];
-            var voice = _this.getVoice(_this.type, 0, tonal_1.Note.freq(key));
-            _this.adsr({ attack: attack, decay: decay, sustain: sustain, release: release, gain: gain, duration: duration }, time + delay, voice.gainNode.gain);
-            voice.oscNode.start(settings.deadline + delay);
-        });
-    };
-    return Synthesizer;
-}(Instrument_1.Instrument);
-exports.Synthesizer = Synthesizer;
-},{"./Instrument":"instruments/Instrument.ts","tonal":"../../../node_modules/tonal/index.js"}],"instruments/Sampler.ts":[function(require,module,exports) {
-"use strict";
-
-var __extends = this && this.__extends || function () {
-    var _extendStatics = function extendStatics(d, b) {
-        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-            d.__proto__ = b;
-        } || function (d, b) {
-            for (var p in b) {
-                if (b.hasOwnProperty(p)) d[p] = b[p];
-            }
-        };
-        return _extendStatics(d, b);
-    };
-    return function (d, b) {
-        _extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-exports.__esModule = true;
-var Instrument_1 = require("./Instrument");
 var Sampler = /** @class */function (_super) {
     __extends(Sampler, _super);
     function Sampler(options) {
@@ -3913,8 +3923,17 @@ var Sampler = /** @class */function (_super) {
         }
         var _this = _super.call(this, options) || this;
         _this.buffers = {};
-        _this.gain = _this.context.createGain();
-        _this.gain.connect(_this.context.destination);
+        _this.duration = 10000;
+        _this.type = 'sine';
+        _this.gain = 1;
+        _this.attack = 0;
+        _this.decay = 0;
+        _this.sustain = 1;
+        _this.release = .2;
+        _this.gain = options.gain || _this.gain;
+        _this.gainNode = _this.context.createGain();
+        _this.gainNode.connect(_this.context.destination);
+        _this.duration = options.duration || _this.duration;
         // this.overlap = options.overlap;
         if (options.samples) {
             _this.sources = options.samples;
@@ -3922,9 +3941,6 @@ var Sampler = /** @class */function (_super) {
         }
         return _this;
     }
-    Sampler.prototype.setGain = function (value) {
-        this.gain.gain.value = value;
-    };
     // returns buffer from buffer cache or loads buffer data from source
     Sampler.prototype.getBuffer = function (src, context) {
         var _this = this;
@@ -3948,7 +3964,7 @@ var Sampler = /** @class */function (_super) {
     };
     Sampler.prototype.getSource = function (buffer, connect) {
         var source = this.context.createBufferSource();
-        connect = connect || this.gain;
+        connect = connect || this.gainNode;
         source.buffer = buffer;
         source.connect(connect);
         return source;
@@ -4013,15 +4029,21 @@ var Sampler = /** @class */function (_super) {
             return sound.start(deadline + interval * i);
         });
     };
-    Sampler.prototype.playSource = function (source, _a) {
-        var deadline = _a.deadline,
-            interval = _a.interval,
-            gain = _a.gain;
+    Sampler.prototype.playSource = function (source, settings) {
         var gainNode = this.context.createGain();
         var sound = this.getSource(this.buffers[source].buffer, gainNode);
-        gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+        var _a = [settings.attack || this.attack, settings.decay || this.decay, settings.sustain || this.sustain, settings.release || this.release, (settings.duration || this.duration) / 1000, (settings.gain || 1) * this.gain],
+            attack = _a[0],
+            decay = _a[1],
+            sustain = _a[2],
+            release = _a[3],
+            duration = _a[4],
+            gain = _a[5];
+        var time = settings.deadline || this.context.currentTime;
+        //gainNode.gain.value = typeof settings.gain === 'number' ? settings.gain : this.gain;
         gainNode.connect(this.mix);
-        this.playSounds([sound], deadline, interval);
+        util_1.adsr({ attack: attack, decay: decay, sustain: sustain, release: release, gain: gain, duration: duration }, time, gainNode.gain);
+        this.playSounds([sound], settings.deadline || 0, 0);
     };
     /* playSources(sources, deadline = 0, interval = 0) {
         if (this.hasLoaded(sources, this.context)) {
@@ -4042,7 +4064,7 @@ var Sampler = /** @class */function (_super) {
     return Sampler;
 }(Instrument_1.Instrument);
 exports.Sampler = Sampler;
-},{"./Instrument":"instruments/Instrument.ts"}],"instruments/Kick.ts":[function(require,module,exports) {
+},{"./Instrument":"instruments/Instrument.ts","../util":"util.ts"}],"instruments/Kick.ts":[function(require,module,exports) {
 "use strict";
 
 exports.__esModule = true;
@@ -4174,11 +4196,131 @@ var PlasticDrums = /** @class */function (_super) {
     return PlasticDrums;
 }(Instrument_1.Instrument);
 exports.PlasticDrums = PlasticDrums;
-},{"./Instrument":"instruments/Instrument.ts","./Kick":"instruments/Kick.ts","./Snare":"instruments/Snare.ts"}],"index.ts":[function(require,module,exports) {
+},{"./Instrument":"instruments/Instrument.ts","./Kick":"instruments/Kick.ts","./Snare":"instruments/Snare.ts"}],"Metronome.ts":[function(require,module,exports) {
+"use strict";
+
+exports.__esModule = true;
+var Synthesizer_1 = require("./instruments/Synthesizer");
+var Metronome = /** @class */function () {
+    function Metronome(mix) {
+        this.synth = new Synthesizer_1.Synthesizer({ type: 'sine', gain: 1, mix: mix });
+        this.ready = this.synth.ready;
+    }
+    Metronome.prototype.count = function (pulse, bars) {
+        var _this = this;
+        if (bars === void 0) {
+            bars = 1;
+        }
+        var count = new Array(bars).fill([new Array(pulse.props.cycle).fill(1)]);
+        return pulse.tickArray(count, function (_a) {
+            var path = _a.path,
+                deadline = _a.deadline;
+            _this.synth.playKeys([path[2] === 0 ? 90 : 78], { deadline: deadline, duration: 0.01, attack: .01, release: .01, decay: .01, sustain: 1 });
+        });
+    };
+    return Metronome;
+}();
+exports.Metronome = Metronome;
+},{"./instruments/Synthesizer":"instruments/Synthesizer.ts"}],"Trio.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+    var _extendStatics = function extendStatics(d, b) {
+        _extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) {
+                if (b.hasOwnProperty(p)) d[p] = b[p];
+            }
+        };
+        return _extendStatics(d, b);
+    };
+    return function (d, b) {
+        _extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+var __importDefault = this && this.__importDefault || function (mod) {
+    return mod && mod.__esModule ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var util_1 = require("./util");
+var Band_1 = __importDefault(require("./Band"));
+var Pianist_1 = __importDefault(require("./musicians/Pianist"));
+var Bassist_1 = __importDefault(require("./musicians/Bassist"));
+var Drummer_1 = __importDefault(require("./musicians/Drummer"));
+var PlasticDrums_1 = require("./instruments/PlasticDrums");
+var Metronome_1 = require("./Metronome");
+var Pulse_1 = require("./Pulse");
+var Trio = /** @class */function (_super) {
+    __extends(Trio, _super);
+    function Trio(_a) {
+        var context = _a.context,
+            piano = _a.piano,
+            bass = _a.bass,
+            drums = _a.drums;
+        var _this = _super.call(this, { context: context }) || this;
+        _this.mix = _this.setupMix(_this.context);
+        var instruments = _this.setupInstruments({ piano: piano, bass: bass, drums: drums });
+        _this.pianist = new Pianist_1["default"](instruments.piano);
+        _this.bassist = new Bassist_1["default"](instruments.bass);
+        _this.drummer = new Drummer_1["default"](instruments.drums);
+        _this.musicians = [_this.pianist, _this.bassist, _this.drummer];
+        _this.metronome = new Metronome_1.Metronome(_this.mix);
+        return _this;
+    }
+    Trio.prototype.setupMix = function (context) {
+        var mix = context.createGain();
+        mix.gain.value = 0.9;
+        mix.connect(context.destination);
+        return mix;
+    };
+    Trio.prototype.setupInstruments = function (_a) {
+        var piano = _a.piano,
+            bass = _a.bass,
+            drums = _a.drums;
+        bass = bass || util_1.randomSynth(this.mix);
+        piano = piano || util_1.randomSynth(this.mix);
+        drums = drums || new PlasticDrums_1.PlasticDrums({ mix: this.mix });
+        return { piano: piano, bass: bass, drums: drums };
+    };
+    Trio.prototype.play = function (measures, settings) {
+        var _this = this;
+        this.pulse = settings.pulse || new Pulse_1.Pulse(settings);
+        return this.count(this.pulse, settings.metronome ? null : 0).then(function (tick) {
+            settings.deadline = tick.deadline;
+            // settings.delay = deadline - this.context.currentTime;
+            _super.prototype.play.call(_this, measures, settings);
+        });
+    };
+    Trio.prototype.count = function (pulse, bars) {
+        if (bars === void 0) {
+            bars = 1;
+        }
+        if (pulse.getMeasureLength() < 1.5) {
+            bars *= 2; //double countin bars when countin would be shorter than 1.5s
+        }
+        return this.metronome.count(pulse, bars);
+    };
+    return Trio;
+}(Band_1["default"]);
+exports.Trio = Trio;
+},{"./util":"util.ts","./Band":"Band.ts","./musicians/Pianist":"musicians/Pianist.ts","./musicians/Bassist":"musicians/Bassist.ts","./musicians/Drummer":"musicians/Drummer.ts","./instruments/PlasticDrums":"instruments/PlasticDrums.ts","./Metronome":"Metronome.ts","./Pulse":"Pulse.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
     return mod && mod.__esModule ? mod : { "default": mod };
+};
+var __importStar = this && this.__importStar || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) {
+        if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    }result["default"] = mod;
+    return result;
 };
 exports.__esModule = true;
 var Band_1 = __importDefault(require("./Band"));
@@ -4190,8 +4332,11 @@ var Musician_1 = require("./musicians/Musician");
 var Synthesizer_1 = require("./instruments/Synthesizer");
 var Sampler_1 = require("./instruments/Sampler");
 var PlasticDrums_1 = require("./instruments/PlasticDrums");
-exports["default"] = { Band: Band_1["default"], Pianist: Pianist_1["default"], Bassist: Bassist_1["default"], Drummer: Drummer_1["default"], Instrument: Instrument_1.Instrument, Musician: Musician_1.Musician, Synthesizer: Synthesizer_1.Synthesizer, Sampler: Sampler_1.Sampler, PlasticDrums: PlasticDrums_1.PlasticDrums };
-},{"./Band":"Band.ts","./musicians/Pianist":"musicians/Pianist.ts","./musicians/Drummer":"musicians/Drummer.ts","./musicians/Bassist":"musicians/Bassist.ts","./instruments/Instrument":"instruments/Instrument.ts","./musicians/Musician":"musicians/Musician.ts","./instruments/Synthesizer":"instruments/Synthesizer.ts","./instruments/Sampler":"instruments/Sampler.ts","./instruments/PlasticDrums":"instruments/PlasticDrums.ts"}],"../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var Trio_1 = require("./Trio");
+var util = __importStar(require("./util"));
+var Pulse_1 = require("./Pulse");
+exports["default"] = { Trio: Trio_1.Trio, Band: Band_1["default"], Pianist: Pianist_1["default"], Bassist: Bassist_1["default"], Drummer: Drummer_1["default"], Instrument: Instrument_1.Instrument, Musician: Musician_1.Musician, Synthesizer: Synthesizer_1.Synthesizer, Sampler: Sampler_1.Sampler, PlasticDrums: PlasticDrums_1.PlasticDrums, Pulse: Pulse_1.Pulse, util: util };
+},{"./Band":"Band.ts","./musicians/Pianist":"musicians/Pianist.ts","./musicians/Drummer":"musicians/Drummer.ts","./musicians/Bassist":"musicians/Bassist.ts","./instruments/Instrument":"instruments/Instrument.ts","./musicians/Musician":"musicians/Musician.ts","./instruments/Synthesizer":"instruments/Synthesizer.ts","./instruments/Sampler":"instruments/Sampler.ts","./instruments/PlasticDrums":"instruments/PlasticDrums.ts","./Trio":"Trio.ts","./util":"util.ts","./Pulse":"Pulse.ts"}],"../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -4220,7 +4365,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '62891' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '53088' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -4361,5 +4506,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},["../../../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js","index.ts"], null)
+},{}]},{},["../../../.nvm/versions/node/v8.11.1/lib/node_modules/parcel/src/builtins/hmr-runtime.js","index.ts"], null)
 //# sourceMappingURL=/index.map

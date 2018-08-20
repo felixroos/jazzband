@@ -1,34 +1,29 @@
-
 import { resolveChords, getTonalChord, randomElement } from '../util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
-import { funk } from '../grooves/funk';
 import { swing } from '../grooves/swing';
 
 export default class Bassist extends Musician {
     styles: { [key: string]: any };
-    defaults = { style: 'Medium Swing' }
+    defaults = { groove: swing }
     playedChords: string[] = [];
 
     constructor(instrument) {
         super(instrument);
-        this.styles = {
-            'Funk': funk.bass,
-            'Medium Swing': swing.bass,
-        };
     }
 
     play({ measures, pulse, settings }) {
-        const track = this.styles[settings.style] || this.styles[this.defaults.style];
+        const groove = settings.groove || this.defaults.groove;
+        const pattern = groove['bass'];
         measures = measures
-            .map(measure => track({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
+            .map(measure => pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
             .map((pattern, i) => resolveChords(pattern, measures, [i]));
-        pulse.tickArray(measures, (current) => {
-            this.playBass(current, measures, pulse);
-        });
+        pulse.tickArray(measures, (tick) => {
+            this.playBass(tick, measures, pulse);
+        }, settings.deadline);
     }
 
-    getStep(step, chord, octave = 2) {
+    getStep(step, chord, octave = 1) {
         const tokens = Chord.tokenize(getTonalChord(chord));
         const interval = Chord.intervals(tokens[1]).find(i => parseInt(i[0]) === step);
         return Distance.transpose(tokens[0] + octave, interval);
@@ -45,7 +40,7 @@ export default class Bassist extends Musician {
         this.playedChords.push(chord);
         let note;
         const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
-        const octave = 2;
+        const octave = 1;
         if (value.value === 1 && chord.split('/').length > 1) {
             note = chord.split('/')[1] + octave;
         } else {

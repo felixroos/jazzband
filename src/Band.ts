@@ -6,7 +6,6 @@ export default class Band {
     pulse: Pulse;
     musicians: Musician[];
     defaults = {
-        times: 1,
         cycle: 4,
         division: 3, // rhythm division (3=ternary,2=binary)
         transpose: 0,
@@ -27,19 +26,17 @@ export default class Band {
     }
 
     comp(measures, settings) {
-        console.log('band.comp', settings);
         if (this.pulse) {
             this.pulse.stop();
         }
         settings = Object.assign(this.defaults, settings, { context: this.context });
         measures = measures.map(m => !Array.isArray(m) ? [m] : m);
-        if (settings.times > 1) {
-            measures = new Array(settings.times).fill(1).reduce((song) => {
-                return song.concat(measures);
-            }, []);
-        }
+        this.play(measures, settings);
+    }
+
+    play(measures, settings) {
         this.ready().then(() => {
-            this.pulse = new Pulse(settings);
+            this.pulse = settings.pulse || new Pulse(settings);
             this.musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });

@@ -1,36 +1,35 @@
 import { Distance } from 'tonal';
-import { Chord, Note } from 'tonal';
+import { Chord } from 'tonal';
 import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, minInterval } from '../util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
-import { funk } from '../grooves/funk';
 import { swing } from '../grooves/swing';
 
 export default class Pianist extends Musician {
     playedNotes = [];
     playedPatterns = [];
     playedChords = [];
-    defaults = { intelligentVoicings: true, style: 'Medium Swing', noTonic: true };
+    defaults = { intelligentVoicings: true, groove: swing, noTonic: true };
     min = Math.min;
     rollFactor = 3; // how much keyroll effect? controls interval between notes
-    styles = {
-        'Funk': funk.chords,
-        'Medium Swing': swing.chords
-    };
     props: any;
     instrument: Instrument;
-    constructor(instrument, props) {
+    constructor(instrument, props = {}) {
         super(instrument);
         this.props = Object.assign({}, this.defaults, props || {});
     }
 
     play({ pulse, measures, settings }) {
-        const pattern = this.styles[settings.style] || this.styles[this.defaults.style];
+        const groove = settings.groove || this.defaults.groove;
+        const pattern = groove['chords'];
+        if (!pattern) {
+            console.warn('style has no chords..');
+            return;
+        }
         const measureLength = pulse.getMeasureLength();
-
         if (settings.exact) {
             return pulse.tickArray(measures, (t) => {
-                this.playChord(t.value, { deadline: t.deadline });
+                this.playChord(t.value, { deadline: t.deadline + settings.delay });
             });
         }
         measures = measures
@@ -48,9 +47,9 @@ export default class Pianist extends Musician {
             }
             const duration = settings.arpeggio ? interval : value.fraction * measureLength;
             const slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
-            const gain = value.gain || 0.7;
+            const gain = value.gain || this.instrument.gain;
             this.playChord(value.chord, { deadline, gain, duration, interval, slice });
-        });
+        }, settings.deadline);
     }
 
     getLastVoicing() {
@@ -94,7 +93,7 @@ export default class Pianist extends Musician {
         chord = Chord.tokenize(getTonalChord(chord));
 
         let notes = Chord.intervals(chord[1])
-            .map(i => i.replace('13', '6'))
+            .map(i => i.replace('13', '6')) // TODO: better control over octave
             .map(root => Distance.transpose(chord[0] + '3', root));
         if (notes.length > 3 && settings.noTonic) {
             notes = notes.slice(this.props.noTonic ? 1 : 0);

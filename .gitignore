@@ -1,8 +1,11 @@
 node_modules
 **/**/dist/*.wav
+**/**/dist/*.mp3
 **/**/.cache
 packages/demo/dist
 packages/band/dist/Band.map
 **/**/samples/piano
+**/**/samples/harp
 **/**/samples/drummer
 **/**/samples/MetronomeUp.wav
+.vscode

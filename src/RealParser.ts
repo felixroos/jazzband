@@ -46,16 +46,14 @@ export class RealParser {
 
     renderSong(sections = this.sections, times = 1) {
         let bars = [];
+        console.log('times', times);
         for (let i = 1; i <= times; ++i) {
-            bars = bars.concat(this.getBars(sections, { first: i === 0, last: i === times }));
+            bars = bars.concat(this.getBars(sections, { first: i === 1, last: i === times }));
         }
         return bars;
     }
 
     getBars(sections = this.sections, { first, last }, repeated = []) {
-        /* let bars = []; */
-        // TODO: loop times
-        // TODO: detect intro and only play first time
         return sections.filter(s => first || s.section !== 'i')
             .reduce((current, section, sectionIndex) => {
                 let endings = [].concat(section.endings);
@@ -102,8 +100,15 @@ export class RealParser {
                     })
                 }
                 return current;
-            }, { bars: [], repeatStart: null, repeatEnd: null }).bars;
-        /* return bars; */
+            }, { bars: [], repeatStart: null, repeatEnd: null }).bars
+            .reduce((b, bar) => {
+                if (bar.length === 1 && bar[0] === 'r') {
+                    b = b.concat(['x', 'x']);
+                } else {
+                    b.push(bar);
+                }
+                return b;
+            }, []);
     }
 
 

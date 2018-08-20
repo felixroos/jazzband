@@ -7,5 +7,8 @@ import { Musician } from './musicians/Musician';
 import { Synthesizer } from './instruments/Synthesizer';
 import { Sampler } from './instruments/Sampler';
 import { PlasticDrums } from './instruments/PlasticDrums';
+import { Trio } from './Trio';
+import * as util from './util';
+import { Pulse } from './Pulse';
 
-export default { Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, PlasticDrums };
+export default { Trio, Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, PlasticDrums, Pulse, util };

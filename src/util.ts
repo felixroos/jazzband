@@ -1,4 +1,5 @@
 import { Chord, Distance, Interval, Note } from 'tonal';
+import { Synthesizer } from './instruments/Synthesizer';
 
 export function randomNumber(n) {
     return Math.floor(Math.random() * n)
@@ -122,4 +123,22 @@ export function intervalMatrix(from, to) {
         .map(d => this.smallestInterval(d))
         .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i)
     )
+}
+
+export function randomSynth(mix, allowed = ['sine', 'triangle', 'square', 'sawtooth']) {
+    const gains = {
+        sine: 0.9,
+        triangle: 0.8,
+        square: 0.2,
+        sawtooth: 0.3
+    }
+    const wave = randomElement(allowed);
+    return new Synthesizer({ gain: gains[wave], type: wave, mix });
+}
+
+export function adsr({ attack, decay, sustain, release, gain, duration }, time, param) {
+    // console.log('adsr', attack, decay, sustain, release, gain, duration, time);
+    param.linearRampToValueAtTime(gain, time + attack);
+    param.setTargetAtTime(sustain * gain, time + Math.min(attack + decay, duration), decay);
+    param.setTargetAtTime(0, time + Math.max(duration - attack - decay, attack + decay, duration), release);
 }

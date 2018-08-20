@@ -5,13 +5,15 @@ export class Instrument {
     onPlay: (keys: number[]) => any;
     onStop: (keys: number[]) => any;
     ready: Promise<any>;
+    gain = 1;
 
     context: any;
     mix: any;
-    constructor({ context, mix, onPlay, onStop, midiOffset }: any = {}) {
+    constructor({ context, gain, mix, onPlay, onStop, midiOffset }: any = {}) {
         this.onPlay = onPlay;
         this.midiOffset = midiOffset || this.midiOffset;
         this.onStop = onStop;
+        this.gain = gain || this.gain;
         this.init({ context, mix });
     }
 

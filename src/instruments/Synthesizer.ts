@@ -1,5 +1,6 @@
 import { Instrument } from './Instrument';
 import { Note } from 'tonal';
+import { adsr } from '../util';
 
 export class Synthesizer extends Instrument {
     duration = 200;
@@ -36,15 +37,10 @@ export class Synthesizer extends Instrument {
         return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
     }
 
-    adsr({ attack, decay, sustain, release, gain, duration }, time, param) {
-        param.linearRampToValueAtTime(gain, time + attack);
-        param.setTargetAtTime(gain * sustain, time + Math.min(attack + decay, duration), decay);
-        param.setTargetAtTime(0, time + Math.max(duration - attack - decay, attack + decay, duration), release);
-    }
-
-    playKeys(keys: number[], settings) {
+    playKeys(keys: number[], settings: any = {}) {
         super.playKeys(keys, settings); // fires callback   
-        const time = this.context.currentTime + settings.deadline / 1000;
+        //const time = this.context.currentTime + settings.deadline / 1000;
+        const time = settings.deadline || this.context.currentTime;
         const interval = settings.interval || 0;
         keys.map((key, i) => {
             const delay = i * interval;
@@ -58,7 +54,7 @@ export class Synthesizer extends Instrument {
                     (settings.gain || 1) * this.gain
                 ]
             const voice = this.getVoice(this.type, 0, Note.freq(key));
-            this.adsr({ attack, decay, sustain, release, gain, duration, }, time + delay, voice.gainNode.gain);
+            adsr({ attack, decay, sustain, release, gain, duration, }, time + delay, voice.gainNode.gain);
             voice.oscNode.start(settings.deadline + delay);
         })
     }
