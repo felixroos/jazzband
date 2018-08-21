@@ -8,4 +8,3 @@ demo/dist
 #**/**/samples/drummer
 **/**/samples/MetronomeUp.wav
 .vscode
-lib
