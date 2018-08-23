@@ -19,7 +19,7 @@ export declare class Trio extends Band {
         piano: any;
         bass: any;
         drums: any;
-    });
+    }, onMeasure?: any);
     setupMix(context: any): any;
     setupInstruments({ piano, bass, drums }: {
         piano: any;

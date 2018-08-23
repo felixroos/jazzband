@@ -91,6 +91,10 @@ export class Sampler extends Instrument {
 
     playSource(source, settings) {
         const gainNode = this.context.createGain();
+        if (!this.buffers[source]) {
+            console.warn('no buffer found for source', source);
+            return;
+        }
         const sound = this.getSource(this.buffers[source].buffer, gainNode);
         const [attack, decay, sustain, release, duration, gain] =
             [

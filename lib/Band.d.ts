@@ -11,9 +11,10 @@ export default class Band {
         style: string;
     };
     context: AudioContext;
-    constructor({ context, musicians }?: any);
+    onMeasure: (measure: any, tick?: any) => void;
+    constructor({ context, musicians }?: any, onMeasure?: any);
     ready(): Promise<any[]>;
     resume(): Promise<AudioContext>;
-    comp(measures: any, settings: any): void;
+    comp(sheet: any, settings: any): void;
     play(measures: any, settings: any): void;
 }

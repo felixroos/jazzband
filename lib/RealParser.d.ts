@@ -1,3 +1,4 @@
+import { Sheet } from "./Song";
 export declare class RealParser {
     /**
      * The RegExp for a complete chord. The match array contains:
@@ -19,13 +20,11 @@ export declare class RealParser {
     sections: any;
     bars: any;
     tokens: any;
+    sheet: Sheet;
+    measures: any;
     constructor(raw: any, times?: number);
-    renderSong(sections?: any, times?: number): any[];
-    getBars(sections: any, { first, last }: {
-        first: any;
-        last: any;
-    }, repeated?: any[]): any;
-    getSections(tokens: any): any;
+    getChord(iRealChord: any): any;
+    getSheet(tokens: any): Sheet;
     parse(raw: string): any;
     parseChord(match: any): iRealChord;
     newToken(arr: any): iRealToken;
