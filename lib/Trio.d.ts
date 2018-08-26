@@ -14,12 +14,13 @@ export declare class Trio extends Band {
         drums: any;
     };
     metronome: Metronome;
-    constructor({ context, piano, bass, drums }: {
+    constructor({ context, piano, bass, drums, onMeasure }: {
         context: any;
         piano: any;
         bass: any;
         drums: any;
-    }, onMeasure?: any);
+        onMeasure: any;
+    });
     setupMix(context: any): any;
     setupInstruments({ piano, bass, drums }: {
         piano: any;

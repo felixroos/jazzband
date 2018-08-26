@@ -2,7 +2,9 @@ export type Measure = {
     chords?: string[],
     //voices?: string[][],
     signs?: string[],
-    comments?: string[]
+    comments?: string[],
+    house?: number,
+    section?: string
 }// | string[];
 
 export type Sheet = Array<Measure | string[] | string>;
@@ -31,7 +33,7 @@ export function getMeasure(measure: Measure | string[] | string): Measure {
     return measure;
 }
 
-export function renderSheet(sheet: Sheet, current?) {
+export function renderSheet(sheet: Sheet, unify = false, current?) {
     current = Object.assign({
         index: 0, // index of current sheet measure
         measures: [], // resulting measures
@@ -46,7 +48,8 @@ export function renderSheet(sheet: Sheet, current?) {
 
     while (current.index <= current.end) {
         const measure = sheet[current.index];
-        const signs = measure['signs'] || [];
+        const m = getMeasure(measure);
+        const signs = m.signs || [];
         //console.log(`${current.index}/${current.end}`, measure['chords'], `${current.house}/${JSON.stringify(current.targets)}`);
 
         const repeatStart = signs.includes('{');
@@ -54,32 +57,32 @@ export function renderSheet(sheet: Sheet, current?) {
             current.openRepeats.unshift(current.index);
         }
 
-        const houseStart = signs.find(s => !!s.match(/^N./));
-        if (houseStart) {
-            const house = parseInt(houseStart.replace('N', ''));
-            current.house = house;
-            if (house === 1) { // remember where it started..
+        if (m.house) {
+            current.house = m.house;
+            if (m.house === 1) { // remember where it started..
                 current.houseStart = current.openRepeats[0] || 0;
             }
         }
 
         const skip = current.house && current.houses[current.houseStart] && current.house !== current.houses[current.houseStart];
         if (!skip) {
-            current.measures.push(
-                Object.assign({ index: current.index }, getMeasure(measure))
-            );
-            // const sectionStart = (measure.signs || []).find(s => !!s.match(/^\*[a-zA-Z]/));
+            if (unify) {
+                current.measures.push(
+                    Object.assign({ index: current.index }, getMeasure(measure))
+                );
+            } else {
+                current.measures.push(measure);
+            }
             const repeatEnd = signs.includes('}') && !current.repeated.includes(current.index);// && !current.repeatedEnds[current.index]; // TODO: support repeat n times
 
             if (repeatEnd) {
                 const jumpTo = current.openRepeats[0] || 0;
-
                 //current.closedRepeats.unshift(current.openRepeats[0]);
                 current.openRepeats.shift();
                 current.houses[jumpTo] = (current.houses[jumpTo] || 1) + 1;
 
                 current.measures = current.measures.concat(
-                    renderSheet(sheet, {
+                    renderSheet(sheet, unify, {
                         index: jumpTo,
                         repeated: [current.index],
                         end: current.index,

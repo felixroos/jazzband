@@ -46,7 +46,7 @@ export class RealParser {
         this.measures = renderSheet(this.sheet);
         return raw;
     }
-    
+
 
     getChord(iRealChord) {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
@@ -77,6 +77,25 @@ export class RealParser {
                 }
                 current.measure = { chords: [] };
             }
+
+            const sectionStart = signs.find(a => a.match(/^\*[a-zA-Z]/));
+            if (sectionStart) {
+                signs = signs.filter(s => s !== sectionStart);
+                current.measure.section = sectionStart.replace('*', '');
+            }
+
+            const houseStart = signs.find(s => !!s.match(/^N./));
+            if (houseStart) {
+                //signs = signs.filter(s => s !== houseStart);
+                current.measure.house = parseInt(houseStart.replace('N', ''));
+            }
+
+            const time = signs.find(a => a.match(/^T\d\d/));
+            if (time) {
+                signs = signs.filter(s => s !== time);
+                current.measure.time = time.replace('T', '');
+            }
+
             if (token.chord) {
                 current.measure.chords.push(this.getChord(token.chord));
             }
@@ -94,7 +113,7 @@ export class RealParser {
             return current;
         }, { measure: null, signs: null, measures: [] }).measures;
     }
-    
+
 
     parse(raw: string): any {
         var text = raw;

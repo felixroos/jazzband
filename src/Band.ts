@@ -10,14 +10,14 @@ export default class Band {
         cycle: 4,
         division: 3, // rhythm division (3=ternary,2=binary)
         transpose: 0,
-        style: 'Medium Swing'
+        style: 'Medium Swing',
     }
     context: AudioContext;
-    onMeasure = (measure, tick?) => { };
+    onMeasure: (measure, tick?) => {};
 
-    constructor({ context, musicians }: any = {}, onMeasure?) {
+    constructor({ context, musicians, onMeasure }: any = {}) {
         this.context = context || new AudioContext();
-        this.onMeasure = onMeasure || this.onMeasure;
+        this.onMeasure = onMeasure;
         this.musicians = musicians || [];
     }
 
@@ -33,10 +33,7 @@ export default class Band {
         if (this.pulse) {
             this.pulse.stop();
         }
-        console.log('comp sheet', sheet);
-        let measures = renderSheet(sheet);
-        console.log('measures', measures);
-
+        let measures = renderSheet(sheet, true);
         settings = Object.assign(this.defaults, settings, { context: this.context });
         this.play(measures, settings);
     }
@@ -44,9 +41,13 @@ export default class Band {
     play(measures, settings) {
         this.ready().then(() => {
             this.pulse = settings.pulse || new Pulse(settings);
-            this.pulse.tickArray(measures.map(measure => ({ measure })),
-                (tick) => this.onMeasure(tick.value.measure, tick));
-            measures = measures.map(m => m.chords);
+            if (this.onMeasure) {
+                // TODO: add onChord for setting tonics + circle chroma etc
+                this.pulse.tickArray(measures.map(measure => ({ measure })),
+                    (tick) => this.onMeasure(tick.value.measure, tick));
+            }
+            measures = measures.map(m => m.chords ? m.chords : m);
+            console.log('Band#play', settings);
             this.musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });

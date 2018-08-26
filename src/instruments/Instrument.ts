@@ -1,18 +1,23 @@
 import { getMidi } from "../util";
 
+export interface NoteEvent {
+    note: string;
+    gain?: number;
+    off?: number;
+}
+
 export class Instrument {
     midiOffset = 0;
-    onPlay: (keys: number[]) => any;
-    onStop: (keys: number[]) => any;
+    onTrigger: (events: { on: NoteEvent[], off: NoteEvent[], active: NoteEvent[] }) => any;
     ready: Promise<any>;
     gain = 1;
 
+    activeEvents = [];
     context: any;
     mix: any;
-    constructor({ context, gain, mix, onPlay, onStop, midiOffset }: any = {}) {
-        this.onPlay = onPlay;
+    constructor({ context, gain, mix, onTrigger, midiOffset }: any = {}) {
+        this.onTrigger = onTrigger;
         this.midiOffset = midiOffset || this.midiOffset;
-        this.onStop = onStop;
         this.gain = gain || this.gain;
         this.init({ context, mix });
     }
@@ -28,13 +33,41 @@ export class Instrument {
     }
 
     playNotes(notes: string[], settings) {
-        this.playKeys(notes.map(note => getMidi(note, this.midiOffset)), settings);
+        const midi = notes.map(note => getMidi(note, this.midiOffset));
+        this.playKeys(midi, settings);
+        const noteOff = settings.deadline + settings.duration / 1000;
+
+        const notesOn = notes.map(note => ({ note, gain: settings.gain, noteOff }));
+        this.activeEvents = this.activeEvents.concat(notesOn);
+
+        if (this.onTrigger) {
+            this.onTrigger({ on: notesOn, off: [], active: this.activeEvents });
+        }
+        if (settings.duration) {
+            settings.pulse.clock.callbackAtTime((deadline) => {
+                // find out which notes need to be deactivated
+                const notesOff = notes
+                    .filter(note => !this.activeEvents
+                        .find(event => {
+                            const keep = note === event.note && event.noteOff > deadline;
+                            if (keep) {
+                                console.log('keep', note);
+                            }
+                            return keep;
+                        })).map(note => this.activeEvents.find(e => e.note === note));
+
+                this.activeEvents = this.activeEvents
+                    .filter(e => !notesOff.includes(e));
+
+                if (this.onTrigger) {
+                    this.onTrigger({ on: [], off: notesOff, active: this.activeEvents });
+                }
+            }, noteOff);
+
+        }
     }
 
     playKeys(keys: number[], settings?) {
-        if (this.onPlay) {
-            return this.onPlay(keys);
-        }
         // TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
     }
 }

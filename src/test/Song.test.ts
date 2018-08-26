@@ -88,8 +88,8 @@ test('double nested repeats', () => {
 test('repeat with two houses', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] }
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 }
     ]).map(m => m.chords))
         .toEqual([
             ['A'], ['B'], ['A'], ['C']
@@ -101,8 +101,8 @@ test('repeat with two houses in the moutains', () => {
     expect(renderSheet([
         ['mountain'],
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
         ['mountain'],
     ]).map(m => m.chords ? m.chords : m))
         .toEqual([
@@ -113,9 +113,9 @@ test('repeat with two houses in the moutains', () => {
 test('repeat with three houses', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2', '}'] },
-        { chords: ['D'], signs: ['N3'] }
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2, signs: ['}'] },
+        { chords: ['D'], house: 3 }
     ]).map(m => m.chords))
         .toEqual([
             ['A'], ['B'], ['A'], ['C'], ['A'], ['D']
@@ -125,9 +125,9 @@ test('repeat with three houses', () => {
 test('repeat with two houses with different length', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1'] },
+        { chords: ['B'], house: 1 },
         { chords: ['C'], signs: ['}'] },
-        { chords: ['D', 'E'], signs: ['N2'] },
+        { chords: ['D', 'E'], house: 2 },
     ]).map(m => m.chords))
         .toEqual([
             ['A'], ['B'], ['C'], ['A'], ['D', 'E']
@@ -138,8 +138,8 @@ test('repeat with two houses plus nested repeat', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
         { chords: ['B'], signs: ['{', '}'] },
-        { chords: ['C'], signs: ['N1', '}'] },
-        { chords: ['D'], signs: ['N2'] }
+        { chords: ['C'], house: 1, signs: ['}'] },
+        { chords: ['D'], house: 2 }
     ]).map(m => m.chords))
         .toEqual([
             ['A'], ['B'], ['B'], ['C'],
@@ -150,12 +150,12 @@ test('repeat with two houses plus nested repeat', () => {
 test('repeat two houseblocks', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
 
         { chords: ['D'], signs: ['{'] },
-        { chords: ['E'], signs: ['N1', '}'] },
-        { chords: ['F'], signs: ['N2'] },
+        { chords: ['E'], house: 1, signs: ['}'] },
+        { chords: ['F'], house: 2 },
 
     ]).map(m => m.chords))
         .toEqual([
@@ -170,8 +170,8 @@ test('repeat houseblock', () => {
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
         { chords: ['B'], signs: ['}'] },
 
@@ -191,11 +191,11 @@ test('nested houseblocks', () => {
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
 
     ]).map(m => m.chords))
         .toEqual([
@@ -204,23 +204,23 @@ test('nested houseblocks', () => {
         ]);
 });
 
-test('nested houseblocks repeated', () => {
+/* test('nested houseblocks repeated', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2', '{', '}'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2, signs: ['}'] },
 
     ]).map(m => m.chords))
         .toEqual([
             ['A'], ['1'], ['2'], ['1'], ['3'], ['B'],
             ['A'], ['1'], ['2'], ['1'], ['3'], ['C'], ['C'],
         ]);
-});
+}); */
 
 
 test('nested houseblocks, different length, longer outside', () => {
@@ -228,12 +228,12 @@ test('nested houseblocks, different length, longer outside', () => {
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2', '}'] },
-        { chords: ['D'], signs: ['N3'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2, signs: ['}'] },
+        { chords: ['D'], house: 3 },
 
     ]).map(m => m.chords))
         .toEqual([
@@ -247,12 +247,12 @@ test('nested houseblocks, different length, longer outside', () => {
 test('sequential houseblocks, same length', () => {
     expect(renderSheet([
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
     ]).map(m => m.chords))
         .toEqual([
             ['1'], ['2'], ['1'], ['3'],
@@ -263,13 +263,13 @@ test('sequential houseblocks, same length', () => {
 test('sequential houseblocks, different length, longer first', () => {
     expect(renderSheet([
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2', '}'] },
-        { chords: ['4'], signs: ['N3'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2, signs: ['}'] },
+        { chords: ['4'], house: 3 },
 
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
     ]).map(m => m.chords))
         .toEqual([
             ['1'], ['2'], ['1'], ['3'], ['1'], ['4'],
@@ -283,12 +283,12 @@ test('sequential houseblocks, different length, longer first', () => {
         { chords: ['1'], signs: ['{'] },
 
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2', '}'] },
-        { chords: ['D'], signs: ['N3'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2, signs: ['}'] },
+        { chords: ['D'], house: 3 },
 
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2 },
 
     ]).map(m => m.chords))
         .toEqual([
@@ -301,13 +301,13 @@ test('sequential houseblocks, different length, longer first', () => {
 test('sequential houseblocks, different length, shorter first', () => {
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2 },
 
         { chords: ['1'], signs: ['{'] },
-        { chords: ['2'], signs: ['N1', '}'] },
-        { chords: ['3'], signs: ['N2', '}'] },
-        { chords: ['4'], signs: ['N3'] },
+        { chords: ['2'], house: 1, signs: ['}'] },
+        { chords: ['3'], house: 2, signs: ['}'] },
+        { chords: ['4'], house: 3 },
 
     ]).map(m => m.chords))
         .toEqual([
@@ -319,8 +319,8 @@ test('sequential houseblocks, different length, shorter first', () => {
 test('abac with repeat at end', () => { // Little Dancer
     expect(renderSheet([
         { chords: ['A'], signs: ['{'] },
-        { chords: ['B'], signs: ['N1', '}'] },
-        { chords: ['C'], signs: ['N2', '}'] },
+        { chords: ['B'], house: 1, signs: ['}'] },
+        { chords: ['C'], house: 2, signs: ['}'] },
 
     ]).map(m => m.chords))
         .toEqual([

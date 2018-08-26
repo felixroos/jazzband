@@ -15,6 +15,10 @@ export default class Bassist extends Musician {
     play({ measures, pulse, settings }) {
         const groove = settings.groove || this.defaults.groove;
         const pattern = groove['bass'];
+        if (!pattern) {
+            console.warn('no bass pattern found in groove', groove);
+            return;
+        }
         measures = measures
             .map(measure => pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
             .map((pattern, i) => resolveChords(pattern, measures, [i]));
@@ -23,7 +27,7 @@ export default class Bassist extends Musician {
         }, settings.deadline);
     }
 
-    getStep(step, chord, octave = 1) {
+    getStep(step, chord, octave = 2) {
         const tokens = Chord.tokenize(getTonalChord(chord));
         const interval = Chord.intervals(tokens[1]).find(i => parseInt(i[0]) === step);
         return Distance.transpose(tokens[0] + octave, interval);
@@ -47,6 +51,6 @@ export default class Bassist extends Musician {
             note = this.getStep(steps[path[1]], getTonalChord(chord), octave);
         }
         const duration = value.fraction * pulse.getMeasureLength();
-        this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration });
+        this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration, pulse });
     }
 }
