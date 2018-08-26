@@ -1,4 +1,4 @@
-import * as jazz from '../dist';
+import * as jazz from '../lib';
 import link from './playlists/1350.json';
 //import link from './playlists/zw.json';
 import { RealParser } from '../src/RealParser';
@@ -32,9 +32,9 @@ function getStandard(playlist) {
     const standard = jazz.util.randomElement(playlist.songs);
     const parser = new RealParser(standard.music.raw);
     //console.log('tokens',parser.tokens);
-    standard.music.measures = parser.bars; // TODO: add Song that can be passed to comp
+    standard.music.measures = parser.sheet; // TODO: add Song that can be passed to comp
     console.log('standard', standard, standard.music.measures);
-    console.log('sections', parser.sections);
+    console.log('sheet', parser.sheet);
     return standard;
 }
 

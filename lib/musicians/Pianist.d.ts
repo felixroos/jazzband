@@ -36,12 +36,13 @@ export default class Pianist extends Musician {
     }): any;
     getLastVoicing(): any;
     getVoicing(scorenotes: any, before: any, tonic?: any): any;
-    playNotes(scorenotes: any, { tonic, deadline, interval, gain, duration }: {
+    playNotes(scorenotes: any, { tonic, deadline, interval, gain, duration, pulse }: {
         tonic: any;
         deadline: any;
         interval: any;
         gain: any;
         duration: any;
+        pulse: any;
     }): void;
     playChord(chord: any, settings: any): void;
 }

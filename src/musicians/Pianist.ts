@@ -21,17 +21,23 @@ export default class Pianist extends Musician {
 
     play({ pulse, measures, settings }) {
         const groove = settings.groove || this.defaults.groove;
-        const pattern = groove['chords'];
-        if (!pattern) {
-            console.warn('style has no chords..');
-            return;
-        }
-        const measureLength = pulse.getMeasureLength();
-        if (settings.exact) {
+        const grooveKey = 'chords';
+        // if no groove or groove without chords, or exact, play whats there
+        if (settings.exact || !groove || !groove[grooveKey]) {
+            if (!groove[grooveKey]) {
+                console.warn('Groove has no chords, Pianist will play exact.', groove);
+            }
+            /* walkMeasures(measures, (measure, path) => {
+                console.log('walk measure', measure, path);
+            }); */
+            //TODO: fix timing (exact mode)
             return pulse.tickArray(measures, (t) => {
-                this.playChord(t.value, { deadline: t.deadline + settings.delay });
+                const measureLength = pulse.getMeasureLength();
+                this.playChord(t.value, { deadline: t.deadline, duration: measureLength * t.fraction, pulse });
             });
         }
+        // else, play groovy
+        const pattern = groove[grooveKey];
         measures = measures
             // generate random patterns
             .map(measure => pattern({ measures, pulse, measure, settings }).slice(0, Math.floor(settings.cycle)))
@@ -40,6 +46,7 @@ export default class Pianist extends Musician {
             // fix chords at last offbeat
             .reduce(offbeatReducer(settings), []);
         pulse.tickArray(measures, ({ path, value, deadline }) => {
+            const measureLength = pulse.getMeasureLength();
             const humanFactor = settings.bpm / (this.rollFactor || 1);
             let interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / (humanFactor * 20);
             if (path[0] % 2 === 0 && !path[1] && !path[2]) {
@@ -48,7 +55,7 @@ export default class Pianist extends Musician {
             const duration = settings.arpeggio ? interval : value.fraction * measureLength;
             const slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
             const gain = value.gain || this.instrument.gain;
-            this.playChord(value.chord, { deadline, gain, duration, interval, slice });
+            this.playChord(value.chord, { deadline, gain, duration, interval, slice, pulse });
         }, settings.deadline);
     }
 
@@ -73,12 +80,12 @@ export default class Pianist extends Musician {
     }
 
     // plays the given notes at the given interval
-    playNotes(scorenotes, { tonic, deadline, interval, gain, duration }) {
+    playNotes(scorenotes, { tonic, deadline, interval, gain, duration, pulse }) {
         if (this.props.intelligentVoicings && this.getLastVoicing()) {
             scorenotes = this.getVoicing(scorenotes, this.getLastVoicing(), tonic);
         }
         this.playedNotes.push([].concat(scorenotes));
-        this.instrument.playNotes(scorenotes, { deadline, interval, gain, duration });
+        this.instrument.playNotes(scorenotes, { deadline, interval, gain, duration, pulse });
     }
 
     playChord(chord, settings) {

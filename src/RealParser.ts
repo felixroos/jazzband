@@ -1,3 +1,5 @@
+import { Sheet, Measure, renderSheet } from "./Song";
+
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
 export class RealParser {
@@ -34,169 +36,84 @@ export class RealParser {
     sections: any; //chords json
     bars: any;
     tokens: any;
+    sheet: Sheet;
+    measures: any;
 
     constructor(raw, times = 3) {
         this.raw = raw;
         this.tokens = this.parse(raw);
-        this.sections = this.getSections(this.tokens);
-        //this.bars = parsed.out;
-        this.bars = this.renderSong(this.sections, times);
+        this.sheet = this.getSheet(this.tokens);
+        this.measures = renderSheet(this.sheet);
         return raw;
     }
 
-    renderSong(sections = this.sections, times = 1) {
-        let bars = [];
-        console.log('times', times);
-        for (let i = 1; i <= times; ++i) {
-            bars = bars.concat(this.getBars(sections, { first: i === 1, last: i === times }));
-        }
-        return bars;
+
+    getChord(iRealChord) {
+        return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
     }
 
-    getBars(sections = this.sections, { first, last }, repeated = []) {
-        return sections.filter(s => first || s.section !== 'i')
-            .reduce((current, section, sectionIndex) => {
-                let endings = [].concat(section.endings);
-                if (repeated.find(r => r[0] === section.section)) {
-                    endings = endings.slice(1);
-                    //console.log('already repeated that section..');
-                }
-                if (endings.length) {
-                    current.bars = current.bars.concat(section.bars.concat(endings[0]));
-                    if (section.jumpToCoda) {
-                        console.warn('CODA in section with endings... not implemented yet..');
-                    }
-                } else {
-                    let sectionBars = [].concat(section.bars)
-                    if (section.jumpToCoda && last) {
-                        console.log('jumpToCoda', section.jumpToCoda, sectionBars);
-                        sectionBars = sectionBars.slice(0, section.jumpToCoda);
-                        if (section.repeats) {
-                            console.warn('ALARM: jumpToCoda in section with repeats.. not implemented yet..')
-                            // TODO: support jumpToCoda in section with repeats
-                        }
-                    }
-                    current.bars = current.bars.concat(sectionBars);
-                }
-                if (section.repeats.length) { // splice repeats
-                    //console.log('repeats', section.repeats);
-                    section.repeats.forEach((repeat, index) => {
-                        if (repeat[0] !== null) {
-                            current.repeatStart = [sectionIndex, repeat[0]];
-                        }
-                        const skip = !!repeated.find(r => r[0] === section.section && r[1] === repeat[1]);
-                        if (repeat[1] && !skip) {
-                            if (!current.repeatStart) { // if no { at start.. see lover man
-                                console.log('no repeat start found', repeat);
-                                current.repeatStart = [0, 0];
-                            }
-                            const repeatedSections = sections.slice(current.repeatStart[0], sectionIndex + 1);
-                            repeated.push([section.section, repeat[1]])
-                            /* console.log('repeated sections', repeatedSections); */
-                            const insert = this.getBars(repeatedSections, { first, last }, repeated);
-                            /* console.log('insert', insert); */
-                            current.bars = current.bars.concat(insert);
-                        }
-                    })
-                }
-                return current;
-            }, { bars: [], repeatStart: null, repeatEnd: null }).bars
-            .reduce((b, bar) => {
-                if (bar.length === 1 && bar[0] === 'r') {
-                    b = b.concat(['x', 'x']);
-                } else {
-                    b.push(bar);
-                }
-                return b;
-            }, []);
-    }
-
-
-    getSections(tokens) {
+    getSheet(tokens): Sheet {
         return tokens.reduce((current, token, index) => {
-
-            // not working correctly: 
-            // "Pretty Girl Is Like A Melody, A" => bar with "/"
-            // current token has barline => end current.bar
-
-            // beginning of new section
-            const sectionStart = token.annots.find(annotation => annotation.match(/^\*[a-zA-Z]/));
-            const codaSign = token.annots.includes('Q');
-            const segnioSign = token.annots.includes('S'); // TODO: add segnio
-            const codaJump = codaSign && current.section.jumpToCoda === null;
-            const codaStart = codaSign && !codaJump;
-            const houseStart = token.annots.find(annotation => annotation.match(/^N./));
-            const lastToken = index === tokens.length - 1;
-
-            // new bar
-            if (['{', '|', '[', 'Z', '||', ']'].includes(token.bars || token.token)) {
-                //if (!current.bar.length && (!sectionStart || codaStart)) {
-                // current.bar = ['N.C.']; // TODO: write N.C. directly when parsing
-                //}
-                if (current.bar.length) {
-                    //current.out.push(current.bar);
-                    if (current.section) {
-                        (current.house || current.section.bars).push(current.bar);
+            const lastBarEnded = ['{', '|', '[', 'Z', '||'/* , ']' */].includes(token.bars || token.token);
+            let signs = token.annots || [];
+            const isSlash = signs.includes('s');
+            signs = signs.filter(s => s !== 's');
+            const repeatStart = (token.bars || token.token) === '{';
+            const repeatEnd = (token.bars || token.token) === '}';
+            if (repeatStart) {
+                signs.push('{');
+            }
+            if (repeatEnd) {
+                signs.push('}');
+            }
+            // current.measure ends
+            if (lastBarEnded) {
+                if (current.measure) {
+                    // simplify measure if no signs
+                    if (!current.measure.signs && !current.measure.comments) {
+                        current.measure = current.measure.chords;
                     }
-                    current.bar = [];
+                    current.measures.push(current.measure);
                 }
+                current.measure = { chords: [] };
             }
-            // sectionSign or second coda sign
-            if (sectionStart || codaStart || lastToken) {
-                if (current.section) {
-                    if (current.house) {
-                        current.section.endings.push(current.house);
-                        current.house = null;
-                    }
-                    current.sections.push(current.section);
-                }
-                delete current.section;
+
+            const sectionStart = signs.find(a => a.match(/^\*[a-zA-Z]/));
+            if (sectionStart) {
+                signs = signs.filter(s => s !== sectionStart);
+                current.measure.section = sectionStart.replace('*', '');
             }
-            // either first bar without section name or new section sign
-            if (!current.section) {// && !lastToken
-                current.section = {
-                    section: codaStart ? 'coda' : (sectionStart || '').replace('*', '') || 'A',
-                    bars: [],
-                    repeats: [],
-                    endings: [],
-                    jumpToCoda: null,
-                    annotations: {}
-                };
-            }
-            const barIndex = current.section.bars.length + (current.house || []).length;
-            if (codaJump) {
-                current.section.jumpToCoda = barIndex;
-            }
-            // beginning of house
+
+            const houseStart = signs.find(s => !!s.match(/^N./));
             if (houseStart) {
-                if (current.house) {
-                    current.section.endings.push(current.house);
-                    current.house = null;
-                }
-                current.house = [];
+                //signs = signs.filter(s => s !== houseStart);
+                current.measure.house = parseInt(houseStart.replace('N', ''));
+            }
+
+            const time = signs.find(a => a.match(/^T\d\d/));
+            if (time) {
+                signs = signs.filter(s => s !== time);
+                current.measure.time = time.replace('T', '');
             }
 
             if (token.chord) {
-                current.bar.push(token.chord.note + token.chord.modifiers);
-                //current.bar.push(token);
+                current.measure.chords.push(this.getChord(token.chord));
             }
-            if (token.annots.length) {
-                current.section.annotations[barIndex] = token.annots;
+            if (isSlash) {
+                current.measure.chords.push(0);
             }
-            if (token.bars === '{') {
-                current.section.repeats.push([barIndex]);
+            if (signs.length) {
+                current.measure.signs = (current.measure.signs || [])
+                    .concat(signs);
             }
-            if (token.bars === '}' || token.token === '}') { // see lover man: bars is empty but token is }
-                if (current.section.repeats.length && current.section.repeats[current.section.repeats.length - 1]) {
-                    current.section.repeats[current.section.repeats.length - 1].push(barIndex);
-                } else {
-                    console.warn('end loop without start in section');
-                    current.section.repeats.push([null, barIndex]);
-                }
+            if (token.comments.length) {
+                current.measure.comments = (current.measure.comments || [])
+                    .concat(token.comments.map(c => c.trim()));
             }
             return current;
-        }, { /* out: [], */ sections: [], house: null, bar: [], section: null }).sections;
+        }, { measure: null, signs: null, measures: [] }).measures;
     }
+
 
     parse(raw: string): any {
         var text = raw;

@@ -14,8 +14,9 @@ export class Trio extends Band {
     mix: any;
     instruments: { piano: any; bass: any; drums: any; };
     metronome: Metronome;
-    constructor({ context, piano, bass, drums }) {
-        super({ context });
+
+    constructor({ context, piano, bass, drums, onMeasure }) {
+        super({ context, onMeasure });
         this.mix = this.setupMix(this.context);
         const instruments = this.setupInstruments({ piano, bass, drums })
         this.pianist = new Pianist(instruments.piano);

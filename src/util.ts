@@ -48,6 +48,10 @@ export function getPath(path, measures, traveled = []) {
     return this.getPath(path.slice(1), measures[path[0]], traveled.concat(path[0]));
 }
 
+export function getDuration(divisions, noteLength = 1, measureLength = 1) {
+    return noteLength * divisions.reduce((f, d) => f / d, 1000) * measureLength; // fraction of one
+}
+
 export function resolveChords(pattern, measures, path, divisions = []) {
     if (Array.isArray(pattern)) {
         // division: array of children lengths down the path (to calculate fraction)
@@ -57,10 +61,7 @@ export function resolveChords(pattern, measures, path, divisions = []) {
     if (pattern === 0) {
         return 0;
     }
-    //const split = (pattern + '').split('.');
-    //const gain = parseFloat('0.' + split[1]); //digit(s) after .
-    //const fraction = (parseInt(split[0]) || 1) * divisions.reduce((f, d) => f / d, 1000); // fraction of one
-    const fraction = pattern * divisions.reduce((f, d) => f / d, 1000); // fraction of one
+    const fraction = getDuration(divisions, pattern);
     if (fraction === 0) {
         console.warn('fraction is 0', pattern);
     }

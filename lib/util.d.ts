@@ -6,6 +6,7 @@ export declare function getTonalChord(chord: any): any;
 export declare function getMidi(note: any, offset: any): number;
 /** Travels path along measures */
 export declare function getPath(path: any, measures: any, traveled?: any[]): any;
+export declare function getDuration(divisions: any, noteLength?: number, measureLength?: number): number;
 export declare function resolveChords(pattern: any, measures: any, path: any, divisions?: any[]): any[] | 0 | {
     chord: any;
     pattern: any;
