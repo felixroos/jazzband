@@ -55,7 +55,7 @@ export class RealParser {
     getSheet(tokens): Sheet {
         const parsed = tokens
             .reduce((current, token, index, array) => {
-                const lastBarEnded = ['{', '|', '[', 'Z', '||'/* , ']' */]
+                const lastBarEnded = ['{', '|', '[', '||' /* 'Z',  *//* , ']' */]
                     .includes(token.bars || token.token);
                 let signs = token.annots || [];
                 const repeatStart = (token.bars || token.token) === '{';
