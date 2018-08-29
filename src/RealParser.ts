@@ -53,65 +53,66 @@ export class RealParser {
     }
 
     getSheet(tokens): Sheet {
-        return tokens.reduce((current, token, index) => {
-            const lastBarEnded = ['{', '|', '[', 'Z', '||'/* , ']' */].includes(token.bars || token.token);
-            let signs = token.annots || [];
-            const isSlash = signs.includes('s');
-            signs = signs.filter(s => s !== 's');
-            const repeatStart = (token.bars || token.token) === '{';
-            const repeatEnd = (token.bars || token.token) === '}';
-            if (repeatStart) {
-                signs.push('{');
-            }
-            if (repeatEnd) {
-                signs.push('}');
-            }
-            // current.measure ends
-            if (lastBarEnded) {
-                if (current.measure) {
-                    // simplify measure if no signs
-                    if (!current.measure.signs && !current.measure.comments) {
-                        current.measure = current.measure.chords;
-                    }
-                    current.measures.push(current.measure);
+        const parsed = tokens
+            .reduce((current, token, index, array) => {
+                const lastBarEnded = ['{', '|', '[', '||' /* 'Z',  *//* , ']' */]
+                    .includes(token.bars || token.token);
+                let signs = token.annots || [];
+                const repeatStart = (token.bars || token.token) === '{';
+                const repeatEnd = (token.bars || token.token) === '}';
+                if (repeatStart) {
+                    signs.push('{');
                 }
-                current.measure = { chords: [] };
-            }
+                if (repeatEnd) {
+                    signs.push('}');
+                }
+                // current.measure ends
+                if (lastBarEnded) {
+                    if (current.measure) {
+                        // simplify measure if no signs
+                        /* if (Object.keys(current.measure).find(k=>k)) {
+                            current.measure = current.measure.chords;
+                        } */
+                        current.measures.push(current.measure);
+                    }
+                    current.measure = { chords: [] };
+                }
 
-            const sectionStart = signs.find(a => a.match(/^\*[a-zA-Z]/));
-            if (sectionStart) {
-                signs = signs.filter(s => s !== sectionStart);
-                current.measure.section = sectionStart.replace('*', '');
-            }
+                const sectionStart = signs.find(a => a.match(/^\*[a-zA-Z]/));
+                if (sectionStart) {
+                    signs = signs.filter(s => s !== sectionStart);
+                    current.measure.section = sectionStart.replace('*', '');
+                }
 
-            const houseStart = signs.find(s => !!s.match(/^N./));
-            if (houseStart) {
-                //signs = signs.filter(s => s !== houseStart);
-                current.measure.house = parseInt(houseStart.replace('N', ''));
-            }
+                const houseStart = signs.find(s => !!s.match(/^N./));
+                if (houseStart) {
+                    signs = signs.filter(s => s !== houseStart);
+                    current.measure.house = parseInt(houseStart.replace('N', ''));
+                }
 
-            const time = signs.find(a => a.match(/^T\d\d/));
-            if (time) {
-                signs = signs.filter(s => s !== time);
-                current.measure.time = time.replace('T', '');
-            }
+                const time = signs.find(a => a.match(/^T\d\d/));
+                if (time) {
+                    signs = signs.filter(s => s !== time);
+                    current.measure.time = time.replace('T', '');
+                }
 
-            if (token.chord) {
-                current.measure.chords.push(this.getChord(token.chord));
-            }
-            if (isSlash) {
-                current.measure.chords.push(0);
-            }
-            if (signs.length) {
-                current.measure.signs = (current.measure.signs || [])
-                    .concat(signs);
-            }
-            if (token.comments.length) {
-                current.measure.comments = (current.measure.comments || [])
-                    .concat(token.comments.map(c => c.trim()));
-            }
-            return current;
-        }, { measure: null, signs: null, measures: [] }).measures;
+                if (token.chord) {
+                    current.measure.chords.push(this.getChord(token.chord));
+                }
+                if (signs.length) {
+                    current.measure.signs = (current.measure.signs || [])
+                        .concat(signs);
+                }
+                if (token.comments.length) {
+                    current.measure.comments = (current.measure.comments || [])
+                        .concat(token.comments.map(c => c.trim()));
+                }
+                return current;
+            }, { measure: null, signs: null, measures: [] });
+        if (parsed.measure.chords.length) {
+            parsed.measures.push(parsed.measure);
+        }
+        return parsed.measures;
     }
 
 
