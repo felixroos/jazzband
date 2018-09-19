@@ -1,4 +1,4 @@
-import { resolveChords, getTonalChord, randomElement } from '../util';
+import { resolveChords, getTonalChord, randomElement, randomDelay } from '../util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';
@@ -38,19 +38,25 @@ export default class Bassist extends Musician {
         if (chord === 'N.C.') {
             return;
         }
-        if (!chord || chord === 'x') { // repeat // TODO: support 'r' 
+        if (chord === 'x') {
             chord = this.playedChords[this.playedChords.length - 1];
+        }
+        if (!chord || chord === '0') {
+            this.playedChords.push('');
+            return;
         }
         this.playedChords.push(chord);
         let note;
         const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
-        const octave = 1;
+        const octave = 2;
         if (value.value === 1 && chord.split('/').length > 1) {
             note = chord.split('/')[1] + octave;
         } else {
             note = this.getStep(steps[path[1]], getTonalChord(chord), octave);
         }
         const duration = value.fraction * pulse.getMeasureLength();
+
+        deadline += randomDelay(10);
         this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration, pulse });
     }
 }

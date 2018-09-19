@@ -18,11 +18,8 @@ export class Synthesizer extends Instrument {
         this.gain = props.gain || this.gain;
     }
 
-    init(context) {
-        super.init(context);
-    }
-
-    getVoice(type = 'sine', gain = 0, frequency = 440) {
+    getVoice(type = 'sine', gain = 0, key) {
+        const frequency = Note.freq(key);
         const oscNode = this.context.createOscillator();
         oscNode.type = type;
         const gainNode = this.context.createGain();
@@ -30,11 +27,15 @@ export class Synthesizer extends Instrument {
         gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
         gainNode.connect(this.mix);
         oscNode.frequency.value = frequency;
-        return { oscNode, gainNode };
+        return { oscNode, gainNode, key, frequency };
     }
 
     lowestGain(a, b) {
         return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
+    }
+
+    startKeys(keys: number[], settings: any = {}) {
+
     }
 
     playKeys(keys: number[], settings: any = {}) {
@@ -42,10 +43,11 @@ export class Synthesizer extends Instrument {
         //const time = this.context.currentTime + settings.deadline / 1000;
         const time = settings.deadline || this.context.currentTime;
         const interval = settings.interval || 0;
-        keys.map((key, i) => {
+        return keys.map((key, i) => {
             const delay = i * interval;
-            const [attack, decay, sustain, release, duration, gain] =
+            const [endless, attack, decay, sustain, release, duration, gain] =
                 [
+                    settings.endless,
                     settings.attack || this.attack,
                     settings.decay || this.decay,
                     settings.sustain || this.sustain,
@@ -53,9 +55,25 @@ export class Synthesizer extends Instrument {
                     (settings.duration || this.duration) / 1000,
                     (settings.gain || 1) * this.gain
                 ]
-            const voice = this.getVoice(this.type, 0, Note.freq(key));
-            adsr({ attack, decay, sustain, release, gain, duration, }, time + delay, voice.gainNode.gain);
+            const voice = this.getVoice(this.type, 0, key);
+            adsr({ attack, decay, sustain, release, gain, duration, endless }, time + delay, voice.gainNode.gain);
             voice.oscNode.start(settings.deadline + delay);
-        })
+            return voice;
+        });
+    }
+
+    stopVoice(voice, settings: any = {}) {
+        if (!voice) {
+            return;
+        }
+        const time = settings.deadline || this.context.currentTime;
+        voice.gainNode.gain.setTargetAtTime(0, time, settings.release || this.release);
+        //voice.oscNode.stop()
+    }
+
+    stopVoices(voices, settings) {
+        voices.forEach(voice => {
+            this.stopVoice(voice, settings);
+        });
     }
 }

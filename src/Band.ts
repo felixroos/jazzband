@@ -33,7 +33,8 @@ export default class Band {
         if (this.pulse) {
             this.pulse.stop();
         }
-        let measures = renderSheet(sheet, true);
+        let measures = renderSheet(sheet);
+        measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });
         this.play(measures, settings);
     }

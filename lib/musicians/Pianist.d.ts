@@ -27,6 +27,7 @@ export default class Pianist extends Musician {
     min: (...values: number[]) => number;
     rollFactor: number;
     props: any;
+    range: string[];
     instrument: Instrument;
     constructor(instrument: any, props?: {});
     play({ pulse, measures, settings }: {

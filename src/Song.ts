@@ -4,7 +4,8 @@ export type Measure = {
     signs?: string[],
     comments?: string[],
     house?: number,
-    section?: string
+    section?: string,
+    idle?: true // bar is repeated
 }// | string[];
 
 export type Sheet = Array<Measure | string[] | string>;
@@ -27,18 +28,26 @@ export function getMeasure(measure: Measure | string[] | string): Measure {
     }
     if (Array.isArray(measure)) {
         return {
-            chords: measure
+            chords: [].concat(measure)
         }
     }
-    return measure;
+    return Object.assign({}, measure);
+    // return measure;
 }
 
-export function renderSheet(sheet: Sheet, unify = false, current?) {
+export function getLatestMeasure(index, sheet) {
+    const m = getMeasure(sheet[index]);
+    if (m.chords[0] === 'x') {
+        return getLatestMeasure(index - 1, sheet);
+    }
+    return m;
+}
+
+export function renderSheet(sheet: Sheet, current?) { //unify = false,
     current = Object.assign({
         index: 0, // index of current sheet measure
         measures: [], // resulting measures
         openRepeats: [], // opened repeat start indices
-        //closedRepeats: [], // closed repeat start indices
         repeated: [], // already repeated end indices
         end: sheet.length - 1, // last index that should be rendered
         house: 0, // latest housenumber
@@ -47,8 +56,8 @@ export function renderSheet(sheet: Sheet, unify = false, current?) {
     }, current);
 
     while (current.index <= current.end) {
-        const measure = sheet[current.index];
-        const m = getMeasure(measure);
+        // const measure = sheet[current.index];
+        let m = getMeasure(sheet[current.index]);
         const signs = m.signs || [];
         //console.log(`${current.index}/${current.end}`, measure['chords'], `${current.house}/${JSON.stringify(current.targets)}`);
 
@@ -66,23 +75,16 @@ export function renderSheet(sheet: Sheet, unify = false, current?) {
 
         const skip = current.house && current.houses[current.houseStart] && current.house !== current.houses[current.houseStart];
         if (!skip) {
-            if (unify) {
-                current.measures.push(
-                    Object.assign({ index: current.index }, getMeasure(measure))
-                );
-            } else {
-                current.measures.push(measure);
-            }
+            current.measures.push(m);
             const repeatEnd = signs.includes('}') && !current.repeated.includes(current.index);// && !current.repeatedEnds[current.index]; // TODO: support repeat n times
 
             if (repeatEnd) {
                 const jumpTo = current.openRepeats[0] || 0;
-                //current.closedRepeats.unshift(current.openRepeats[0]);
                 current.openRepeats.shift();
                 current.houses[jumpTo] = (current.houses[jumpTo] || 1) + 1;
 
                 current.measures = current.measures.concat(
-                    renderSheet(sheet, unify, {
+                    renderSheet(sheet, {
                         index: jumpTo,
                         repeated: [current.index],
                         end: current.index,

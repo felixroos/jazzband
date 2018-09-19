@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
+    "publish": "publish",
     "build": "parcel build ./src/index.ts --out-dir ./dist",
     "watch": "parcel watch ./src/index.ts --out-dir ./dist",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",

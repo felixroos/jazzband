@@ -1,6 +1,6 @@
 import { Distance } from 'tonal';
 import { Chord } from 'tonal';
-import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, minInterval } from '../util';
+import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, minInterval, randomDelay, transposeToRange } from '../util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
@@ -13,6 +13,7 @@ export default class Pianist extends Musician {
     min = Math.min;
     rollFactor = 3; // how much keyroll effect? controls interval between notes
     props: any;
+    range = ['C3', 'G5'];
     instrument: Instrument;
     constructor(instrument, props = {}) {
         super(instrument);
@@ -79,22 +80,24 @@ export default class Pianist extends Musician {
         return near && near.length ? near : scorenotes;
     }
 
+
     // plays the given notes at the given interval
     playNotes(scorenotes, { tonic, deadline, interval, gain, duration, pulse }) {
         if (this.props.intelligentVoicings && this.getLastVoicing()) {
             scorenotes = this.getVoicing(scorenotes, this.getLastVoicing(), tonic);
         }
+        scorenotes = transposeToRange(scorenotes, this.range);
         this.playedNotes.push([].concat(scorenotes));
         this.instrument.playNotes(scorenotes, { deadline, interval, gain, duration, pulse });
     }
 
     playChord(chord, settings) {
-        if (chord === 'N.C.') {
-            console.log('N.C.');
-            return;
-        }
-        if (!chord || chord === 'x') { // repeat
+        if (chord === 'x') { // repeat
             chord = this.playedChords[this.playedChords.length - 1];
+        }
+        if (!chord || chord === '0') {
+            this.playedChords.push('')
+            return;
         }
         this.playedChords.push(chord);
         chord = Chord.tokenize(getTonalChord(chord));
@@ -108,6 +111,7 @@ export default class Pianist extends Musician {
         if (settings.slice) {
             notes = notes.slice(0, settings.slice ? settings.slice : notes.length);
         }
+        settings.deadline += 0.02 + randomDelay(5);
         this.playNotes(notes, settings);
     }
 }

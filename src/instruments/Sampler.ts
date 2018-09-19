@@ -85,7 +85,7 @@ export class Sampler extends Instrument {
         }, true);
     }
 
-    playSounds(sounds, deadline = 0, interval = 0) {
+    playSounds(sounds, deadline = this.context.currentTime, interval = 0) {
         sounds.forEach((sound, i) => sound.start(deadline + interval * i))
     }
 
@@ -108,8 +108,8 @@ export class Sampler extends Instrument {
         const time = settings.deadline || this.context.currentTime;
         //gainNode.gain.value = typeof settings.gain === 'number' ? settings.gain : this.gain;
         gainNode.connect(this.mix);
-        adsr({ attack, decay, sustain, release, gain, duration, }, time, gainNode.gain);
-        this.playSounds([sound], settings.deadline || 0, 0)
+        adsr({ attack, decay, sustain, release, gain, duration }, time, gainNode.gain);
+        this.playSounds([sound], time) //, settings.interval
     }
 
     /* playSources(sources, deadline = 0, interval = 0) {
@@ -124,7 +124,10 @@ export class Sampler extends Instrument {
 
     playKeys(keys: number[], settings) {
         super.playKeys(keys, settings);
-        keys.map(key => {
+        keys.forEach((key, index) => {
+            if (settings.delay) {
+                settings.deadline += settings.delay;
+            }
             this.playSource(this.sources[key], settings);
         });
     }

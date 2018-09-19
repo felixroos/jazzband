@@ -1,9 +1,12 @@
 import { getMidi } from "../util";
+import { Pulse } from "../Pulse";
 
 export interface NoteEvent {
     note: string;
+    midi?: number;
     gain?: number;
     off?: number;
+    deadline?: number;
 }
 
 export class Instrument {
@@ -32,18 +35,39 @@ export class Instrument {
         this.mix = mix || this.context.destination;
     }
 
-    playNotes(notes: string[], settings) {
+    playNotes(notes: string[], settings: any = {}) {
+        const deadline = (settings.deadline || this.context.currentTime);
+        settings = Object.assign({
+            duration: 2000,
+            gain: 1,
+        }, settings, { deadline });
+        if (settings.interval) {
+            // call recursively with single notes at interval
+            return notes.map((note, index) => {
+                this.playNotes([note], Object.assign({}, settings, {
+                    interval: 0,
+                    deadline: deadline + index * settings.interval
+                }))
+            });
+        }
         const midi = notes.map(note => getMidi(note, this.midiOffset));
-        this.playKeys(midi, settings);
         const noteOff = settings.deadline + settings.duration / 1000;
 
-        const notesOn = notes.map(note => ({ note, gain: settings.gain, noteOff }));
-        this.activeEvents = this.activeEvents.concat(notesOn);
+        const notesOn = notes.map((note, index) => ({
+            note,
+            midi: midi[index],
+            gain: settings.gain,
+            noteOff,
+            deadline: settings.deadline
+        }));
 
-        if (this.onTrigger) {
-            this.onTrigger({ on: notesOn, off: [], active: this.activeEvents });
+        if (settings.pulse && this.onTrigger) {
+            settings.pulse.clock.callbackAtTime((deadline) => {
+                this.activeEvents = this.activeEvents.concat(notesOn);
+                this.onTrigger({ on: notesOn, off: [], active: this.activeEvents });
+            }, settings.deadline);
         }
-        if (settings.duration) {
+        if (settings.duration && settings.pulse) {
             settings.pulse.clock.callbackAtTime((deadline) => {
                 // find out which notes need to be deactivated
                 const notesOff = notes
@@ -63,8 +87,8 @@ export class Instrument {
                     this.onTrigger({ on: [], off: notesOff, active: this.activeEvents });
                 }
             }, noteOff);
-
         }
+        return this.playKeys(midi, settings);
     }
 
     playKeys(keys: number[], settings?) {
