@@ -4,6 +4,7 @@ export declare type Measure = {
     comments?: string[];
     house?: number;
     section?: string;
+    idle?: true;
 };
 export declare type Sheet = Array<Measure | string[] | string>;
 export declare type Song = {
@@ -16,4 +17,5 @@ export declare type Song = {
     sheet: Sheet;
 };
 export declare function getMeasure(measure: Measure | string[] | string): Measure;
-export declare function renderSheet(sheet: Sheet, unify?: boolean, current?: any): any;
+export declare function getLatestMeasure(index: any, sheet: any): any;
+export declare function renderSheet(sheet: Sheet, current?: any): any;

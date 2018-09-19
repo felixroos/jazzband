@@ -22,7 +22,7 @@ export declare class RealParser {
     tokens: any;
     sheet: Sheet;
     measures: any;
-    constructor(raw: any, times?: number);
+    constructor(raw: any);
     getChord(iRealChord: any): any;
     getSheet(tokens: any): Sheet;
     parse(raw: string): any;

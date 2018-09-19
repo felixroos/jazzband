@@ -1,5 +1,6 @@
 import { Musician } from './Musician';
 import { swing } from '../grooves/swing';
+import { randomDelay } from '../util';
 
 export default class Drummer extends Musician {
     set = {
@@ -25,6 +26,7 @@ export default class Drummer extends Musician {
                     .map((measure, index) => groove[key]({ measures, index, measure, settings, pulse })
                         .slice(0, Math.floor(settings.cycle)));
                 pulse.tickArray(patterns, ({ deadline, value }) => {
+                    deadline += randomDelay(5);
                     this.instrument.playKeys([this.set[key]], { deadline, gain: value });
                 }, settings.deadline);
             });

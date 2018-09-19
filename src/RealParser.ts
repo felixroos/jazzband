@@ -1,4 +1,4 @@
-import { Sheet, Measure, renderSheet } from "./Song";
+import { Sheet, Measure, renderSheet, getLatestMeasure } from "./Song";
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
@@ -39,7 +39,7 @@ export class RealParser {
     sheet: Sheet;
     measures: any;
 
-    constructor(raw, times = 3) {
+    constructor(raw) {
         this.raw = raw;
         this.tokens = this.parse(raw);
         this.sheet = this.getSheet(this.tokens);
@@ -84,6 +84,12 @@ export class RealParser {
                     current.measure.section = sectionStart.replace('*', '');
                 }
 
+                const hasCodaSign = signs.includes('Q');
+                if (hasCodaSign) {
+                    signs = signs.filter(s => s !== 'Q');
+                    current.measure.coda = true;
+                }
+
                 const houseStart = signs.find(s => !!s.match(/^N./));
                 if (houseStart) {
                     signs = signs.filter(s => s !== houseStart);
@@ -98,7 +104,20 @@ export class RealParser {
 
                 if (token.chord) {
                     current.measure.chords.push(this.getChord(token.chord));
+                } else if (token.token === 'n') {
+                    current.measure.chords.push(0);
                 }
+
+                const last = current.measures[current.measures.length - 1];
+                if (last && last.chords[0] === 'r') {
+                    last.chords = current.measures[current.measures.length - 3].chords;
+                    current.measure.chords = current.measures[current.measures.length - 2].chords;
+                }
+                if (last && current.measure.chords[0] === 'x') {
+                    current.measure.chords = [].concat(last.chords);
+                    current.measure.idle = true;
+                }
+
                 if (signs.length) {
                     current.measure.signs = (current.measure.signs || [])
                         .concat(signs);

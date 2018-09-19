@@ -11,5 +11,6 @@ import { Trio } from './Trio';
 import * as util from './util';
 import { Pulse } from './Pulse';
 import { RealParser } from './RealParser';
+import { MidiOut } from './instruments/MidiOut';
 
-export { Trio, Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, PlasticDrums, Pulse, util, RealParser };
+export { Trio, Band, Pianist, Bassist, Drummer, Instrument, Musician, Synthesizer, Sampler, MidiOut, PlasticDrums, Pulse, util, RealParser };
