@@ -8,7 +8,8 @@ export default class Drummer extends Musician {
         snare: 1,
         hihat: 2,
         ride: 3,
-        crash: 4
+        crash: 4,
+        rimshot: 5
     }
     defaults = { groove: swing }
 
@@ -18,7 +19,6 @@ export default class Drummer extends Musician {
 
     play({ measures, pulse, settings }) {
         const groove = settings.groove || this.defaults.groove;
-
         Object.keys(groove)
             .filter(t => Object.keys(this.set).includes(t)) // only use drum set patterns
             .forEach(key => {
@@ -27,7 +27,7 @@ export default class Drummer extends Musician {
                         .slice(0, Math.floor(settings.cycle)));
                 pulse.tickArray(patterns, ({ deadline, value }) => {
                     deadline += randomDelay(5);
-                    this.instrument.playKeys([this.set[key]], { deadline, gain: value });
+                    this.instrument.playKeys([this.set[key]], { deadline, gain: this.getGain(value) });
                 }, settings.deadline);
             });
     }

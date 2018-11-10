@@ -1,12 +1,7 @@
 import { Musician } from './Musician';
-export default class Drummer extends Musician {
-    set: {
-        kick: number;
-        snare: number;
-        hihat: number;
-        ride: number;
-        crash: number;
-        rimshot: number;
+export default class Permutator extends Musician {
+    styles: {
+        [key: string]: any;
     };
     defaults: {
         groove: {
@@ -27,10 +22,18 @@ export default class Drummer extends Musician {
             solo: () => any;
         };
     };
+    playedChords: string[];
     constructor(instrument: any);
     play({ measures, pulse, settings }: {
         measures: any;
         pulse: any;
         settings: any;
     }): void;
+    playPermutations({ value, cycle, path, deadline, interval }: {
+        value: any;
+        cycle: any;
+        path: any;
+        deadline: any;
+        interval: any;
+    }, measures: any, pulse: any): void;
 }

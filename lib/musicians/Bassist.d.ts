@@ -19,6 +19,7 @@ export default class Bassist extends Musician {
                 index: any;
             }) => any;
             hihat: () => number[];
+            solo: () => any;
         };
     };
     playedChords: string[];

@@ -21,6 +21,7 @@ export default class Pianist extends Musician {
                 index: any;
             }) => any;
             hihat: () => number[];
+            solo: () => any;
         };
         noTonic: boolean;
     };

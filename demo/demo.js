@@ -3,12 +3,13 @@ import link from './playlists/1350.json';
 //import link from './playlists/zw.json';
 import { RealParser } from '../src/RealParser';
 import { piano } from './samples/piano';
-// import { harp } from './samples/harp';
+/* import { harp } from './samples/harp'; */
 import { drumset } from './samples/drumset';
 import iRealReader from 'ireal-reader';
 import { swing } from '../src/grooves/swing';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
+import { bossa } from '../src/grooves/bossa';
 
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
@@ -16,11 +17,14 @@ const playlist = new iRealReader(decodeURI(link));
 // bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
 
 const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
-//const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context });
+/* const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context }); */
 const drums = new jazz.Sampler({ samples: drumset, context, gain: 0.7, duration: 6000 });
 
-const band = new jazz.Trio({ context, piano: keyboard, bass: keyboard, drums });
-
+const band = new jazz.Trio({ context, piano: keyboard, bass: keyboard, drums, solo: true });
+band.pianist.gain = .4;
+band.bassist.gain = .9;
+band.drummer.gain = .8;
+band.soloist.gain = .6;
 
 function getStandard(playlist) {
     console.log('playlist', playlist);
@@ -43,6 +47,7 @@ window.onload = function () {
     // buttons
     const playJazz = document.getElementById('jazz');
     const playFunk = document.getElementById('funk');
+    const playBossa = document.getElementById('bossa');
     const stop = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
@@ -50,7 +55,7 @@ window.onload = function () {
     const randomInstruments = document.getElementById('instruments');
     let standard/*  = getStandard(); */
 
-    function play(groove = swing) {
+    function play(groove = bossa) {
         console.log('groove', groove);
         const bpm = 70 + Math.random() * 100;
         //const bpm = 120;
@@ -65,6 +70,7 @@ window.onload = function () {
         const allowed = ['sine', 'triangle', 'square', 'sawtooth'];
         band.pianist.instrument = jazz.util.randomSynth(band.mix, allowed);
         band.bassist.instrument = jazz.util.randomSynth(band.mix, allowed);
+        band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed);
         console.log('pianist:', band.pianist.instrument.type);
         console.log('bassist:', band.bassist.instrument.type);
     });
@@ -74,6 +80,9 @@ window.onload = function () {
     })
     playFunk.addEventListener('click', () => {
         play(funk)
+    });
+    playBossa.addEventListener('click', () => {
+        play(bossa)
     })
     stop.addEventListener('click', () => {
         band.pulse.stop();

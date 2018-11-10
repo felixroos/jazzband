@@ -3,10 +3,12 @@ import Pianist from './musicians/Pianist';
 import Bassist from './musicians/Bassist';
 import Drummer from './musicians/Drummer';
 import { Metronome } from './Metronome';
+import Permutator from './musicians/Permutator';
 export declare class Trio extends Band {
     pianist: Pianist;
     bassist: Bassist;
     drummer: Drummer;
+    soloist: Permutator;
     mix: any;
     instruments: {
         piano: any;
@@ -14,12 +16,9 @@ export declare class Trio extends Band {
         drums: any;
     };
     metronome: Metronome;
-    constructor({ context, piano, bass, drums, onMeasure }: {
+    constructor({ context, piano, bass, drums, onMeasure, solo }: {
         context: any;
-        piano: any;
-        bass: any;
-        drums: any;
-        onMeasure: any;
+        [key: string]: any;
     });
     setupMix(context: any): any;
     setupInstruments({ piano, bass, drums }: {

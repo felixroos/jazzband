@@ -1,10 +1,10 @@
 {
   "name": "jazzband",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "A Virtual Jazz Band that plays chords with the Web Audio API.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch",
     "publish": "publish",
     "build": "parcel build ./src/index.ts --out-dir ./dist",
     "watch": "parcel watch ./src/index.ts --out-dir ./dist",
