@@ -8,7 +8,8 @@ export default class Drummer extends Musician {
         snare: 1,
         hihat: 2,
         ride: 3,
-        crash: 4
+        crash: 4,
+        rimshot: 5
     }
     defaults = { groove: swing }
 
@@ -18,7 +19,6 @@ export default class Drummer extends Musician {
 
     play({ measures, pulse, settings }) {
         const groove = settings.groove || this.defaults.groove;
-
         Object.keys(groove)
             .filter(t => Object.keys(this.set).includes(t)) // only use drum set patterns
             .forEach(key => {

@@ -40,6 +40,7 @@ export const swing = {
             ]);
         }
     },
+    eights: () => [[.9, 0, 1], [.8, 0, 1], [.7, 0, 1], [.8, 0, 1]],
     bass: () => randomElement([
         [1, 1, 1, 1],
     ]),

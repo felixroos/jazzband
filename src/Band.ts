@@ -21,6 +21,10 @@ export default class Band {
         this.musicians = musicians || [];
     }
 
+    addMember(musician) {
+        this.musicians = this.musicians.concat(musician);
+    }
+
     ready(): Promise<any[]> {
         return Promise.all([this.resume()].concat(this.musicians.map(m => m.ready)));
     }

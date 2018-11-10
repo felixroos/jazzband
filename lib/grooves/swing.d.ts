@@ -3,6 +3,7 @@ export declare const swing: {
         measure: any;
         settings: any;
     }) => any;
+    eights: () => number[][];
     bass: () => any;
     crash: ({ measures, index }: {
         measures: any;

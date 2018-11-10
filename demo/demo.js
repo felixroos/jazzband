@@ -9,6 +9,7 @@ import iRealReader from 'ireal-reader';
 import { swing } from '../src/grooves/swing';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
+import { bossa } from '../src/grooves/bossa';
 
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
@@ -20,7 +21,8 @@ const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, con
 const drums = new jazz.Sampler({ samples: drumset, context, gain: 0.7, duration: 6000 });
 
 const band = new jazz.Trio({ context, piano: keyboard, bass: keyboard, drums });
-
+const soloist = new jazz.Permutator(jazz.util.randomSynth(context));
+band.addMember(soloist);
 
 function getStandard(playlist) {
     console.log('playlist', playlist);
@@ -43,6 +45,7 @@ window.onload = function () {
     // buttons
     const playJazz = document.getElementById('jazz');
     const playFunk = document.getElementById('funk');
+    const playBossa = document.getElementById('bossa');
     const stop = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
@@ -74,6 +77,9 @@ window.onload = function () {
     })
     playFunk.addEventListener('click', () => {
         play(funk)
+    });
+    playBossa.addEventListener('click', () => {
+        play(bossa)
     })
     stop.addEventListener('click', () => {
         band.pulse.stop();

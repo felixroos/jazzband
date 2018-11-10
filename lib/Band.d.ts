@@ -13,6 +13,7 @@ export default class Band {
     context: AudioContext;
     onMeasure: (measure: any, tick?: any) => {};
     constructor({ context, musicians, onMeasure }?: any);
+    addMember(musician: any): void;
     ready(): Promise<any[]>;
     resume(): Promise<AudioContext>;
     comp(sheet: any, settings: any): void;

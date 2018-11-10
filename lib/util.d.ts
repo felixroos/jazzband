@@ -35,3 +35,5 @@ export declare function randomDelay(maxMs: any): number;
 export declare function isInRange(note: any, range: any): boolean;
 export declare function transposeNotes(notes: any, interval: any): any;
 export declare function transposeToRange(notes: any, range: any, times?: number): any;
+export declare function getIntervalFromStep(step: any): string;
+export declare function getChordScales(chord: any, occasion?: any): string[];

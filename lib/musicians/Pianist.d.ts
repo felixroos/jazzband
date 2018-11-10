@@ -11,6 +11,7 @@ export default class Pianist extends Musician {
                 measure: any;
                 settings: any;
             }) => any;
+            eights: () => number[][];
             bass: () => any;
             crash: ({ measures, index }: {
                 measures: any;
