@@ -6,16 +6,18 @@ import Drummer from './musicians/Drummer';
 import { PlasticDrums } from './instruments/PlasticDrums';
 import { Metronome } from './Metronome';
 import { Pulse } from './Pulse';
+import Permutator from './musicians/Permutator';
 
 export class Trio extends Band {
     pianist: Pianist;
     bassist: Bassist;
     drummer: Drummer;
+    soloist: Permutator;
     mix: any;
     instruments: { piano: any; bass: any; drums: any; };
     metronome: Metronome;
 
-    constructor({ context, piano, bass, drums, onMeasure }) {
+    constructor({ context, piano, bass, drums, onMeasure, solo }: { context, [key: string]: any }) {
         super({ context, onMeasure });
         this.mix = this.setupMix(this.context);
         const instruments = this.setupInstruments({ piano, bass, drums })
@@ -23,6 +25,10 @@ export class Trio extends Band {
         this.bassist = new Bassist(instruments.bass);
         this.drummer = new Drummer(instruments.drums);
         this.musicians = [this.pianist, this.bassist, this.drummer];
+        if (solo) {
+            this.soloist = new Permutator(instruments.piano);
+            this.musicians.push(this.soloist);
+        }
         this.metronome = new Metronome(this.mix);
     }
 

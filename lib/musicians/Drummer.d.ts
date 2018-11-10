@@ -14,7 +14,6 @@ export default class Drummer extends Musician {
                 measure: any;
                 settings: any;
             }) => any;
-            eights: () => number[][];
             bass: () => any;
             crash: ({ measures, index }: {
                 measures: any;
@@ -25,6 +24,7 @@ export default class Drummer extends Musician {
                 index: any;
             }) => any;
             hihat: () => number[];
+            solo: () => any;
         };
     };
     constructor(instrument: any);

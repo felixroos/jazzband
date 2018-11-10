@@ -55,7 +55,7 @@ export default class Pianist extends Musician {
             }
             const duration = settings.arpeggio ? interval : value.fraction * measureLength;
             const slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
-            const gain = value.gain || this.instrument.gain;
+            const gain = this.getGain(value.gain);
             this.playChord(value.chord, { deadline, gain, duration, interval, slice, pulse });
         }, settings.deadline);
     }

@@ -9,7 +9,6 @@ export default class Permutator extends Musician {
                 measure: any;
                 settings: any;
             }) => any;
-            eights: () => number[][];
             bass: () => any;
             crash: ({ measures, index }: {
                 measures: any;
@@ -20,6 +19,7 @@ export default class Permutator extends Musician {
                 index: any;
             }) => any;
             hihat: () => number[];
+            solo: () => any;
         };
     };
     playedChords: string[];
@@ -29,8 +29,6 @@ export default class Permutator extends Musician {
         pulse: any;
         settings: any;
     }): void;
-    getStep(step: any, chord: any, octave?: number): any;
-    getSteps(steps: any, chord: any): void;
     playPermutations({ value, cycle, path, deadline, interval }: {
         value: any;
         cycle: any;

@@ -1,4 +1,4 @@
-import { resolveChords, getTonalChord, randomElement, randomDelay } from '../util';
+import { resolveChords, getDigitalPattern, randomDelay, randomElement, getGuideTones, getPatternInChord } from '../util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';
@@ -14,7 +14,10 @@ export default class Permutator extends Musician {
 
     play({ measures, pulse, settings }) {
         const groove = settings.groove || this.defaults.groove;
-        const pattern = groove['eights'] || [1, 1, 1, 1, 1, 1, 1, 1];
+
+        const pattern = groove['solo'] || ((m) => {
+            return m.measure.map(c => 2);
+        }); // dont changes anything
 
         measures = measures
             .map(measure => pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
@@ -22,16 +25,6 @@ export default class Permutator extends Musician {
         pulse.tickArray(measures, (tick) => {
             this.playPermutations(tick, measures, pulse);
         }, settings.deadline);
-    }
-
-    getStep(step, chord, octave = 2) {
-        const tokens = Chord.tokenize(getTonalChord(chord));
-        const interval = Chord.intervals(tokens[1]).find(i => parseInt(i[0]) === step);
-        return Distance.transpose(tokens[0] + octave, interval);
-    }
-
-    getSteps(steps, chord) {
-
     }
 
     playPermutations({ value, cycle, path, deadline, interval }, measures, pulse) {
@@ -47,21 +40,23 @@ export default class Permutator extends Musician {
             return;
         }
         this.playedChords.push(chord);
-        const steps = this.getSteps([1, 2, 3, 5], chord);
 
-        console.log('permutate chord', chord, steps);
+        // digital patterns
+        const notes = getDigitalPattern(chord);
+        const note = randomElement(notes) + '4';
 
-        /* let note;
-        const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
-        const octave = 2;
-        if (value.value === 1 && chord.split('/').length > 1) {
-            note = chord.split('/')[1] + octave;
-        } else {
-            note = this.getStep(steps[path[1]], getTonalChord(chord), octave);
-        }
+        // only guide tones
+        /* const notes = getGuideTones(chord);
+        const note = randomElement(notes) + '5'; */
+
+        // all scale notes with different chances
+        /* const notes = getPatternInChord([1, 2, 3, 4, 5, 6, 7], chord);
+        const note = randomElement(notes, [4, 3, 6, 1, 3, 4, 6]) + '5'; */
+
+        /* console.log('beat (starting from zero)', path[1]); */
         const duration = value.fraction * pulse.getMeasureLength();
 
-        deadline += randomDelay(10);
-        this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration, pulse }); */
+        /* deadline += randomDelay(10); */
+        this.instrument.playNotes([note], { deadline, interval, gain: 1, duration, pulse });
     }
 }

@@ -27,7 +27,7 @@ export default class Drummer extends Musician {
                         .slice(0, Math.floor(settings.cycle)));
                 pulse.tickArray(patterns, ({ deadline, value }) => {
                     deadline += randomDelay(5);
-                    this.instrument.playKeys([this.set[key]], { deadline, gain: value });
+                    this.instrument.playKeys([this.set[key]], { deadline, gain: this.getGain(value) });
                 }, settings.deadline);
             });
     }

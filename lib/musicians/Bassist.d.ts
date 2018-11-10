@@ -9,7 +9,6 @@ export default class Bassist extends Musician {
                 measure: any;
                 settings: any;
             }) => any;
-            eights: () => number[][];
             bass: () => any;
             crash: ({ measures, index }: {
                 measures: any;
@@ -20,6 +19,7 @@ export default class Bassist extends Musician {
                 index: any;
             }) => any;
             hihat: () => number[];
+            solo: () => any;
         };
     };
     playedChords: string[];

@@ -57,6 +57,6 @@ export default class Bassist extends Musician {
         const duration = value.fraction * pulse.getMeasureLength();
 
         deadline += randomDelay(10);
-        this.instrument.playNotes([note], { deadline, interval, gain: 0.7, duration, pulse });
+        this.instrument.playNotes([note], { deadline, interval, gain: this.getGain(), duration, pulse });
     }
 }

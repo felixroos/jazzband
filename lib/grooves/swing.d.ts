@@ -3,7 +3,6 @@ export declare const swing: {
         measure: any;
         settings: any;
     }) => any;
-    eights: () => number[][];
     bass: () => any;
     crash: ({ measures, index }: {
         measures: any;
@@ -14,4 +13,5 @@ export declare const swing: {
         index: any;
     }) => any;
     hihat: () => number[];
+    solo: () => any;
 };

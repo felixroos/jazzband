@@ -1,5 +1,6 @@
-import { Chord, Distance, Interval, Note } from 'tonal';
+import { Chord, Distance, Interval, Note, PcSet, Scale } from 'tonal';
 import { Synthesizer } from './instruments/Synthesizer';
+import { scaleNames } from './symbols';
 
 export function randomNumber(n) {
     return Math.floor(Math.random() * n)
@@ -183,11 +184,17 @@ export function transposeToRange(notes, range, times = 0) {
     return notes;
 }
 
-export function getIntervalFromStep(step) {
+// accepts both strings or numbers where negative means minor, 
+// returns unified step string that can be turned into an interval
+export function getStep(step) {
     if (typeof step === 'number' && step < 0) {
         step = 'b' + (step * -1);
     }
-    step = step + ''; // to string
+    return step + ''; // to string
+}
+
+export function getIntervalFromStep(step) {
+    step = getStep(step);
     const steps = {
         '1P': ['1', '8'],
         '2m': ['b2', 'b9'],
@@ -207,13 +214,99 @@ export function getIntervalFromStep(step) {
     const interval = Object.keys(steps)
         .find(i => steps[i].includes(step));
     if (!interval) {
-        console.warn(`step ${step} has no defined inteval`);
+        // console.warn(`step ${step} has no defined inteval`);
     }
     return interval;
 }
 
-export function getChordScales(chord, occasion?) {
-    const props = Chord.props(getTonalChord(chord));
-    console.log('props', props);
-    return ['D dorian'];
+export function getChordScales(chord, group = 'Diatonic') {
+    const tokens = Chord.tokenize(getTonalChord(chord));
+    const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1]));
+    return scaleNames(group).filter(name => isSuperset(Scale.intervals(name)));
+}
+
+export function pickChordScale(chord, group = 'Diatonic') {
+    const scales = getChordScales(chord);
+    if (!scales.length) {
+        console.warn(`cannot pick chord scale: no scales found for chord ${chord} in group ${group}`);
+        return;
+    }
+    return scales[0];
+}
+
+export function findDegree(degree, intervals) {
+    return intervals
+        .find(i => i.includes(getStep(degree)) ||
+            i === getIntervalFromStep(degree));
+}
+
+export function hasDegree(degree, intervals) {
+    return !!findDegree(degree, intervals);
+}
+
+export function hasAllDegrees(degrees, intervals) {
+    return degrees.reduce((res, d) => res && hasDegree(d, intervals), true);
+}
+
+export function getScaleDegree(degree, scale) {
+    return findDegree(degree, Scale.intervals(scale));
+}
+
+export function getScalePattern(pattern, scale) {
+    return pattern.map(degree => getScaleDegree(degree, scale));
+}
+
+export function renderIntervals(intervals, root) {
+    return intervals.map(i => Distance.transpose(root, i));
+}
+
+export function renderSteps(steps, root) {
+    return renderIntervals(steps.map(step => getIntervalFromStep(step)), root);
+}
+
+export function permutateIntervals(intervals, pattern) {
+    return pattern.map(d => findDegree(d, intervals));
+}
+
+export function getPatternInChord(pattern, chord) {
+    chord = getTonalChord(chord);
+    const intervals = Chord.intervals(chord);
+    const tokens = Chord.tokenize(chord);
+    let permutation;
+    if (hasAllDegrees(pattern, intervals)) {
+        permutation = permutateIntervals(intervals, pattern);
+    } else {
+        // not all degrees of the pattern are in the chord > get scale
+        const scale = pickChordScale(chord);
+        permutation = permutateIntervals(Scale.intervals(scale), pattern);
+    }
+    if (tokens[0]) {
+        return renderIntervals(permutation, tokens[0]);
+    }
+    return permutation;
+}
+
+// TODO: other way around: find fixed interval pattern in a scale
+// TODO: motives aka start pattern from same note in different scale
+// TODO: motives aka start pattern from different note in same scale
+// TODO: motives aka start pattern from different note in different scale
+
+export function getDigitalPattern(chord) {
+    chord = getTonalChord(chord);
+    const tokens = Chord.tokenize(chord);
+    const intervals = Chord.intervals(chord);
+    let pattern;
+    if (intervals.includes('3m')) {
+        pattern = [1, 3, 4, 5];
+    } else if (intervals.includes('3M')) {
+        pattern = [1, 2, 3, 5];
+    } else {
+        return [1, 1, 1, 1];
+    }
+    return getPatternInChord(pattern, chord);
+}
+
+export function getGuideTones(chord) {
+    chord = getTonalChord(chord);
+    return getPatternInChord([3, 7], chord);
 }
