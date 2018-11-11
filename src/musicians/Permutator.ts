@@ -16,7 +16,7 @@ export default class Permutator extends Musician {
         const groove = settings.groove || this.defaults.groove;
 
         const pattern = groove['solo'] || ((m) => {
-            return m.measure.map(c => 2);
+            return m.measure.map(c => [1, 1, 1, 1]);
         }); // dont changes anything
 
         measures = measures
@@ -43,11 +43,7 @@ export default class Permutator extends Musician {
 
         // digital patterns
         const notes = getDigitalPattern(chord);
-        const note = randomElement(notes) + '4';
-
-        // only guide tones
-        /* const notes = getGuideTones(chord);
-        const note = randomElement(notes) + '5'; */
+        const note = randomElement(notes) + '5';
 
         // all scale notes with different chances
         /* const notes = getPatternInChord([1, 2, 3, 4, 5, 6, 7], chord);

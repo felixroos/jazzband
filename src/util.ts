@@ -93,28 +93,78 @@ export function invertInterval(interval) {
     return '-' + Interval.invert(interval);
 }
 
-// use Interval.ic?
-export function smallestInterval(interval) {
-    let smallest = Interval.simplify(interval);
-    if (smallest === '0A') {
-        smallest = '1P'; // TODO: issue for tonal-interval (0A does not support invert and is not simple)
+/** Transforms interval into one octave (octave+ get octaved down) */
+export function simplifyInterval(interval) {
+    interval = Interval.simplify(interval) || '1P';
+    const transform = {
+        '1P': ['0A', '8P'],
+        '-2m': ['8d', '1A']
     }
-    let inversion = this.invertInterval(smallest);
-    if (Math.abs(Interval.semitones(inversion)) < Math.abs(Interval.semitones(smallest))) {
-        return inversion || interval;
-    }
-    return smallest || interval;
+    /* if (interval === '8d') {
+        console.warn('achtung 8d! You have to simplify the resulting note to avoid accident(al)s hihi');
+    } */
+    return Object.keys(transform)
+        .find(i => transform[i].includes(interval.replace('-', ''))) || interval;
 }
 
-export function minInterval(a, b, preferRightMovement) {
-    const semitones = [Math.abs(Interval.semitones(a)), Math.abs(Interval.semitones(b))];
-    if (semitones[0] === semitones[1]) {
-        if (preferRightMovement) {
-            return semitones[0] < 0 ? -1 : 1;
-        }
-        return semitones[0] > 0 ? -1 : 1;
+declare type intervalDirection = 'up' | 'down';
+
+/** inverts the interval if it does not go to the desired direction */
+export function forceDirection(interval, direction: intervalDirection) {
+    if (
+        (direction === 'up' && Interval.semitones(interval) < 0) ||
+        (direction === 'down' && Interval.semitones(interval) > 0)
+    ) {
+        return invertInterval(interval);
     }
-    return semitones[0] < semitones[1] ? -1 : 1;
+    return interval;
+}
+
+// use Interval.ic?
+export function minInterval(interval, direction: intervalDirection = 'up', force?) {
+    interval = simplifyInterval(interval);
+    let inversion = invertInterval(interval);
+    if (Math.abs(Interval.semitones(inversion)) < Math.abs(Interval.semitones(interval))) {
+        interval = inversion;
+    }
+    if (direction && force) {
+        return forceDirection(interval, direction)
+    }
+    return interval;
+}
+
+export function mapMinInterval(direction: intervalDirection = 'up', force?) {
+    return (interval) => minInterval(interval, direction, force);
+}
+
+// sort function
+export function sortMinInterval(preferredDirection: intervalDirection = 'up') {
+    return (a, b) => {
+        const diff = Math.abs(Interval.semitones(a)) - Math.abs(Interval.semitones(b));
+        if (diff === 0) {
+            return preferredDirection === 'up' ? -1 : 1;
+        }
+        return diff;
+    }
+}
+
+/** Returns the note with the least distance to "from" */
+export function getNearestNote(from, to, direction?: intervalDirection, force = !!direction) {
+    console.log(Distance.interval(Note.pc(from), to));
+    let interval = minInterval(Distance.interval(Note.pc(from), to), direction, force);
+    return Distance.transpose(from, interval);
+}
+
+/** Returns the note with the least distance to "from" */
+export function getNearestTargets(from, targets, preferredDirection: intervalDirection = 'down', force = false, flip = false) {
+    let intervals = targets
+        .map((target) => Distance.interval(Note.pc(from), target))
+        .map(mapMinInterval(preferredDirection, force))
+        .sort(sortMinInterval(preferredDirection))
+    if (flip) {
+        intervals = intervals.reverse();
+    }
+    return intervals.map(i => Distance.transpose(from, i);
 }
 
 export function intervalMatrix(from, to) {
@@ -122,8 +172,8 @@ export function intervalMatrix(from, to) {
         .map(n => {
             return Distance.interval(n, note)
         })
-        .map(d => this.smallestInterval(d))
-        .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i)
+        .map(d => minInterval(d))
+        /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
     )
 }
 

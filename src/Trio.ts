@@ -7,6 +7,7 @@ import { PlasticDrums } from './instruments/PlasticDrums';
 import { Metronome } from './Metronome';
 import { Pulse } from './Pulse';
 import Permutator from './musicians/Permutator';
+import Guide from './musicians/Guide';
 
 export class Trio extends Band {
     pianist: Pianist;
@@ -26,7 +27,8 @@ export class Trio extends Band {
         this.drummer = new Drummer(instruments.drums);
         this.musicians = [this.pianist, this.bassist, this.drummer];
         if (solo) {
-            this.soloist = new Permutator(instruments.piano);
+            // this.soloist = new Permutator(instruments.piano);
+            this.soloist = new Guide(instruments.piano);
             this.musicians.push(this.soloist);
         }
         this.metronome = new Metronome(this.mix);

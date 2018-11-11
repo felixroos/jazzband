@@ -1,6 +1,6 @@
 import { Distance } from 'tonal';
-import { Chord } from 'tonal';
-import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, minInterval, randomDelay, transposeToRange } from '../util';
+import { Chord, Note } from 'tonal';
+import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, randomDelay, transposeToRange, sortMinInterval } from '../util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
@@ -70,13 +70,13 @@ export default class Pianist extends Musician {
         }
         const near = intervalMatrix(before, scorenotes)
             .map((intervals, index) => {
-                const smallest = [].concat(intervals)
-                    .sort((a, b) => minInterval(a, b, false))[0];
+                const smallest = [].concat(intervals).sort(sortMinInterval())[0];
                 if (!Distance.transpose(before[intervals.indexOf(smallest)], smallest)) {
                     console.warn('ALARM', before[intervals.indexOf(smallest)], smallest, intervals);
                 }
                 return Distance.transpose(before[intervals.indexOf(smallest)], smallest);
-            }).filter(n => !!n);
+            }).filter(n => !!n)
+            .filter(n => Note.simplify(n, true));
         return near && near.length ? near : scorenotes;
     }
 
