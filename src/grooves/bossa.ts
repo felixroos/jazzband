@@ -17,9 +17,10 @@ const halfTriplet = () => randomElement(
 const one = (v = 1) => randomElement([0, v]);
 
 export const bossa = {
+    name: 'Bossa',
+    tempo: 160,
     chords: ({ measure, settings }) => {
         return randomElement([
-            /* [1, 1, [0, 1], [0, 3]] */
             [1, [0, 1], 0, [0, 3]],
             [one(), [0, 3], 0, [0, 1]],
             [one(), [0, 1], [0, 3], 0],

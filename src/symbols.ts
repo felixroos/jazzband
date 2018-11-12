@@ -42,6 +42,11 @@ export const chords = [
         long: 'Dominantsept'
     },
     {
+        symbol: '7#11',
+        groups: ['Advanced', 'Diatonic', 'Modes'],
+        long: 'Dominant #11'
+    },
+    {
         symbol: 'M6',
         groups: ['Advanced'],
         long: 'major 6',
@@ -187,7 +192,7 @@ export const scales = [
     },
     {
         symbol: 'spanish', // HM 5
-        groups: ['Expert', 'Diatonic']
+        groups: ['Advanced', 'Diatonic']
     },
     // HM 6 lydian #9
     // HM 7 ???
@@ -207,7 +212,8 @@ export const scales = [
     },
     {
         symbol: 'lydian dominant', // MM 4
-        groups: ['Expert', 'Diatonic', 'Symmetric']
+        groups: ['Advanced', 'Diatonic'],
+        long: 'mixolydian #11'
     },
     {
         symbol: 'melodic minor fifth mode', // MM 5

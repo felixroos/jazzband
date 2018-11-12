@@ -53,7 +53,8 @@ export default class Band {
             }
             measures = measures.map(m => m.chords ? m.chords : m);
             console.log('Band#play', settings);
-            this.musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
+            const musicians = (settings.musicians || this.musicians);
+            musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });
     }

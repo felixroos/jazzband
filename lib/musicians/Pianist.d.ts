@@ -1,12 +1,15 @@
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 export default class Pianist extends Musician {
+    name: string;
     playedNotes: any[];
     playedPatterns: any[];
     playedChords: any[];
     defaults: {
         intelligentVoicings: boolean;
         groove: {
+            name: string;
+            tempo: number;
             chords: ({ measure, settings }: {
                 measure: any;
                 settings: any;

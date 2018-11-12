@@ -1,18 +1,27 @@
 import { randomElement } from "../util";
 
-
 const off = () => randomElement([0, [0, 0, 2]], [6, 1]);
 const eightFour = () => randomElement(
-    [[1, 0, 1], 1],
-    [2, 1]
+    [[1, 0, 1], 1, [0, 0, 1, 1]],
+    [4, 2, 1]
 );
 const eightOff = () => randomElement(
     [[1, 0, 1], [0, 0, 1]],
     [4, 1]
 );
+const halfTriplet = () => randomElement(
+    [
+        [2, 0],
+        [[2, 0, 2], [0, 2, 0]],
+        [1, 1, 1, 1]
+    ],
+    [2, 1, 1]
+);
 
 
 export const swing = {
+    name: 'Swing',
+    tempo: 130,
     chords: ({ measure, settings }) => {
         const r = Math.random() > 0.5 ? .6 : 0;
         const t = `${settings.cycle}/${measure.length}`;
@@ -75,8 +84,9 @@ export const swing = {
         [eightFour(), 2, 0, eightFour()],
         [0, 0, eightFour(), eightFour()],
         [[1, 0, 4], 0, eightFour(), eightFour()],
-        [4, 0, 0, 0],
+        [3, 0, 0, eightFour()],
         /* [0, 1, 2, 0], */
+        [...halfTriplet(), ...halfTriplet()],
         [eightOff(), eightOff(), eightOff(), eightOff()],
     ])
     /* solo: () => [1, 1, 0, 1] */

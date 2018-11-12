@@ -1,6 +1,7 @@
 import { Instrument } from "../instruments/Instrument";
 
 export class Musician {
+    name = 'Musician';
     ready: Promise<any>;
     gain = 1;
     instrument: Instrument;

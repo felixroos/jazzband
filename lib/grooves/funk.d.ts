@@ -1,4 +1,6 @@
 export declare const funk: {
+    name: string;
+    tempo: number;
     chords: () => any;
     bass: () => any;
     kick: (t: any) => (number | number[])[][];

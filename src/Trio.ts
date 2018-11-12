@@ -7,12 +7,14 @@ import { PlasticDrums } from './instruments/PlasticDrums';
 import { Metronome } from './Metronome';
 import { Pulse } from './Pulse';
 import Permutator from './musicians/Permutator';
+import Guide from './musicians/Improvisor';
+import Improvisor from './musicians/Improvisor';
 
 export class Trio extends Band {
     pianist: Pianist;
     bassist: Bassist;
     drummer: Drummer;
-    soloist: Permutator;
+    soloist: Improvisor;
     mix: any;
     instruments: { piano: any; bass: any; drums: any; };
     metronome: Metronome;
@@ -26,7 +28,8 @@ export class Trio extends Band {
         this.drummer = new Drummer(instruments.drums);
         this.musicians = [this.pianist, this.bassist, this.drummer];
         if (solo) {
-            this.soloist = new Permutator(instruments.piano);
+            // this.soloist = new Permutator(instruments.piano);
+            this.soloist = new Improvisor(instruments.piano);
             this.musicians.push(this.soloist);
         }
         this.metronome = new Metronome(this.mix);

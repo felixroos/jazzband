@@ -20,6 +20,14 @@ export function randomElement(array, weighted?) {
     return array[total.indexOf(total.find((s, i) => s >= r))];
 }
 
+export function shuffleArray(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 export function getTonalChord(chord) {
     chord = chord
         .replace('-', 'm')
@@ -87,34 +95,97 @@ export function offbeatReducer(settings) {
 }
 
 export function invertInterval(interval) {
+    const fix = {
+        '1A': '-8d',
+        '-1A': '8d',
+    }
+    if (fix[interval]) {
+        return fix[interval];
+    }
     if (Interval.semitones(interval) < 0) {
         return Interval.invert(interval.slice(1));
     }
     return '-' + Interval.invert(interval);
 }
 
-// use Interval.ic?
-export function smallestInterval(interval) {
-    let smallest = Interval.simplify(interval);
-    if (smallest === '0A') {
-        smallest = '1P'; // TODO: issue for tonal-interval (0A does not support invert and is not simple)
+/** Transforms interval into one octave (octave+ get octaved down) */
+export function simplifyInterval(interval) {
+    interval = Interval.simplify(interval) || '1P';
+
+    const fix = {
+        '8P': '1P',
+        '-8P': '1P',
+        '0A': '1P',
+        '-0A': '1P',
+        '8d': '-1A',
+        '-8d': '1A',
     }
-    let inversion = this.invertInterval(smallest);
-    if (Math.abs(Interval.semitones(inversion)) < Math.abs(Interval.semitones(smallest))) {
-        return inversion || interval;
+
+    if (fix[interval]) {
+        return fix[interval];
     }
-    return smallest || interval;
+    return interval;
 }
 
-export function minInterval(a, b, preferRightMovement) {
-    const semitones = [Math.abs(Interval.semitones(a)), Math.abs(Interval.semitones(b))];
-    if (semitones[0] === semitones[1]) {
-        if (preferRightMovement) {
-            return semitones[0] < 0 ? -1 : 1;
-        }
-        return semitones[0] > 0 ? -1 : 1;
+declare type intervalDirection = 'up' | 'down';
+
+/** inverts the interval if it does not go to the desired direction */
+export function forceDirection(interval, direction: intervalDirection) {
+    if (
+        (direction === 'up' && Interval.semitones(interval) < 0) ||
+        (direction === 'down' && Interval.semitones(interval) > 0)
+    ) {
+        return invertInterval(interval);
     }
-    return semitones[0] < semitones[1] ? -1 : 1;
+    return interval;
+}
+
+// use Interval.ic?
+export function minInterval(interval, direction: intervalDirection = 'up', force?) {
+    interval = simplifyInterval(interval);
+    if (!force) {
+        let inversion = invertInterval(interval);
+        if (Math.abs(Interval.semitones(inversion)) < Math.abs(Interval.semitones(interval))) {
+            interval = inversion;
+        }
+    }
+    if (direction && force) {
+        return forceDirection(interval, direction)
+    }
+    return interval;
+}
+
+export function mapMinInterval(direction: intervalDirection = 'up', force?) {
+    return (interval) => minInterval(interval, direction, force);
+}
+
+// sort function
+export function sortMinInterval(preferredDirection: intervalDirection = 'up') {
+    return (a, b) => {
+        const diff = Math.abs(Interval.semitones(a)) - Math.abs(Interval.semitones(b));
+        if (diff === 0) {
+            return preferredDirection === 'up' ? -1 : 1;
+        }
+        return diff;
+    }
+}
+
+/** Returns the note with the least distance to "from" */
+export function getNearestNote(from, to, direction?: intervalDirection, force = !!direction) {
+    let interval = minInterval(Distance.interval(Note.pc(from), to), direction, force);
+    return Distance.transpose(from, interval);
+}
+
+/** Returns the note with the least distance to "from". TODO: add range */
+export function getNearestTargets(from, targets, preferredDirection: intervalDirection = 'down', force = false, flip = false) {
+    let intervals = targets
+        .map((target) => Distance.interval(Note.pc(from), target))
+        .map(mapMinInterval(preferredDirection, force))
+        .sort(sortMinInterval(preferredDirection))
+    if (flip) {
+        intervals = intervals.reverse();
+    }
+    return intervals.map(i => Distance.transpose(from, i));
 }
 
 export function intervalMatrix(from, to) {
@@ -122,8 +193,8 @@ export function intervalMatrix(from, to) {
         .map(n => {
             return Distance.interval(n, note)
         })
-        .map(d => this.smallestInterval(d))
-        .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i)
+        .map(d => minInterval(d))
+        /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
     )
 }
 
@@ -193,24 +264,25 @@ export function getStep(step) {
     return step + ''; // to string
 }
 
+const steps = {
+    '1P': ['1', '8'],
+    '2m': ['b9', 'b2'],
+    '2M': ['9', '2',],
+    '2A': ['#9', '#2'],
+    '3m': ['b3'],
+    '3M': ['3'],
+    '4P': ['11', '4'],
+    '4A': ['#11', '#4'],
+    '5D': ['b5'],
+    '5P': ['5'],
+    '6m': ['b13', 'b6'],
+    '6M': ['13', '6'],
+    '7m': ['b7'],
+    '7M': ['7', '^7', 'maj7']
+};
+
 export function getIntervalFromStep(step) {
     step = getStep(step);
-    const steps = {
-        '1P': ['1', '8'],
-        '2m': ['b2', 'b9'],
-        '2M': ['2', '9'],
-        '2A': ['#9', '#2'],
-        '3m': ['b3'],
-        '3M': ['3'],
-        '4P': ['4', '11'],
-        '4A': ['#11', '#4'],
-        '5D': ['b5'],
-        '5P': ['5'],
-        '6m': ['b13', 'b6'],
-        '6M': ['13', '6'],
-        '7m': ['b7'],
-        '7M': ['7', '^7', 'maj7']
-    };
     const interval = Object.keys(steps)
         .find(i => steps[i].includes(step));
     if (!interval) {
@@ -252,6 +324,14 @@ export function getScaleDegree(degree, scale) {
     return findDegree(degree, Scale.intervals(scale));
 }
 
+export function getDegreeInChord(note, chord, group?) {
+    return getDegreeFromInterval(
+        Distance.interval(
+            Chord.tokenize(getTonalChord(chord))[0],
+            Note.pc(note))
+    );
+}
+
 export function getScalePattern(pattern, scale) {
     return pattern.map(degree => getScaleDegree(degree, scale));
 }
@@ -266,6 +346,10 @@ export function renderSteps(steps, root) {
 
 export function permutateIntervals(intervals, pattern) {
     return pattern.map(d => findDegree(d, intervals));
+}
+
+export function getDegreeFromInterval(interval) {
+    return steps[interval] ? steps[interval][0] : 0;
 }
 
 export function getPatternInChord(pattern, chord) {
@@ -293,20 +377,54 @@ export function getPatternInChord(pattern, chord) {
 
 export function getDigitalPattern(chord) {
     chord = getTonalChord(chord);
-    const tokens = Chord.tokenize(chord);
     const intervals = Chord.intervals(chord);
-    let pattern;
     if (intervals.includes('3m')) {
-        pattern = [1, 3, 4, 5];
+        return [1, 3, 4, 5];
     } else if (intervals.includes('3M')) {
-        pattern = [1, 2, 3, 5];
+        return [1, 2, 3, 5];
     } else {
         return [1, 1, 1, 1];
     }
-    return getPatternInChord(pattern, chord);
+}
+
+export function renderDigitalPattern(chord) {
+    return getPatternInChord(getDigitalPattern(chord), chord);
 }
 
 export function getGuideTones(chord) {
     chord = getTonalChord(chord);
     return getPatternInChord([3, 7], chord);
+}
+
+export function getRangePosition(note, range) {
+    const semitones = [Distance.semitones(range[0], note), Distance.semitones(range[0], range[1])];
+    return semitones[0] / semitones[1];
+
+}
+
+export function isFirstInPath(path, index) {
+    return path.slice(index)
+        .reduce((sum, value) => sum + value, 0) === 0;
+}
+
+export function isBarStart(path) {
+    return isFirstInPath(path, 1);
+}
+
+export function isFormStart(path) {
+    return isFirstInPath(path, 0);
+}
+
+export function isOffbeat(path) {
+    return path[2] !== 0;
+}
+
+
+export function otherDirection(direction, defaultDirection?) {
+    if (direction === 'up') {
+        return 'down';
+    } else if (direction === 'down') {
+        return 'up'
+    }
+    return defaultDirection;
 }
