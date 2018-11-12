@@ -12,9 +12,9 @@ export default class Improvisor extends Musician {
     constructor(instrument, method?) {
         super(instrument);
         method = method || this.defaultMethod;
-        this.method = method.enhance({
+        this.method = method/* .enhance({
             range: ['F3', 'F5']
-        });
+        }) */;
     }
 
     useMethod(method) {
@@ -54,7 +54,7 @@ export default class Improvisor extends Musician {
             .mutate(({ nextNotes, playedNotes }) => {
                 const pick = nextNotes();
                 const duration = value.fraction * pulse.getMeasureLength();
-                this.instrument.playNotes(pick, { deadline, interval, gain: 1, duration, pulse });
+                this.instrument.playNotes(pick, { deadline, interval, gain: this.getGain(), duration, pulse });
                 return {
                     playedNotes: [].concat(pick, playedNotes())
                 }

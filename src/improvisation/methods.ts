@@ -17,7 +17,7 @@ export const permutator = new Improvisation({
     playedNotes: [],
     fixRange: true,
     startRandom: false,
-    range: ['F3', 'F5'],
+    range: ['Bb3', 'Bb5'],
     /* chanceCurve: () => (distance, length) => (length - distance) * 10, */
     firstNoteInPattern: ({ pattern, chord }) => getPatternInChord([pattern()[0]], chord()),
     firstNote: ({ randomNote, firstNoteInPattern, startRandom, octave }) => {
@@ -149,6 +149,7 @@ export const advancedPermutator = permutator.enhance({
 });
 
 export const guideTones = advancedPermutator.enhance({
+    name: 'Guide Lines',
     ...notesPerChord(1),
     /* direction: 'down', */
     ...pendulum('down', true),
@@ -158,11 +159,13 @@ export const guideTones = advancedPermutator.enhance({
 });
 
 export const guideTonesFlipped = guideTones.enhance({
+    name: 'Distant Guide Tones',
     flip: true
 });
 
 
 export const chordTones = advancedPermutator.enhance({
+    name: 'Only Chord Tones',
     pattern: [1, 3, 5, 7],
     drill: .75, // how persistent should the current direction be followed?
     direction: ({ drill }) => drill() > 0 ? 'up' : 'down',
@@ -176,7 +179,7 @@ export const chordTones = advancedPermutator.enhance({
 
 
 export const fullScale = advancedPermutator.enhance({
-    ...straightNotes(8),
+    name: 'Heptatonic',
     /* ...beatPattern({ off: [2, 3, 4, 5, 6, 7], on: [1, 3, 5, 7] }), */
     ...beatPattern({ on: [1, 3, 5, 7], off: [1, 2, 3, 4, 5, 6, 7] }),
     /* ...beatPattern({ on: [3, 7], off: [9, 11, 13] }), */
@@ -190,6 +193,7 @@ export const fullScale = advancedPermutator.enhance({
 });
 
 export const scalePendulum = advancedPermutator.enhance({
+    name: 'Heptatonic Pendulum',
     /* ...straightNotes(8), */
     ...beatPattern({ pattern: [1, 2, 3, 4, 5, 6, 7] }),
     ...pendulum(),
@@ -198,22 +202,24 @@ export const scalePendulum = advancedPermutator.enhance({
 
 
 export const digitalPattern = advancedPermutator.enhance({
+    name: 'Digital Patterns',
     pattern: ({ chord }) => getDigitalPattern(chord()),
     ...pendulum('up', true, .2),
     exclude: 2,
     reach: 3,
-    ...straightNotes(4)
 });
 
 export const digitalPendulum = advancedPermutator.enhance({
+    name: 'Digital Pendulum',
     pattern: ({ chord }) => getDigitalPattern(chord()),
     ...pendulum('up', false, 1),
-    ...straightNotes(4),
+    ...straightNotes(8),
     /* lineBreaks: ({ isBarStart }) => isBarStart(), */
     exclude: 1,
     reach: 1,
 });
 export const digitalWalker = advancedPermutator.enhance({
+    name: 'Digital Fourths',
     pattern: ({ chord }) => getDigitalPattern(chord()),
     ...pendulum('up', true, .4),
     ...straightNotes(4),
@@ -223,13 +229,22 @@ export const digitalWalker = advancedPermutator.enhance({
     reach: 2,
 });
 
-export const digitalPractise = advancedPermutator.enhance({
-    ...patternPractise('up', 8, true),
+export const digitalPractiseUp = advancedPermutator.enhance({
+    name: 'Digital Practise Up',
+    ...patternPractise('up', 4, true),
+    pattern: ({ chord }) => getDigitalPattern(chord()),
+    /* ...beatPattern({ pattern: ({ chord }) => getDigitalPattern(chord()), barStart: [1] }), */
+});
+
+export const digitalPractiseDown = advancedPermutator.enhance({
+    name: 'Digital Practise Down',
+    ...patternPractise('down', 4, true),
     pattern: ({ chord }) => getDigitalPattern(chord()),
     /* ...beatPattern({ pattern: ({ chord }) => getDigitalPattern(chord()), barStart: [1] }), */
 });
 
 export const heptatonicPractise = advancedPermutator.enhance({
+    name: 'Heptatonic Practise',
     ...patternPractise('up', 8, false),
     ...beatPattern({ barStart: [1], on: [3, 5, 7], off: [1, 2, 3, 4, 5, 6, 7] }),
 });
@@ -240,11 +255,12 @@ export const improvisationMethods = {
     guideTones,
     guideTonesFlipped,
     chordTones,
-    fullScale,
-    scalePendulum,
     digitalPattern,
     digitalPendulum,
     digitalWalker,
-    digitalPractise,
-    heptatonicPractise,
+    fullScale,
+    scalePendulum,
+    digitalPractiseUp,
+    digitalPractiseDown,
+    /* heptatonicPractise, */
 }
