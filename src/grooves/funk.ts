@@ -1,5 +1,7 @@
 import { randomElement } from "../util";
 export const funk = {
+    name: 'Funk',
+    tempo: 90,
     chords: () => randomElement([
         [[2, 0, 0, 1], 0, [0, .6], [0, 3.5, 0, 0]],
         [[1, 0, 0, 5], 0, [0, .6], [1, .5, 0, 0]],

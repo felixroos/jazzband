@@ -1,10 +1,13 @@
 import { Musician } from './Musician';
 export default class Bassist extends Musician {
+    name: string;
     styles: {
         [key: string]: any;
     };
     defaults: {
         groove: {
+            name: string;
+            tempo: number;
             chords: ({ measure, settings }: {
                 measure: any;
                 settings: any;

@@ -3,6 +3,7 @@ import { swing } from '../grooves/swing';
 import { randomDelay } from '../util';
 
 export default class Drummer extends Musician {
+    name = 'Drummer';
     set = {
         kick: 0,
         snare: 1,

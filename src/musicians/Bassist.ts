@@ -4,6 +4,7 @@ import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';
 
 export default class Bassist extends Musician {
+    name = 'Bassist';
     styles: { [key: string]: any };
     defaults = { groove: swing }
     playedChords: string[] = [];

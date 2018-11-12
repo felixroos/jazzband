@@ -1,11 +1,11 @@
 import { resolveChords, randomElement, getNearestTargets, transposeToRange, getPatternInChord, getGuideTones, isBarStart, isFormStart, isOffbeat } from '../util';
 import { Musician } from './Musician';
-import { Note } from 'tonal';
 import { swing } from '../grooves/swing';
 import { Improvisation } from '../improvisation/Improvisation';
 import { defaultMethod } from '../improvisation/methods';
 
 export default class Improvisor extends Musician {
+    name = 'Improvisor';
     defaultMethod = defaultMethod;
     method: Improvisation;
 
@@ -17,7 +17,14 @@ export default class Improvisor extends Musician {
         });
     }
 
+    useMethod(method) {
+        this.method = method;
+    }
+
     play({ measures, pulse, settings }) {
+        if (settings.method) {
+            this.useMethod(settings.method);
+        }
         const groove = settings.groove || swing;
         this.method.mutate(() => ({ groove, playedNotes: [] }));
         const pattern = this.method.get('groovePattern');

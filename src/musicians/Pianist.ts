@@ -6,6 +6,7 @@ import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
 
 export default class Pianist extends Musician {
+    name = 'Pianist';
     playedNotes = [];
     playedPatterns = [];
     playedChords = [];

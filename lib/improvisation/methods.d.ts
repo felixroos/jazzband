@@ -13,3 +13,15 @@ export declare const digitalWalker: Improvisation;
 export declare const digitalPractise: Improvisation;
 export declare const heptatonicPractise: Improvisation;
 export declare const defaultMethod: Improvisation;
+export declare const improvisationMethods: {
+    guideTones: Improvisation;
+    guideTonesFlipped: Improvisation;
+    chordTones: Improvisation;
+    fullScale: Improvisation;
+    scalePendulum: Improvisation;
+    digitalPattern: Improvisation;
+    digitalPendulum: Improvisation;
+    digitalWalker: Improvisation;
+    digitalPractise: Improvisation;
+    heptatonicPractise: Improvisation;
+};

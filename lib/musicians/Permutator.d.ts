@@ -5,6 +5,8 @@ export default class Permutator extends Musician {
     };
     defaults: {
         groove: {
+            name: string;
+            tempo: number;
             chords: ({ measure, settings }: {
                 measure: any;
                 settings: any;

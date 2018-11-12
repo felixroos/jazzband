@@ -1,5 +1,6 @@
 import { Musician } from './Musician';
 export default class Drummer extends Musician {
+    name: string;
     set: {
         kick: number;
         snare: number;
@@ -10,6 +11,8 @@ export default class Drummer extends Musician {
     };
     defaults: {
         groove: {
+            name: string;
+            tempo: number;
             chords: ({ measure, settings }: {
                 measure: any;
                 settings: any;

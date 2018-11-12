@@ -1,4 +1,6 @@
 export declare const swing: {
+    name: string;
+    tempo: number;
     chords: ({ measure, settings }: {
         measure: any;
         settings: any;

@@ -1,6 +1,5 @@
 import { randomElement } from "../util";
 
-
 const off = () => randomElement([0, [0, 0, 2]], [6, 1]);
 const eightFour = () => randomElement(
     [[1, 0, 1], 1],
@@ -13,6 +12,8 @@ const eightOff = () => randomElement(
 
 
 export const swing = {
+    name: 'Swing',
+    tempo: 130,
     chords: ({ measure, settings }) => {
         const r = Math.random() > 0.5 ? .6 : 0;
         const t = `${settings.cycle}/${measure.length}`;

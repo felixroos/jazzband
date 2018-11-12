@@ -235,3 +235,16 @@ export const heptatonicPractise = advancedPermutator.enhance({
 });
 
 export const defaultMethod = guideTones;
+
+export const improvisationMethods = {
+    guideTones,
+    guideTonesFlipped,
+    chordTones,
+    fullScale,
+    scalePendulum,
+    digitalPattern,
+    digitalPendulum,
+    digitalWalker,
+    digitalPractise,
+    heptatonicPractise,
+}
