@@ -9,6 +9,7 @@ export declare const fullScale: Improvisation;
 export declare const scalePendulum: Improvisation;
 export declare const digitalPattern: Improvisation;
 export declare const digitalPendulum: Improvisation;
+export declare const digitalWalker: Improvisation;
 export declare const digitalPractise: Improvisation;
 export declare const heptatonicPractise: Improvisation;
 export declare const defaultMethod: Improvisation;

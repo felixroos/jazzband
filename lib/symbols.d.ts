@@ -19,10 +19,15 @@ export declare const chords: ({
     long?: undefined;
     short?: undefined;
 })[];
-export declare const scales: {
+export declare const scales: ({
     symbol: string;
     groups: string[];
-}[];
+    long?: undefined;
+} | {
+    symbol: string;
+    groups: string[];
+    long: string;
+})[];
 export declare const symbols: {
     chords: ({
         symbol: string;
@@ -45,10 +50,15 @@ export declare const symbols: {
         long?: undefined;
         short?: undefined;
     })[];
-    scales: {
+    scales: ({
         symbol: string;
         groups: string[];
-    }[];
+        long?: undefined;
+    } | {
+        symbol: string;
+        groups: string[];
+        long: string;
+    })[];
 };
 export declare const levels: string[];
 export declare function groupFilter(group: any): (item: any) => boolean;

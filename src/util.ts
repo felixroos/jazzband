@@ -324,6 +324,14 @@ export function getScaleDegree(degree, scale) {
     return findDegree(degree, Scale.intervals(scale));
 }
 
+export function getDegreeInChord(note, chord, group?) {
+    return getDegreeFromInterval(
+        Distance.interval(
+            Chord.tokenize(getTonalChord(chord))[0],
+            Note.pc(note))
+    );
+}
+
 export function getScalePattern(pattern, scale) {
     return pattern.map(degree => getScaleDegree(degree, scale));
 }
@@ -338,6 +346,10 @@ export function renderSteps(steps, root) {
 
 export function permutateIntervals(intervals, pattern) {
     return pattern.map(d => findDegree(d, intervals));
+}
+
+export function getDegreeFromInterval(interval) {
+    return steps[interval] ? steps[interval][0] : 0;
 }
 
 export function getPatternInChord(pattern, chord) {
@@ -407,17 +419,6 @@ export function isOffbeat(path) {
     return path[2] !== 0;
 }
 
-export function getDegreeFromInterval(interval) {
-    return steps[interval] ? steps[interval][0] : 0;
-}
-
-export function getDegreeInChord(note, chord, group?) {
-    return getDegreeFromInterval(
-        Distance.interval(
-            Chord.tokenize(getTonalChord(chord))[0],
-            Note.pc(note))
-    );
-}
 
 export function otherDirection(direction, defaultDirection?) {
     if (direction === 'up') {

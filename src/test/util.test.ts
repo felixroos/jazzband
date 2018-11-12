@@ -40,6 +40,9 @@ test('getChordScales', () => {
             "phrygian",
             "aeolian"]
     );
+    expect(util.getChordScales('D7#11', 'Diatonic')).toEqual(
+        ["lydian dominant"]
+    );
 });
 
 test('findDegree', () => {

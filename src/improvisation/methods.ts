@@ -17,6 +17,7 @@ export const permutator = new Improvisation({
     playedNotes: [],
     fixRange: true,
     startRandom: false,
+    range: ['F3', 'F5'],
     /* chanceCurve: () => (distance, length) => (length - distance) * 10, */
     firstNoteInPattern: ({ pattern, chord }) => getPatternInChord([pattern()[0]], chord()),
     firstNote: ({ randomNote, firstNoteInPattern, startRandom, octave }) => {
@@ -44,7 +45,7 @@ export const permutator = new Improvisation({
             note = transposeToRange([note], range())[0];
         }
         const step = getDegreeInChord(note, chord());
-        console.log(`${step} in ${chord()} = ${note}`);
+        /* console.log(`${step} in ${chord()} = ${note}`); */
         return [note];
     }
 });
@@ -83,11 +84,11 @@ const pendulum = (defaultDirection = 'up', softForce = false, comfort = .4) => (
         const comfortSwitchBars = 1; // switch direction each x bars when in comfort zone
         const isComfortZone = (position > comfort && position < 1 - comfort);
         if (
-            (position < 0 && direction() === 'down') ||
-            (position > 1 && direction() === 'up') ||
+            (position <= 0 && direction() === 'down') ||
+            (position >= 1 && direction() === 'up') ||
             (isComfortZone && isBarStart() && barNumber() % comfortSwitchBars === 0)
         ) {
-            console.log('change direction', otherDirection(direction(), defaultDirection));
+            /* console.log('change direction', otherDirection(direction(), defaultDirection)); */
             return otherDirection(direction(), defaultDirection);
         }
         return direction() || defaultDirection;
@@ -95,16 +96,14 @@ const pendulum = (defaultDirection = 'up', softForce = false, comfort = .4) => (
 });
 
 const beatPattern = ({ pattern, on, off, barStart }:
-    { pattern?: (factory) => number[], on?, off?, barStart?}) => ({
-        beatPattern: (f) => {
-            console.log('beat pattern', f.chord());
-            if (f.isBarStart()) {
-                return barStart || on || pattern(f);
-            } else if (!f.isOffbeat()) {
+    { pattern?, on?, off?, barStart?}) => ({
+        beatPattern: ({ isBarStart, isOffbeat }) => {
+            if (isBarStart()) {
+                return barStart || on || pattern;
+            } else if (!isOffbeat()) {
                 return on || pattern;
             }
             return off || pattern;
-
         },
         pattern: ({ beatPattern }) => beatPattern(),
     });
@@ -192,10 +191,10 @@ export const fullScale = advancedPermutator.enhance({
 
 export const scalePendulum = advancedPermutator.enhance({
     /* ...straightNotes(8), */
-    ...beatPattern({ on: [1, 3, 5, 7], off: [1, 2, 3, 4, 5, 6, 7] }),
+    ...beatPattern({ pattern: [1, 2, 3, 4, 5, 6, 7] }),
     ...pendulum(),
+    ...straightNotes(8),
 });
-
 
 
 export const digitalPattern = advancedPermutator.enhance({
@@ -210,24 +209,29 @@ export const digitalPendulum = advancedPermutator.enhance({
     pattern: ({ chord }) => getDigitalPattern(chord()),
     ...pendulum('up', false, 1),
     ...straightNotes(4),
-    lineBreaks: ({ isBarStart }) => isBarStart(),
-    range: ['Bb3', 'Bb5'],
-    fixRange: false,
+    /* lineBreaks: ({ isBarStart }) => isBarStart(), */
     exclude: 1,
     reach: 1,
+});
+export const digitalWalker = advancedPermutator.enhance({
+    pattern: ({ chord }) => getDigitalPattern(chord()),
+    ...pendulum('up', true, .4),
+    ...straightNotes(4),
+    lineBreaks: false,
+    /* lineBreaks: ({ isBarStart }) => isBarStart(), */
+    exclude: 2,
+    reach: 2,
 });
 
 export const digitalPractise = advancedPermutator.enhance({
     ...patternPractise('up', 8, true),
     pattern: ({ chord }) => getDigitalPattern(chord()),
     /* ...beatPattern({ pattern: ({ chord }) => getDigitalPattern(chord()), barStart: [1] }), */
-    range: ['F3', 'F5'],
 });
 
 export const heptatonicPractise = advancedPermutator.enhance({
     ...patternPractise('up', 8, false),
     ...beatPattern({ barStart: [1], on: [3, 5, 7], off: [1, 2, 3, 4, 5, 6, 7] }),
-    range: ['F3', 'F5'],
 });
 
 export const defaultMethod = guideTones;

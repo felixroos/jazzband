@@ -13,7 +13,7 @@ export default class Improvisor extends Musician {
         super(instrument);
         method = method || this.defaultMethod;
         this.method = method.enhance({
-            range: ['C4', 'G5']
+            range: ['F3', 'F5']
         });
     }
 
