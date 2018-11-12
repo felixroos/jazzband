@@ -101,12 +101,12 @@ test('renderSteps', () => {
     expect(util.renderSteps(['1', 'b3', 'b7'], 'C')).toEqual(['C', 'Eb', 'Bb']);
 });
 
-test('getDigitalPattern', () => {
-    expect(util.getDigitalPattern('7')).toEqual(['1P', '2M', '3M', '5P']);
-    expect(util.getDigitalPattern('-7')).toEqual(['1P', '3m', '4P', '5P']);
-    expect(util.getDigitalPattern('C-7')).toEqual(['C', 'Eb', 'F', 'G']);
-    expect(util.getDigitalPattern('F7')).toEqual(['F', 'G', 'A', 'C']);
-    expect(util.getDigitalPattern('F^7')).toEqual(['F', 'G', 'A', 'C']);
+test('renderDigitalPattern', () => {
+    expect(util.renderDigitalPattern('7')).toEqual(['1P', '2M', '3M', '5P']);
+    expect(util.renderDigitalPattern('-7')).toEqual(['1P', '3m', '4P', '5P']);
+    expect(util.renderDigitalPattern('C-7')).toEqual(['C', 'Eb', 'F', 'G']);
+    expect(util.renderDigitalPattern('F7')).toEqual(['F', 'G', 'A', 'C']);
+    expect(util.renderDigitalPattern('F^7')).toEqual(['F', 'G', 'A', 'C']);
 });
 
 test('getGuideTones', () => {
@@ -138,7 +138,7 @@ test('minInterval', () => {
     expect(util.minInterval('2m', 'up', true)).toBe('2m');
 })
 
-test.only('mapMinInterval', () => {
+test('mapMinInterval', () => {
     expect(['2M', '2m', '7M', '4P']
         .map(util.mapMinInterval('up')))
         .toEqual(['2M', '2m', '-2m', '4P'])
@@ -148,7 +148,12 @@ test('sortMinIntervals', () => {
     expect(['2M', '2m', '-2m', '4P']
         .sort(util.sortMinInterval()))
         .toEqual(['2m', '-2m', '2M', '4P']);
-})
+});
+
+test('invertInterval', () => {
+    expect(util.invertInterval('1A')).toEqual('-8d');
+    expect(util.invertInterval('-1A')).toEqual('8d');
+});
 
 test('forceDirection', () => {
     expect(util.forceDirection('-2M', 'up')).toEqual('7m');
@@ -157,6 +162,7 @@ test('forceDirection', () => {
     expect(util.forceDirection('3M', 'down')).toEqual('-6m');
     expect(util.forceDirection('-8A', 'down')).toEqual('-8A');
     expect(util.forceDirection('-8P', 'up')).toEqual('8P');
+    expect(util.forceDirection('1A', 'down')).toEqual('-8d');
 })
 
 test('getNearestNote', () => {
@@ -164,15 +170,49 @@ test('getNearestNote', () => {
     expect(util.getNearestNote('C4', 'F')).toBe('F4');
     expect(util.getNearestNote('C4', 'F', 'down')).toBe('F3');
     expect(util.getNearestNote('C4', 'F', 'up')).toBe('F4');
-    expect(util.getNearestNote('D5', 'Db')).toBe('C#5');
+    expect(util.getNearestNote('D5', 'Db')).toBe('Db5');
+    expect(util.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
 });
 
-test('getNearestTarget', () => {
+test('getNearestTargets', () => {
     expect(util.getNearestTargets('C4', ['F', 'G'])[0]).toBe('G3');
     expect(util.getNearestTargets('E5', ['G', 'D'])[0]).toBe('D5');
     expect(util.getNearestTargets('C4', ['F', 'G'], 'up')[0]).toBe('F4');
     expect(util.getNearestTargets('C4', ['F', 'G'], 'down')[0]).toBe('G3');
     expect(util.getNearestTargets('C4', ['F', 'Gb'], 'down')[0]).toBe('F4');
     expect(util.getNearestTargets('C4', ['F', 'F#'], 'down', true)[0]).toBe('F#3');
-    expect(util.getNearestTargets('D5', ['Db', 'Ab'], 'down')[0]).toBe('C#5');
+    expect(util.getNearestTargets('D5', ['Db', 'Ab'], 'down')[0]).toBe('Db5');
+    expect(util.getNearestTargets('C4', ['D', 'E'], 'down', true)[0]).toBe('E3');
+    expect(util.getNearestTargets('C4', ['D', 'Db'], 'down', true)[0]).toBe('D3');
+    expect(util.getNearestTargets('C4', ['D', 'C#'], 'down', true)[0]).toBe('D3');
+    expect(util.getNearestTargets('C4', ['Db', 'C#'], 'down', true)[0]).toBe('C#3');
+    expect(util.getNearestTargets('B3', ['Bb', 'E'], 'down', true)[0]).toBe('Bb3');
+});
+
+test('getRangePosition', () => {
+    expect(util.getRangePosition('C2', ['C3', 'C4'])).toBe(-1);
+    expect(util.getRangePosition('C5', ['C3', 'C4'])).toBe(2);
+    expect(util.getRangePosition('C3', ['C3', 'C4'])).toBe(0);
+    expect(util.getRangePosition('F#', ['C3', 'C4'])).toBe(.5);
+    expect(util.getRangePosition('C4', ['C3', 'C4'])).toBe(1);
+    expect(util.getRangePosition('G#3', ['C3', 'C4'])).toBe(8 / 12);
+    expect(util.getRangePosition('A3', ['C3', 'C4'])).toBe(9 / 12);
+    expect(util.getRangePosition('D3', ['C3', 'C4'])).toBe(2 / 12);
+})
+
+test('isFirstInPath', () => {
+    expect(util.isFirstInPath([0, 0, 0], 1)).toBe(true);
+    expect(util.isFirstInPath([0, 1, 0], 1)).toBe(false);
+    expect(util.isFirstInPath([0, 0, 1], 1)).toBe(false);
+    expect(util.isFirstInPath([0, 1, 1], 1)).toBe(false);
+    expect(util.isFirstInPath([0, 0, 0], 2)).toBe(true);
+    expect(util.isFirstInPath([0, 0, 1], 2)).toBe(false);
+    expect(util.isFirstInPath([0, 1, 0], 2)).toBe(true);
+    expect(util.isFirstInPath([1, 1, 0], 2)).toBe(true);
+
+    expect(util.isFirstInPath([1, 0, 0, 0, 0], 0)).toBe(false);
+    expect(util.isFirstInPath([1, 0, 0, 0, 0], 1)).toBe(true);
+    expect(util.isFirstInPath([1, 0, 0, 0, 0], 2)).toBe(true);
+    expect(util.isFirstInPath([1, 0, 0, 0, 0], 3)).toBe(true);
+    expect(util.isFirstInPath([1, 0, 0, 0, 0], 4)).toBe(true);
 });

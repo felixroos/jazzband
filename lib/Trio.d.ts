@@ -3,12 +3,12 @@ import Pianist from './musicians/Pianist';
 import Bassist from './musicians/Bassist';
 import Drummer from './musicians/Drummer';
 import { Metronome } from './Metronome';
-import Permutator from './musicians/Permutator';
+import Improvisor from './musicians/Improvisor';
 export declare class Trio extends Band {
     pianist: Pianist;
     bassist: Bassist;
     drummer: Drummer;
-    soloist: Permutator;
+    soloist: Improvisor;
     mix: any;
     instruments: {
         piano: any;

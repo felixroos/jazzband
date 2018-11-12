@@ -1,4 +1,4 @@
-import { resolveChords, getDigitalPattern, randomDelay, randomElement, getGuideTones, getPatternInChord } from '../util';
+import { resolveChords, getDigitalPattern, randomDelay, randomElement, getGuideTones, getPatternInChord, renderDigitalPattern } from '../util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';
@@ -42,7 +42,7 @@ export default class Permutator extends Musician {
         this.playedChords.push(chord);
 
         // digital patterns
-        const notes = getDigitalPattern(chord);
+        const notes = renderDigitalPattern(chord);
         const note = randomElement(notes) + '5';
 
         // all scale notes with different chances

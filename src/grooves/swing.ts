@@ -4,11 +4,11 @@ import { randomElement } from "../util";
 const off = () => randomElement([0, [0, 0, 2]], [6, 1]);
 const eightFour = () => randomElement(
     [[1, 0, 1], 1],
-    [2, 1]
+    [2, 1, 1]
 );
 const eightOff = () => randomElement(
-    [[1, 0, 1], [0, 0, 1]],
-    [4, 1]
+    [[1, 0, 1], [0, 0, 1], [1, 1, 1]],
+    [4, 2, 2]
 );
 
 

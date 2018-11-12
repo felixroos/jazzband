@@ -1,41 +1,24 @@
 import { Musician } from './Musician';
+import { Improvisation } from '../improvisation/Improvisation';
 export default class Guide extends Musician {
     styles: {
         [key: string]: any;
     };
-    defaults: {
-        groove: {
-            chords: ({ measure, settings }: {
-                measure: any;
-                settings: any;
-            }) => any;
-            bass: () => any;
-            crash: ({ measures, index }: {
-                measures: any;
-                index: any;
-            }) => number[];
-            ride: ({ measures, index }: {
-                measures: any;
-                index: any;
-            }) => any;
-            hihat: () => number[];
-            solo: () => any;
-        };
-    };
-    playedChords: string[];
-    playedNotes: string[];
     range: string[];
+    methods: {
+        [method: string]: Improvisation;
+    };
     constructor(instrument: any);
     play({ measures, pulse, settings }: {
         measures: any;
         pulse: any;
         settings: any;
     }): void;
-    playPermutations({ value, cycle, path, deadline, interval }: {
+    improvise({ value, cycle, path, deadline, interval }: {
         value: any;
         cycle: any;
         path: any;
         deadline: any;
         interval: any;
-    }, measures: any, pulse: any): void;
+    }, measures: any, pulse: any, method: any): void;
 }
