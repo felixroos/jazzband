@@ -428,3 +428,13 @@ export function otherDirection(direction, defaultDirection?) {
     }
     return defaultDirection;
 }
+
+export function parseChords(chords) {
+    return chords
+        .replace(/\n/g, '|')
+        .split('|') // split into measures
+        .map(measure => measure.split(/\s/)) // split measures by spaces
+        .map(measure => measure.filter(chord => !!chord)) // kill empty chords
+        .map(measure => measure.length === 1 ? measure[0] : measure) // simplify one chord measures
+        .filter(measure => !measure || measure.length) // kill empty measures
+}

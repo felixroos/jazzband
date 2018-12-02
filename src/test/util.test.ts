@@ -1,4 +1,5 @@
 import * as util from '../util';
+import { parseChords } from '../util';
 import { Scale } from 'tonal';
 
 test('getIntervalFromStep: undefined', () => {
@@ -218,4 +219,27 @@ test('isFirstInPath', () => {
     expect(util.isFirstInPath([1, 0, 0, 0, 0], 2)).toBe(true);
     expect(util.isFirstInPath([1, 0, 0, 0, 0], 3)).toBe(true);
     expect(util.isFirstInPath([1, 0, 0, 0, 0], 4)).toBe(true);
+});
+
+test('parseChords', () => {
+    expect(parseChords('D-7')).toEqual(['D-7']);
+    expect(parseChords('D-7 G7 C^7')).toEqual([['D-7', 'G7', 'C^7']]);
+    expect(parseChords('D-7 | G7 | C^7')).toEqual(['D-7', 'G7', 'C^7']);
+    expect(parseChords('D-7 G7 | C^7')).toEqual([['D-7', 'G7'], 'C^7']);
+    expect(parseChords(`
+    C7  | F7 | C7 | C7
+    F7  | F7 | C7 | A7
+    D-7 | G7 | C7 | G7`))
+        .toEqual([
+            'C7', 'F7', 'C7', 'C7',
+            'F7', 'F7', 'C7', 'A7',
+            'D-7', 'G7', 'C7', 'G7']);
+    expect(parseChords(`
+            | C7  | F7 | C7 | C7 |
+            | F7  | F7 | C7 | A7 |
+            | D-7 | G7 | C7 | G7 |`))
+        .toEqual([
+            'C7', 'F7', 'C7', 'C7',
+            'F7', 'F7', 'C7', 'A7',
+            'D-7', 'G7', 'C7', 'G7']);
 });
