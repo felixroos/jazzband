@@ -440,15 +440,21 @@ export function parseChords(chords, simplify = true) {
         // parse symbols to chords and signs
         .map(measure => {
             // repeat start
-            if (measure.symbols[0] === ':') {
-                measure.symbols = measure.symbols.slice(1);
+            if (measure.symbols[0][0] === ':') {
+                if (measure.symbols[0].length === 1) {
+                    measure.symbols = measure.symbols.slice(1);
+                }
                 measure.signs.unshift('{');
             }
+            const last = measure.symbols[measure.symbols.length - 1];
             // repeat end
-            if (measure.symbols[measure.symbols.length - 1] === ':') {
-                measure.symbols.pop();
+            if (last[last.length - 1] === ':') {
+                if (last.length === 1) {
+                    measure.symbols.pop();
+                }
                 measure.signs.push('}');
             }
+            measure.symbols = measure.symbols.map(s => s.replace(/:/g, ''));
             const house = measure.symbols.find(s => s.match(/^[1-9]$/));
             if (house) {
                 measure.house = parseInt(house);
