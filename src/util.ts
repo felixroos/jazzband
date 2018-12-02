@@ -429,12 +429,60 @@ export function otherDirection(direction, defaultDirection?) {
     return defaultDirection;
 }
 
-export function parseChords(chords) {
+export function parseChords(chords, simplify = true) {
     return chords
         .replace(/\n/g, '|')
         .split('|') // split into measures
         .map(measure => measure.split(/\s/)) // split measures by spaces
         .map(measure => measure.filter(chord => !!chord)) // kill empty chords
-        .map(measure => measure.length === 1 ? measure[0] : measure) // simplify one chord measures
         .filter(measure => !measure || measure.length) // kill empty measures
+        .map(measure => ({ symbols: measure, signs: [] }))
+        // parse symbols to chords and signs
+        .map(measure => {
+            // repeat start
+            if (measure.symbols[0] === ':') {
+                measure.symbols = measure.symbols.slice(1);
+                measure.signs.unshift('{');
+            }
+            // repeat end
+            if (measure.symbols[measure.symbols.length - 1] === ':') {
+                measure.symbols.pop();
+                measure.signs.push('}');
+            }
+            const house = measure.symbols.find(s => s.match(/^[1-9]$/));
+            if (house) {
+                measure.house = parseInt(house);
+            }
+            measure.symbols = measure.symbols.filter(s => !s.match(/^[1-9]$/))
+            // houses
+            measure.chords = [].concat(measure.symbols);
+            delete measure.symbols;
+            return measure;
+        })
+        .map(measure => {
+            if (!simplify) {
+                return measure;
+            }
+            if (measure.signs.length === 0) {
+                delete measure.signs;
+            }
+            if (measure.chords.length === 0) {
+                delete measure.chords;
+            }
+            return measure;
+        })
+        // kill empty measures
+        .filter(measure => Object.keys(measure).length > 0)
+        // simplify => measures with only chords will be arrays
+        .map(measure => {
+            if (!simplify) {
+                return measure;
+            }
+            if (measure.chords && Object.keys(measure).length === 1) {
+                return measure.chords.length === 1 ?
+                    measure.chords[0] : // simplify one chord measures
+                    measure.chords
+            }
+            return measure;
+        });
 }
