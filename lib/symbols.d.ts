@@ -62,8 +62,8 @@ export declare const symbols: {
 };
 export declare const levels: string[];
 export declare function groupFilter(group: any): (item: any) => boolean;
-export declare function scaleNames(group?: string): any;
-export declare function chordNames(group?: string): any;
+export declare function scaleNames(group?: string): string[];
+export declare function chordNames(group?: string): string[];
 export declare function groupNames(): string[];
 export declare function symbolName(type: any, symbol: any, long: any): any;
 export declare function scaleName(symbol: any, long?: boolean): any;

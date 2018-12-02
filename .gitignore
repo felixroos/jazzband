@@ -8,3 +8,5 @@ demo/dist
 #**/**/samples/drummer
 **/**/samples/MetronomeUp.wav
 .vscode
+
+legacy.md

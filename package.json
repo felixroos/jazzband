@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest --watch",
     "publish": "npm publish",
-    "build": "parcel build ./src/index.ts --out-dir ./dist",
-    "watch": "parcel watch ./src/index.ts --out-dir ./dist",
+    "build": "tsc",
+    "watch": "tsc --watch",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
     "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist"
   },
