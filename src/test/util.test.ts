@@ -243,3 +243,17 @@ test('parseChords', () => {
             'F7', 'F7', 'C7', 'A7',
             'D-7', 'G7', 'C7', 'G7']);
 });
+
+test.only('parseChords: houses', () => {
+    expect(parseChords(`
+            |: C7  | F7 |1 C7 | C7 :|
+                        |2 C7 | C7  |
+            | F7   | F7 |  C7 | A7  |
+            | D-7  | G7 |  C7 | G7  |`))
+        .toEqual([
+            { chords: ['C7'], signs: ['{'] }, 'F7',
+            { house: 1, chords: ['C7'] }, { chords: ['C7'], signs: ['}'] },
+            { house: 2, chords: ['C7'] }, 'C7',
+            'F7', 'F7', 'C7', 'A7',
+            'D-7', 'G7', 'C7', 'G7']);
+});

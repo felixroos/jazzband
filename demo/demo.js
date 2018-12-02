@@ -62,8 +62,6 @@ window.onload = function () {
         console.log('tempo', bpm);
         const cycle = 4;
         band.comp(standard.music.measures, { metronome: true, cycle, bpm, groove/* , arpeggio: true */ })
-        /*band.comp(new Array(5).fill(1).reduce((a, c) => a.concat(['D-7', 'G7', 'C^7', 'C^7']), []),
-        { bpm, groove });*/
     }
 
     randomInstruments.addEventListener('click', () => {
