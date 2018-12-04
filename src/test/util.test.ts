@@ -275,29 +275,30 @@ test('minifyChordSnippet', () => {
                                 F7`)).toEqual('C7|F7');
     expect(minifyChordSnippet(`C7|||||F7`)).toEqual('C7|F7');
     const urlSafe = minifyChordSnippet(`
-    |: E-7b5    | A7b9      | D-     | x          |
+    |: E-7b5    | A7b9      | D-     | %          |
     |  G-7      | C7        | F^7    | E-7b5 A7b9 |
     
     |1 D-       | G-7       | Bb7    | A7b9       |
     |  D-       | G7#11     | E-7b5  | A7b9      :|
     
     |2 D-       | G-7       | Bb7    | A7b9       |
-    |  D- B7    | Bb7#11 A7 | D-     | x          |
+    |  D- B7    | Bb7#11 A7 | D-     | %          |
     `, true);
 
-    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix`)
+    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IXIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-IX`)
     expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
 });
 
-test('minifyChordSnippet', () => {
-    const urlsafe = 'RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix';
+test.only('formatChordSnippet', () => {
+    const urlsafe = 'RE-7b5IA7b9ID-IXIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-IX';
     const formatted = formatChordSnippet(urlsafe);
-    expect(formatted).toBe(
-        `|:E-7b5|A7b9|D-|x|
-|G-7|C7|F^7|E-7b5 A7b9|
-|1 D-|G-7|Bb7|A7b9|
-|D-|G7#11|E-7b5|A7b9:|
-|2 D-|G-7|Bb7|A7b9|
-|D- B7|Bb7#11 A7|D-|x|`);
+    expect("\n" + formatted).toBe(
+        `
+|: E-7b5  |  A7b9       |  D-     |  %           |
+|  G-7    |  C7         |  F^7    |  E-7b5 A7b9  |
+|1 D-     |  G-7        |  Bb7    |  A7b9        |
+|  D-     |  G7#11      |  E-7b5  |  A7b9       :|
+|2 D-     |  G-7        |  Bb7    |  A7b9        |
+|  D- B7  |  Bb7#11 A7  |  D-     |  %           |`);
     expect(minifyChordSnippet(formatted, true)).toBe(urlsafe);
 });

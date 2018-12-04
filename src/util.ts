@@ -429,11 +429,40 @@ export function otherDirection(direction, defaultDirection?) {
     return defaultDirection;
 }
 
+function wrapPipes(string) {
+    return `|${string}|`.replace(/\|+/g, '|');
+}
+
 export function formatChordSnippet(snippet, linebreaks = true) {
     // replaces url chars back
     let compact = minifyChordSnippet(snippet, false);
-    compact = `|${compact}|`.replace(/\|+/g, '|');
+    compact = wrapPipes(compact);
+
     if (linebreaks) {
+        let bars = compact.split('|').slice(1, -1);
+        bars = bars.map((bar, index) => {
+            if (!bar[0].match(/[1-9:]/)) {
+                bar = '  ' + bar;
+            } else if (bar[0] === ':') {
+                bar = ': ' + bar.slice(1);
+            }
+            return bar;
+        });
+        const chars = bars
+            .reduce((max, bar, index) => {
+                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+                return max;
+            }, []);
+        compact = bars.map((bar, index) => {
+            let diff = chars[index % 4] - bar.length + 2;
+            if (diff > 0) {
+                bar += new Array(diff).fill(' ').join('');
+            }
+            bar = bar.replace(/:(\s+)$/, '$1:');
+            return bar;
+        }).join('|');
+
+        compact = wrapPipes(compact);
         // break string all 4 bars
         let pipeIndex = -1;
         compact = compact.split('').reduce((string, char, index) => {
