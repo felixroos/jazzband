@@ -289,7 +289,7 @@ test('minifyChordSnippet', () => {
     expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
 });
 
-test.only('formatChordSnippet', () => {
+test('formatChordSnippet', () => {
     const urlsafe = 'RE-7b5IA7b9ID-IXIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-IX';
     const formatted = formatChordSnippet(urlsafe);
     expect("\n" + formatted).toBe(
@@ -301,4 +301,16 @@ test.only('formatChordSnippet', () => {
 |2 D-     |  G-7        |  Bb7    |  A7b9        |
 |  D- B7  |  Bb7#11 A7  |  D-     |  %           |`);
     expect(minifyChordSnippet(formatted, true)).toBe(urlsafe);
+})
+
+test.only('formatChordSnippet with offset', () => {
+    const withOffset = formatChordSnippet(`RGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9I1_A7IA-7b5_D7b9RI2_A-7_D7IGM7ID-7IG7ICM7IXIF-7IBb7IEbM7IA-7_D7IGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9IA-7_D7IGM7_D7`);
+    expect("\n" + withOffset).toBe(`
+|: G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
+|  C7   |  B-7b5 E7b9  |1 A7      |  A-7b5 D7b9  :|
+                       |2 A-7 D7  |  G^7          |
+|  D-7  |  G7          |  C^7     |  %            |
+|  F-7  |  Bb7         |  Eb^7    |  A-7 D7       |
+|  G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
+|  C7   |  B-7b5 E7b9  |  A-7 D7  |  G^7 D7       |`);
 });

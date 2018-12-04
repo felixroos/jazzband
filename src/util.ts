@@ -439,6 +439,7 @@ export function formatChordSnippet(snippet, linebreaks = true) {
     compact = wrapPipes(compact);
 
     if (linebreaks) {
+        // insert spaces before first chord
         let bars = compact.split('|').slice(1, -1);
         bars = bars.map((bar, index) => {
             if (!bar[0].match(/[1-9:]/)) {
@@ -448,16 +449,34 @@ export function formatChordSnippet(snippet, linebreaks = true) {
             }
             return bar;
         });
-        const chars = bars
-            .reduce((max, bar, index) => {
-                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
-                return max;
-            }, []);
+        // find out indices of first houses
+        const houses = bars.reduce((offset, bar, index) => {
+            if (bar[0] === '1') {
+                offset.push(index);
+            }
+            return offset;
+        }, []);
+        // insert empty bars before additional houses
+        bars = bars.reduce((bars, bar, index) => {
+            if (bar[0].match(/[2-9]/)) {
+                const offset = houses.filter(h => h < index).reverse()[0];
+                bars = bars.concat(new Array(offset % 4).fill(''));
+            }
+            bars.push(bar);
+            return bars;
+        }, []);
+        // find out the maximal number of chars per column
+        const chars = bars.reduce((max, bar, index) => {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+        // fill up each bar with spaces
         compact = bars.map((bar, index) => {
             let diff = chars[index % 4] - bar.length + 2;
             if (diff > 0) {
                 bar += new Array(diff).fill(' ').join('');
             }
+            // move double dots to end of bar
             bar = bar.replace(/:(\s+)$/, '$1:');
             return bar;
         }).join('|');
@@ -479,7 +498,8 @@ export function formatChordSnippet(snippet, linebreaks = true) {
         compact = compact.replace(/\n/g, '|');
     }
     return compact
-        .replace(/\|+/g, '|');;
+        .replace(/\|+/g, '|')
+        .replace(/\|( +)\|/g, ' $1 ')
 }
 
 export function minifyChordSnippet(snippet, urlsafe = false) {
