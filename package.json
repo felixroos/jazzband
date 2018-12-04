@@ -1,6 +1,6 @@
 {
   "name": "jazzband",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "A Virtual Jazz Band that plays chords with the Web Audio API.",
   "main": "lib/index.js",
   "scripts": {
