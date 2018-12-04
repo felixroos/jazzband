@@ -93,7 +93,7 @@ export default class Pianist extends Musician {
     }
 
     playChord(chord, settings) {
-        if (chord === 'x') { // repeat
+        if (chord === '%') { // repeat
             chord = this.playedChords[this.playedChords.length - 1];
         }
         if (!chord || chord === '0') {

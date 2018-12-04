@@ -70,5 +70,7 @@ export declare function isBarStart(path: any): boolean;
 export declare function isFormStart(path: any): boolean;
 export declare function isOffbeat(path: any): boolean;
 export declare function otherDirection(direction: any, defaultDirection?: any): any;
-export declare function parseChords(chords: any, simplify?: boolean): any;
+export declare function formatChordSnippet(snippet: any, linebreaks?: boolean): string;
+export declare function minifyChordSnippet(snippet: any, urlsafe?: boolean): string;
+export declare function parseChordSnippet(snippet: any, simplify?: boolean): any[];
 export {};

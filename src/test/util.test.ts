@@ -1,5 +1,5 @@
 import * as util from '../util';
-import { parseChords } from '../util';
+import { parseChordSnippet, minifyChordSnippet, formatChordSnippet } from '../util';
 import { Scale } from 'tonal';
 
 test('getIntervalFromStep: undefined', () => {
@@ -222,11 +222,11 @@ test('isFirstInPath', () => {
 });
 
 test('parseChords', () => {
-    expect(parseChords('D-7')).toEqual(['D-7']);
-    expect(parseChords('D-7 G7 C^7')).toEqual([['D-7', 'G7', 'C^7']]);
-    expect(parseChords('D-7 | G7 | C^7')).toEqual(['D-7', 'G7', 'C^7']);
-    expect(parseChords('D-7 G7 | C^7')).toEqual([['D-7', 'G7'], 'C^7']);
-    expect(parseChords(`
+    expect(parseChordSnippet('D-7')).toEqual(['D-7']);
+    expect(parseChordSnippet('D-7 G7 C^7')).toEqual([['D-7', 'G7', 'C^7']]);
+    expect(parseChordSnippet('D-7 | G7 | C^7')).toEqual(['D-7', 'G7', 'C^7']);
+    expect(parseChordSnippet('D-7 G7 | C^7')).toEqual([['D-7', 'G7'], 'C^7']);
+    expect(parseChordSnippet(`
     C7  | F7 | C7 | C7
     F7  | F7 | C7 | A7
     D-7 | G7 | C7 | G7`))
@@ -234,7 +234,7 @@ test('parseChords', () => {
             'C7', 'F7', 'C7', 'C7',
             'F7', 'F7', 'C7', 'A7',
             'D-7', 'G7', 'C7', 'G7']);
-    expect(parseChords(`
+    expect(parseChordSnippet(`
             | C7  | F7 | C7 | C7 |
             | F7  | F7 | C7 | A7 |
             | D-7 | G7 | C7 | G7 |`))
@@ -245,7 +245,7 @@ test('parseChords', () => {
 });
 
 test('parseChords: houses', () => {
-    expect(parseChords(`
+    expect(parseChordSnippet(`
             |: C7  | F7 |1 C7 | C7 :|
                         |2 C7 | C7  |
             | F7   | F7 |  C7 | A7  |
@@ -258,10 +258,46 @@ test('parseChords: houses', () => {
             'D-7', 'G7', 'C7', 'G7']);
 });
 
-test('parseChords: houses', () => {
-    expect(parseChords(`
+test('parseChordSnippet: houses', () => {
+    expect(parseChordSnippet(`
             |:C7:|`))
         .toEqual([
             { chords: ['C7'], signs: ['{', '}'] }
         ]);
+});
+
+test('minifyChordSnippet', () => {
+    expect(minifyChordSnippet(`|C7|F7|`)).toEqual('C7|F7');
+    expect(minifyChordSnippet(`   C7    |  F7`)).toEqual('C7|F7');
+    expect(minifyChordSnippet(`RCIFSM7IX`)).toEqual(':C|F#^7|%');
+    expect(minifyChordSnippet(':C|F#^7|%', true)).toEqual('RCIFSM7IX');
+    expect(minifyChordSnippet(`C7
+                                F7`)).toEqual('C7|F7');
+    expect(minifyChordSnippet(`C7|||||F7`)).toEqual('C7|F7');
+    const urlSafe = minifyChordSnippet(`
+    |: E-7b5    | A7b9      | D-     | x          |
+    |  G-7      | C7        | F^7    | E-7b5 A7b9 |
+    
+    |1 D-       | G-7       | Bb7    | A7b9       |
+    |  D-       | G7#11     | E-7b5  | A7b9      :|
+    
+    |2 D-       | G-7       | Bb7    | A7b9       |
+    |  D- B7    | Bb7#11 A7 | D-     | x          |
+    `, true);
+
+    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix`)
+    expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
+});
+
+test('minifyChordSnippet', () => {
+    const urlsafe = 'RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix';
+    const formatted = formatChordSnippet(urlsafe);
+    expect(formatted).toBe(
+        `|:E-7b5|A7b9|D-|x|
+|G-7|C7|F^7|E-7b5 A7b9|
+|1 D-|G-7|Bb7|A7b9|
+|D-|G7#11|E-7b5|A7b9:|
+|2 D-|G-7|Bb7|A7b9|
+|D- B7|Bb7#11 A7|D-|x|`);
+    expect(minifyChordSnippet(formatted, true)).toBe(urlsafe);
 });

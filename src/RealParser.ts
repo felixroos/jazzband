@@ -30,7 +30,7 @@ export class RealParser {
     replacements = {
         "LZ": [" ", "|"],
         "XyQ": [" ", " ", " "],
-        "Kcl": ["|", "x", " "]
+        "Kcl": ["|", "%", " "]
     };
     raw: string;
     sections: any; //chords json
@@ -113,7 +113,7 @@ export class RealParser {
                     last.chords = current.measures[current.measures.length - 3].chords;
                     current.measure.chords = current.measures[current.measures.length - 2].chords;
                 }
-                if (last && current.measure.chords[0] === 'x') {
+                if (last && current.measure.chords[0] === '%') {
                     current.measure.chords = [].concat(last.chords);
                     current.measure.idle = true;
                 }
