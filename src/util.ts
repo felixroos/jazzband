@@ -429,16 +429,69 @@ export function otherDirection(direction, defaultDirection?) {
     return defaultDirection;
 }
 
-export function parseChords(chords, simplify = true) {
-    return chords
-        .replace(/\n/g, '|')
+export function formatChordSnippet(snippet, linebreaks = true) {
+    // replaces url chars back
+    let compact = minifyChordSnippet(snippet, false);
+    compact = `|${compact}|`.replace(/\|+/g, '|');
+    if (linebreaks) {
+        // break string all 4 bars
+        let pipeIndex = -1;
+        compact = compact.split('').reduce((string, char, index) => {
+            if (char === '|') {
+                pipeIndex++;
+            }
+            if (char === '|' && pipeIndex % 4 === 0 && index > 0 && index < compact.length - 1) {
+                char = "|\n|";
+                pipeIndex = 0;
+            }
+            return string + char;
+        }, '');
+    } else {
+        compact = compact.replace(/\n/g, '|');
+    }
+    return compact
+        .replace(/\|+/g, '|');;
+}
+
+export function minifyChordSnippet(snippet, urlsafe = false) {
+    let compact = (`|${snippet}|`)
+        .replace(/\n+/g, '|') // replace line breaks with pipes
+        .replace(/\|+/g, '|') // no repeated pipes
+        .replace(/\s+/g, ' ') // no repeated pipes
+        .replace(/\s?\|\s?/g, '|') // no pipes with spaces
+        .replace(/\s?\:\s?/g, ':') // no repeat with spaces
+    if (urlsafe) {
+        // replaces url unfriendly chars
+        compact = compact
+            .replace(/\|+/g, 'I')
+            .replace(/\s+/g, '_')
+            .replace(/:/g, 'R')
+            .replace(/\^/g, 'M')
+            .replace(/\#/g, 'S')
+            .replace(/\%/g, 'X')
+    } else {
+        // replaces url unfriendly chars
+        compact = compact
+            .replace(/\I+/g, '|')
+            .replace(/\_+/g, ' ')
+            .replace(/R/g, ':')
+            .replace(/M/g, '^')
+            .replace(/X/g, '%')
+            .replace(/S/g, '#')
+    }
+    return compact.slice(1, -1);
+}
+
+export function parseChordSnippet(snippet, simplify = true) {
+    const formatted = formatChordSnippet(snippet, false);
+    return formatted
         .split('|') // split into measures
-        .map(measure => measure.split(/\s/)) // split measures by spaces
+        .map(measure => measure.split(' ')) // split measures by spaces
         .map(measure => measure.filter(chord => !!chord)) // kill empty chords
         .filter(measure => !measure || measure.length) // kill empty measures
         .map(measure => ({ symbols: measure, signs: [] }))
         // parse symbols to chords and signs
-        .map(measure => {
+        .map((measure: { symbols, signs, house, chords }) => {
             // repeat start
             if (measure.symbols[0][0] === ':') {
                 if (measure.symbols[0].length === 1) {
