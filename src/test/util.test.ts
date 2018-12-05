@@ -304,8 +304,8 @@ test('formatChordSnippet', () => {
 })
 
 test.only('formatChordSnippet with offset', () => {
-    const withOffset = formatChordSnippet(`RGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9I1_A7IA-7b5_D7b9RI2_A-7_D7IGM7ID-7IG7ICM7IXIF-7IBb7IEbM7IA-7_D7IGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9IA-7_D7IGM7_D7`);
-    expect("\n" + withOffset).toBe(`
+    const withTwoBarOffset = formatChordSnippet(`RGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9I1_A7IA-7b5_D7b9RI2_A-7_D7IGM7ID-7IG7ICM7IXIF-7IBb7IEbM7IA-7_D7IGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9IA-7_D7IGM7_D7`);
+    expect("\n" + withTwoBarOffset).toBe(`
 |: G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
 |  C7   |  B-7b5 E7b9  |1 A7      |  A-7b5 D7b9  :|
                        |2 A-7 D7  |  G^7          |
@@ -313,4 +313,22 @@ test.only('formatChordSnippet with offset', () => {
 |  F-7  |  Bb7         |  Eb^7    |  A-7 D7       |
 |  G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
 |  C7   |  B-7b5 E7b9  |  A-7 D7  |  G^7 D7       |`);
+
+    const withThreeBarOffset = formatChordSnippet('RCM7ID-7_G7ICM7I1_G7RI2_E7IA-7ID7ID-7IG7');
+    expect("\n" + withThreeBarOffset).toBe(`
+|: C^7  |  D-7 G7  |  C^7  |1 G7  :|
+                           |2 E7   |
+|  A-7  |  D7      |  D-7  |  G7   |`);
+
+    const withOneBarOffset = formatChordSnippet('RCM7I1_D-7_G7ICM7IG7RI2_B-7b5IE7IA7IA-7ID7ID-7IG7');
+    expect("\n" + withOneBarOffset).toBe(`
+|: C^7  |1 D-7 G7  |  C^7  |  G7  :|
+        |2 B-7b5   |  E7   |  A7   |
+|  A-7  |  D7      |  D-7  |  G7   |`);
+
+    const withNoOffset = formatChordSnippet('|:C7|F7|C7|C7|1 A7|D7|D-7|G7:|2 F7 |F7|C7|G7|');
+    expect("\n" + withNoOffset).toBe(`
+|: C7  |  F7  |  C7   |  C7   |
+|1 A7  |  D7  |  D-7  |  G7  :|
+|2 F7  |  F7  |  C7   |  G7   |`);
 });
