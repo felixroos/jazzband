@@ -499,7 +499,8 @@ export function formatChordSnippet(snippet, linebreaks = true) {
     }
     return compact
         .replace(/\|+/g, '|')
-        .replace(/\|( +)\|/g, ' $1 ')
+        .replace(/\|( +)\|( +)/g, ' $1 $2') // remove spacer bar pipes
+        .replace(/\|( +)\|([1-9])/g, ' $1|$2')
 }
 
 export function minifyChordSnippet(snippet, urlsafe = false) {
