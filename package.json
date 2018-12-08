@@ -40,10 +40,11 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "diff": "^3.5.0",
     "ireal-reader": "^1.2.5",
     "tonal": "^2.1.2",
     "waaclock": "^0.5.3",
-    "diff": "^3.5.0"
+    "webaudiofont": "^2.5.46"
   },
   "jest": {
     "transform": {

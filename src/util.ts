@@ -527,7 +527,7 @@ export function minifyChordSnippet(snippet, urlsafe = false) {
             .replace(/\_+/g, ' ')
             .replace(/R/g, ':')
             .replace(/M/g, '^')
-            .replace(/X/g, '%')
+            .replace(/X/g, 'x')
             .replace(/S/g, '#')
     }
     return compact.slice(1, -1);

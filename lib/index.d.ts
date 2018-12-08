@@ -13,4 +13,5 @@ import { Pulse } from './Pulse';
 import { RealParser } from './RealParser';
 import { MidiOut } from './instruments/MidiOut';
 import Permutator from './musicians/Permutator';
-export { Trio, Band, Pianist, Bassist, Drummer, Permutator, Instrument, Musician, Synthesizer, Sampler, MidiOut, PlasticDrums, Pulse, util, RealParser };
+import { WebAudioFont } from './instruments/WebAudioFont';
+export { Trio, Band, Pianist, Bassist, Drummer, Permutator, Instrument, Musician, Synthesizer, Sampler, WebAudioFont, MidiOut, PlasticDrums, Pulse, util, RealParser };
