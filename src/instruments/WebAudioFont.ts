@@ -1,4 +1,4 @@
-import { Instrument } from './Instrument';
+/* import { Instrument } from './Instrument';
 import WebAudioFontPlayer from 'webaudiofont';
 
 export class WebAudioFont extends Instrument {
@@ -8,7 +8,6 @@ export class WebAudioFont extends Instrument {
     constructor(props: any) {
         super(props);
         this.player = new WebAudioFontPlayer(props.context);
-        console.log('player', this.player);
         this.player.loader.instrumentInfo(0);
         this.cacheInstrument(props.preset);
     }
@@ -20,16 +19,12 @@ export class WebAudioFont extends Instrument {
         }
         this.player.loader.startLoad(this.context, info.url, info.variable);
         this.player.loader.waitLoad((preset) => {
-            /* this.preset = window[info.variable]; */
-            console.log('cached', n, info);
-            console.log('preset', window[info.variable]);
             this.preset = window[info.variable];
         });
     }
 
     playKeys(keys: number[], settings: any = {}) {
         super.playKeys(keys, settings);
-        /* const duration = settings.duration / 1000; */
         // TODO: check out https://surikov.github.io/webaudiofont/examples/ahdsr.html
         if (keys.length === 1) {
             this.player.queueWaveTable(this.context, this.context.destination, this.preset,
@@ -40,4 +35,4 @@ export class WebAudioFont extends Instrument {
         }
     }
 
-}
+} */

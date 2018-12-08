@@ -43,8 +43,7 @@
     "diff": "^3.5.0",
     "ireal-reader": "^1.2.5",
     "tonal": "^2.1.2",
-    "waaclock": "^0.5.3",
-    "webaudiofont": "^2.5.46"
+    "waaclock": "^0.5.3"
   },
   "jest": {
     "transform": {
