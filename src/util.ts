@@ -1,6 +1,7 @@
 import { Chord, Distance, Interval, Note, PcSet, Scale } from 'tonal';
 import { Synthesizer } from './instruments/Synthesizer';
 import { scaleNames } from './symbols';
+import * as JsDiff from 'diff';
 
 export function randomNumber(n) {
     return Math.floor(Math.random() * n)
@@ -506,10 +507,10 @@ export function formatChordSnippet(snippet, linebreaks = true) {
 export function minifyChordSnippet(snippet, urlsafe = false) {
     let compact = (`|${snippet}|`)
         .replace(/\n+/g, '|') // replace line breaks with pipes
-        .replace(/\|+/g, '|') // no repeated pipes
         .replace(/\s+/g, ' ') // no repeated pipes
         .replace(/\s?\|\s?/g, '|') // no pipes with spaces
         .replace(/\s?\:\s?/g, ':') // no repeat with spaces
+        .replace(/\|+/g, '|') // no repeated pipes
     if (urlsafe) {
         // replaces url unfriendly chars
         compact = compact
@@ -526,7 +527,7 @@ export function minifyChordSnippet(snippet, urlsafe = false) {
             .replace(/\_+/g, ' ')
             .replace(/R/g, ':')
             .replace(/M/g, '^')
-            .replace(/X/g, '%')
+            .replace(/X/g, 'x')
             .replace(/S/g, '#')
     }
     return compact.slice(1, -1);
@@ -594,4 +595,28 @@ export function parseChordSnippet(snippet, simplify = true) {
             }
             return measure;
         });
+}
+
+export function formatForDiff(snippet) {
+    return minifyChordSnippet(snippet)
+        .replace(/\|/g, ' | ').trim();
+}
+
+export function chordSnippetDiff(snippetA, snippetB) {
+    const diffFormat = [formatForDiff(snippetA), formatForDiff(snippetB)];
+    return JsDiff.diffWords(
+        diffFormat[0], diffFormat[1]
+    );
+}
+
+export function totalDiff(diff) {
+    const total = diff.reduce((weight, diff) => {
+        weight.added += diff.added ? diff.count : 0;
+        weight.removed += diff.added ? diff.count : 0;
+        weight.kept += (!diff.added && !diff.removed) ? diff.count : 0;
+        return weight;
+    }, { added: 0, removed: 0, kept: 0, balance: 0 });
+    total.balance = total.added - total.removed;
+    total.changes = total.added + total.removed;
+    return total;
 }

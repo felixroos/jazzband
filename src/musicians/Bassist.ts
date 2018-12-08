@@ -39,7 +39,7 @@ export default class Bassist extends Musician {
         if (chord === 'N.C.') {
             return;
         }
-        if (chord === '%') {
+        if (chord === 'x') {
             chord = this.playedChords[this.playedChords.length - 1];
         }
         if (!chord || chord === '0') {

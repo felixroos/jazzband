@@ -73,4 +73,7 @@ export declare function otherDirection(direction: any, defaultDirection?: any): 
 export declare function formatChordSnippet(snippet: any, linebreaks?: boolean): string;
 export declare function minifyChordSnippet(snippet: any, urlsafe?: boolean): string;
 export declare function parseChordSnippet(snippet: any, simplify?: boolean): any[];
+export declare function formatForDiff(snippet: any): string;
+export declare function chordSnippetDiff(snippetA: any, snippetB: any): any;
+export declare function totalDiff(diff: any): any;
 export {};

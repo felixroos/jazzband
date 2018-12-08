@@ -37,7 +37,7 @@ export function getMeasure(measure: Measure | string[] | string): Measure {
 
 export function getLatestMeasure(index, sheet) {
     const m = getMeasure(sheet[index]);
-    if (m.chords[0] === '%') {
+    if (m.chords[0] === 'x') {
         return getLatestMeasure(index - 1, sheet);
     }
     return m;

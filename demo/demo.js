@@ -16,15 +16,20 @@ const playlist = new iRealReader(decodeURI(link));
 
 // bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
 
-const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
+// const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
+const keyboard = new jazz.WebAudioFont({ context, preset: 50, gain: .8 });
+// 50
+const bass = new jazz.WebAudioFont({ context, preset: 366 });
 /* const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context }); */
-const drums = new jazz.Sampler({ samples: drumset, context, gain: 0.7, duration: 6000 });
+const drums = new jazz.Sampler({ samples: drumset, context, gain: 0, duration: 6000 });
 
-const band = new jazz.Trio({ context, piano: keyboard, bass: keyboard, drums, solo: true });
+const band = new jazz.Trio({ context, piano: keyboard, bass, drums, solo: false });
+
+
 band.pianist.gain = .4;
 band.bassist.gain = .9;
 band.drummer.gain = .8;
-band.soloist.gain = .6;
+/* band.soloist.gain = .6; */
 
 function getStandard(playlist) {
     console.log('playlist', playlist);
@@ -33,6 +38,8 @@ function getStandard(playlist) {
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('El Cajon'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mirror, Mirror'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Falling Grace')));
+    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Confirmation'))); */
+    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Bags and Trane'))); */
     const standard = jazz.util.randomElement(playlist.songs);
     const parser = new RealParser(standard.music.raw);
     //console.log('tokens',parser.tokens);
@@ -55,20 +62,20 @@ window.onload = function () {
     const randomInstruments = document.getElementById('instruments');
     let standard/*  = getStandard(); */
 
-    function play(groove = bossa) {
+    function play(groove = swing) {
         console.log('groove', groove);
-        const bpm = 70 + Math.random() * 100;
-        //const bpm = 120;
+        // const bpm = 70 + Math.random() * 100;
+        const bpm = 160;
         console.log('tempo', bpm);
         const cycle = 4;
-        band.comp(standard.music.measures, { metronome: true, cycle, bpm, groove/* , arpeggio: true */ })
+        band.comp(standard.music.measures, { metronome: false, cycle, bpm, groove/* , arpeggio: true */ })
     }
 
     randomInstruments.addEventListener('click', () => {
         const allowed = ['sine', 'triangle', 'square', 'sawtooth'];
         band.pianist.instrument = jazz.util.randomSynth(band.mix, allowed);
         band.bassist.instrument = jazz.util.randomSynth(band.mix, allowed);
-        band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed);
+        /* band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed); */
         console.log('pianist:', band.pianist.instrument.type);
         console.log('bassist:', band.bassist.instrument.type);
     });

@@ -1,6 +1,6 @@
 {
   "name": "jazzband",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A Virtual Jazz Band that plays chords with the Web Audio API.",
   "main": "lib/index.js",
   "scripts": {
@@ -40,9 +40,11 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "diff": "^3.5.0",
     "ireal-reader": "^1.2.5",
     "tonal": "^2.1.2",
-    "waaclock": "^0.5.3"
+    "waaclock": "^0.5.3",
+    "webaudiofont": "^2.5.46"
   },
   "jest": {
     "transform": {

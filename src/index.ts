@@ -13,6 +13,7 @@ import { Pulse } from './Pulse';
 import { RealParser } from './RealParser';
 import { MidiOut } from './instruments/MidiOut';
 import Permutator from './musicians/Permutator';
+import { WebAudioFont } from './instruments/WebAudioFont';
 
 export {
     Trio,
@@ -25,6 +26,7 @@ export {
     Musician,
     Synthesizer,
     Sampler,
+    WebAudioFont,
     MidiOut,
     PlasticDrums,
     Pulse,

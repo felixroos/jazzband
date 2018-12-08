@@ -12,9 +12,9 @@ export default class Pianist extends Musician {
     playedChords = [];
     defaults = { intelligentVoicings: true, groove: swing, noTonic: true };
     min = Math.min;
-    rollFactor = 3; // how much keyroll effect? controls interval between notes
+    rollFactor = 1; // how much keyroll effect? controls interval between notes
     props: any;
-    range = ['C3', 'G5'];
+    range = ['E3', 'E5'];
     instrument: Instrument;
     constructor(instrument, props = {}) {
         super(instrument);
@@ -49,10 +49,10 @@ export default class Pianist extends Musician {
             .reduce(offbeatReducer(settings), []);
         pulse.tickArray(measures, ({ path, value, deadline }) => {
             const measureLength = pulse.getMeasureLength();
-            const humanFactor = settings.bpm / (this.rollFactor || 1);
-            let interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / (humanFactor * 20);
+            const concurrency = settings.bpm / (this.rollFactor || 1);
+            let interval = settings.arpeggio ? measureLength / settings.cycle : Math.random() / (concurrency * 20);
             if (path[0] % 2 === 0 && !path[1] && !path[2]) {
-                interval = Math.random() / humanFactor;
+                interval = Math.random() / concurrency;
             }
             const duration = settings.arpeggio ? interval : value.fraction * measureLength;
             const slice = settings.arpeggio ? Math.ceil(value.fraction / 1000 * 4) : null;
@@ -93,7 +93,7 @@ export default class Pianist extends Musician {
     }
 
     playChord(chord, settings) {
-        if (chord === '%') { // repeat
+        if (chord === 'x') { // repeat
             chord = this.playedChords[this.playedChords.length - 1];
         }
         if (!chord || chord === '0') {
