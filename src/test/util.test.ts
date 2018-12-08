@@ -303,7 +303,16 @@ test('formatChordSnippet', () => {
     expect(minifyChordSnippet(formatted, true)).toBe(urlsafe);
 })
 
-test.only('formatChordSnippet with offset', () => {
+test('minifyChordSnippet', () => {
+    const fakeBlues = `
+|: C7  |  F7  |  C7   |  C7   |
+|1 A7  |  D7  |  D-7  |  G7  :|
+|2 F7  |  F7  |  C7   |  G7   |`;
+    const miniFakeBlues = minifyChordSnippet(fakeBlues);
+    expect(miniFakeBlues).toBe(':C7|F7|C7|C7|1 A7|D7|D-7|G7:|2 F7|F7|C7|G7');
+})
+
+test('formatChordSnippet with offset', () => {
     const withTwoBarOffset = formatChordSnippet(`RGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9I1_A7IA-7b5_D7b9RI2_A-7_D7IGM7ID-7IG7ICM7IXIF-7IBb7IEbM7IA-7_D7IGM7IF-7b5_B7b9IE-7_A7ID-7_G7IC7IB-7b5_E7b9IA-7_D7IGM7_D7`);
     expect("\n" + withTwoBarOffset).toBe(`
 |: G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
@@ -332,3 +341,21 @@ test.only('formatChordSnippet with offset', () => {
 |1 A7  |  D7  |  D-7  |  G7  :|
 |2 F7  |  F7  |  C7   |  G7   |`);
 });
+
+test('chordSnippetDiff', () => {
+    const snippetA = `
+    |: C7  |  F7  |  C7   |  C7   |
+    |1 A7  |  D7  |  D-7  |  G7  :|
+    |2 F7  |  F7  |  C7   |  G7   |`;
+    const snippetB = `
+    |: C7  |  %  |  C7   |  C7   |
+    |1 A7  |  D7  |  D-7  |  G7  :|
+    |2 F7  |  F7  |  C7   |  G7   |`;
+    const diff = util.chordSnippetDiff(snippetA, snippetB);
+    const total = util.totalDiff(diff);
+    expect(total.balance).toBe(0);
+    expect(total.added).toBe(1);
+    expect(total.removed).toBe(1);
+    expect(total.kept).toBe(52);
+    expect(total.changes).toBe(2);
+})

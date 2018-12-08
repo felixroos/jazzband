@@ -42,7 +42,8 @@
   "dependencies": {
     "ireal-reader": "^1.2.5",
     "tonal": "^2.1.2",
-    "waaclock": "^0.5.3"
+    "waaclock": "^0.5.3",
+    "diff": "^3.5.0"
   },
   "jest": {
     "transform": {
