@@ -14,7 +14,7 @@ export default class Pianist extends Musician {
     min = Math.min;
     rollFactor = 1; // how much keyroll effect? controls interval between notes
     props: any;
-    range = ['E3', 'E5'];
+    range = ['C3', 'G5'];
     instrument: Instrument;
     constructor(instrument, props = {}) {
         super(instrument);

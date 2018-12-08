@@ -16,10 +16,10 @@ const playlist = new iRealReader(decodeURI(link));
 
 // bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
 
-// const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
-const keyboard = new jazz.WebAudioFont({ context, preset: 50, gain: .8 });
-// 50
-const bass = new jazz.WebAudioFont({ context, preset: 366 });
+const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
+// const keyboard = new jazz.WebAudioFont({ context, preset: 50, gain: .8 });
+/* const bass = new jazz.WebAudioFont({ context, preset: 366 }); */
+const bass = keyboard;
 /* const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context }); */
 const drums = new jazz.Sampler({ samples: drumset, context, gain: 0, duration: 6000 });
 
