@@ -325,8 +325,8 @@ export function getScaleDegree(degree, scale) {
     return findDegree(degree, Scale.intervals(scale));
 }
 
-export function getDegreeInChord(note, chord, group?) {
-    return getDegreeFromInterval(
+export function getStepInChord(note, chord, group?) {
+    return getStepFromInterval(
         Distance.interval(
             Chord.tokenize(getTonalChord(chord))[0],
             Note.pc(note))
@@ -349,8 +349,12 @@ export function permutateIntervals(intervals, pattern) {
     return pattern.map(d => findDegree(d, intervals));
 }
 
-export function getDegreeFromInterval(interval) {
+export function getStepFromInterval(interval) {
     return steps[interval] ? steps[interval][0] : 0;
+}
+
+export function getDegreeFromInterval(interval = '-1') {
+    return parseInt(interval[0]);
 }
 
 export function getPatternInChord(pattern, chord) {
@@ -619,4 +623,71 @@ export function totalDiff(diff) {
     total.balance = total.added - total.removed;
     total.changes = total.added + total.removed;
     return total;
+}
+
+/*
+ * 
+ * 
+ *   C D E F G A B 
+ *   C F B E A D G
+ *   D G C F B E A
+ *   
+ */
+
+/** Reorders the given notes to contain the given step as close as possible */
+export function sortByDegree(notes, degree) {
+    degree = Math.max(degree, (degree + 8) % 8)
+    /* const semitones = Interval.semitones(interval); */
+    const diffDegrees = (a, b) => Math.abs(getDegreeFromInterval(Distance.interval(a, b)) - degree);
+    /* const diffTones = (a, b) => Math.abs(Distance.interval(a, b) - semitones); */
+    notes = notes.slice(1).reduce((chain, note) => {
+        const closest = notes
+            .filter(n => !chain.includes(n))
+            .sort((a, b) => diffDegrees(chain[0], a) < diffDegrees(chain[0], b) ? -1 : 1);
+        chain.unshift(closest[0]);
+        return chain;
+    }, [notes[0]]).reverse();
+
+    return notes;
+}
+
+export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }: {
+    previousVoicing?: string[],
+    voices?: number,
+    omitRoot?: boolean,
+    quartal?: boolean
+} = {}) {
+    console.log('TODO: getVoicing');
+    chord = getTonalChord(chord);
+    const tokens = Chord.tokenize(chord);
+    let notes = Chord.notes(chord);
+    if (omitRoot) {
+        notes = notes.filter(n => n !== tokens[0]);
+    }
+    if (quartal) {
+    }
+    if (previousVoicing) {
+
+    }
+    return notes;
+}
+
+// returns array of intervals that lead the voices of chord A to chordB
+export function getOptimalMovement(chordA, chordB) {
+
+}
+
+export function voiceDifference(chordA, chordB) {
+    return chordA.reduce((diff, note, index) => {
+        const notes = [note, chordB[index]];
+        const min = minInterval(Distance.interval(notes[0], notes[1]));
+        return diff + Math.abs(Interval.semitones(min));
+    }, 0);
+}
+
+export function voiceMovement(chordA, chordB) {
+    return chordA.reduce((diff, note, index) => {
+        const min = minInterval(Distance.interval(note, chordB[index]));
+        return diff + Interval.semitones(min);
+    }, 0);
 }

@@ -1,6 +1,7 @@
 import * as util from '../util';
 import { parseChordSnippet, minifyChordSnippet, formatChordSnippet } from '../util';
 import { Scale } from 'tonal';
+import { Distance } from 'tonal';
 
 test('getIntervalFromStep: undefined', () => {
     expect(util.getIntervalFromStep('d3g2g3')).toEqual(undefined);
@@ -269,37 +270,37 @@ test('parseChordSnippet: houses', () => {
 test('minifyChordSnippet', () => {
     expect(minifyChordSnippet(`|C7|F7|`)).toEqual('C7|F7');
     expect(minifyChordSnippet(`   C7    |  F7`)).toEqual('C7|F7');
-    expect(minifyChordSnippet(`RCIFSM7IX`)).toEqual(':C|F#^7|%');
+    expect(minifyChordSnippet(`RCIFSM7IX`)).toEqual(':C|F#^7|x');
     expect(minifyChordSnippet(':C|F#^7|%', true)).toEqual('RCIFSM7IX');
     expect(minifyChordSnippet(`C7
                                 F7`)).toEqual('C7|F7');
     expect(minifyChordSnippet(`C7|||||F7`)).toEqual('C7|F7');
     const urlSafe = minifyChordSnippet(`
-    |: E-7b5    | A7b9      | D-     | %          |
+    |: E-7b5    | A7b9      | D-     | x          |
     |  G-7      | C7        | F^7    | E-7b5 A7b9 |
     
     |1 D-       | G-7       | Bb7    | A7b9       |
     |  D-       | G7#11     | E-7b5  | A7b9      :|
     
     |2 D-       | G-7       | Bb7    | A7b9       |
-    |  D- B7    | Bb7#11 A7 | D-     | %          |
+    |  D- B7    | Bb7#11 A7 | D-     | x          |
     `, true);
 
-    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IXIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-IX`)
+    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix`)
     expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
 });
 
 test('formatChordSnippet', () => {
-    const urlsafe = 'RE-7b5IA7b9ID-IXIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-IX';
+    const urlsafe = 'RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix';
     const formatted = formatChordSnippet(urlsafe);
     expect("\n" + formatted).toBe(
         `
-|: E-7b5  |  A7b9       |  D-     |  %           |
+|: E-7b5  |  A7b9       |  D-     |  x           |
 |  G-7    |  C7         |  F^7    |  E-7b5 A7b9  |
 |1 D-     |  G-7        |  Bb7    |  A7b9        |
 |  D-     |  G7#11      |  E-7b5  |  A7b9       :|
 |2 D-     |  G-7        |  Bb7    |  A7b9        |
-|  D- B7  |  Bb7#11 A7  |  D-     |  %           |`);
+|  D- B7  |  Bb7#11 A7  |  D-     |  x           |`);
     expect(minifyChordSnippet(formatted, true)).toBe(urlsafe);
 })
 
@@ -318,7 +319,7 @@ test('formatChordSnippet with offset', () => {
 |: G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
 |  C7   |  B-7b5 E7b9  |1 A7      |  A-7b5 D7b9  :|
                        |2 A-7 D7  |  G^7          |
-|  D-7  |  G7          |  C^7     |  %            |
+|  D-7  |  G7          |  C^7     |  x            |
 |  F-7  |  Bb7         |  Eb^7    |  A-7 D7       |
 |  G^7  |  F-7b5 B7b9  |  E-7 A7  |  D-7 G7       |
 |  C7   |  B-7b5 E7b9  |  A-7 D7  |  G^7 D7       |`);
@@ -348,7 +349,7 @@ test('chordSnippetDiff', () => {
     |1 A7  |  D7  |  D-7  |  G7  :|
     |2 F7  |  F7  |  C7   |  G7   |`;
     const snippetB = `
-    |: C7  |  %  |  C7   |  C7   |
+    |: C7  |  x  |  C7   |  C7   |
     |1 A7  |  D7  |  D-7  |  G7  :|
     |2 F7  |  F7  |  C7   |  G7   |`;
     const diff = util.chordSnippetDiff(snippetA, snippetB);
@@ -358,4 +359,66 @@ test('chordSnippetDiff', () => {
     expect(total.removed).toBe(1);
     expect(total.kept).toBe(52);
     expect(total.changes).toBe(2);
-})
+});
+
+test('getVoicing', () => {
+    expect(util.getVoicing('C7#5')).toEqual(['C', 'E', 'G#', 'Bb']);
+});
+
+
+test('getDegreeFromInterval', () => {
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'C'))).toBe(1);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'E'))).toBe(3);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'Eb'))).toBe(3);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'F'))).toBe(4);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'G'))).toBe(5);
+    expect(util.getDegreeFromInterval(Distance.interval('D', 'C'))).toBe(7);
+});
+
+test('sortByInterval', () => {
+    const cmaj = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    expect(util.sortByDegree(cmaj, 1))
+        .toEqual(cmaj);
+    expect(util.sortByDegree(cmaj, 2))
+        .toEqual(cmaj);
+    expect(util.sortByDegree(cmaj, 3))
+        .toEqual(['C', 'E', 'G', 'B', 'D', 'F', 'A']);
+    expect(util.sortByDegree(cmaj, 4))
+        .toEqual(['C', 'F', 'B', 'E', 'A', 'D', 'G']);
+    expect(util.sortByDegree(cmaj, 5))
+        .toEqual(['C', 'G', 'D', 'A', 'E', 'B', 'F']);
+    expect(util.sortByDegree(cmaj, 6))
+        .toEqual(['C', 'A', 'F', 'D', 'B', 'G', 'E']);
+    expect(util.sortByDegree(cmaj, 7))
+        .toEqual(['C', 'B', 'A', 'G', 'F', 'E', 'D']);
+    expect(util.sortByDegree(cmaj, -1))
+        .toEqual(['C', 'B', 'A', 'G', 'F', 'E', 'D']);
+    expect(util.sortByDegree(['B', 'C', 'D', 'E', 'F', 'G', 'A'], 4))
+        .toEqual(['B', 'E', 'A', 'D', 'G', 'C', 'F']);
+    expect(util.sortByDegree(['D', 'F', 'A', 'C'], 4))
+        .toEqual(['D', 'A', 'C', 'F']);
+    expect(util.sortByDegree(['C', 'D', 'F', 'A'], 4))
+        .toEqual(['C', 'F', 'A', 'D']);
+    expect(util.sortByDegree(['E', 'G', 'A', 'B', 'D'], 4))
+        .toEqual(['E', 'A', 'D', 'G', 'B']);
+});
+
+/* test.only('getOptimalMovement', () => {
+    expect(util.getOptimalMovement(['C', 'E', 'G'], ['C', 'E', 'G'])).toEqual([0, 0, 0]);
+    expect(util.getOptimalMovement(['C', 'E', 'G'], ['C', 'G', 'E'])).toEqual([0, 0, 0]);
+    expect(util.getOptimalMovement(['C', 'E', 'G'], ['C', 'F', 'G'])).toEqual([0, 1, 0]);
+}); */
+
+test('voiceDifference', () => {
+    expect(util.voiceDifference(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toBe(1);
+    expect(util.voiceDifference(['C', 'E', 'G'], ['D', 'F#', 'A'])).toBe(6);
+    expect(util.voiceDifference(['C', 'E', 'G'], ['E', 'G#', 'B'])).toBe(12);
+});
+
+test('voiceMovement', () => {
+    expect(util.voiceMovement(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toBe(-1);
+    expect(util.voiceMovement(['C', 'E', 'G'], ['D', 'F#', 'A'])).toBe(6);
+    expect(util.voiceMovement(['C', 'E', 'G'], ['B', 'E', 'G#'])).toBe(0);
+    expect(util.voiceMovement(['F#', 'A#', 'C#'], ['C', 'E', 'G'])).toBe(18);
+    expect(util.voiceMovement(['C', 'E', 'C'], ['E', 'C', 'C'])).toBe(0);
+});

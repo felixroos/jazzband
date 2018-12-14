@@ -1,6 +1,6 @@
 import { swing } from "../grooves/swing";
 import { Note } from 'tonal';
-import { getPatternInChord, randomElement, getNearestTargets, transposeToRange, getDigitalPattern, shuffleArray, getRangePosition, getDegreeInChord, otherDirection } from "../util";
+import { getPatternInChord, randomElement, getNearestTargets, transposeToRange, getDigitalPattern, shuffleArray, getRangePosition, getDegreeInChord, otherDirection, getStepInChord } from "../util";
 import { Improvisation } from "./Improvisation";
 
 export const permutator = new Improvisation({
@@ -44,7 +44,7 @@ export const permutator = new Improvisation({
         if (fixRange()) {
             note = transposeToRange([note], range())[0];
         }
-        const step = getDegreeInChord(note, chord());
+        const step = getStepInChord(note, chord());
         /* console.log(`${step} in ${chord()} = ${note}`); */
         return [note];
     }

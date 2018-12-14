@@ -54,12 +54,13 @@ export declare function findDegree(degree: any, intervals: any): any;
 export declare function hasDegree(degree: any, intervals: any): boolean;
 export declare function hasAllDegrees(degrees: any, intervals: any): any;
 export declare function getScaleDegree(degree: any, scale: any): any;
-export declare function getDegreeInChord(note: any, chord: any, group?: any): any;
+export declare function getStepInChord(note: any, chord: any, group?: any): any;
 export declare function getScalePattern(pattern: any, scale: any): any;
 export declare function renderIntervals(intervals: any, root: any): any;
 export declare function renderSteps(steps: any, root: any): any;
 export declare function permutateIntervals(intervals: any, pattern: any): any;
-export declare function getDegreeFromInterval(interval: any): any;
+export declare function getStepFromInterval(interval: any): any;
+export declare function getDegreeFromInterval(interval?: string): number;
 export declare function getPatternInChord(pattern: any, chord: any): any;
 export declare function getDigitalPattern(chord: any): number[];
 export declare function renderDigitalPattern(chord: any): any;
@@ -76,4 +77,15 @@ export declare function parseChordSnippet(snippet: any, simplify?: boolean): any
 export declare function formatForDiff(snippet: any): string;
 export declare function chordSnippetDiff(snippetA: any, snippetB: any): any;
 export declare function totalDiff(diff: any): any;
+/** Reorders the given notes to contain the given step as close as possible */
+export declare function sortByDegree(notes: any, degree: any): any;
+export declare function getVoicing(chord: any, { voices, previousVoicing, omitRoot, quartal }?: {
+    previousVoicing?: string[];
+    voices?: number;
+    omitRoot?: boolean;
+    quartal?: boolean;
+}): any;
+export declare function getOptimalMovement(chordA: any, chordB: any): void;
+export declare function voiceDifference(chordA: any, chordB: any): any;
+export declare function voiceMovement(chordA: any, chordB: any): any;
 export {};
