@@ -85,7 +85,11 @@ export declare function getVoicing(chord: any, { voices, previousVoicing, omitRo
     omitRoot?: boolean;
     quartal?: boolean;
 }): any;
-export declare function getOptimalMovement(chordA: any, chordB: any): void;
-export declare function voiceDifference(chordA: any, chordB: any): any;
-export declare function voiceMovement(chordA: any, chordB: any): any;
+export declare function minIntervals(chordA: any, chordB: any): any;
+export declare function semitoneDifference(intervals: any): any;
+export declare function semitoneMovement(intervals: any): any;
+export declare function longestChild(array: any[][]): any[];
+export declare function voicingIntervals(chordA: any, chordB: any, min?: boolean): any;
+export declare function voicingDifference(chordA: any, chordB: any, min?: boolean): any;
+export declare function voicingMovement(chordA: any, chordB: any, min?: boolean): any;
 export {};

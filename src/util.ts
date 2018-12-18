@@ -2,6 +2,7 @@ import { Chord, Distance, Interval, Note, PcSet, Scale } from 'tonal';
 import { Synthesizer } from './instruments/Synthesizer';
 import { scaleNames } from './symbols';
 import * as JsDiff from 'diff';
+import { intervals } from 'tonal-pcset';
 
 export function randomNumber(n) {
     return Math.floor(Math.random() * n)
@@ -256,6 +257,12 @@ export function transposeToRange(notes, range, times = 0) {
     return notes;
 }
 
+export function getRangePosition(note, range) {
+    const semitones = [Distance.semitones(range[0], note), Distance.semitones(range[0], range[1])];
+    return semitones[0] / semitones[1];
+
+}
+
 // accepts both strings or numbers where negative means minor, 
 // returns unified step string that can be turned into an interval
 export function getStep(step) {
@@ -292,6 +299,14 @@ export function getIntervalFromStep(step) {
     return interval;
 }
 
+export function getStepInChord(note, chord, group?) {
+    return getStepFromInterval(
+        Distance.interval(
+            Chord.tokenize(getTonalChord(chord))[0],
+            Note.pc(note))
+    );
+}
+
 export function getChordScales(chord, group = 'Diatonic') {
     const tokens = Chord.tokenize(getTonalChord(chord));
     const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1]));
@@ -325,13 +340,6 @@ export function getScaleDegree(degree, scale) {
     return findDegree(degree, Scale.intervals(scale));
 }
 
-export function getStepInChord(note, chord, group?) {
-    return getStepFromInterval(
-        Distance.interval(
-            Chord.tokenize(getTonalChord(chord))[0],
-            Note.pc(note))
-    );
-}
 
 export function getScalePattern(pattern, scale) {
     return pattern.map(degree => getScaleDegree(degree, scale));
@@ -401,11 +409,6 @@ export function getGuideTones(chord) {
     return getPatternInChord([3, 7], chord);
 }
 
-export function getRangePosition(note, range) {
-    const semitones = [Distance.semitones(range[0], note), Distance.semitones(range[0], range[1])];
-    return semitones[0] / semitones[1];
-
-}
 
 export function isFirstInPath(path, index) {
     return path.slice(index)
@@ -657,7 +660,6 @@ export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }
     omitRoot?: boolean,
     quartal?: boolean
 } = {}) {
-    console.log('TODO: getVoicing');
     chord = getTonalChord(chord);
     const tokens = Chord.tokenize(chord);
     let notes = Chord.notes(chord);
@@ -673,21 +675,90 @@ export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }
 }
 
 // returns array of intervals that lead the voices of chord A to chordB
-export function getOptimalMovement(chordA, chordB) {
-
+export function minIntervals(chordA, chordB) {
+    return chordA.map((n, i) => minInterval(Distance.interval(n, chordB[i])));
 }
 
-export function voiceDifference(chordA, chordB) {
-    return chordA.reduce((diff, note, index) => {
-        const notes = [note, chordB[index]];
-        const min = minInterval(Distance.interval(notes[0], notes[1]));
-        return diff + Math.abs(Interval.semitones(min));
+export function semitoneDifference(intervals) {
+    return intervals.reduce((semitones, interval) => {
+        return semitones + Math.abs(Interval.semitones(interval))
+    }, 0);
+}
+export function semitoneMovement(intervals) {
+    return intervals.reduce((semitones, interval) => {
+        return semitones + Interval.semitones(interval)
     }, 0);
 }
 
-export function voiceMovement(chordA, chordB) {
-    return chordA.reduce((diff, note, index) => {
-        const min = minInterval(Distance.interval(note, chordB[index]));
-        return diff + Interval.semitones(min);
-    }, 0);
+export function longestChild(array: any[][]) {
+    return array.reduce((max, current) => (current.length > max.length ? current : max), array[0]);
+}
+
+/* export function intervalSum(chord) {
+    return chord.reduce((sum, note,index) => {
+        if(!sum) {
+            return 
+        }
+        Distance.add(sum, Distance.interval())
+    }, '1P');
+    return Distance.interval(chord[0], chord[chord.length - 1]);
+} */
+
+export function voicingIntervals(chordA, chordB, min = true) {
+    const intervals = chordA.map((n, i) => Distance.interval(n, chordB[i]));
+    if (min) {
+        return intervals.map(i => minInterval(i));
+    }
+    return intervals;
+}
+
+export function voicingDifference(chordA, chordB, min = true) {
+    return semitoneDifference(voicingIntervals(chordA, chordB, min));
+}
+
+export function voicingMovement(chordA, chordB, min = true) {
+    return semitoneMovement(voicingIntervals(chordA, chordB, min));
+}
+
+export function mapTree(
+    tree,
+    modifier?,
+    simplify = false,
+    path = [],
+    siblings = [],
+    position = 0) {
+    // skip current tree if only one child
+    if (simplify && Array.isArray(tree) && tree.length === 1) {
+        return mapTree(
+            tree[0], modifier, simplify,
+            path, siblings, position
+        );
+    }
+
+    let fraction = siblings.reduce((f, d) => f / d, 1);
+    if (!Array.isArray(tree)) {
+        return modifier ? modifier(tree, { path, siblings, fraction, position }) : tree;
+    }
+    if (Array.isArray(tree)) {
+        siblings = siblings.concat([tree.length]);
+        fraction = fraction / tree.length;
+        return tree.map((subtree, index) =>
+            mapTree(
+                subtree, modifier, simplify,
+                path.concat([index]),
+                siblings,
+                position + index * fraction
+            )
+        )
+    }
+}
+
+export function flattenTree(tree) {
+    const flat = []
+    mapTree(tree, (value, props) => flat.push(Object.assign(props, { value })));
+    return flat;
+}
+
+export function expandTree(tree) {
+    // TODO
 }
