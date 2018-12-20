@@ -762,3 +762,34 @@ export function flattenTree(tree) {
 export function expandTree(tree) {
     // TODO
 }
+
+/* Returns true if the given intervals are all present in the chords interval structure
+Intervals can be appendend with "?" to indicate that those degrees could also be omitted 
+(but when present they should match)
+*/
+export function chordHasIntervals(chord, intervals) {
+    chord = getTonalChord(chord);
+    const has = Chord.intervals(chord);
+    return intervals.reduce((match, current) => {
+        const isOptional = current.includes('?');
+        if (isOptional) {
+            current = current.replace('?', '');
+            return (!hasDegree(getDegreeFromInterval(current), has) ||
+                has.includes(current)) && match;
+        }
+        return has.includes(current) && match;
+    }, true);
+}
+
+export function isDominantChord(chord) {
+    return chordHasIntervals(chord, ['3M', '7m']);
+}
+export function isMajorChord(chord) {
+    return chordHasIntervals(chord, ['3M', '7M?']);
+}
+export function isMinorChord(chord) {
+    return chordHasIntervals(chord, ['3m']);
+}
+export function isMinorTonic(chord) {
+    return chordHasIntervals(chord, ['3m', '5P', '6M?', '7M?']);
+}

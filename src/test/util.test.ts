@@ -444,3 +444,77 @@ test('voicingMovement', () => {
     expect(util.voicingMovement(['F#', 'A#', 'C#'], ['C', 'E', 'G'])).toBe(18);
     expect(util.voicingMovement(['C', 'E', 'C'], ['E', 'C', 'C'])).toBe(0);
 });
+test('chordHasIntervals', () => {
+    expect(util.chordHasIntervals('C^7', ['3M', '7M'])).toBe(true);
+    expect(util.chordHasIntervals('C', ['3M', '7M'])).toBe(false);
+    expect(util.chordHasIntervals('C', ['3M', '7M?'])).toBe(true);
+    expect(util.chordHasIntervals('C^7', ['3m'])).toBe(false);
+    expect(util.chordHasIntervals('C^7', ['3M', '7m'])).toBe(false);
+});
+test('isDominantChord', () => {
+    expect(util.isDominantChord('C^7')).toBe(false);
+    expect(util.isDominantChord('C7')).toBe(true);
+    expect(util.isDominantChord('C13')).toBe(true);
+    expect(util.isDominantChord('C')).toBe(false);
+    expect(util.isDominantChord('G7b9b13')).toBe(true);
+    expect(util.isDominantChord('Eb-7')).toBe(false);
+});
+test('isMajorChord', () => {
+    expect(util.isMajorChord('D^7')).toBe(true);
+    expect(util.isMajorChord('D7')).toBe(false);
+    expect(util.isMajorChord('D')).toBe(true);
+    expect(util.isMajorChord('Eb-7')).toBe(false);
+});
+test('isMinorChord', () => {
+    expect(util.isMinorChord('D^7')).toBe(false);
+    expect(util.isMinorChord('D7')).toBe(false);
+    expect(util.isMinorChord('D')).toBe(false);
+    expect(util.isMinorChord('Eb-7')).toBe(true);
+    expect(util.isMinorChord('Eb-')).toBe(true);
+    expect(util.isMinorChord('Eb-^7')).toBe(true);
+    expect(util.isMinorChord('Eb-7b5')).toBe(true);
+});
+test('isMinorChord', () => {
+    expect(util.isMinorChord('D^7')).toBe(false);
+    expect(util.isMinorChord('D7')).toBe(false);
+    expect(util.isMinorChord('D')).toBe(false);
+    expect(util.isMinorChord('Eb-7')).toBe(true);
+    expect(util.isMinorChord('Eb-')).toBe(true);
+    expect(util.isMinorChord('Eb-^7')).toBe(true);
+    expect(util.isMinorChord('Eb-7b5')).toBe(true);
+});
+test('isMinorTonic', () => {
+    expect(util.isMinorTonic('D^7')).toBe(false);
+    expect(util.isMinorTonic('D7')).toBe(false);
+    expect(util.isMinorTonic('D')).toBe(false);
+    expect(util.isMinorTonic('Eb-7')).toBe(false);
+    expect(util.isMinorTonic('Eb-')).toBe(true);
+    expect(util.isMinorTonic('Eb-^7')).toBe(true);
+    expect(util.isMinorTonic('Eb-7b5')).toBe(false);
+    expect(util.isMinorTonic('Eb-6')).toBe(true);
+});
+
+// render sheet to array of {chord,index}
+// each el that isMajorChord => add possible roots to element
+//      => either root of chord or fifth (e.g. F^7 is in F or C)
+// now start at each major chord and walk to the left and right adding the possible roots until another major chord is hit
+//      => e.g. | D-7 G7 | C^7    | C-7 F7          | Bb^7    |
+//              | C or G | C or G | C or G, Bb or F | Bb or F |
+// render function + type of each chord in the possible roots
+//      => e.g. D-7 = {root:'C',function: 'II-7',type:'diatonic'},{root:'G',function:'II/IV',type:'secondary'}
+// each function type has a priorization
+// - diatonic = 1, secondary = 2, substitute = 3
+// calculate sum of priorizations
+//      =>    D-7       + G7        + C^7      + C-7        + F7
+//      => C: diationic + diatonic  + diatonic + substitute + substitute = 9
+//      => G: secondary + secondary + diatonic + substitute + substitute = 11
+// accept smaller sum as more likely (F or Bb is similar):
+//      => e.g. | D-7 G7 | C^7    | C-7 F7          | Bb^7    |
+//              | C      | C      | C or Bb         | Bb      |
+// the chords that still have two possibilities are regared as pivot transitions
+// possible problems: are there sheets that have no major chords?
+// what about minor modes?
+// outlook: 
+// - can now decide which scale is best (based on function to scale mappings)
+// - can now color correctly based on root
+// -- use gradients on pivots!!!!!
