@@ -231,14 +231,14 @@ The validation could now be wrapped to be combinable with more validation rules:
             .reduce((result, validator) => result && validator(path, next, array), true);
     }
     // returns validator that validates rules 7 3 and 5 of the generic interval rules
-    function validateRules753(path, next, array) {
+    function voicingValidator(path, next, array) {
         return combineValidators(
             validateInterval(interval => Interval.semitones(interval) <= 6),
             validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) > 2),
             validateInterval((interval, { array }) => path.length !== 1 || Interval.semitones(interval) > 2)
         )(path, next, array);
     }
-    expect(permutateElements(["C", "E", "G", "B"], validateRules753)).toEqual(
+    expect(permutateElements(["C", "E", "G", "B"], voicingValidator)).toEqual(
         [["C", "E", "G", "B"], ["G", "B", "C", "E"], ["B", "E", "G", "C"]]
     );
 ```
@@ -313,6 +313,10 @@ export function voicingIntervals(chordA, chordB, min = true) {
     }
     return intervals;
 }
+expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toEqual(['1P', '-1A', '1P']);
+expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'], false)).toEqual(['1P', '8d', '1P']);
+expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G', 'Bb'])).toEqual(['1P', '-1A', '1P']);
+expect(util.voicingIntervals(['C', 'E', 'G', 'B'], ['C', 'Eb', 'G'])).toEqual(['1P', '-1A', '1P', null]);
 ```
 
 There are some edge cases:
