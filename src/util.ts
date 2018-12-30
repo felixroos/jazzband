@@ -1172,13 +1172,13 @@ export function getNextVoicing(chord, lastVoicing, range = ['C3', 'D4']) {
     const { direction, force } = getRangeDirection(lastVoicing[0], range);
     // get pitch classes of last voicing
     const lastPitches = lastVoicing.map(n => Note.pc(n));
-    if (!force) {
-        // find best next combination
-        nextPitches = bestCombination(lastPitches, combinations/* , force ? direction : null */);
-    } else {
+    /* if (!force) { */
+    // find best next combination
+    nextPitches = bestCombination(lastPitches, combinations/* , force ? direction : null */);
+    /* } else {
         const movements = sortCombinationsByMovement(lastPitches, combinations, force ? direction : null).reverse();
         nextPitches = movements[0]; // this will use the combination with the most movement in the wrong direction
-    }
+    } */
     // get nearest first note
     const nearest = getNearestNote(lastVoicing[0], nextPitches[0], direction, force);
     bottomOctave = Note.oct(nearest);
