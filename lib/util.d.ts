@@ -70,6 +70,7 @@ export declare function permutateIntervals(intervals: any, pattern: any): any;
 export declare function getStepFromInterval(interval: any): any;
 export declare function getDegreeFromInterval(interval?: string): number;
 export declare function getDegreeFromStep(step: step): number;
+export declare function getDegreeInChord(degree: any, chord: any): any;
 export declare function getPatternInChord(pattern: any, chord: any): any;
 export declare function getDigitalPattern(chord: any): number[];
 export declare function renderDigitalPattern(chord: any): any;
@@ -129,6 +130,7 @@ export declare function combineValidators(...validators: ((path: any, next: any,
 export declare function voicingValidator(path: any, next: any, array: any): boolean;
 export declare function getVoicingCombinations(notes: any, validator?: (path: any, next: any, array: any) => boolean): any;
 export declare function bestCombination(notes: any, combinations: any, direction?: intervalDirection): any;
+export declare function sortCombinationsByMovement(notes: any, combinations: any, direction?: intervalDirection): any;
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;
@@ -139,6 +141,16 @@ export declare function getVoicing(chord: any, { voices, previousVoicing, omitRo
     omitRoot?: boolean;
     quartal?: boolean;
 }): any;
-export declare function generateVoicing(chord: any, lastVoicing?: any, range?: string[]): any;
+export declare function semitoneDistance(noteA: any, noteB: any): any;
+export declare function getAllTensions(root: any): any[];
+export declare function getAvailableTensions(chord: any): any;
+export declare function getRequiredNotes(chord: any): any[];
+export declare function getOptionalNotes(chord: any, required?: any): any;
+export declare function getPossibleVoicings(chord: any, voices?: number): {
+    required: any[];
+    optional: any;
+    tensions: any;
+};
+export declare function getVoices(chord: any, voices?: number, rootless?: boolean, tension?: number): any[];
 export declare function getNextVoicing(chord: any, lastVoicing: any, range?: string[]): any;
 export {};

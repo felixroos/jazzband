@@ -17,9 +17,14 @@ import {
     analyzeVoiceLeading,
     semitoneDifference,
     getMidi,
-    getAverageMidi
+    getAverageMidi,
+    getAvailableTensions,
+    getRequiredNotes,
+    getOptionalNotes,
+    getVoices
 } from '../util';
 import { Scale } from 'tonal';
+import { Chord } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { Note } from 'tonal';
@@ -46,7 +51,7 @@ test('getIntervalFromStep: strings', () => {
     expect(util.getIntervalFromStep('b3')).toEqual('3m');
 });
 
-test.only('getMidi', () => {
+test('getMidi', () => {
     expect(getMidi('A4')).toBe(69);
     expect(Note.midi('A4')).toBe(69);
     expect(Note.midi(69)).toBe(69);
@@ -258,12 +263,12 @@ test('getNearestTargets', () => {
     expect(util.getNearestTargets('B3', ['Bb', 'E'], 'down', true)[0]).toBe('Bb3');
 });
 
-test.only('getAverageMidi', () => {
+test('getAverageMidi', () => {
     expect(getAverageMidi(['C3', 'C4'])).toBe(Note.midi('F#3'));
     expect(getAverageMidi(['C3', 'B3'])).toBe(Note.midi('F#3') - .5);
 })
 
-test.only('getRangePosition', () => {
+test('getRangePosition', () => {
     expect(util.getRangePosition('C2', ['C3', 'C4'])).toBe(-1);
     expect(util.getRangePosition('C5', ['C3', 'C4'])).toBe(2);
     expect(util.getRangePosition('C3', ['C3', 'C4'])).toBe(0);
@@ -272,11 +277,75 @@ test.only('getRangePosition', () => {
     expect(util.getRangePosition('G#3', ['C3', 'C4'])).toBe(8 / 12);
     expect(util.getRangePosition('A3', ['C3', 'C4'])).toBe(9 / 12);
     expect(util.getRangePosition('D3', ['C3', 'C4'])).toBe(2 / 12);
+    const range = ['C3', 'C4'];
+    expect(util.getRangePosition(getAverageMidi(range), range)).toBe(.5);
 });
+
+test.only('getAvailableTensions', () => {
+    expect(getAvailableTensions('C')).toEqual(['D', 'F#', 'A']);
+    expect(getAvailableTensions('C^7')).toEqual(['D', 'F#', 'A']);
+    expect(getAvailableTensions('C^13')).toEqual(['D', 'F#', 'A']);
+    expect(getAvailableTensions('C-7')).toEqual(['D', 'F', 'A']);
+    expect(getAvailableTensions('D-7')).toEqual(['E', 'G', 'B']);
+    expect(getAvailableTensions('C-11')).toEqual(['D', 'F', 'A']);
+    expect(getAvailableTensions('C-7b5')).toEqual(['D', 'F', 'Ab']);
+    expect(getAvailableTensions('C-^7')).toEqual(['D', 'F', 'A']);
+    expect(getAvailableTensions('C^7#5')).toEqual(['D', 'F#']);
+    expect(getAvailableTensions('Co7')).toEqual(['D', 'F', 'Ab', 'B']);
+    expect(getAvailableTensions('C^7#5')).toEqual(['D', 'F#']);
+    expect(getAvailableTensions('C7')).toEqual(['Db', 'D', 'D#', 'F#', 'Ab', 'A']);
+    expect(util.isDominantChord('C7sus')).toBe(true);
+    expect(util.getDegreeInChord(4, 'C7sus')).toBe('F');
+    expect(Chord.notes('C7sus')).toEqual(['C', 'F', 'G', 'Bb']);
+    expect(getAvailableTensions('C7sus4')).toEqual(['Db', 'D', 'D#', 'E', 'Ab', 'A']);
+    expect(getAvailableTensions('C7#5')).toEqual(['Db', 'D', 'D#', 'F#', 'A']);
+});
+
+test.only('getRequiredNotes', () => {
+    expect(getRequiredNotes('C^7')).toEqual(['E', 'B']);
+    expect(getRequiredNotes('C7')).toEqual(['E', 'Bb']);
+    expect(getRequiredNotes('C7sus')).toEqual(['F', 'Bb']);
+    expect(getRequiredNotes('C')).toEqual(['E']);
+    expect(getRequiredNotes('D-')).toEqual(['F']);
+    expect(getRequiredNotes('D-7')).toEqual(['F', 'C']);
+    expect(getRequiredNotes('D-11')).toEqual(['F', 'G', 'C']);
+    expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
+    expect(getRequiredNotes('C13')).toEqual(['E', 'Bb', 'A']);
+    expect(getRequiredNotes('C6')).toEqual(['E', 'A']);
+    expect(getRequiredNotes('Ch7')).toEqual(['Eb', 'Gb', 'Bb']);
+    expect(getRequiredNotes('Ebo')).toEqual(['Gb', 'Bbb']);
+});
+
+test.only('getOptionalNotes', () => {
+    expect(getOptionalNotes('C^7')).toEqual(['C', 'G']);
+    expect(getOptionalNotes('C7')).toEqual(['C', 'G']);
+    expect(getOptionalNotes('C7sus')).toEqual(['C', 'G']);
+    expect(getOptionalNotes('C')).toEqual(['C', 'G']);
+    expect(getOptionalNotes('D-')).toEqual(['D', 'A']);
+    expect(getOptionalNotes('G-')).toEqual(['G', 'D']);
+    expect(getOptionalNotes('D-7')).toEqual(['D', 'A']);
+    expect(getOptionalNotes('D-11')).toEqual(['D', 'A', 'E']);
+    expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
+    expect(getOptionalNotes('C13')).toEqual(['C', 'G', 'D']);
+    expect(getOptionalNotes('C6')).toEqual(['C', 'G']);
+    expect(getOptionalNotes('Ch7')).toEqual(['C']);
+});
+
+test.only('getVoices', () => {
+    expect(getVoices('D-7', 4, false, 0)).toEqual(['F', 'C', 'D', 'A']);
+    expect(getVoices('D-7', 4, true, 1)).toEqual(['F', 'C', 'A', 'E']);
+    expect(getVoices('C7', 4, false, 0)).toEqual(['E', 'Bb', 'C', 'G']);
+    expect(getVoices('C7', 4, false, 1)).toEqual(['E', 'Bb', 'C', 'Db']); // TODO: make 13 be the first tension choice..
+    expect(getVoices('C7', 4, true, 1)).toEqual(['E', 'Bb', 'G', 'Db']);
+    expect(getVoices('C7', 4, true, 0)).toEqual(['E', 'Bb', 'G', 'Db']);
+    expect(getVoices('Dh7', 4, false, 1)).toEqual(['F', 'Ab', 'C', 'D']);
+    expect(getVoices('Dh7', 4, true, 1)).toEqual(['F', 'Ab', 'C', 'D']); // root stays because b5 needs root!
+})
 
 test('getRangeDirection', () => {
     const fn = util.getRangeDirection;
     expect(fn('C2', ['C3', 'C4']).direction).toBe('up');
+    expect(fn(Note.midi('C2'), ['C3', 'C4']).direction).toBe('up');
     expect(fn('C2', ['C3', 'C4']).force).toBe(true);
     expect(fn('C5', ['C3', 'C4']).direction).toBe('down');
     expect(fn('C3', ['C3', 'C4']).direction).toBe('up');
@@ -577,10 +646,19 @@ test('chordHasIntervals', () => {
     expect(util.chordHasIntervals('C', ['3M', '7M?'])).toBe(true);
     expect(util.chordHasIntervals('C^7', ['3m'])).toBe(false);
     expect(util.chordHasIntervals('C^7', ['3M', '7m'])).toBe(false);
+
+    expect(util.chordHasIntervals('C7sus4', ['3M!', '4P', '7m'])).toBe(true);
+    expect(util.chordHasIntervals('C-7', ['3!', '7m'])).toBe(false);
+
+    expect(util.chordHasIntervals('C7sus', ['4P'])).toBe(true);
+    expect(util.chordHasIntervals('C7sus', ['4'])).toBe(false);
+    expect(util.chordHasIntervals('C7', ['3!'])).toBe(false);
 });
 test('isDominantChord', () => {
     expect(util.isDominantChord('C^7')).toBe(false);
     expect(util.isDominantChord('C7')).toBe(true);
+    expect(util.isDominantChord('C7#5')).toBe(true);
+    expect(util.isDominantChord('C7sus')).toBe(true);
     expect(util.isDominantChord('C13')).toBe(true);
     expect(util.isDominantChord('C')).toBe(false);
     expect(util.isDominantChord('G7b9b13')).toBe(true);
@@ -751,7 +829,7 @@ test('getChordNotes', () => {
     expect(getChordNotes('C#-7', validateWithoutRoot)).toEqual(['E', 'G#', 'B']);
 });
 
-test.only('getNextVoicing', () => {
+test('getNextVoicing', () => {
     expect(getNextVoicing('C-7', ['D4', 'F4', 'A4', 'C5'])).toEqual(['C4', 'Eb4', 'G4', 'Bb4']);
     expect(getNextVoicing('C-7', ['A3', 'C4', 'D4', 'F4'])).toEqual(['G3', 'Bb3', 'C4', 'Eb4']);
 

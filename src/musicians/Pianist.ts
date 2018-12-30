@@ -1,6 +1,4 @@
-import { Distance } from 'tonal';
-import { Chord, Note } from 'tonal';
-import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, randomDelay, transposeToRange, sortMinInterval, generateVoicing, getDuration, getNextVoicing, voicingMovement, voicingDifference, analyzeVoiceLeading } from '../util';
+import { offbeatReducer, resolveChords, randomDelay, getDuration, getNextVoicing, analyzeVoiceLeading, transposeToRange } from '../util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
@@ -14,7 +12,7 @@ export default class Pianist extends Musician {
     min = Math.min;
     rollFactor = 1; // how much keyroll effect? controls interval between notes
     props: any;
-    range = ['C3', 'G5'];
+    range = ['C3', 'C5'];
     instrument: Instrument;
     constructor(instrument, props = {}) {
         super(instrument);
@@ -88,7 +86,8 @@ export default class Pianist extends Musician {
             scorenotes = this.getVoicing(scorenotes, this.getLastVoicing(), tonic);
         } */
         /* scorenotes = transposeToRange(scorenotes, this.range); */
-        this.playedNotes.push([].concat(scorenotes));
+
+
         this.instrument.playNotes(scorenotes, { deadline, interval, gain, duration, pulse });
     }
 
@@ -102,29 +101,16 @@ export default class Pianist extends Musician {
         }
         this.playedChords.push(chord);
 
-        const last = this.getLastVoicing();
-        /* let notes = generateVoicing(chord, this.getLastVoicing(), this.range); */
-        let notes = getNextVoicing(chord, this.getLastVoicing(), this.range);
-        if (last) {
-            /* const movement = voicingMovement(this.getLastVoicing(), notes);
-            const difference = voicingDifference(this.getLastVoicing(), notes); */
-            const { movement, difference, averageDifference } = analyzeVoiceLeading(this.playedNotes);
-            console.log(averageDifference, movement);
+        let notes = getNextVoicing(chord, this.getLastVoicing()/* , this.range */); // TODO: range currently only respects first note
+        this.playedNotes.push([].concat(notes));
+
+        if (this.playedNotes.length > 1) {
+            const { movement, averageDifference, latestDifference, latestMovement } = analyzeVoiceLeading(this.playedNotes);
+            console.log(chord, notes, Math.round(averageDifference * 10) / 10, latestMovement);
         } else {
-            console.log('voicing', notes);
+            console.log(chord, notes);
         }
 
-        /* chord = Chord.tokenize(getTonalChord(chord));
-
-        let notes = Chord.intervals(chord[1])
-            .map(i => i.replace('13', '6')) // TODO: better control over octave
-            .map(root => Distance.transpose(chord[0] + '3', root));
-        if (notes.length > 3 && settings.noTonic) {
-            notes = notes.slice(this.props.noTonic ? 1 : 0);
-        }
-        if (settings.slice) {
-            notes = notes.slice(0, settings.slice ? settings.slice : notes.length);
-        } */
         settings.deadline += 0.02 + randomDelay(5);
         this.playNotes(notes, settings);
     }

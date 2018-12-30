@@ -243,6 +243,16 @@ The validation could now be wrapped to be combinable with more validation rules:
     );
 ```
 
+### Wrapping up
+
+For sugar, lets add a new method to always get valid voicings for a given set of notes:
+
+```js
+export function getVoicingCombinations(notes, validator = (path, next, array) => true) {
+    return permutateElements(notes, combineValidators(validator, voicingValidator));
+}
+```
+
 ### Complexity
 
 Let's analyse the complexity of the algorithm:
@@ -299,15 +309,6 @@ c(n) = c(n-1) * n + n
 Adding custom voicing validation, the complexity depends on the interval structure of the input.
 But roughly said, the call counts are now reduced by 92%-98% on the upper limit, and 51% for four voices.
 
-### Wrapping up
-
-For sugar, lets add a new method to always get valid voicings for a given set of notes:
-
-```js
-export function getVoicingCombinations(notes, validator = (path, next, array) => true) {
-    return permutateElements(notes, combineValidators(validator, voicingValidator));
-}
-```
 
 ## Voice Leading
 
@@ -473,26 +474,18 @@ test.only('getNextVoicing', () => {
 This snippet will generate voicings that increase in seconds. The best voice leading for seconds
 will always keep the existing structure. This means that the overall pitch will increase each time and eventually exhaust the range of the instrument. A real pianist will always stay in the range where the chords sound good, even if the jumps do not follow the best voice leading. So the algorithm needs a mechanism to force leading the voices in a certain direction. The direction could be implemented at:
 
-- bestCombination: this method currently only analyzes voicingDifference. The voicingMovement could also be taken into account to filter out movements in the wrong direction:
+## Available and Unavailable Tensions
 
-```js
-// finds best combination following the given notes, based on minimal movement
-export function bestCombination(notes, combinations, direction?: intervalDirection) {
-    if (direction) {
-        combinations = combinations.filter(current => {
-            if (direction === 'up') {
-                return voicingMovement(notes, current) >= 0;
-            }
-            return voicingMovement(notes, current) <= 0;
-        })
-    }
-    return combinations.reduce((best, current) => {
-        const currentMovement = voicingDifference(notes, current);
-        const bestMovement = voicingDifference(notes, best);
-        if (Math.abs(currentMovement) < Math.abs(bestMovement)) {
-            return current;
-        }
-        return best;
-    })
-}
-```
+https://www.youtube.com/watch?v=KKk1HLsbi7A
+
+Available Tensions:
+In a chord, you can always play a major second above a chord note (of its not the b7..)
+All the other notes are either chord notes or unavailable tensions.
+
+## Chord Symbols
+
+https://www.youtube.com/watch?v=A6Ete9i5yyc
+
+- always play 3 and 7
+- always play highest note of chord symbol
+- e.g. C^13 => play E B and A
