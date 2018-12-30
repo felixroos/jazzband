@@ -299,6 +299,16 @@ c(n) = c(n-1) * n + n
 Adding custom voicing validation, the complexity depends on the interval structure of the input.
 But roughly said, the call counts are now reduced by 92%-98% on the upper limit, and 51% for four voices.
 
+### Wrapping up
+
+For sugar, lets add a new method to always get valid voicings for a given set of notes:
+
+```js
+export function getVoicingCombinations(notes, validator = (path, next, array) => true) {
+    return permutateElements(notes, combineValidators(validator, voicingValidator));
+}
+```
+
 ## Voice Leading
 
 A very important part of playing sequential chords is voice leading. Good voice leading generally means as little movement as possible (but as much as necessary). Now that we know all valid combinations of pitch classes for a given chord, we need a way of selecting the best combinations based on the voicing that was played before.
