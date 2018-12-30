@@ -104,12 +104,12 @@ export default class Pianist extends Musician {
         let notes = getNextVoicing(chord, this.getLastVoicing()/* , this.range */); // TODO: range currently only respects first note
         this.playedNotes.push([].concat(notes));
 
-        if (this.playedNotes.length > 1) {
+/*         if (this.playedNotes.length > 1) {
             const { movement, averageDifference, latestDifference, latestMovement } = analyzeVoiceLeading(this.playedNotes);
             console.log(chord, notes, Math.round(averageDifference * 10) / 10, latestMovement);
         } else {
             console.log(chord, notes);
-        }
+        } */
 
         settings.deadline += 0.02 + randomDelay(5);
         this.playNotes(notes, settings);

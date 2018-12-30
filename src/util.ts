@@ -996,19 +996,7 @@ export function getVoicingCombinations(notes, validator = (path, next, array) =>
 }
 
 // finds best combination following the given notes, based on minimal movement
-export function bestCombination(notes, combinations, direction?: intervalDirection) {/* 
-    if (direction) {
-        combinations = combinations.filter(current => {
-            // remember: passing direction to voicingMovement does make no sense! 
-            if (direction === 'up') {
-                return voicingMovement(notes, current) >= 0;
-            }
-            return voicingMovement(notes, current) <= 0;
-        });
-        if (!combinations.length) {
-            console.warn('no combination found with direction', direction);
-        }
-    } */
+export function bestCombination(notes, combinations) {
     return combinations.reduce((best, current) => {
         const currentMovement = voicingDifference(notes, current);
         const bestMovement = voicingDifference(notes, best);
@@ -1190,7 +1178,6 @@ export function getNextVoicing(chord, lastVoicing, range = ['C3', 'D4']) {
     } else {
         const movements = sortCombinationsByMovement(lastPitches, combinations, force ? direction : null).reverse();
         nextPitches = movements[0]; // this will use the combination with the most movement in the wrong direction
-        console.log(direction, movements);
     }
     // get nearest first note
     const nearest = getNearestNote(lastVoicing[0], nextPitches[0], direction, force);

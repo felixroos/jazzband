@@ -129,7 +129,7 @@ export declare function validateInterval(validate: (interval: string, { path, ne
 export declare function combineValidators(...validators: ((path: any, next: any, array: any) => boolean)[]): (path: any, next: any, array: any) => boolean;
 export declare function voicingValidator(path: any, next: any, array: any): boolean;
 export declare function getVoicingCombinations(notes: any, validator?: (path: any, next: any, array: any) => boolean): any;
-export declare function bestCombination(notes: any, combinations: any, direction?: intervalDirection): any;
+export declare function bestCombination(notes: any, combinations: any): any;
 export declare function sortCombinationsByMovement(notes: any, combinations: any, direction?: intervalDirection): any;
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
