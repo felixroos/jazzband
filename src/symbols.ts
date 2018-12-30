@@ -17,7 +17,7 @@ export const chords = [
     {
         symbol: 'o',
         groups: ['Basic', 'Symmetric', 'Triads'],
-        long: 'Vermindert',
+        long: 'Vermindert'
         /* short: 'o' */
     },
     {

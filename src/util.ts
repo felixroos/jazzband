@@ -2,7 +2,42 @@ import { Chord, Distance, Interval, Note, PcSet, Scale } from 'tonal';
 import { Synthesizer } from './instruments/Synthesizer';
 import { scaleNames } from './symbols';
 import * as JsDiff from 'diff';
-import { intervals } from 'tonal-pcset';
+
+const steps = {
+    '1P': ['1', '8'],
+    '2m': ['b9', 'b2'],
+    '2M': ['9', '2',],
+    '2A': ['#9', '#2'],
+    '3m': ['b3'],
+    '3M': ['3'],
+    '4P': ['11', '4'],
+    '4A': ['#11', '#4'],
+    '5d': ['b5'],
+    '5P': ['5'],
+    '6m': ['b13', 'b6'],
+    '6M': ['13', '6'],
+    '7m': ['b7'],
+    '7M': ['7', '^7', 'maj7']
+};
+
+/*
+Lower Interval Limits (just guidelines):
+2m: E3-F3
+2M: Eb3-F3
+3m: C3-Eb3
+3M: Bb2-D3
+4P: Bb2-Eb3
+5D: B2-F3
+5P: Bb1-F2
+6m: F2-Db3
+6M: F2-D3
+7m: F2-Eb3
+7m: F2-E3
+8P: -
+
+more rough: top note should be D3 or higher.
+taken from https://www.youtube.com/watch?v=iW6YeDJklhQ
+*/
 
 export function randomNumber(n) {
     return Math.floor(Math.random() * n)
@@ -30,7 +65,7 @@ export function shuffleArray(a) {
     return a;
 }
 
-export function getTonalChord(chord) {
+export function getTonalChord(chord: string) {
     chord = chord
         .replace('-', 'm')
         .replace('^', 'M')
@@ -47,8 +82,8 @@ export function getTonalChord(chord) {
     return tokens[0] + (s[0] || 'M');
 }
 
-export function getMidi(note, offset) {
-    return Note.props(note).midi - offset;
+export function getMidi(note, offset = 0) {
+    return Note.midi(note) - offset;
 }
 
 /** Travels path along measures */
@@ -76,7 +111,10 @@ export function resolveChords(pattern, measures, path, divisions = []) {
     if (fraction === 0) {
         console.warn('fraction is 0', pattern);
     }
-    return { chord: this.getPath(path, measures), pattern, /* gain, */ path, divisions, fraction };
+    if (fraction === NaN) {
+        console.warn('fraction NaN', divisions, pattern);
+    }
+    return { chord: this.getPath(path, measures), pattern, path, divisions, fraction };
 }
 
 export function hasOff(pattern, division = 3) {
@@ -112,7 +150,7 @@ export function invertInterval(interval) {
 
 /** Transforms interval into one octave (octave+ get octaved down) */
 export function simplifyInterval(interval) {
-    interval = Interval.simplify(interval) || '1P';
+    interval = Interval.simplify(interval);/*  || '1P'; */
 
     const fix = {
         '8P': '1P',
@@ -130,6 +168,7 @@ export function simplifyInterval(interval) {
 }
 
 declare type intervalDirection = 'up' | 'down';
+declare type step = string | number;
 
 /** inverts the interval if it does not go to the desired direction */
 export function forceDirection(interval, direction: intervalDirection) {
@@ -174,7 +213,7 @@ export function sortMinInterval(preferredDirection: intervalDirection = 'up') {
 
 /** Returns the note with the least distance to "from" */
 export function getNearestNote(from, to, direction?: intervalDirection, force = !!direction) {
-    let interval = minInterval(Distance.interval(Note.pc(from), to), direction, force);
+    let interval = minInterval(Distance.interval(Note.pc(from), Note.pc(to)), direction, force);
     return Distance.transpose(from, interval);
 }
 
@@ -257,39 +296,39 @@ export function transposeToRange(notes, range, times = 0) {
     return notes;
 }
 
-export function getRangePosition(note, range) {
-    const semitones = [Distance.semitones(range[0], note), Distance.semitones(range[0], range[1])];
-    return semitones[0] / semitones[1];
+export function getAverageMidi(notes, offset?) {
+    return notes.reduce((sum, note) => sum + getMidi(note, offset), 0) / notes.length;
+}
 
+export function getRangePosition(note: string | number, range) {
+    note = getMidi(note);
+    range = range.map(n => getMidi(n));
+    const semitones = [note - range[0], range[1] - range[0]];
+    return semitones[0] / semitones[1];
+}
+
+export function getRangeDirection(note, range, defaultDirection: intervalDirection = 'down', border = 0): { direction: intervalDirection, force: boolean } {
+    const position = getRangePosition(note, range);
+    if (position <= border) {
+        return { direction: 'up', force: true }
+    } if (position >= (1 - border)) {
+        return { direction: 'down', force: true }
+    }
+    return {
+        direction: defaultDirection, force: false
+    }
 }
 
 // accepts both strings or numbers where negative means minor, 
 // returns unified step string that can be turned into an interval
-export function getStep(step) {
+export function getStep(step: step) {
     if (typeof step === 'number' && step < 0) {
         step = 'b' + (step * -1);
     }
     return step + ''; // to string
 }
 
-const steps = {
-    '1P': ['1', '8'],
-    '2m': ['b9', 'b2'],
-    '2M': ['9', '2',],
-    '2A': ['#9', '#2'],
-    '3m': ['b3'],
-    '3M': ['3'],
-    '4P': ['11', '4'],
-    '4A': ['#11', '#4'],
-    '5D': ['b5'],
-    '5P': ['5'],
-    '6m': ['b13', 'b6'],
-    '6M': ['13', '6'],
-    '7m': ['b7'],
-    '7M': ['7', '^7', 'maj7']
-};
-
-export function getIntervalFromStep(step) {
+export function getIntervalFromStep(step: step) {
     step = getStep(step);
     const interval = Object.keys(steps)
         .find(i => steps[i].includes(step));
@@ -297,6 +336,10 @@ export function getIntervalFromStep(step) {
         // console.warn(`step ${step} has no defined inteval`);
     }
     return interval;
+}
+
+export function getStepsFromDegree(degree) {
+    return
 }
 
 export function getStepInChord(note, chord, group?) {
@@ -322,10 +365,23 @@ export function pickChordScale(chord, group = 'Diatonic') {
     return scales[0];
 }
 
-export function findDegree(degree, intervals) {
-    return intervals
-        .find(i => i.includes(getStep(degree)) ||
-            i === getIntervalFromStep(degree));
+
+export function findDegree(degreeOrStep: number | step, intervalsOrSteps: string[]) {
+    const intervals = intervalsOrSteps.map(i => isInterval(i) ? i : getIntervalFromStep(i));
+    if (typeof degreeOrStep === 'number') { // is degree
+        const degree = Math.abs(degreeOrStep);
+        return intervals.find(i => {
+            i = minInterval(i, 'up', true);
+            if (!steps[i]) {
+                console.error('interval', i, 'is not valid', intervals);
+            }
+            return !!(steps[i].find(step => getDegreeFromStep(step) === degree));
+        });
+    }
+    // is step
+    const step = getStep(degreeOrStep);
+    return intervals.find(i => i.includes(step) ||
+        i === getIntervalFromStep(step));
 }
 
 export function hasDegree(degree, intervals) {
@@ -362,7 +418,12 @@ export function getStepFromInterval(interval) {
 }
 
 export function getDegreeFromInterval(interval = '-1') {
-    return parseInt(interval[0]);
+    return parseInt(interval.match(/([1-9])+/)[0], 10);
+}
+
+export function getDegreeFromStep(step: step) {
+    step = getStep(step);
+    return parseInt(step.match(/([1-9])+/)[0], 10);
 }
 
 export function getPatternInChord(pattern, chord) {
@@ -628,15 +689,6 @@ export function totalDiff(diff) {
     return total;
 }
 
-/*
- * 
- * 
- *   C D E F G A B 
- *   C F B E A D G
- *   D G C F B E A
- *   
- */
-
 /** Reorders the given notes to contain the given step as close as possible */
 export function sortByDegree(notes, degree) {
     degree = Math.max(degree, (degree + 8) % 8)
@@ -654,24 +706,83 @@ export function sortByDegree(notes, degree) {
     return notes;
 }
 
-export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }: {
-    previousVoicing?: string[],
-    voices?: number,
-    omitRoot?: boolean,
-    quartal?: boolean
-} = {}) {
-    chord = getTonalChord(chord);
-    const tokens = Chord.tokenize(chord);
-    let notes = Chord.notes(chord);
-    if (omitRoot) {
-        notes = notes.filter(n => n !== tokens[0]);
-    }
-    if (quartal) {
-    }
-    if (previousVoicing) {
+/** Returns the given notes with octaves either moving bottom up or top down */
+export function renderAbsoluteNotes(notes, octave = 3, direction: intervalDirection = 'up') {
+    return notes.reduce((absolute, current, index, notes) => {
+        if (index === 0) {
+            return [current + octave];
+        }
+        let interval = Distance.interval(notes[index - 1], current);
+        interval = minInterval(interval, direction, true);
+        if (interval === '1P') {
+            interval = direction === 'down' ? '-8P' : '8P';
+        }
+        absolute.push(Distance.transpose(absolute[index - 1], interval));
+        return absolute;
+    }, []);
+}
 
+export function getIntervals(notes) {
+    return notes.reduce((intervals, note, index, notes) => {
+        if (index === 0) {
+            return [];
+        }
+        intervals.push(Distance.interval(notes[index - 1], note));
+        return intervals;
+    }, []);
+}
+
+export function isInterval(interval) {
+    return typeof Interval.semitones(interval) === 'number';
+}
+
+export function smallestInterval(intervals) {
+    return intervals.reduce((min, current) => {
+        if (!min || Distance.semitones(current) < Distance.semitones(min)) {
+            return current;
+        }
+        return min;
+    });
+}
+
+export function sortNotes(notes, direction: intervalDirection = 'up') {
+    return notes.sort((a, b) => getMidi(a) - getMidi(b));
+}
+
+export function analyzeVoicing(notes, root?) {
+    if (!notes || notes.length < 2) {
+        throw new Error('Can only analyze Voicing with at least two notes');
     }
-    return notes;
+    notes = sortNotes(notes);
+    root = root || notes[0]; // TODO: get degrees
+    const intervals = getIntervals(notes);
+    const sortedIntervals = intervals.sort(sortMinInterval());
+    return {
+        notes,
+        minInterval: sortedIntervals[0],
+        maxInterval: sortedIntervals[sortedIntervals.length - 1],
+        intervals,
+        spread: Distance.interval(notes[0], notes[notes.length - 1])
+    }
+}
+
+export function analyzeVoiceLeading(voicings, min = true) {
+    const data = voicings.reduce((data, voicing, index) => {
+        if (!index) {
+            return data;
+        }
+        return {
+            movement: data.movement + voicingMovement(voicings[index - 1], voicing, min),
+            difference: data.difference + voicingDifference(voicings[index - 1], voicing, min),
+            voiceDifference: data.voiceDifference + voicingDifference(voicings[index - 1], voicing, min) / voicings[index - 1].length,
+        }
+    }, { movement: 0, difference: 0, voiceDifference: 0 });
+    return {
+        ...data,
+        averageMovement: data.movement / voicings.length,
+        averageDifference: data.difference / voicings.length,
+        averageVoiceDifference: data.voiceDifference / voicings.length,
+    }
 }
 
 // returns array of intervals that lead the voices of chord A to chordB
@@ -694,20 +805,10 @@ export function longestChild(array: any[][]) {
     return array.reduce((max, current) => (current.length > max.length ? current : max), array[0]);
 }
 
-/* export function intervalSum(chord) {
-    return chord.reduce((sum, note,index) => {
-        if(!sum) {
-            return 
-        }
-        Distance.add(sum, Distance.interval())
-    }, '1P');
-    return Distance.interval(chord[0], chord[chord.length - 1]);
-} */
-
-export function voicingIntervals(chordA, chordB, min = true) {
+export function voicingIntervals(chordA, chordB, min = true, direction?: intervalDirection) {
     const intervals = chordA.map((n, i) => Distance.interval(n, chordB[i]));
     if (min) {
-        return intervals.map(i => minInterval(i));
+        return intervals.map(i => minInterval(i, direction, !!direction));
     }
     return intervals;
 }
@@ -716,8 +817,8 @@ export function voicingDifference(chordA, chordB, min = true) {
     return semitoneDifference(voicingIntervals(chordA, chordB, min));
 }
 
-export function voicingMovement(chordA, chordB, min = true) {
-    return semitoneMovement(voicingIntervals(chordA, chordB, min));
+export function voicingMovement(chordA, chordB, min = true, direction?: intervalDirection) {
+    return semitoneMovement(voicingIntervals(chordA, chordB, min, direction));
 }
 
 export function mapTree(
@@ -791,5 +892,202 @@ export function isMinorChord(chord) {
     return chordHasIntervals(chord, ['3m']);
 }
 export function isMinorTonic(chord) {
-    return chordHasIntervals(chord, ['3m', '5P', '6M?', '7M?']);
+    return chordHasIntervals(chord, ['3m', '5P', '13M?', '7M?']);
+}
+
+export function getChordType(chord) {
+    if (isDominantChord(chord)) {
+        return 'dominant';
+    }
+    if (isMajorChord(chord)) {
+        return 'major';
+    }
+    if (isMinorTonic(chord)) {
+        return 'minor-tonic';
+    }
+    if (isMinorChord(chord)) {
+        return 'minor';
+    }
+}
+
+export function permutateArray(array) {
+    if (array.length === 1) { return array; }
+    return array.reduce((combinations, el) => [
+        ...combinations,
+        ...permutateArray(array.filter(e => e !== el))
+            .map(subcombinations => ([el, ...subcombinations]))
+    ], []);
+}
+
+export function permutateElements(array, validate?, path = []) {
+    const isValid = (next) => !validate || validate(path, next, array);
+    if (array.length === 1) {
+        return isValid(array[0]) ? array : []
+    }
+    return array.filter(isValid).reduce((combinations, el) => [
+        ...combinations,
+        ...permutateElements(
+            array.filter(e => e !== el),
+            validate,
+            path.concat([el])
+        ).map(subcombinations => [
+            el,
+            ...subcombinations
+        ])
+    ], []);
+}
+
+export function permutationComplexity(array, validate?, path = []) {
+    let validations = 0;
+    permutateElements(array, (path, next, array) => {
+        ++validations;
+        return !validate || validate(path, next, array)
+    }, path);
+    return validations;
+}
+
+export function validateInterval(validate: (interval: string, { path, next, array }) => boolean) {
+    return (path, next, array) => {
+        if (!path.length) { return true }
+        const interval = Distance.interval(path[path.length - 1], next);
+        return validate(interval, { path, next, array });
+    }
+}
+
+// combine multiple validators
+export function combineValidators(...validators: ((path, next, array) => boolean)[]) {
+    return (path, next, array) => validators
+        .reduce((result, validator) => result && validator(path, next, array), true);
+}
+
+
+export function voicingValidator(path, next, array) {
+    return combineValidators(
+        validateInterval(interval => Interval.semitones(interval) <= 6),
+        validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) > 2),
+        validateInterval((interval, { array }) => path.length !== 1 || Interval.semitones(interval) > 2)
+    )(path, next, array);
+}
+
+export function getVoicingCombinations(notes, validator = (path, next, array) => true) {
+    return permutateElements(notes, combineValidators(validator, voicingValidator));
+}
+
+// finds best combination following the given notes, based on minimal movement
+export function bestCombination(notes, combinations, direction?: intervalDirection) {
+    if (direction) {
+        const total = combinations.length;
+        combinations = combinations.filter(current => {
+            if (direction === 'up') {
+                return voicingMovement(notes, current, true/* , direction */) >= 0;
+            }
+            return voicingMovement(notes, current, true/* , direction */) <= 0;
+        });
+        console.log(`${combinations.length}/${total} combinations ${direction ? ' going ' + direction : ''}`);
+    }
+    return combinations.reduce((best, current) => {
+        const currentMovement = voicingDifference(notes, current);
+        const bestMovement = voicingDifference(notes, best);
+        if (Math.abs(currentMovement) < Math.abs(bestMovement)) {
+            return current;
+        }
+        return best;
+    })
+}
+
+export function getChordNotes(chord, validate?) {
+    chord = getTonalChord(chord);
+    const tokens = Chord.tokenize(chord);
+    const notes = Chord.notes(chord);
+    return notes.filter(note => {
+        const interval = Distance.interval(tokens[0], note);
+        return !validate || validate(note, {
+            root: tokens[0],
+            symbol: tokens[1],
+            interval,
+            step: getStepFromInterval(interval),
+            degree: getDegreeFromInterval(interval)
+        });
+    });
+}
+
+export function validateWithoutRoot(note, { degree }) {
+    return degree !== 1;
+}
+
+// OLD...
+export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }: {
+    previousVoicing?: string[],
+    voices?: number,
+    omitRoot?: boolean,
+    quartal?: boolean
+} = {}) {
+    chord = getTonalChord(chord);
+    const tokens = Chord.tokenize(chord);
+    let notes = Chord.notes(chord);
+    if (omitRoot) {
+        notes = notes.filter(n => n !== tokens[0]);
+    }
+    if (quartal) {
+    }
+    if (previousVoicing) {
+
+    }
+    return notes;
+}
+
+// NEW
+export function generateVoicing(chord, lastVoicing?, range = ['F3', 'F4']) {
+    chord = getTonalChord(chord);
+    let octave = 3;
+    const pick = getChordNotes(chord/* , validateWithoutRoot */); // TODO: fix validateWithoutRoot
+    let combinations, nextPitches;
+    if (!lastVoicing || !lastVoicing.length) {
+        combinations = getVoicingCombinations(pick);
+        /* notes = combinations[0]; */
+        nextPitches = randomElement(combinations);
+        return renderAbsoluteNotes(nextPitches, octave);
+    }
+    /* const bounds = [lastVoicing[0], lastVoicing[lastVoicing.length - 1]];
+    const { direction, force } = getRangeDirection(bounds[0], range);
+    const targets = bounds.map(n => getNearestTargets(n, pick, direction, force)[0]);
+    const nearest = targets.map(t => Note.props(t).pc);
+    const octaves = targets.map(t => Note.props(t).oct);
+    octave = octaves[0];
+    combinations = getVoicingCombinations(pick, (path, next, array) => {
+         return (path.length || next === nearest[0])
+     }); */
+    combinations = getVoicingCombinations(pick);
+    const lastPitches = lastVoicing.map(n => Note.pc(n));
+    nextPitches = bestCombination(lastPitches, combinations);
+    const nearest = getNearestNote(lastPitches[0], nextPitches[0]);
+    const bottomOctave = Note.props(nearest).oct;
+    return renderAbsoluteNotes(nextPitches, bottomOctave);
+}
+
+
+export function getNextVoicing(chord, lastVoicing, range = ['F3', 'F4']) {
+    let bottomOctave = Note.oct(range[0]);
+    // make sure tonal can read the chord
+    chord = getTonalChord(chord);
+    // get chord notes
+    const notes = Chord.notes(chord);
+    // find voicings
+    const combinations = getVoicingCombinations(notes);
+    if (!lastVoicing) {
+        return renderAbsoluteNotes(combinations[0], bottomOctave);
+    }
+    const { direction, force } = getRangeDirection(lastVoicing[0], range);
+    if (force) {
+        console.log('direction', direction);
+    }
+    // get pitch classes of last voicing
+    const lastPitches = lastVoicing.map(n => Note.pc(n));
+    // find best next combination
+    const nextPitches = bestCombination(lastPitches, combinations, force ? direction : null);
+    // get nearest first note
+    const nearest = getNearestNote(lastVoicing[0], nextPitches[0], direction, force);
+    bottomOctave = Note.oct(nearest);
+    // render all notes, starting from the bottomOctave
+    return renderAbsoluteNotes(nextPitches, bottomOctave);
 }

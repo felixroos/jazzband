@@ -1,6 +1,6 @@
 import { swing } from "../grooves/swing";
 import { Note } from 'tonal';
-import { getPatternInChord, randomElement, getNearestTargets, transposeToRange, getDigitalPattern, shuffleArray, getRangePosition, getDegreeInChord, otherDirection, getStepInChord } from "../util";
+import { getPatternInChord, randomElement, getNearestTargets, transposeToRange, getDigitalPattern, shuffleArray, getRangePosition, otherDirection, getStepInChord } from "../util";
 import { Improvisation } from "./Improvisation";
 
 export const permutator = new Improvisation({

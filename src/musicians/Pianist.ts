@@ -1,6 +1,6 @@
 import { Distance } from 'tonal';
 import { Chord, Note } from 'tonal';
-import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, randomDelay, transposeToRange, sortMinInterval } from '../util';
+import { getTonalChord, offbeatReducer, resolveChords, intervalMatrix, randomDelay, transposeToRange, sortMinInterval, generateVoicing, getDuration, getNextVoicing, voicingMovement, voicingDifference, analyzeVoiceLeading } from '../util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
@@ -25,17 +25,17 @@ export default class Pianist extends Musician {
         const groove = settings.groove || this.defaults.groove;
         const grooveKey = 'chords';
         // if no groove or groove without chords, or exact, play whats there
+        // TODO: exact timing is false with metronome
         if (settings.exact || !groove || !groove[grooveKey]) {
             if (!groove[grooveKey]) {
                 console.warn('Groove has no chords, Pianist will play exact.', groove);
             }
-            /* walkMeasures(measures, (measure, path) => {
-                console.log('walk measure', measure, path);
-            }); */
-            //TODO: fix timing (exact mode)
-            return pulse.tickArray(measures, (t) => {
-                const measureLength = pulse.getMeasureLength();
-                this.playChord(t.value, { deadline: t.deadline, duration: measureLength * t.fraction, pulse });
+            measures = measures
+                .map((pattern, i) => resolveChords(pattern, measures, [i]));
+            return pulse.tickArray(measures, ({ value, deadline }) => {
+                const fraction = getDuration(value.divisions, 1); // TODO: find out why value fraction is NaN
+                const duration = fraction * pulse.getMeasureLength();
+                this.playChord(value.chord || value, { deadline: deadline, duration, pulse });
             });
         }
         // else, play groovy
@@ -65,7 +65,7 @@ export default class Pianist extends Musician {
         return this.playedNotes.length ? this.playedNotes[this.playedNotes.length - 1] : null;
     }
 
-    getVoicing(scorenotes, before, tonic?) {
+    /* getVoicing(scorenotes, before, tonic?) {
         if (!before) {
             return scorenotes;
         }
@@ -79,15 +79,15 @@ export default class Pianist extends Musician {
             }).filter(n => !!n)
             .filter(n => Note.simplify(n, true));
         return near && near.length ? near : scorenotes;
-    }
+    } */
 
 
     // plays the given notes at the given interval
     playNotes(scorenotes, { tonic, deadline, interval, gain, duration, pulse }) {
-        if (this.props.intelligentVoicings && this.getLastVoicing()) {
+        /* if (this.props.intelligentVoicings && this.getLastVoicing()) {
             scorenotes = this.getVoicing(scorenotes, this.getLastVoicing(), tonic);
-        }
-        scorenotes = transposeToRange(scorenotes, this.range);
+        } */
+        /* scorenotes = transposeToRange(scorenotes, this.range); */
         this.playedNotes.push([].concat(scorenotes));
         this.instrument.playNotes(scorenotes, { deadline, interval, gain, duration, pulse });
     }
@@ -101,7 +101,20 @@ export default class Pianist extends Musician {
             return;
         }
         this.playedChords.push(chord);
-        chord = Chord.tokenize(getTonalChord(chord));
+
+        const last = this.getLastVoicing();
+        /* let notes = generateVoicing(chord, this.getLastVoicing(), this.range); */
+        let notes = getNextVoicing(chord, this.getLastVoicing(), this.range);
+        if (last) {
+            /* const movement = voicingMovement(this.getLastVoicing(), notes);
+            const difference = voicingDifference(this.getLastVoicing(), notes); */
+            const { movement, difference, averageDifference } = analyzeVoiceLeading(this.playedNotes);
+            console.log(averageDifference, movement);
+        } else {
+            console.log('voicing', notes);
+        }
+
+        /* chord = Chord.tokenize(getTonalChord(chord));
 
         let notes = Chord.intervals(chord[1])
             .map(i => i.replace('13', '6')) // TODO: better control over octave
@@ -111,7 +124,7 @@ export default class Pianist extends Musician {
         }
         if (settings.slice) {
             notes = notes.slice(0, settings.slice ? settings.slice : notes.length);
-        }
+        } */
         settings.deadline += 0.02 + randomDelay(5);
         this.playNotes(notes, settings);
     }
