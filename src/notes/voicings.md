@@ -69,7 +69,7 @@ The tonal-chord package contains the basic structure of all common chord symbols
 
 ### Bruteforcing Combinations
 
-One Idea to find out voicings could be to generate all possible orderings of the outputted notes.
+One idea to find out voicings could be to generate all possible orderings of the outputted notes.
 
 A triad would have 6 different combinations (3 * 2 * 1).
 
@@ -104,32 +104,32 @@ permutateArray(Chord.notes("Cmaj7")) // => ["C", "E", "G", "B"]
 
 outputs
 
-```json
+```js
 [
     ["C", "E", "G", "B"],
-    ["C", "E", "B", "G"], // #7
-    ["C", "G", "E", "B"], // #7
-    ["C", "G", "B", "E"], // #7
-    ["C", "B", "E", "G"], // #7
-    ["C", "B", "G", "E"], // #7
-    ["E", "C", "G", "B"], // #7
-    ["E", "C", "B", "G"], // #7
-    ["E", "G", "C", "B"], // #7
-    ["E", "G", "B", "C"],
-    ["E", "B", "C", "G"], // #7
-    ["E", "B", "G", "C"], // #7
-    ["G", "C", "E", "B"], // #7
-    ["G", "C", "B", "E"], // #7
-    ["G", "E", "C", "B"], // #7
-    ["G", "E", "B", "C"], // #7
-    ["G", "B", "C", "E"],
-    ["G", "B", "E", "C"], // #7
-    ["B", "C", "E", "G"], 
-    ["B", "C", "G", "E"], // #7
-    ["B", "E", "C", "G"], // #7
-    ["B", "E", "G", "C"],
-    ["B", "G", "C", "E"], // #7
-    ["B", "G", "E", "C"] // #7
+    ["C", "E", "B", "G"], // 7
+    ["C", "G", "E", "B"], // 7
+    ["C", "G", "B", "E"], // 7
+    ["C", "B", "E", "G"], // 7
+    ["C", "B", "G", "E"], // 7
+    ["E", "C", "G", "B"], // 7
+    ["E", "C", "B", "G"], // 7
+    ["E", "G", "C", "B"], // 7
+    ["E", "G", "B", ""],
+    ["E", "B", "C", "G"], // 7
+    ["E", "B", "G", "C"], // 7
+    ["G", "C", "E", "B"], // 7
+    ["G", "C", "B", "E"], // 7
+    ["G", "E", "C", "B"], // 7
+    ["G", "E", "B", "C"], // 7
+    ["G", "B", "C", ""],
+    ["G", "B", "E", "C"], // 7
+    ["B", "C", "E", "G"]
+    ["B", "C", "G", "E"], // 7
+    ["B", "E", "C", "G"], // 7
+    ["B", "E", "G", ""],
+    ["B", "G", "C", "E"], // 7
+    ["B", "G", "E", "C"] // 7
 ]
 ```
 
@@ -139,7 +139,7 @@ The notes are now interpreted as being stacked above in the most compact way.
 
 Many combinations are bad, meaning they contradict, the rules "General Interval Rules" above. Rule 7 alone (keep intervals lower than perfect fiths) is infringed in most of the combinations. There are only 5 combinations remaining:
 
-```json
+```js
 [
     ["C", "E", "G", "B"], // default
     ["E", "G", "B", "C"], // inversion 1
@@ -151,7 +151,7 @@ Many combinations are bad, meaning they contradict, the rules "General Interval 
 
 Inversion 1 also violates rule 5 (play 3rd or 4th between two highest) and inversion 3 violates rule 3 (avoid low intervals at the bottom) giving:
 
-```json
+```js
 [
     ["C", "E", "G", "B"], // default
     ["G", "B", "C", "E"], // inversion 2
