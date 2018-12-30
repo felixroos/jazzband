@@ -40,7 +40,6 @@ export default class Pianist extends Musician {
         settings: any;
     }): any;
     getLastVoicing(): any;
-    getVoicing(scorenotes: any, before: any, tonic?: any): any;
     playNotes(scorenotes: any, { tonic, deadline, interval, gain, duration, pulse }: {
         tonic: any;
         deadline: any;
