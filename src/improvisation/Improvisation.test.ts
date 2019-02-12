@@ -37,7 +37,7 @@ test('enhance: guideTones', () => {
     expect(guideTonesFlipped.get('flip')).toEqual(true);
 });
 
-test.only('dynamic rule: chordTones', () => {
+test('dynamic rule: chordTones', () => {
     /* expect(chordTones.get('drill')).toBe(.6);
     expect(chordTones.get('flip')).toBe(true); */
 

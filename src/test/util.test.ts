@@ -558,7 +558,7 @@ test('isMinorTonic', () => {
     expect(util.isMinorTonic('Eb-6')).toBe(true);
 });
 
-test.only('getChordType', () => {
+test('getChordType', () => {
     const fn = util.getChordType;
     expect(fn('C7')).toBe('dominant');
     expect(fn('C-7')).toBe('minor');
