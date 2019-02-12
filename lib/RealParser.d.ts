@@ -16,12 +16,6 @@ export declare class RealParser {
         "XyQ": string[];
         "Kcl": string[];
     };
-    raw: string;
-    sections: any;
-    bars: any;
-    tokens: any;
-    sheet: Leadsheet;
-    measures: any;
     static getChord(iRealChord: any): any;
     static parseSheet(raw: any): Leadsheet;
     static getSheet(tokens: any): Leadsheet;

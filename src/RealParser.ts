@@ -32,12 +32,6 @@ export class RealParser {
         "XyQ": [" ", " ", " "],
         "Kcl": ["|", "x", " "]
     };
-    raw: string;
-    sections: any; //chords json
-    bars: any;
-    tokens: any;
-    sheet: Leadsheet;
-    measures: any;
 
     static getChord(iRealChord) {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
