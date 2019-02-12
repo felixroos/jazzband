@@ -1,4 +1,4 @@
-import { Sheet, Leadsheet } from "./sheet/Sheet";
+import { Leadsheet } from "./sheet/Sheet";
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
@@ -13,21 +13,21 @@ export class RealParser {
      * @type RegExp
      */
 
-    chordRegex = /^([ A-GW][b#]?)((?:sus|[\+\-\^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
+    static chordRegex = /^([ A-GW][b#]?)((?:sus|[\+\-\^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
 
-    regExps = [
+    static regExps = [
         /^\*[a-zA-Z]/,							// section
         /^T\d\d/,								// time measurement
         /^N./,									// repeat marker
         /^<.*?>/,								// comments
         /^ \(.*?\)/,							// blank and (note)
-        this.chordRegex,				// chords
+        RealParser.chordRegex,				// chords
         /^LZ/,									// 1 cell + right bar
         /^XyQ/,									// 3 empty cells
         /^Kcl/									// repeat last bar
     ];
 
-    replacements = {
+    static replacements = {
         "LZ": [" ", "|"],
         "XyQ": [" ", " ", " "],
         "Kcl": ["|", "x", " "]
@@ -39,20 +39,15 @@ export class RealParser {
     sheet: Leadsheet;
     measures: any;
 
-    constructor(raw) {
-        this.raw = raw;
-        this.tokens = this.parse(raw);
-        this.sheet = this.getSheet(this.tokens);
-        this.measures = Sheet.render(this.sheet);
-        return raw;
-    }
-
-
-    getChord(iRealChord) {
+    static getChord(iRealChord) {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
     }
 
-    getSheet(tokens): Leadsheet {
+    static parseSheet(raw): Leadsheet {
+        return RealParser.getSheet(RealParser.parse(raw));
+    }
+
+    static getSheet(tokens): Leadsheet {
         const parsed = tokens
             .reduce((current, token, index, array) => {
                 const lastBarEnded = ['{', '|', '[', '||' /* 'Z',  *//* , ']' */]
@@ -135,7 +130,7 @@ export class RealParser {
     }
 
 
-    parse(raw: string): any {
+    static parse(raw: string): any {
         var text = raw;
         var arr = [], headers = [], comments = [];
         var i;
@@ -143,14 +138,14 @@ export class RealParser {
         // text = text.trimRight();
         while (text) {
             var found = false;
-            for (i = 0; i < this.regExps.length; i++) {
-                var match = this.regExps[i].exec(text);
+            for (i = 0; i < RealParser.regExps.length; i++) {
+                var match = RealParser.regExps[i].exec(text);
 
                 if (match) {
                     found = true;
                     if (match.length <= 2) {
                         const replacement = match[0];
-                        var repl = this.replacements[replacement];
+                        var repl = RealParser.replacements[replacement];
                         arr = arr.concat(repl ? repl : [replacement]);
                         text = text.substr(replacement.length);
                     }
@@ -171,11 +166,11 @@ export class RealParser {
         //		console.log(arr);
         // pass 2: extract prefixes, suffixes, annotations and comments
         var out = [];
-        var obj = this.newToken(out);
+        var obj = RealParser.newToken(out);
         for (i = 0; i < arr.length; i++) {
             var token = arr[i];
             if (token instanceof Array) {
-                obj.chord = this.parseChord(token);
+                obj.chord = RealParser.parseChord(token);
                 token = " ";
             }
             switch (token[0]) {
@@ -211,7 +206,7 @@ export class RealParser {
             }
             if (token && i < arr.length - 1) {
                 obj.token = token;
-                obj = this.newToken(out);
+                obj = RealParser.newToken(out);
             }
         }
         return out;
@@ -219,7 +214,7 @@ export class RealParser {
 
 
 
-    parseChord(match) {
+    static parseChord(match) {
         var note = match[1] || " ";
         var modifiers = match[2] || "";
         var comment = match[3] || "";
@@ -230,7 +225,7 @@ export class RealParser {
             over = over.substr(1);
         var alternate = match[5] || null;
         if (alternate) {
-            match = this.chordRegex.exec(alternate.substr(1, alternate.length - 2));
+            match = RealParser.chordRegex.exec(alternate.substr(1, alternate.length - 2));
             if (!match)
                 alternate = null;
             else
@@ -248,7 +243,7 @@ export class RealParser {
         return new iRealChord(note, modifiers, over, alternate);
     }
 
-    newToken(arr) {
+    static newToken(arr) {
         var obj = new iRealToken;
         arr.push(obj);
         return obj;

@@ -10,6 +10,7 @@ import { swing } from '../src/grooves/swing';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
 import { bossa } from '../src/grooves/bossa';
+import { Sheet } from '../src/sheet/Sheet';
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
 
@@ -42,11 +43,11 @@ function getStandard(playlist) {
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Giant Steps'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Autumn Leaves'))); */
     /* const standard = jazz.util.randomElement(playlist.songs); */
-    const parser = new RealParser(standard.music.raw);
     //console.log('tokens',parser.tokens);
-    standard.music.measures = parser.sheet; // TODO: add Song that can be passed to comp
-    console.log('standard', standard, standard.music.measures);
-    console.log('sheet', parser.sheet);
+
+    standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
+    console.log('standard', standard);
+    console.log('sheet', standard.music.measures);
     return standard;
 }
 
@@ -102,7 +103,11 @@ window.onload = function () {
         const bpm = /* groove.tempo ||  */160;
         console.log('tempo', bpm);
         const cycle = 4;
-        band.comp(standard.music.measures, { metronome: false, exact: true, cycle, bpm, groove/* , arpeggio: true */ })
+        band.comp(standard.music.measures, { metronome: false, exact: true, cycle, bpm, groove/* , arpeggio: true */ });
+
+        const bars = Sheet.render(standard.music.measures);
+        console.log('bars', bars);
+
     }
 
     randomInstruments.addEventListener('click', () => {

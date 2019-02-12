@@ -9,9 +9,9 @@ export declare class RealParser {
      * 5 - the top chord as (chord)
      * @type RegExp
      */
-    chordRegex: RegExp;
-    regExps: RegExp[];
-    replacements: {
+    static chordRegex: RegExp;
+    static regExps: RegExp[];
+    static replacements: {
         "LZ": string[];
         "XyQ": string[];
         "Kcl": string[];
@@ -22,12 +22,12 @@ export declare class RealParser {
     tokens: any;
     sheet: Leadsheet;
     measures: any;
-    constructor(raw: any);
-    getChord(iRealChord: any): any;
-    getSheet(tokens: any): Leadsheet;
-    parse(raw: string): any;
-    parseChord(match: any): iRealChord;
-    newToken(arr: any): iRealToken;
+    static getChord(iRealChord: any): any;
+    static parseSheet(raw: any): Leadsheet;
+    static getSheet(tokens: any): Leadsheet;
+    static parse(raw: string): any;
+    static parseChord(match: any): iRealChord;
+    static newToken(arr: any): iRealToken;
 }
 declare class iRealChord {
     note: any;
