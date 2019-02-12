@@ -1,4 +1,4 @@
-import { Sheet } from "./Song";
+import { Sheet } from "./Sheet";
 export declare class RealParser {
     /**
      * The RegExp for a complete chord. The match array contains:

@@ -1,4 +1,4 @@
-import { Sheet, Measure, renderSheet, getLatestMeasure } from "./Song";
+import { Sheet, Measure, renderSheet } from "./Sheet";
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
