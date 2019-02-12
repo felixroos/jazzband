@@ -16,7 +16,7 @@ export declare type Song = {
     bpm?: number;
     repeats?: number;
     key?: string;
-    sheet: Sheet;
+    sheet: Leadsheet;
 };
 export declare type JumpSign = {
     pair?: string;
@@ -27,7 +27,7 @@ export declare type JumpSign = {
 export declare type SheetState = {
     measures?: [];
     index?: number;
-    sheet?: Sheet;
+    sheet?: Leadsheet;
     jumps?: {
         [key: number]: number;
     };
@@ -37,19 +37,23 @@ export declare type SheetState = {
     nested?: boolean;
     fallbackToZero?: boolean;
 };
-export declare function getMeasure(measure: MeasureOrString): Measure;
+export declare class Bar {
+    static from(measure: MeasureOrString): Measure;
+}
+export declare class Leadsheet {
+}
 /** renderSheet2 */
 export declare function hasSign(sign: any, measure: any): boolean;
 export declare function hasHouse(measure: any, number?: any): boolean;
 /** Starts at a given index, stops when the pair functions returned equally often */
 export declare function findPair(sheet: any, index: number, pairs: Array<(measure?: Measure, options?: {
-    sheet?: Sheet;
+    sheet?: Leadsheet;
     index?: number;
 }) => boolean>, move?: number, stack?: number): number;
 export declare function getJumpSign(measure: any): JumpSign;
 export declare function getJumpDestination(state: SheetState): number;
 export declare function getBracePair({ sheet, index, fallbackToZero }: {
-    sheet: Sheet;
+    sheet: Leadsheet;
     index: number;
     fallbackToZero?: boolean;
 }): number;
@@ -95,4 +99,4 @@ export declare const jumpSigns: {
 export declare function hasJumpSign(measure: MeasureOrString): boolean;
 export declare function shouldJump({ sheet, index, jumps }: SheetState): boolean;
 export declare function nextMeasure(state: any): SheetState;
-export declare function renderSheet(sheet: any, options?: {}): Sheet;
+export declare function renderSheet(sheet: any, options?: {}): Leadsheet;

@@ -1,3 +1,4 @@
+
 export declare type Measure = {
     chords?: string[];
     signs?: string[];
@@ -14,8 +15,8 @@ export declare type Song = {
     bpm?: number;
     repeats?: number;
     key?: string;
-    sheet: Sheet;
+    sheet: Leadsheet;
 };
 export declare function getMeasure(measure: Measure | string[] | string): Measure;
 export declare function getLatestMeasure(index: any, sheet: any): any;
-export declare function renderSheet(sheet: Sheet, current?: any): any;
+export declare function renderSheet(sheet: Leadsheet, current?: any): any;

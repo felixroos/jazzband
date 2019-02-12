@@ -1,9 +1,10 @@
-import { getMeasure, renderSheet } from './Sheet';
 import * as JsDiff from 'diff';
+import { Measure } from './Measure';
+import { Sheet } from './Sheet';
 
 export function renderChordSnippet(snippet) {
     const parsed = parseChordSnippet(snippet);
-    return renderSheet(parsed);
+    return Sheet.render(parsed);
 }
 
 function wrapPipes(string) {
@@ -180,12 +181,12 @@ export function parseChordSnippet(snippet, simplify = true) {
 }
 
 export function testFormat(sheet) {
-    return sheet.map(m => getMeasure(m)).map(m => m.chords).join(' ');
+    return sheet.map(m => Measure.from(m)).map(m => m.chords).join(' ');
 }
 
 export function getChordSnippet(sheet, format = true) {
     const snippet = sheet
-        .map(m => getMeasure(m))
+        .map(m => Measure.from(m))
         .reduce((snippet, { signs, house, chords }) => {
             const repeatStart = signs && signs.includes('{');
             const repeatEnd = signs && signs.includes('}');
@@ -199,10 +200,10 @@ export function getChordSnippet(sheet, format = true) {
 
 export function expandSnippet(snippet) {
     const rendered = renderChordSnippet(snippet);
-    const sheet = renderSheet(rendered);
+    const sheet = Sheet.render(rendered);
     const expanded = getChordSnippet(sheet);
     return expanded;
-    /* return getChordSnippet(renderSheet(renderChordSnippet(snippet))); */
+    /* return getChordSnippet(Sheet.render(renderChordSnippet(snippet))); */
 }
 
 export function chordSnippetDiff(snippetA, snippetB) {

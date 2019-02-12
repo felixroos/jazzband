@@ -1,4 +1,4 @@
-import { Sheet, Measure, renderSheet } from "./Sheet";
+import { Sheet, Leadsheet } from "./sheet/Sheet";
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
@@ -36,14 +36,14 @@ export class RealParser {
     sections: any; //chords json
     bars: any;
     tokens: any;
-    sheet: Sheet;
+    sheet: Leadsheet;
     measures: any;
 
     constructor(raw) {
         this.raw = raw;
         this.tokens = this.parse(raw);
         this.sheet = this.getSheet(this.tokens);
-        this.measures = renderSheet(this.sheet);
+        this.measures = Sheet.render(this.sheet);
         return raw;
     }
 
@@ -52,7 +52,7 @@ export class RealParser {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
     }
 
-    getSheet(tokens): Sheet {
+    getSheet(tokens): Leadsheet {
         const parsed = tokens
             .reduce((current, token, index, array) => {
                 const lastBarEnded = ['{', '|', '[', '||' /* 'Z',  *//* , ']' */]

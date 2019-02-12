@@ -6,9 +6,9 @@ import {
     minifyChordSnippet,
     parseChordSnippet,
     renderChordSnippet
-} from "../Snippet";
+} from "../sheet/Snippet";
 import { totalDiff } from '../util';
-import { getMeasure } from '../Sheet';
+import { Measure } from '../sheet/Measure';
 
 test('parseChordSnippet', () => {
     expect(parseChordSnippet('D-7')).toEqual(['D-7']);
@@ -155,7 +155,7 @@ test('renderChordSnippet', () => {
             |2 C7 | C7  |
 | F7   | F7 |  C7 | A7  |
 | D-7  | G7 |  C7 | G7  |`)
-        .map(m => getMeasure(m).chords))
+        .map(m => Measure.from(m).chords))
         .toEqual(
             [["C7"], ["F7"], ["C7"], ["G7"],
             ["C7"], ["F7"], ["C7"], ["C7"],

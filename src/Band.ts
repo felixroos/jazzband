@@ -1,6 +1,6 @@
 import { Pulse } from './Pulse';
 import { Musician } from './musicians/Musician';
-import { renderSheet } from './Sheet';
+import { Sheet } from './sheet/Sheet';
 
 export default class Band {
     props: any;
@@ -37,7 +37,7 @@ export default class Band {
         if (this.pulse) {
             this.pulse.stop();
         }
-        let measures = renderSheet(sheet);
+        let measures = Sheet.render(sheet);
         console.log('measures', measures);
         measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });

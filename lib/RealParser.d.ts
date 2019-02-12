@@ -1,4 +1,4 @@
-import { Sheet } from "./Sheet";
+import { Leadsheet } from "./sheet/Sheet";
 export declare class RealParser {
     /**
      * The RegExp for a complete chord. The match array contains:
@@ -20,11 +20,11 @@ export declare class RealParser {
     sections: any;
     bars: any;
     tokens: any;
-    sheet: Sheet;
+    sheet: Leadsheet;
     measures: any;
     constructor(raw: any);
     getChord(iRealChord: any): any;
-    getSheet(tokens: any): Sheet;
+    getSheet(tokens: any): Leadsheet;
     parse(raw: string): any;
     parseChord(match: any): iRealChord;
     newToken(arr: any): iRealToken;

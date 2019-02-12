@@ -1,4 +1,4 @@
-export declare function renderChordSnippet(snippet: any): any;
+export declare function renderChordSnippet(snippet: any): import("./Measure").MeasureOrString[];
 export declare function formatForDiff(snippet: any): string;
 export declare function formatChordSnippet(snippet: any, linebreaks?: boolean): string;
 export declare function minifyChordSnippet(snippet: any, urlsafe?: boolean): string;
