@@ -1,4 +1,4 @@
-import { Leadsheet } from "./sheet/Sheet";
+import { Leadsheet } from "./Sheet";
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 

@@ -199,9 +199,15 @@ export function getChordSnippet(sheet, format = true) {
 }
 
 export function expandSnippet(snippet) {
-    const rendered = renderChordSnippet(snippet);
-    const sheet = Sheet.render(rendered);
-    const expanded = getChordSnippet(sheet);
+    let rendered = renderChordSnippet(snippet);
+    rendered = rendered
+        .map(m => Measure.from(m))
+        .map(m => {
+            delete m.house;
+            delete m.signs;
+            return m;
+        });
+    const expanded = getChordSnippet(rendered);
     return expanded;
     /* return getChordSnippet(Sheet.render(renderChordSnippet(snippet))); */
 }

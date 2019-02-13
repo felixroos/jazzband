@@ -1,7 +1,7 @@
 import * as jazz from '../lib';
 import link from './playlists/1350.json';
 //import link from './playlists/zw.json';
-import { RealParser } from '../src/RealParser';
+import { RealParser } from '../src/sheet/RealParser';
 import { piano } from './samples/piano';
 /* import { harp } from './samples/harp'; */
 import { drumset } from './samples/drumset';
@@ -11,6 +11,7 @@ import { swing } from '../src/grooves/swing';
 import { funk } from '../src/grooves/funk';
 import { bossa } from '../src/grooves/bossa';
 import { Sheet } from '../src/sheet/Sheet';
+import { getChordSnippet, expandSnippet } from '../src/sheet/Snippet';
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
 
@@ -38,11 +39,11 @@ function getStandard(playlist) {
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('El Cajon'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mirror, Mirror'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Falling Grace')));
-    const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Confirmation')));
+    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Confirmation'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Giant Steps'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Autumn Leaves'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs); */
+    const standard = jazz.util.randomElement(playlist.songs);
     //console.log('tokens',parser.tokens);
 
     standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
@@ -105,8 +106,9 @@ window.onload = function () {
         const cycle = 4;
         band.comp(standard.music.measures, { metronome: false, exact: true, cycle, bpm, groove/* , arpeggio: true */ });
 
-        const bars = Sheet.render(standard.music.measures);
-        console.log('bars', bars);
+        const snippet = getChordSnippet(standard.music.measures);
+        console.log(standard.composer + ' - ' + standard.title + "\n\n" + snippet);
+        console.log(standard.composer + ' - ' + standard.title + " (expanded)\n\n" + expandSnippet(snippet));
 
     }
 

@@ -10,7 +10,7 @@ import { PlasticDrums } from './instruments/PlasticDrums';
 import { Trio } from './Trio';
 import * as util from './util';
 import { Pulse } from './Pulse';
-import { RealParser } from './RealParser';
+import { RealParser } from './sheet/RealParser';
 import { MidiOut } from './instruments/MidiOut';
 import Permutator from './musicians/Permutator';
 export { Trio, Band, Pianist, Bassist, Drummer, Permutator, Instrument, Musician, Synthesizer, Sampler, MidiOut, PlasticDrums, Pulse, util, RealParser };

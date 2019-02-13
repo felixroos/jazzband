@@ -188,13 +188,62 @@ test('Beautiful Love', () => {
 |2 D-       | G-7       | Bb7    | A7b9       |
 |  D- B7    | Bb7#11 A7 | D-     | %          |
 `)).toEqual(formatChordSnippet(`
-|: E-7b5    | A7b9      | D-     | %          |
-|  G-7      | C7        | F^7    | E-7b5 A7b9 |
-|1 D-       | G-7       | Bb7    | A7b9       |
-|  D-       | G7#11     | E-7b5  | A7b9      :|
-|: E-7b5    | A7b9      | D-     | %          |
-|  G-7      | C7        | F^7    | E-7b5 A7b9 |
-|2 D-       | G-7       | Bb7    | A7b9       |
-|  D- B7    | Bb7#11 A7 | D-     | %          |
+| E-7b5    | A7b9      | D-     | %          |
+|  G-7     | C7        | F^7    | E-7b5 A7b9 |
+|  D-      | G-7       | Bb7    | A7b9       |
+|  D-      | G7#11     | E-7b5  | A7b9       |
+| E-7b5    | A7b9      | D-     | %          |
+|  G-7     | C7        | F^7    | E-7b5 A7b9 |
+|  D-      | G-7       | Bb7    | A7b9       |
+|  D- B7   | Bb7#11 A7 | D-     | %          |
+`));
+});
+
+
+test('Ahlert-Turk - Walkin My Baby Back Home', () => {
+    expect(expandSnippet(`
+|  Bb^7  |  Bo    |  C-7      |  F7     |
+|: Bb^7  |  Bb^7  |  Bb^7 G7  |  C7     |
+|  F7    |  F7    |  F7       |  Bb^7  :|
+|  D-7   |  G7    |  G-7      |  A7     |
+|  D-7   |  G7    |  C7       |  F7     |
+|  Bb^7  |  Bb^7  |  Bb^7 G7  |  C7     |
+|  F7    |  F7    |  F7       |  Bb^7   |
+`)).toEqual(formatChordSnippet(`
+|  Bb^7  |  Bo    |  C-7      |  F7    |
+|  Bb^7  |  Bb^7  |  Bb^7 G7  |  C7    |
+|  F7    |  F7    |  F7       |  Bb^7  |
+|  Bb^7  |  Bb^7  |  Bb^7 G7  |  C7    |
+|  F7    |  F7    |  F7       |  Bb^7  |
+|  D-7   |  G7    |  G-7      |  A7    |
+|  D-7   |  G7    |  C7       |  F7    |
+|  Bb^7  |  Bb^7  |  Bb^7 G7  |  C7    |
+|  F7    |  F7    |  F7       |  Bb^7  |
+`));
+});
+
+test('Miller-Parish - Moonlight Serenade', () => {
+    expect(expandSnippet(`
+|: F6      |  Abo7     |  G-7          |  C7 C7#5      |
+|  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6    |
+|  A-7 D7  |  Gh7 G-7  |  C7 C7b9#5    |1 F^7 G-7 C7  :|
+                                       |2 F^7 F7       |
+|  Bb^7    |  Eb7      |  A7b9#5 D7b9  |  D7b9 D7      |
+|  B-7b5   |  E7b9     |  Ah7 D7b9     |  G-7 C7b9     |
+|  F^7     |  Abo7     |  G-7          |  C7 C7#5      |
+|  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6    |
+|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7          |
+`)).toEqual(formatChordSnippet(`
+|  F6      |  Abo7     |  G-7          |  C7 C7#5     |
+|  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6   |
+|  A-7 D7  |  Gh7 G-7  |  C7 C7b9#5    |  F^7 G-7 C7  |
+|  F6      |  Abo7     |  G-7          |  C7 C7#5     |
+|  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6   |
+|  A-7 D7  |  Gh7 G-7  |  C7 C7b9#5    |  F^7 F7      |
+|  Bb^7    |  Eb7      |  A7b9#5 D7b9  |  D7b9 D7     |
+|  B-7b5   |  E7b9     |  Ah7 D7b9     |  G-7 C7b9    |
+|  F^7     |  Abo7     |  G-7          |  C7 C7#5     |
+|  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6   |
+|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7         |
 `));
 });
