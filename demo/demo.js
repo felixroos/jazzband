@@ -43,7 +43,8 @@ function getStandard(playlist) {
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Giant Steps'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Autumn Leaves'))); */
-    const standard = jazz.util.randomElement(playlist.songs);
+    const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Blue In Green')));
+    /* const standard = jazz.util.randomElement(playlist.songs); */
     //console.log('tokens',parser.tokens);
 
     standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
@@ -101,14 +102,15 @@ window.onload = function () {
     function play(groove = swing) {
         console.log('groove', groove);
         // const bpm = 70 + Math.random() * 100;
-        const bpm = /* groove.tempo ||  */160;
+        const bpm = /* groove.tempo ||  */130;
         console.log('tempo', bpm);
+        const forms = 2;
         const cycle = 4;
-        band.comp(standard.music.measures, { metronome: false, exact: true, cycle, bpm, groove/* , arpeggio: true */ });
+        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle, bpm, groove/* , arpeggio: true */ });
 
         const snippet = getChordSnippet(standard.music.measures);
         console.log(standard.composer + ' - ' + standard.title + "\n\n" + snippet);
-        console.log(standard.composer + ' - ' + standard.title + " (expanded)\n\n" + expandSnippet(snippet));
+        console.log(standard.composer + ' - ' + standard.title + " (expanded)\n\n" + expandSnippet(snippet, { forms }));
 
     }
 

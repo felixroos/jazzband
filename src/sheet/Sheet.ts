@@ -26,7 +26,10 @@ export type SheetState = {
     jumps?: { [key: number]: number },
     visits?: { [key: number]: number },
     nested?: boolean,
-    fallbackToZero?: boolean
+    fallbackToZero?: boolean,
+    forms?: number;
+    firstTime?: boolean; // flips to false after first chorus is complete
+    lastTime?: boolean; // flips to true when last chorus starts
 }
 
 
@@ -51,15 +54,19 @@ export class Sheet {
 
     static render(sheet, options = {}): Leadsheet {
         let state: SheetState = {
-            measures: [],
-            index: 0,
             sheet,
-            jumps: {},
-            visits: {},
+            measures: [],
+            forms: 1,
             nested: true,
             fallbackToZero: true,
+            firstTime: true,
             ...options
         };
+        state = {
+            ...state,
+            ...Sheet.newForm(state)
+        };
+
         let runs = 0;
         while (runs < 100 && state.index < sheet.length) {
             runs++;
@@ -71,17 +78,18 @@ export class Sheet {
     static nextMeasure(state): SheetState {
         state = {
             ...state,
-            ...Sheet.visitHouses(state)
+            ...Sheet.nextSection(state)
         } // moves to the right house (if any)
         let { sheet, index, measures } = state;
-        return {
+        state = {
             ...state,
             measures: measures.concat([{
                 ...Measure.from(sheet[index]),
-                index: index
+                index: index // add index for mapping
             }]),
             ...Sheet.nextIndex(state),
         }
+        return Sheet.nextForm(state);
     }
 
     static nextIndex(state): SheetState {
@@ -102,8 +110,41 @@ export class Sheet {
         }
     }
 
+    static newForm(state): SheetState {
+        return {
+            ...state,
+            index: 0,
+            jumps: {},
+            visits: {},
+            lastTime: state.forms === 1,
+        }
+    }
+
+    static nextForm(state, force = false): SheetState {
+        let { sheet, index, forms } = state;
+        if (force || (index >= sheet.length && forms > 1)) {
+            return Sheet.newForm({
+                ...state,
+                firstTime: false,
+                forms: forms - 1
+            });
+        }
+        return state;
+    }
+
     // moves the index to the current house (if any)
-    static visitHouses({ sheet, index, visits }): SheetState {
+    static nextSection(state: SheetState): SheetState {
+        let { sheet, index, visits, firstTime, lastTime } = state;
+        // skip intro when not firstTime
+        if (!firstTime && Measure.from(sheet[index]).section === 'IN') {
+            return {
+                index: Sheet.getNextSectionIndex({ sheet, index }),
+            }
+        }
+        // skip coda when not last time
+        if (Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state)) {
+            return Sheet.nextForm(state, true);
+        }
         if (!Measure.hasHouse(sheet[index], 1)) {
             return {};
         }
@@ -143,6 +184,23 @@ export class Sheet {
         }
         return match;
     }
+
+    static findMatch(
+        sheet,
+        index: number,
+        find: (measure?: Measure, options?: { sheet?: Leadsheet, index?: number }) => boolean,
+        move = 1): number {
+        let match = -1; // start with no match
+        while (match === -1 && index >= 0 && index < sheet.length) {
+            if (find(sheet[index], { sheet, index })) {
+                match = index;
+            } else {
+                index += move;
+            }
+        }
+        return match;
+
+    }
     // simple matching for brace start, ignores nested repeats
     static getJumpDestination(state: SheetState): number {
         let { sheet, index, fallbackToZero, nested } = state;
@@ -155,12 +213,9 @@ export class Sheet {
         if (nested !== false && sign.pair === '{') {
             return Sheet.getBracePair({ sheet, index, fallbackToZero });
         }
-        const destination = Sheet.findPair(sheet, index,
-            [
-                (m, step) => step.index === index,
-                (m) => Measure.hasSign(sign.pair, m),
-            ]
-            , sign.move || -1); // default move back
+        const destination = Sheet.findMatch(sheet, index,
+            (m) => Measure.hasSign(sign.pair, m),
+            sign.move || -1); // default move back
         if (fallbackToZero) {
             // default to zero when searching repeat start (could be forgotten)
             return destination === -1 ? 0 : destination;
@@ -223,11 +278,14 @@ export class Sheet {
 
     // returns the next house that can be visited (from the given index)
     static getNextHouseIndex({ sheet, index, visits }, move = 1): number {
-        return Sheet.findPair(sheet, index,
-            [
-                (m, step) => index === step.index,
-                (m, step) => Measure.hasHouse(m) && Sheet.canVisitHouse({ sheet, index: step.index, visits })
-            ], move);
+        return Sheet.findMatch(sheet, index,
+            (m, step) => Measure.hasHouse(m) && Sheet.canVisitHouse({ sheet, index: step.index, visits })
+            , move);
+    }
+
+    static getNextSectionIndex({ sheet, index }, move = 1): number {
+        return Sheet.findMatch(sheet, index + 1,
+            (m) => Measure.from(m).section !== undefined, 1);
     }
 
     // wipes all keys in the given range
@@ -265,13 +323,15 @@ export class Sheet {
         return 1;
     }
 
-    static readyForFineOrCoda({ sheet, index, jumps }): boolean {
+    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean {
         const signs = Object.keys(Sheet.jumpSigns)
             .filter(s => s.includes('DC') || s.includes('DS'));
-        const backJump = Sheet.findPair(sheet, index, [
-            (m, step) => step.index === index,
+        const backJump = Sheet.findMatch(sheet, index,
             (m) => signs.reduce((match, sign) => match || Measure.hasSign(sign, m), false)
-        ]);
+        );
+        if (backJump === -1) {
+            return lastTime; // last time
+        }
         return jumps[backJump] > 0;
     }
 
@@ -308,4 +368,5 @@ test standards:
 - Bess You Is My Woman (coda sign inside repeat): ireal plays coda directly first time..
 - Blessed Relief (nested repeats, with odd behaviour)
 - Blue in Green (coda)
+- Miles Ahead (coda)
 */

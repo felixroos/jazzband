@@ -2,9 +2,9 @@ import * as JsDiff from 'diff';
 import { Measure } from './Measure';
 import { Sheet } from './Sheet';
 
-export function renderChordSnippet(snippet) {
+export function renderChordSnippet(snippet, options?) {
     const parsed = parseChordSnippet(snippet);
-    return Sheet.render(parsed);
+    return Sheet.render(parsed, options);
 }
 
 function wrapPipes(string) {
@@ -198,8 +198,8 @@ export function getChordSnippet(sheet, format = true) {
     return minifyChordSnippet(snippet);
 }
 
-export function expandSnippet(snippet) {
-    let rendered = renderChordSnippet(snippet);
+export function expandSnippet(snippet, options?) {
+    let rendered = renderChordSnippet(snippet, options);
     rendered = rendered
         .map(m => Measure.from(m))
         .map(m => {

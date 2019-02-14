@@ -97,6 +97,36 @@ test('repeat one bar', () => {
         .toEqual([['A'], ['A']]);
 });
 
+test('two forms', () => {
+    expect(Sheet.render([{ chords: ['A'] }], { forms: 2 })
+        .map(m => Measure.from(m).chords))
+        .toEqual([['A'], ['A']]);
+});
+
+test('two forms with repeat', () => {
+    expect(Sheet.render([{ chords: ['A'], signs: ['{', '}'] }], { forms: 2 })
+        .map(m => Measure.from(m).chords))
+        .toEqual([['A'], ['A'], ['A'], ['A']]);
+});
+
+test('two forms with intro', () => {
+    expect(Sheet.render([
+        { chords: ['I'], section: 'IN' },
+        { chords: ['A'], section: 'A' }
+    ], { forms: 2 })
+        .map(m => Measure.from(m).chords))
+        .toEqual([['I'], ['A'], ['A']]);
+});
+
+test('three forms with coda', () => {
+    expect(Sheet.render([
+        { chords: ['A'], signs: ['ToCoda'] },
+        { chords: ['B'], signs: ['Coda'] }
+    ], { forms: 3 })
+        .map(m => Measure.from(m).chords))
+        .toEqual([['A'], ['A'], ['A'], ['B']]);
+});
+
 test('repeat more than one bar', () => {
     expect(Sheet.render([
         { chords: ['A'], signs: ['{'] },

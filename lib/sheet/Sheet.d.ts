@@ -27,6 +27,9 @@ export declare type SheetState = {
     };
     nested?: boolean;
     fallbackToZero?: boolean;
+    forms?: number;
+    firstTime?: boolean;
+    lastTime?: boolean;
 };
 export declare class Sheet {
     static jumpSigns: {
@@ -35,16 +38,18 @@ export declare class Sheet {
     static render(sheet: any, options?: {}): Leadsheet;
     static nextMeasure(state: any): SheetState;
     static nextIndex(state: any): SheetState;
-    static visitHouses({ sheet, index, visits }: {
-        sheet: any;
-        index: any;
-        visits: any;
-    }): SheetState;
+    static newForm(state: any): SheetState;
+    static nextForm(state: any, force?: boolean): SheetState;
+    static nextSection(state: SheetState): SheetState;
     /** Starts at a given index, stops when the pair functions returned equally often */
     static findPair(sheet: any, index: number, pairs: Array<(measure?: Measure, options?: {
         sheet?: Leadsheet;
         index?: number;
     }) => boolean>, move?: number, stack?: number): number;
+    static findMatch(sheet: any, index: number, find: (measure?: Measure, options?: {
+        sheet?: Leadsheet;
+        index?: number;
+    }) => boolean, move?: number): number;
     static getJumpDestination(state: SheetState): number;
     static getBracePair({ sheet, index, fallbackToZero }: {
         sheet: Leadsheet;
@@ -61,6 +66,10 @@ export declare class Sheet {
         index: any;
         visits: any;
     }, move?: number): number;
+    static getNextSectionIndex({ sheet, index }: {
+        sheet: any;
+        index: any;
+    }, move?: number): number;
     static wipeKeys(numberMap: any, range: any): {
         [key: number]: number;
     };
@@ -76,10 +85,6 @@ export declare class Sheet {
         sheet: any;
         index: any;
     }): number;
-    static readyForFineOrCoda({ sheet, index, jumps }: {
-        sheet: any;
-        index: any;
-        jumps: any;
-    }): boolean;
+    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean;
     static shouldJump({ sheet, index, jumps }: SheetState): boolean;
 }

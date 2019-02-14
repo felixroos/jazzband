@@ -1,4 +1,5 @@
 import { Leadsheet } from "./Sheet";
+import { Measure } from './Measure';
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
@@ -76,7 +77,11 @@ export class RealParser {
                 const hasCodaSign = signs.includes('Q');
                 if (hasCodaSign) {
                     signs = signs.filter(s => s !== 'Q');
-                    current.measure.coda = true;
+                    let codaSign = 'ToCoda';
+                    if (!!current.measures.find(m => Measure.hasSign('ToCoda', m))) {
+                        codaSign = 'Coda';
+                    }
+                    current.measure.signs = (current.measure.signs || []).concat([codaSign]);
                 }
 
                 const houseStart = signs.find(s => !!s.match(/^N./));
