@@ -1,24 +1,24 @@
 import { Sheet } from "../sheet/Sheet";
-import { testFormat } from '../sheet/Snippet';
 import { Measure } from '../sheet/Measure';
+import { Snippet } from '../sheet/Snippet';
 
 // rules as described in paper "formal semantics for music notation control flow"
 test('rule 1: repeat end without start', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'] },
         { chords: ['B'], signs: ['}'] },
     ]))).toEqual('A B A B');
 });
 
 test('rule 2: repeat end with start', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
         { chords: ['B'], signs: ['}'] },
     ]))).toEqual('A B A B');
 });
 
 test('rule 3: houses', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
         { chords: ['B'], signs: ['}'], house: 1 },
         { chords: ['C'], house: 2 },
@@ -26,7 +26,7 @@ test('rule 3: houses', () => {
 });
 
 test('rule 4: DC', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['DC'] },
         { chords: ['B'] },
     ]))).toEqual('A A B');
@@ -34,7 +34,7 @@ test('rule 4: DC', () => {
 
 test('rule 5: DS', () => {
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], },
         { chords: ['B'], signs: ['Segno', 'DS'] },
         { chords: ['C'], },
@@ -42,7 +42,7 @@ test('rule 5: DS', () => {
 });
 
 test('rule 6: DC al Coda', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['ToCoda'] },
         { chords: ['B'], signs: ['DC.Coda'] },
         { chords: ['C'], signs: ['Coda'] },
@@ -51,7 +51,7 @@ test('rule 6: DC al Coda', () => {
 
 
 test('rule 7: DS al Coda', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'] },
         { chords: ['B'], signs: ['Segno', 'ToCoda'] },
         { chords: ['C'], signs: ['DS.Coda'] },
@@ -60,7 +60,7 @@ test('rule 7: DS al Coda', () => {
 });
 
 test('rule 8: DC:F', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['Fine'] },
         { chords: ['B'], signs: ['DC.Fine'] },
     ]))).toEqual('A B A');
@@ -68,7 +68,7 @@ test('rule 8: DC:F', () => {
 
 
 test('rule 9: DS:F', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], },
         { chords: ['B'], signs: ['Segno', 'Fine'] },
         { chords: ['C'], signs: ['DS.Fine'] },
@@ -76,7 +76,7 @@ test('rule 9: DS:F', () => {
 });
 
 /* test('extra: al nth ending', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
         { chords: ['B'], signs: ['}'], house: 1 },
         { chords: ['C'], house: 2 },
@@ -136,7 +136,7 @@ test('repeat more than one bar', () => {
 });
 
 test('repeat one bar in the middle', () => {
-    expect(testFormat(Sheet.render(
+    expect(Snippet.testFormat(Sheet.render(
         ['A', { chords: ['B'], signs: ['{', '}'] }, 'C']
     ))).toEqual('A B B C');
 });
@@ -219,7 +219,7 @@ test('repeat with two houses', () => {
 });
 
 test('repeat with two houses in the moutains', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         ['mountain'],
         { chords: ['A'], signs: ['{'] },
         { chords: ['B'], house: 1, signs: ['}'] },
@@ -285,7 +285,7 @@ test('repeat two houseblocks', () => {
 });
 
 test('repeat houseblock', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
@@ -300,7 +300,7 @@ test('repeat houseblock', () => {
 });
 
 test('nested houseblocks', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
@@ -319,7 +319,7 @@ test('nested houseblocks', () => {
 });
 
 test('nested houseblocks pt2', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { chords: ['A'], signs: ['{'] },
 
         { chords: ['1'], signs: ['{'] },
@@ -637,17 +637,17 @@ test('Sheet.render: repeat n times', () => {
         { signs: ['{', '}'], times: 0, chords: ['A'] },
     ]).map(m => Measure.from(m).chords)).toEqual([['A']]);
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { signs: ['}'], times: 0, chords: ['B'] },
     ]))).toEqual('A B');
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { signs: ['}'], times: 1, chords: ['B'] },
     ]))).toEqual('A B A B');
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { signs: ['}'], times: 2, chords: ['B'] },
     ]))).toEqual('A B A B A B');
@@ -660,13 +660,13 @@ test('Sheet.render: repeat n times', () => {
         { signs: ['{', '}'], times: 3, chords: ['A'] },
     ]).map(m => Measure.from(m).chords)).toEqual([['A'], ['A'], ['A'], ['A']]);
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         'X',
         { signs: ['{', '}'], times: 2, chords: ['A'] },
         'X'
     ]))).toEqual('X A A A X');
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         'X',
         { signs: ['{'], chords: 'O' },
         'Y',
@@ -740,18 +740,18 @@ test('Sheet.getAllowedJumps', () => {
     expect(Sheet.getAllowedJumps({ sheet: withMultiHouse, index: 1 })).toBe(2);
 });
 test('Sheet.render: multi houses', () => {
-    expect(testFormat(Sheet.render(withMultiHouse))).toEqual('A B A B A C');
+    expect(Snippet.testFormat(Sheet.render(withMultiHouse))).toEqual('A B A B A C');
 });
 
 test('Sheet.render: more than 2 houses', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { signs: ['}'], house: 1, chords: ['B'] },
         { signs: ['}'], house: 2, chords: ['C'] },
         { house: 3, chords: ['D'] },
     ]))).toEqual('A B A C A D');
 
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { signs: ['}'], house: 1, chords: ['B'] },
         { signs: ['}'], house: 2, chords: ['C'] },
@@ -761,7 +761,7 @@ test('Sheet.render: more than 2 houses', () => {
 });
 
 test('repeated houseblock', () => {
-    expect(testFormat(Sheet.render([
+    expect(Snippet.testFormat(Sheet.render([
         { signs: ['{'], chords: ['A'] },
         { house: 1, signs: ['}'], chords: ['B'] },
         { house: 2, chords: ['C'] },
@@ -801,4 +801,4 @@ test('Sheet.getNextHouseIndex', () => {
     expect(Sheet.getNextHouseIndex({
         sheet: ababac, index: 1, visits: { 1: 2 }
     })).toEqual(2);
-})
+});

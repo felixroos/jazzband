@@ -1,9 +1,15 @@
-export declare function renderChordSnippet(snippet: any, options?: any): import("./Measure").MeasureOrString[];
-export declare function formatForDiff(snippet: any): string;
-export declare function formatChordSnippet(snippet: any, linebreaks?: boolean): string;
-export declare function minifyChordSnippet(snippet: any, urlsafe?: boolean): string;
-export declare function parseChordSnippet(snippet: any, simplify?: boolean): any[];
-export declare function testFormat(sheet: any): any;
-export declare function getChordSnippet(sheet: any, format?: boolean): string;
-export declare function expandSnippet(snippet: any, options?: any): string;
-export declare function chordSnippetDiff(snippetA: any, snippetB: any): any;
+export declare class Snippet {
+    static render(snippet: any, options?: any): import("./Measure").MeasureOrString[];
+    static wrapPipes(string: any): string;
+    static formatForDiff(snippet: any): string;
+    static format(snippet: any, linebreaks?: boolean): string;
+    static minify(snippet: any, urlsafe?: boolean): string;
+    static parse(snippet: any, simplify?: boolean): any[];
+    static nest(string: any): any;
+    static parse2(snippet: any, simplify?: boolean): any[];
+    static testFormat(sheet: any): any;
+    static from(sheet: any, format?: boolean): string;
+    static expand(snippet: any, options?: any): string;
+    static diff(snippetA: any, snippetB: any): any;
+    static voicing(notes: any, range: any): string;
+}
