@@ -180,6 +180,15 @@ export function getAverageMidi(notes, offset?) {
     return notes.reduce((sum, note) => sum + Harmony.getMidi(note, offset), 0) / notes.length;
 }
 
+export function getDistancesToRangeEnds(notes: string[], range: string[]) {
+    if (notes.length > 2) {
+        notes = [notes[0], notes[notes.length - 1]];
+    }
+    const midi = notes.map(n => Harmony.getMidi(n));
+    const rangeMidi = range.map(n => Harmony.getMidi(n));
+    return [midi[0] - rangeMidi[0], rangeMidi[1] - midi[1]];
+}
+
 export function getRangePosition(note: string | number, range) {
     note = Harmony.getMidi(note);
     range = range.map(n => Harmony.getMidi(n));

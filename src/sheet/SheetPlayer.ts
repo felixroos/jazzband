@@ -4,6 +4,7 @@ import { Measure } from './Measure';
 import * as Tone from 'tone';
 import { Voicing } from '..';
 import { Note } from 'tonal';
+import { VoicingValidation } from '../harmony/Voicing';
 
 export class SheetPlayer {
 
@@ -13,7 +14,7 @@ export class SheetPlayer {
                 .map((chord, chordIndex) => ({ chord, path: [measureIndex, chordIndex], measure })));
     }
 
-    static play(sheet) {
+    static play(sheet, options?: VoicingValidation) {
         sheet = {
             chords: [],
             melody: [],
@@ -21,46 +22,36 @@ export class SheetPlayer {
             cycle: 4,
             bpm: 130,
             swing: 0.7,
-            maxVoices: 4,
-            rootless: true,
             ...sheet,
         }
         let {
             chords,
             melody,
-            forms,
-            title,
-            cycle,
             swing,
             bpm,
-            maxVoices,
-            rootless
         } = sheet;
         Logger.logLegend();
         Logger.logSheet(sheet);
 
-
-        var bass = SheetPlayer.getBass();
-        const piano = SheetPlayer.getPiano(maxVoices);
-        const lead = SheetPlayer.getLead();
-
         Tone.Transport.bpm.value = bpm;
         Tone.Transport.swing = swing;
         Tone.Transport.swingSubdivision = "8n"
+
         if (console.group) {
             console.group('SheetPlayer.play');
         }
         if (chords) {
-            SheetPlayer.comp(chords, { bass, piano, maxVoices, rootless }).start(0);;
+            SheetPlayer.comp(chords, options).start(0);;
         }
         if (melody) {
-            SheetPlayer.melody(melody, { lead }).start(0);;
+            SheetPlayer.melody(melody).start(0);;
         }
         Tone.Transport.start('+1');
     }
 
-    static melody(sequence, { lead }) {
+    static melody(sequence) {
 
+        const lead = SheetPlayer.getLead();
         /* const sequence = SheetPlayer.getSequence(sheet); */
         return new Tone.Sequence((time, note) => {
             if (note.match(/[a-g][b|#]?[0-6]/)) {
@@ -69,8 +60,21 @@ export class SheetPlayer {
         }, sequence, "1m");
     }
 
-    static comp(sheet, { bass, piano, maxVoices, rootless }) {
-        maxVoices = maxVoices || 4;
+    static comp(sheet, options?: VoicingValidation) {
+
+        options = {
+            range: ['C3', 'C5'],
+            maxVoices: 4,
+            maxDistance: 7,
+            minBottomDistance: 3, // min semitones between the two bottom notes
+            minTopDistance: 2, // min semitones between the two top notes
+            ...options
+        }
+        let { maxVoices } = options;
+
+        const bass = SheetPlayer.getBass();
+        const piano = SheetPlayer.getPiano(maxVoices);
+
         const sequence = SheetPlayer.getSequence(sheet);
         // console.log('comp', sheet, sequence);
         const range = ['C3', 'C5'];
@@ -83,7 +87,7 @@ export class SheetPlayer {
             }
             const chord = event.chord;
             latest = voicing || latest;
-            voicing = Voicing.getNextVoicing(chord, latest, range, maxVoices, rootless);
+            voicing = Voicing.getNextVoicing(chord, latest, options);
             voicing = voicing.map(note => Note.simplify(note));
             if (voicing) {
                 piano.triggerAttackRelease(voicing, "1n");

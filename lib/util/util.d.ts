@@ -33,6 +33,7 @@ export declare function isInRange(note: any, range: any): boolean;
 export declare function transposeNotes(notes: any, interval: any): any;
 export declare function transposeToRange(notes: any, range: any, times?: number): any;
 export declare function getAverageMidi(notes: any, offset?: any): number;
+export declare function getDistancesToRangeEnds(notes: string[], range: string[]): number[];
 export declare function getRangePosition(note: string | number, range: any): number;
 export declare function getRangeDirection(note: any, range: any, defaultDirection?: intervalDirection, border?: number): {
     direction: intervalDirection;
@@ -93,7 +94,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
+export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

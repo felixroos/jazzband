@@ -3,6 +3,7 @@ import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { Harmony } from '../harmony/Harmony';
 import { Snippet } from '../sheet/Snippet';
+import { Voicing } from '../harmony/Voicing';
 
 export class Logger {
     static emoji = {
@@ -69,6 +70,14 @@ export class Logger {
         fewCombinations: {
             icon: '💢',
             description: 'There were very few valid combinations to choose from'
+        },
+        error: {
+            icon: '❌',
+            description: 'No notes could be selected. Some error happened.'
+        },
+        rootless: {
+            icon: '⛵',
+            description: 'The voicing does not contain its root note (tonic).'
         }
         // ️️️️️➡️↘️↗️⬇️⬆️⬅️
     }
@@ -127,12 +136,16 @@ export class Logger {
             contrary,
             parallel,
             topInterval,
-            bottomInterval
+            bottomInterval,
+            intervals,
+            degrees,
         } = choice;
         console.table({
             difference,
             movement,
             targets: targets.join(' '),
+            intervals: intervals.join(' '),
+            degrees: degrees.join(' '),
             [Logger.logLabel('similar')]: similar,
             [Logger.logLabel('contrary')]: contrary,
             [Logger.logLabel('parallel')]: parallel,
@@ -177,7 +190,7 @@ export class Logger {
             }
             const position = getRangePosition(note, range);
             if (position < 0 || position > 1) {
-                if (active) {
+                if (active || idle || added) {
                     css += 'color:red;';
                 } else {
                     sign = ' ';
@@ -198,7 +211,7 @@ export class Logger {
         return args;
     }
 
-    static logVoicing({ chord, lastVoicing, combinations, bestPick, pick, range, choice, direction, choices, force }: any) {
+    static logVoicing({ chord, lastVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
         lastVoicing = lastVoicing || [];
         const idle = lastVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
@@ -215,12 +228,14 @@ export class Logger {
         } else {
             konsole.push(Logger.emoji.equilibrium.icon);
         }
+        if (!pick.length) {
+            konsole.push(Logger.emoji.error.icon);
+        }
         // TODO replace force with filter of choices after isInRange
         //      isInRange: checks if top and bottom note are inside the range
-        if (!force) {
+        if (!direction) {
             konsole.push(Logger.emoji.bestMatch.icon);
-        }
-        if (direction && force) {
+        } else {
             if (bestPick !== pick) {
                 konsole.push(Logger.emoji.force.icon);
             } else {
@@ -241,9 +256,6 @@ export class Logger {
             if (choice.parallel) {
                 konsole.push(Logger.emoji.parallel.icon);
             }
-            if (!choice.parallel && choice.oblique.length === 0) {
-                konsole.push(Logger.emoji.noOblique.icon);
-            }
             if (choice.added.length && choice.added[choice.added.length - 1] === choice.targets[choice.targets.length - 1]) {
                 konsole.push(Logger.emoji.topAdded.icon);
             }
@@ -256,6 +268,9 @@ export class Logger {
             if (choice.added.length && choice.added[0] === choice.targets[0]) {
                 konsole.push(Logger.emoji.bottomAdded.icon);
             }
+            if (!Voicing.hasTonic(pick, chord)) {
+                konsole.push(Logger.emoji.rootless.icon);
+            }
         }
         lastVoicing = lastVoicing || []
         konsole.push(`${difference}/${movement}: ${chord} (${choices.indexOf(choice) + 1}/${choices.length})`);
@@ -263,6 +278,9 @@ export class Logger {
             if (combinations.length < 4) {
                 konsole.push(Logger.emoji.fewCombinations.icon);
             }
+        }
+        if (choice && !choice.parallel && choice.oblique.length === 0) {
+            konsole.push(Logger.emoji.noOblique.icon);
         }
         if (console && console.table) {
             Logger.logCustom(konsole, console.groupCollapsed);
@@ -272,12 +290,14 @@ export class Logger {
                 pick: pick.join(' '),
             });
             if (choice) {
-                console.group('Pick:');
+                console.group('Choice:');
                 Logger.logChoice(choice);
                 console.groupEnd();
-                console.log('Combinations', combinations);
                 console.groupCollapsed('All Choices:');
                 choices.forEach(c => Logger.logChoice(c));
+                console.groupEnd();
+                console.groupCollapsed('Combinations:');
+                console.log(combinations);
                 console.groupEnd();
             }
             console.groupEnd();

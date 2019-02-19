@@ -192,14 +192,24 @@ window.onload = function () {
         const forms = 2;
         const cycle = 4;
 
-        return SheetPlayer.play({
-            composer: standard.composer,
-            title: standard.title,
-            groove,
-            forms,
-            cycle,
-            chords: standard.music.measures
-        });
+        return SheetPlayer.play(
+            {
+                composer: standard.composer,
+                title: standard.title,
+                groove,
+                forms,
+                cycle,
+                chords: standard.music.measures,
+            },
+            {
+                // forceDirection: 'down',
+                range: ['C3', 'C5'], // allowed voice range
+                maxVoices: 4, // maximum number of voices per chord
+                maxDistance: 7,  // general max distance between single voices
+                minDistance: 1,  // general max distance between single voices
+                minBottomDistance: 3, // min semitones between the two bottom notes
+                minTopDistance: 2, // min semitones between the two top notes
+            });
 
         band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle, bpm, groove/* , arpeggio: true */ });
 

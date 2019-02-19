@@ -15,7 +15,7 @@ test('Tonal.Interval', () => {
     expect(Distance.interval('D2', 'D#3')).toBe('8A');
     expect(Distance.interval('D2', 'D#1')).toBe('-8d');
     expect(Distance.interval('D2', 'Db1')).toBe('-8A');
-    /* expect(Interval.invert('1A')).toBe('8d');
+    /* expect(Interval.invert('1A')).toBe('8d'); // fails
     expect(Interval.invert('1d')).toBe('8A');
     expect(Interval.invert('1P')).toBe('8P');
     expect(Interval.invert('8P')).toBe('1P');
@@ -24,4 +24,5 @@ test('Tonal.Interval', () => {
 
 test('Tonal.chord', () => {
     expect(Chord.notes('FM69')).toEqual(['F', 'A', 'C', 'D', 'G'])
+    /* expect(Chord.notes('Fm6')).toEqual(['F', 'Ab', 'C', 'D']); */ // fails
 })

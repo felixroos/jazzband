@@ -1,19 +1,27 @@
 import { intervalDirection } from './Harmony';
-declare type VoicingValidation = {
+export declare type VoicingValidation = {
     maxDistance?: number;
     minBottomDistance?: number;
     minTopDistance?: number;
     topNotes?: string[];
     bottomNotes?: string[];
+    range?: string[];
+    maxVoices?: number;
+    minDistance?: number;
+    forceDirection?: intervalDirection;
 };
 export declare class Voicing {
-    static getNextVoicing(chord: any, lastVoicing: any, range?: string[], maxVoices?: number, rootless?: boolean): any;
+    static getNextVoicing(chord: any, lastVoicing: any, options?: VoicingValidation): any;
+    static getDesiredDirection(voicing: any, range: any): "up" | "down";
+    static hasTonic(voicing: any, chord: any): any;
+    static getNoteCombinations(chord: any, length?: number): any;
+    static getVoicePermutations(chord: any, length: any, voicingOptions?: VoicingValidation): any;
     static getVoices(chord: any, voices?: number, rootless?: boolean, tension?: number): any[];
     static getAvailableTensions(chord: any): any;
     static getAllTensions(root: any): any[];
     static getRequiredNotes(chord: any): any[];
     static getOptionalNotes(chord: any, required?: any): any;
-    static getAllChoices(combinations: any, lastVoicing: any): any;
+    static getAllChoices(combinations: any, lastVoicing: any, range?: any): any;
     static validateInterval(validate: (interval: string, { path, next, array }: {
         path: any;
         next: any;
@@ -29,4 +37,3 @@ export declare class Voicing {
     static minVoiceMovement(chordA: any, chordB: any): any;
     static voicingMovement(chordA: any, chordB: any, min?: boolean, direction?: intervalDirection): any;
 }
-export {};

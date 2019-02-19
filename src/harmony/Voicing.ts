@@ -18,45 +18,54 @@ import {
     semitoneDifference,
     isPitchClass,
     getDegreeFromInterval,
+    isInRange,
+    getDistancesToRangeEnds,
 } from '../util/util';
 
 import { Harmony, intervalDirection } from './Harmony';
 
-declare type VoicingValidation = {
+export declare type VoicingValidation = {
     maxDistance?: number,
     minBottomDistance?: number,
     minTopDistance?: number,
     topNotes?: string[] // accepted top notes
     bottomNotes?: string[] // accepted top notes
+    range?: string[],
+    maxVoices?: number;
+    minDistance?: number;
+    forceDirection?: intervalDirection;
 };
 
 export class Voicing {
-
-    static getNextVoicing(chord, lastVoicing, range = ['C3', 'C5'], maxVoices = 4, rootless = false) {
+    static getNextVoicing(chord, lastVoicing, options: VoicingValidation = {}) {
+        let { maxVoices, range, forceDirection }: VoicingValidation = {
+            range: ['C3', 'C5'],
+            maxVoices: 4,
+            forceDirection: null,
+            maxDistance: 7,
+            minBottomDistance: 3, // min semitones between the two bottom notes
+            minTopDistance: 2, // min semitones between the two top notes
+            ...options
+        };
         // make sure tonal can read the chord
         chord = Harmony.getTonalChord(chord);
         if (chord === 'r') {
             return null;
         }
-        // get chord notes
-        // const notes = getVoices(chord, 5, false, 0);
-        /* const notes = Voicing.getVoices(chord, maxVoices, false, 0); */
-        const notes = Voicing.getVoices(chord, maxVoices, rootless, 0);
-        // find valid combinations
 
-        let combinations = Voicing.getVoicingCombinations(notes, {
+        let combinations = Voicing.getVoicePermutations(chord, maxVoices, options);
+        // find valid combinations
+        /* let combinations = Voicing.getVoicingCombinations(notes, {
             maxDistance: 7
-        });
-        /* 
-        let combinations = Permutation.permutateElements(notes,
-            Voicing.voicingValidator({
-                maxDistance: 7
-            })); */
-        if (!combinations.length) {
-            console.log('no combinations found chord', chord, notes, lastVoicing);
+        }); */
+        const exit = () => {
             const pick = [];
-            Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick });
+            Logger.logVoicing({ chord, lastVoicing, range, combinations, pick });
             return pick;
+        }
+
+        if (!combinations.length) {
+            return exit();
         }
 
         if (!lastVoicing || !lastVoicing.length) { // no previous chord
@@ -65,51 +74,93 @@ export class Voicing {
             const firstPick = combinations[0];
             const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
             const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
-            Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick });
+            Logger.logVoicing({ chord, lastVoicing, range, combinations, pick });
             return pick;
         }
 
-        let choices = Voicing.getAllChoices(combinations, lastVoicing)
-            .sort((a, b) => {
-                /* return Math.abs(a.movement) - Math.abs(b.movement) */
-                return Math.abs(a.difference) - Math.abs(b.difference)
-            });
-
-        let rangeDirection = getRangeDirection(lastVoicing[0], range, 'down', 0.1);
-        if (!rangeDirection.force) {
-            rangeDirection = getRangeDirection(lastVoicing[lastVoicing.length - 1], range, 'down', 0.1);
+        let choices = Voicing.getAllChoices(combinations, lastVoicing, range);
+        if (!choices.length) {
+            return exit();
         }
         let bestPick = choices[0].notes, choice;
-        let { direction, force } = rangeDirection;
-        if (!force) {
+        const direction = Voicing.getDesiredDirection(lastVoicing, range) || forceDirection;
+
+        if (!direction) {
             const pick = bestPick;
             choice = choices[0];
-            Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick, direction, bestPick, force, choice, choices });
+            Logger.logVoicing({ chord, lastVoicing, range, combinations, pick, direction, bestPick, choice, choices });
             return pick;
         }
-        // sort after movement
-        choices = choices.sort((a, b) => {
+        // sort after movement instead of difference
+        choice = choices.sort((a, b) => {
             return Math.abs(a.movement) - Math.abs(b.movement)
-        });
-        choice = choices.find(choice => {
+        }).find(choice => {
             if (direction === 'up') {
                 return choice.movement >= 0
             }
             return choice.movement <= 0;
         });
-        if (!choice) {
+        if (!choice) { // keep hanging in the corner of the range..
             choice = choices[0];
         }
         const pick = choice.notes;
-        Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick, direction, bestPick, force, choice, choices });
+        Logger.logVoicing({ chord, lastVoicing, range, combinations, pick, direction, bestPick, choice, choices });
         return pick;
+    }
+
+    static getDesiredDirection(voicing, range) {
+        const thresholds = [3, 3];
+        let distances = getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
+        if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
+            console.error('range is too small to fit the comfy zone');
+            return;
+        }
+        if (distances[0] < thresholds[0]) {
+            return 'up';
+        }
+        if (distances[1] < thresholds[1]) {
+            return 'down';
+        }
+    }
+
+    static hasTonic(voicing, chord) {
+        const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
+        return voicing.map(n => Note.pc(n)).includes(tokens[0]);
+    }
+
+    static getNoteCombinations(chord, length = 2) {
+        const required = Voicing.getRequiredNotes(chord);
+        const fill = length - required.length;
+        if (length === 1) {
+            return required.map(note => [note]);
+        }
+        if (fill === 0) {
+            return [required];
+        }
+        if (fill < 0) { // required notes are enough
+            return Permutation.binomial(required, length);
+        }
+        let optional = Voicing.getOptionalNotes(chord, required);
+        if (fill >= optional.length) {
+            return [required.concat(optional)];
+        }
+        return Permutation.binomial(optional, fill)
+            .map(selection => required.concat(selection))
+    }
+
+    static getVoicePermutations(chord, length, voicingOptions?: VoicingValidation) {
+        return Voicing.getNoteCombinations(chord, length)
+            .reduce((combinations, combination) => {
+                return combinations.concat(
+                    Voicing.getVoicingCombinations(combination, voicingOptions))
+            }, []);
     }
 
 
     static getVoices(chord, voices = 4, rootless = false, tension = 1) {
         // THE PROBLEM: TENSION MUST BE CHOSEN WHEN SELECTING THE OPTIMAL VOICING!
         chord = Harmony.getTonalChord(chord);
-        const intervals = Chord.intervals(chord);
+        /* const intervals = Chord.intervals(chord); */
         const tokens = Chord.tokenize(chord);
         const required = Voicing.getRequiredNotes(chord);
         let optional = Voicing.getOptionalNotes(chord, required);
@@ -168,14 +219,18 @@ export class Voicing {
         chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
         const intervals = Chord.intervals(chord);
-
-        let required = [3, 7, 4, 'b5', 6].reduce((required, degree) => {
+        let requiredSteps = [3, 7, 'b5', 6];
+        if (!hasDegree(3, intervals)) {
+            requiredSteps.push(4); // fixes m6 chords
+        }
+        let required = requiredSteps.reduce((req, degree) => {
             if (hasDegree(degree, intervals)) {
-                required.push(getDegreeInChord(degree, chord));
+                req.push(getDegreeInChord(degree, chord));
             }
-            return required;
+            return req;
         }, []);
-        // is a flat 5 required?
+        // is a flat 5 required? 
+        // WHY 3??
         if (notes.length > 3 && !required.includes(notes[notes.length - 1])) {
             required.push(notes[notes.length - 1]); // could check if is 5 than dont push
         }
@@ -196,7 +251,7 @@ export class Voicing {
         return { required, optional, tensions };
     } */
 
-    static getAllChoices(combinations, lastVoicing) {
+    static getAllChoices(combinations, lastVoicing, range?) {
         const lastPitches = lastVoicing.map(note => Note.pc(note));
         return combinations.map(combination => ({
             combination,
@@ -214,13 +269,20 @@ export class Voicing {
                 renderAbsoluteNotes(combination, Note.oct(bottomNotes[0])),
                 renderAbsoluteNotes(combination, Note.oct(bottomNotes[1])),
             ])
-        }, []).map(notes => {
+        }, []).filter((targets) => {
+            return !range ||
+                isInRange(targets[0], range) &&
+                isInRange(targets[targets.length - 1], range)
+        }).map(notes => {
             return Voicing.bestVoiceLeading(lastVoicing, notes, (a, b) => {
                 /* return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval)) */
                 return Math.abs(a.movement) - Math.abs(b.movement);
                 /* return a.difference - b.difference; */
-            });
-        })
+            })
+        }).sort((a, b) => {
+            /* return Math.abs(a.movement) - Math.abs(b.movement) */
+            return Math.abs(a.difference) - Math.abs(b.difference)
+        });
     }
 
 
@@ -243,6 +305,7 @@ export class Voicing {
     static voicingValidator(options?: VoicingValidation) {
         options = {
             maxDistance: 6, // max semitones between any two sequential notes
+            minDistance: 1, // min semitones between two notes
             minBottomDistance: 3, // min semitones between the two bottom notes
             minTopDistance: 2, // min semitones between the two top notes
             ...options,
@@ -252,6 +315,7 @@ export class Voicing {
                 Voicing.notesAtPositionValidator(options.topNotes, path.length + array.length - 1),
                 Voicing.notesAtPositionValidator(options.bottomNotes, 0),
                 Voicing.validateInterval(interval => Interval.semitones(interval) <= options.maxDistance),
+                Voicing.validateInterval(interval => Interval.semitones(interval) >= options.minDistance),
                 Voicing.validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) >= options.minTopDistance),
                 Voicing.validateInterval((interval, { path }) => path.length !== 1 || Interval.semitones(interval) >= options.minBottomDistance)
             )(path, next, array);
@@ -259,7 +323,15 @@ export class Voicing {
     }
 
     static getVoicingCombinations(notes, options: VoicingValidation = {}, validator = (path, next, array) => true) {
-        return Permutation.permutateElements(notes, Permutation.combineValidators(validator, Voicing.voicingValidator(options)));
+        if (notes.length === 1) {
+            return [notes];
+        }
+        return Permutation.permutateElements(notes,
+            Permutation.combineValidators(
+                validator,
+                Voicing.voicingValidator(options)
+            )
+        );
     }
 
 
