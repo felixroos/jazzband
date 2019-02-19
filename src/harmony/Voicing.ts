@@ -58,7 +58,8 @@ export class Voicing {
 
         if (!lastVoicing || !lastVoicing.length) { // no previous chord
             // get lowest possible bottom note
-            const firstPick = randomElement(combinations);
+            // const firstPick = randomElement(combinations);
+            const firstPick = combinations[0];
             const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
             const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
             Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick });

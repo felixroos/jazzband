@@ -63,6 +63,7 @@ export declare class Logger {
     };
     static logCustom(args: any, logFn?: (message?: any, ...optionalParams: any[]) => void): void;
     static logLegend(): void;
+    static logSheet(sheet: any): void;
     static logLabel(key: any): any;
     static logChoice(choice: any): void;
     static logNotes(activeNotes: any, idleNotes: any, addedNotes: any, range: any): string[];

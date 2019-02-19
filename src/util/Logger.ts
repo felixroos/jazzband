@@ -2,6 +2,7 @@ import { noteArray, getRangePosition } from './util';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { Harmony } from '../harmony/Harmony';
+import { Snippet } from '../sheet/Snippet';
 
 export class Logger {
     static emoji = {
@@ -76,6 +77,29 @@ export class Logger {
     static logLegend() {
         if (console.table) {
             console.table(Logger.emoji);
+        }
+    }
+
+    static logSheet(sheet) {
+        sheet = {
+            title: 'Untitled',
+            composer: 'Unkown',
+            chords: [],
+            forms: 3,
+            tempo: 130,
+            style: 'Swing',
+            ...sheet
+        }
+        const snippet = Snippet.from(sheet.chords);
+        console.log(`${sheet.composer} - ${sheet.title}`);
+        console.log(`${sheet.tempo}bpm, Style: ${sheet.style}`);
+        console.log(snippet);
+        if (console.groupCollapsed) {
+            console.log('Sheet', sheet);
+            /* console.log('Groove', sheet.groove); */
+            console.groupCollapsed(`show ${sheet.forms} rendered forms`);
+            console.log("expanded view\n\n" + Snippet.expand(snippet, { forms: sheet.forms || 1 }));
+            console.groupEnd();
         }
     }
 

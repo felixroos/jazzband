@@ -1,19 +1,17 @@
-import * as jazz from '../lib';
-import link from './playlists/1350.json';
-//import link from './playlists/zw.json';
-import { RealParser } from '../src/sheet/RealParser';
-import { piano } from './samples/piano';
-/* import { harp } from './samples/harp'; */
-import { drumset } from './samples/drumset';
 import iRealReader from 'ireal-reader';
-import { swing } from '../src/grooves/swing';
+import * as jazz from '../lib';
+import { bossa } from '../src/grooves/bossa';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
-import { bossa } from '../src/grooves/bossa';
+import { swing } from '../src/grooves/swing';
+//import link from './playlists/zw.json';
+import { RealParser } from '../src/sheet/RealParser';
 import { Snippet } from '../src/sheet/Snippet';
-import { Sheet } from '../src/sheet/Sheet';
-import * as Tone from 'tone';
-import { Logger } from '../src/util/Logger';
+import { SheetPlayer } from '../src/sheet/SheetPlayer';
+import link from './playlists/1350.json';
+/* import { harp } from './samples/harp'; */
+import { drumset } from './samples/drumset';
+import { piano } from './samples/piano';
 
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
@@ -36,7 +34,7 @@ band.drummer.gain = .8; */
 /* band.soloist.gain = .6; */
 
 function getStandard(playlist) {
-    console.log('playlist', playlist);
+    /* console.log('playlist', playlist); */
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Lone Jack (Page 1)'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Minor Strain'))); // TODO: fix
     //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('El Cajon'))); // TODO: fix
@@ -56,10 +54,8 @@ function getStandard(playlist) {
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('One Note Samba'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Ain\'t She Sweet'))); */
     const standard = jazz.util.randomElement(playlist.songs);
-
     standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
     console.log('standard', standard);
-    console.log('sheet', standard.music.measures);
     return standard;
 }
 
@@ -85,7 +81,11 @@ function alice() {
     |  Bb7  |  Bb-7 Eb7  |  A-7 D7  |  Ab-7 Db7  |
     |  G-7  |  C7        |  F7 D7   |  G-7 C7    |
     `);
-    playSheet(chords, melody)
+    SheetPlayer.play({
+        title: 'Blues For Alice',
+        chords,
+        melody
+    });
 }
 
 function steps() {
@@ -105,7 +105,11 @@ function steps() {
     |  Eb^7     |  A-7 D7    |  G^7   |  C#-7 F#7  |
     |  B^7      |  F-7 Bb7   |  Eb^7  |  C#-7 F#7  |
     `);
-    playSheet(chords, melody)
+    SheetPlayer.play({
+        title: 'Giant Steps',
+        composer: 'John Coltrane',
+        chords, melody
+    })
 }
 
 function knife() {
@@ -125,83 +129,9 @@ function knife() {
     |  Eb^7     |  A-7 D7    |  G^7   |  C#-7 F#7  |
     |  B^7      |  F-7 Bb7   |  Eb^7  |  C#-7 F#7  |
     `);
-    playSheet(chords, melody)
+    SheetPlayer.play(chords, melody)
 }
 
-function playSheet(chords, melody = false) {
-    Logger.logLegend();
-    const sheet = Sheet.render(chords)
-        .map((measure, measureIndex) => measure.chords
-            .map((chord, chordIndex) => ({ chord, path: [measureIndex, chordIndex], measure })));
-    var bass = new Tone.MonoSynth({
-        "volume": -22,
-        "envelope": {
-            "attack": 0.02,
-            "decay": 0.3,
-            "release": 2,
-        },
-        "filterEnvelope": {
-            "attack": 0.001,
-            "decay": 0.001,
-            "sustain": 0.4,
-            "baseFrequency": 130,
-            "octaves": 2.6
-        }
-    }).toMaster();
-    const piano = new Tone.PolySynth(4, Tone.Synth, {
-        "volume": -18,
-        "oscillator": {
-            "partials": [1, .5, .25, .125],
-        }
-    }).toMaster();
-
-    const head = new Tone.Synth({
-        "volume": -12,
-        oscillator: {
-            type: 'triangle'
-        },
-        envelope: {
-            attack: 0.001,
-            decay: 0.1,
-            sustain: 0.6,
-            release: 0.1
-        },
-        portamento: 0.01
-    }).toMaster();
-    /* const lfo = new Tone.LFO("4n", 80, 150);
-    lfo.connect(bass.filter.frequency); */
-    Tone.Transport.bpm.value = 160;
-    Tone.Transport.swing = 0.7;
-    Tone.Transport.swingSubdivision = "8n"
-    if (melody) {
-        new Tone.Sequence((time, note) => {
-            if (note.match(/[a-g][b|#]?[0-6]/)) {
-                head.triggerAttackRelease(note, "1n");
-            }
-        }, melody, "1m").start(0);
-    }
-    if (sheet) {
-        const range = ['C3', 'C5'];
-        let voicing, latest;
-        new Tone.Sequence(function (time, event) {
-            if (event.path[1] === 0) {
-                if (event.path[0] === 0) {
-                    console.log(`-- new chorus --`);
-                }
-                // console.log(`-- measure ${(event.path[0] + 1)} ---------------------------------------`);
-            }
-            const chord = event.chord;
-            latest = voicing || latest;
-            voicing = jazz.Voicing.getNextVoicing(chord, latest, range, 5);
-            if (voicing) {
-                piano.triggerAttackRelease(voicing, "1n");
-                const note = chord.match((/[A-G][b|#]?/))[0] + '2';
-                bass.triggerAttackRelease(note, "1n", time);
-            }
-        }, sheet, "1m").start(0);
-    }
-    Tone.Transport.start('+1');
-}
 
 window.onload = function () {
     // buttons
@@ -248,30 +178,30 @@ window.onload = function () {
     let standard/*  = getStandard(); */
 
     function play(groove = swing) {
-        /* playSheet(['C^7', 'D-', 'E-7', 'F', 'G7', 'A-', 'B-7b5']); */
-        /* playSheet(['C^7', 'D-7', 'E-7', 'F^7', 'G7', 'A-7', 'B-7b5', 'C6'].reverse()); */
-        /* playSheet(['C^7', 'C7', 'C-7', 'C-6', 'C-', 'A7', 'D^7', 'Db^7']); */
-        /* playSheet(['C^7', 'E-', 'G7', 'C']); */
-        /* playSheet(['A7', 'Ab7']);
+        /* SheetPlayer.play(['C^7', 'D-', 'E-7', 'F', 'G7', 'A-', 'B-7b5']); */
+        /* SheetPlayer.play(['C^7', 'D-7', 'E-7', 'F^7', 'G7', 'A-7', 'B-7b5', 'C6'].reverse()); */
+        /* SheetPlayer.play(['C^7', 'C7', 'C-7', 'C-6', 'C-', 'A7', 'D^7', 'Db^7']); */
+        /* SheetPlayer.play(['C^7', 'E-', 'G7', 'C']); */
+        /* SheetPlayer.play(['A7', 'Ab7']);
         return; */
-        /* playSheet(['E^7', 'E', 'B7', 'E6']);
+        /* SheetPlayer.play(['E^7', 'E', 'B7', 'E6']);
         return; */
-        /* alice();
-        return; */
-        const snippet = Snippet.from(standard.music.measures);
-        console.log(standard.composer + ' - ' + standard.title + "\n\n" + snippet);
-        console.log(standard.composer + ' - ' + standard.title + " (expanded)\n\n" + Snippet.expand(snippet, { forms }));
+        alice();
+        return;
 
-        /* return playSheet(standard.music.measures); */
-
-        console.log('groove', groove);
-        // const bpm = 70 + Math.random() * 100;
-        const bpm = /* groove.tempo ||  */130;
-        console.log('tempo', bpm);
         const forms = 2;
         const cycle = 4;
-        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle, bpm, groove/* , arpeggio: true */ });
 
+        return SheetPlayer.play({
+            composer: standard.composer,
+            title: standard.title,
+            groove,
+            forms,
+            cycle,
+            chords: standard.music.measures
+        });
+
+        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle, bpm, groove/* , arpeggio: true */ });
 
     }
 
