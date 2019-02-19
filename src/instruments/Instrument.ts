@@ -1,4 +1,4 @@
-import { getMidi } from "../util";
+import { getMidi } from "../util/util";
 import { Pulse } from "../Pulse";
 
 export interface NoteEvent {

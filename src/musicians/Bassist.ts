@@ -1,4 +1,4 @@
-import { resolveChords, getTonalChord, randomElement, randomDelay } from '../util';
+import { resolveChords, getTonalChord, randomElement, randomDelay } from '../util/util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';

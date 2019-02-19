@@ -65,6 +65,6 @@ export declare class Logger {
     static logLegend(): void;
     static logLabel(key: any): any;
     static logChoice(choice: any): void;
-    static logNotes(activeNotes: any, idleNotes: any, addedNotes: any, range: any): any[];
+    static logNotes(activeNotes: any, idleNotes: any, addedNotes: any, range: any): string[];
     static logVoicing({ chord, lastVoicing, bestPick, pick, range, choice, direction, choices, force }: any): any;
 }

@@ -1,6 +1,6 @@
 import { Musician } from './Musician';
 import { swing } from '../grooves/swing';
-import { randomDelay } from '../util';
+import { randomDelay } from '../util/util';
 
 export default class Drummer extends Musician {
     name = 'Drummer';

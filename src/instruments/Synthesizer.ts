@@ -1,6 +1,6 @@
 import { Instrument } from './Instrument';
 import { Note } from 'tonal';
-import { adsr } from '../util';
+import { adsr } from '../util/util';
 
 export class Synthesizer extends Instrument {
     duration = 200;

@@ -1,5 +1,5 @@
 import { Snippet } from "../sheet/Snippet";
-import { totalDiff } from '../util';
+import { totalDiff } from '../util/util';
 import { Measure } from '../sheet/Measure';
 import * as Tone from 'tone';
 

@@ -1,4 +1,4 @@
-import { randomSynth } from './util';
+import { randomSynth } from './util/util';
 import Band from './Band';
 import Pianist from './musicians/Pianist';
 import Bassist from './musicians/Bassist';

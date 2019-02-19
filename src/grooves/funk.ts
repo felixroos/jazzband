@@ -1,4 +1,4 @@
-import { randomElement } from "../util";
+import { randomElement } from "../util/util";
 export const funk = {
     name: 'Funk',
     tempo: 90,

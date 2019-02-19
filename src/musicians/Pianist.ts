@@ -1,7 +1,8 @@
-import { offbeatReducer, resolveChords, randomDelay, getDuration, getNextVoicing, analyzeVoiceLeading, transposeToRange } from '../util';
+import { offbeatReducer, resolveChords, randomDelay, getDuration } from '../util/util';
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
+import { Voicing } from '../harmony/Voicing';
 
 export default class Pianist extends Musician {
     name = 'Pianist';
@@ -101,7 +102,7 @@ export default class Pianist extends Musician {
         }
         this.playedChords.push(chord);
 
-        let notes = getNextVoicing(chord, this.getLastVoicing(), this.range); // TODO: range currently only respects first note
+        let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), this.range); // TODO: range currently only respects first note
 
 
         /*         if (this.playedNotes.length > 1) {

@@ -1,4 +1,48 @@
 export class Permutation {
+
+
+    static permutateElements(array, validate?, path = []) {
+        const isValid = (next) => !validate || validate(path, next, array);
+        if (array.length === 1) {
+            return isValid(array[0]) ? array : []
+        }
+        return array.filter(isValid).reduce((combinations, el) => [
+            ...combinations,
+            ...Permutation.permutateElements(
+                array.filter(e => e !== el),
+                validate,
+                path.concat([el])
+            ).map(subcombinations => [
+                el,
+                ...subcombinations
+            ])
+        ], []);
+    }
+
+    static permutationComplexity(array, validate?, path = []) {
+        let validations = 0;
+        Permutation.permutateElements(array, (path, next, array) => {
+            ++validations;
+            return !validate || validate(path, next, array)
+        }, path);
+        return validations;
+    }
+
+    static permutateArray(array) {
+        if (array.length === 1) { return array; }
+        return array.reduce((combinations, el) => [
+            ...combinations,
+            ...Permutation.permutateArray(array.filter(e => e !== el))
+                .map(subcombinations => ([el, ...subcombinations]))
+        ], []);
+    }
+
+    // combine multiple validators
+    static combineValidators(...validators: ((path, next, array) => boolean)[]) {
+        return (path, next, array) => validators
+            .reduce((result, validator) => result && validator(path, next, array), true);
+    }
+
     //https://stackoverflow.com/questions/9960908/permutations-in-javascript
     static combinations(array) {
         var length = array.length,

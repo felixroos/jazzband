@@ -1,4 +1,4 @@
-import { mapTree, flattenTree } from "../util";
+import { mapTree, flattenTree } from "../util/util";
 
 const addDot = (string) => string + '.';
 

@@ -1,25 +1,11 @@
-import * as util from '../util';
+import * as util from '../util/util';
 import {
-    permutateArray,
-    permutateElements,
-    validateInterval,
-    combineValidators,
-    permutationComplexity,
-    voicingValidator,
-    getVoicingCombinations,
     getChordNotes,
     validateWithoutRoot,
-    bestCombination,
-    getNextVoicing,
-    analyzeVoiceLeading,
     semitoneDifference,
     getMidi,
     getAverageMidi,
-    getAvailableTensions,
-    getRequiredNotes,
-    getOptionalNotes,
-    getVoices
-} from '../util';
+} from '../util/util';
 import { Scale } from 'tonal';
 import { Chord } from 'tonal';
 import { Distance } from 'tonal';
@@ -362,26 +348,6 @@ test('getNearestNote', () => {
     expect(util.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
 });
 
-test('Tonal.Interval', () => {
-    expect(Distance.interval('D', 'C')).toBe('7m');
-    expect(Distance.interval('C', 'D')).toBe('2M');
-    expect(Distance.interval('D', 'Db')).toBe('8d');
-    expect(Distance.interval('D#', 'D')).toBe('8d');
-    expect(Distance.interval('Db', 'D')).toBe('1A');
-    expect(Distance.interval('D', 'D#')).toBe('1A');
-    expect(Distance.interval('D2', 'Db2')).toBe('-1A');
-    expect(Distance.interval('D2', 'D#2')).toBe('1A');
-    expect(Distance.interval('D2', 'Db3')).toBe('8d');
-    expect(Distance.interval('D2', 'D#3')).toBe('8A');
-    expect(Distance.interval('D2', 'D#1')).toBe('-8d');
-    expect(Distance.interval('D2', 'Db1')).toBe('-8A');
-
-    expect(Interval.invert('1A')).toBe('8d');
-    expect(Interval.invert('1d')).toBe('8A');
-    expect(Interval.invert('1P')).toBe('8P');
-    expect(Interval.invert('8P')).toBe('1P');
-    expect(Interval.invert('8d')).toBe('1A');
-})
 
 test('getNearestTargets', () => {
     expect(util.getNearestTargets('C4', ['F', 'G'])[0]).toBe('G3');
@@ -416,85 +382,6 @@ test('getRangePosition', () => {
     expect(util.getRangePosition(getAverageMidi(range), range)).toBe(.5);
 });
 
-test('getAvailableTensions', () => {
-    expect(getAvailableTensions('C')).toEqual(['D', 'F#', 'A']);
-    expect(getAvailableTensions('C^7')).toEqual(['D', 'F#', 'A']);
-    expect(getAvailableTensions('C^13')).toEqual(['D', 'F#', 'A']);
-    expect(getAvailableTensions('C-7')).toEqual(['D', 'F', 'A']);
-    expect(getAvailableTensions('D-7')).toEqual(['E', 'G', 'B']);
-    expect(getAvailableTensions('C-11')).toEqual(['D', 'F', 'A']);
-    expect(getAvailableTensions('C-7b5')).toEqual(['D', 'F', 'Ab']);
-    expect(getAvailableTensions('C-^7')).toEqual(['D', 'F', 'A']);
-    expect(getAvailableTensions('C^7#5')).toEqual(['D', 'F#']);
-    expect(getAvailableTensions('Co7')).toEqual(['D', 'F', 'Ab', 'B']);
-    expect(getAvailableTensions('C^7#5')).toEqual(['D', 'F#']);
-    expect(getAvailableTensions('C7')).toEqual(['Db', 'D', 'D#', 'F#', 'Ab', 'A']);
-    expect(util.isDominantChord('C7sus')).toBe(true);
-    expect(util.getDegreeInChord(4, 'C7sus')).toBe('F');
-    expect(Chord.notes('C7sus')).toEqual(['C', 'F', 'G', 'Bb']);
-    expect(getAvailableTensions('C7sus4')).toEqual(['Db', 'D', 'D#', 'E', 'Ab', 'A']);
-    expect(getAvailableTensions('C7#5')).toEqual(['Db', 'D', 'D#', 'F#', 'A']);
-});
-
-test('getRequiredNotes', () => {
-    expect(getRequiredNotes('C^7')).toEqual(['E', 'B']);
-    expect(getRequiredNotes('C7')).toEqual(['E', 'Bb']);
-    expect(getRequiredNotes('C7sus')).toEqual(['F', 'Bb']);
-    expect(getRequiredNotes('C')).toEqual(['E']);
-    expect(getRequiredNotes('D-')).toEqual(['F']);
-    expect(getRequiredNotes('D-7')).toEqual(['F', 'C']);
-    expect(getRequiredNotes('D-11')).toEqual(['F', 'G', 'C']);
-    expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
-    expect(getRequiredNotes('C13')).toEqual(['E', 'Bb', 'A']);
-    expect(getRequiredNotes('C6')).toEqual(['E', 'A']);
-    expect(getRequiredNotes('Ch7')).toEqual(['Eb', 'Gb', 'Bb']);
-    expect(getRequiredNotes('Ebo')).toEqual(['Gb', 'Bbb']);
-    expect(getRequiredNotes('G')).toEqual(['B']);
-});
-
-test('getOptionalNotes', () => {
-    expect(getOptionalNotes('C^7')).toEqual(['C', 'G']);
-    expect(getOptionalNotes('C7')).toEqual(['C', 'G']);
-    expect(getOptionalNotes('C7sus')).toEqual(['C', 'G']);
-    expect(getOptionalNotes('C')).toEqual(['C', 'G']);
-    expect(getOptionalNotes('D-')).toEqual(['D', 'A']);
-    expect(getOptionalNotes('G-')).toEqual(['G', 'D']);
-    expect(getOptionalNotes('D-7')).toEqual(['D', 'A']);
-    expect(getOptionalNotes('D-11')).toEqual(['D', 'A', 'E']);
-    expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
-    expect(getOptionalNotes('C13')).toEqual(['C', 'G', 'D']);
-    expect(getOptionalNotes('C6')).toEqual(['C', 'G']);
-    expect(getOptionalNotes('Ch7')).toEqual(['C']);
-
-    expect(getOptionalNotes('G')).toEqual(['G', 'D']);
-});
-
-test('getVoices', () => {
-    expect(getVoices('D-7', 4, false, 0)).toEqual(['F', 'C', 'D', 'A']);
-    expect(getVoices('D-7', 4, true, 1)).toEqual(['F', 'C', 'E', 'A']);
-    expect(getVoices('C7', 4, false, 0)).toEqual(['E', 'Bb', 'C', 'G']);
-    // TODO: make 13 be the first tension choice..
-    expect(getVoices('C7', 4, false, 1)).toEqual(['E', 'Bb', 'Db', 'C']);
-    expect(getVoices('C7', 4, true, 1)).toEqual(['E', 'Bb', 'Db', 'G']);
-    expect(getVoices('C7', 4, true, 0)).toEqual(['E', 'Bb', 'C', 'G']);
-    expect(getVoices('Dh7', 4, false, 1)).toEqual(['F', 'Ab', 'C', 'E']);
-    expect(getVoices('Dh7', 4, true, 1)).toEqual(['F', 'Ab', 'C', 'E']); // root stays because b5 needs root!
-
-    expect(getVoices('G', 4, false, 0)).toEqual(['B', 'G', 'D', 'B']);
-
-
-    expect(getVoices('D-7', 3, false, 0)).toEqual(['F', 'C', 'D']);
-    expect(getVoicingCombinations(['F', 'C', 'D'])).toEqual([]);
-
-    // hat nur eine kombination...
-    expect(getVoicingCombinations(['C', 'E', 'Bb', 'Db'])).toEqual([['C', 'E', 'Bb', 'Db']]);
-
-    // B7b9b5
-    // G69
-    // A-9 ???
-    // D7b9 hat nur eine kombination!? (Siehe "You Won't Forget Me")
-
-})
 
 test('getRangeDirection', () => {
     const fn = util.getRangeDirection;
@@ -623,45 +510,6 @@ test('semitoneMovement', () => {
     expect(util.semitoneMovement(['-2M', '4A'])).toBe(4);
 });
 
-test('voicingIntervals', () => {
-    expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toEqual(['1P', '-1A', '1P']);
-    expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'], false)).toEqual(['1P', '8d', '1P']);
-    expect(util.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb3', 'G'])).toEqual(['1P', '-1A', '1P']);
-    expect(util.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb2', 'G'])).toEqual(['1P', '-8A', '1P']);
-    expect(util.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G', 'Bb'])).toEqual(['1P', '-1A', '1P']);
-    /* expect(util.voicingIntervals(['C', 'E', 'G', 'B'], ['C', 'Eb', 'G'])).toEqual(['1P', '-2m', '1P', null]); */
-});
-
-test('voicingDifference', () => {
-    expect(util.voicingDifference(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toBe(1);
-    expect(util.voicingDifference(['C', 'E', 'G'], ['D', 'F#', 'A'])).toBe(6);
-    expect(util.voicingDifference(['C', 'E', 'G'], ['E', 'G#', 'B'])).toBe(12);
-    expect(util.voicingDifference(['C', 'E', 'G', 'B'], ['C', 'Eb', 'G'])).toEqual(1);
-});
-
-test('voicingMovement', () => {
-    expect(util.voicingMovement(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toBe(-1);
-    expect(util.voicingMovement(['C', 'E', 'G'], ['D', 'F#', 'A'])).toBe(6);
-    expect(util.voicingMovement(['C', 'E', 'G'], ['B', 'E', 'G#'])).toBe(0);
-    expect(util.voicingMovement(['F#', 'A#', 'C#'], ['C', 'E', 'G'])).toBe(18);
-    expect(util.voicingMovement(['C', 'E', 'C'], ['E', 'C', 'C'])).toBe(0);
-    expect(util.voicingMovement(['F', 'A', 'C', 'E'], ['F', 'A', 'B', 'D'])).toBe(-3);
-    expect(util.voicingMovement(['C', 'E', 'F', 'A'], ['B', 'D', 'F', 'A'])).toBe(-3);
-    expect(util.voicingMovement(['E', 'A', 'C', 'F'], ['A', 'D', 'F', 'B'])).toBe(21);
-    expect(util.voicingMovement(['E', 'A', 'C', 'F'], ['B', 'F', 'A', 'D'])).toBe(-15);
-
-    expect(util.voicingMovement(['D2', 'F2', 'A2'], ['D3', 'F3', 'A3'], false)).toBe(36);
-
-});
-
-test('analyzeVoiceLeading', () => {
-    const { movement, difference, averageMovement, averageDifference } = analyzeVoiceLeading([['C', 'D'], ['D', 'E'], ['C', 'Eb'], ['D', 'E']]);
-    expect(movement).toEqual(4);
-    expect(difference).toEqual(10);
-    expect(averageMovement).toEqual(1);
-    expect(averageDifference).toEqual(2.5);
-});
-
 test('chordHasIntervals', () => {
     expect(util.chordHasIntervals('C^7', ['3M', '7M'])).toBe(true);
     expect(util.chordHasIntervals('C', ['3M', '7M'])).toBe(false);
@@ -756,139 +604,10 @@ test('getChordType', () => {
 // -- use gradients on pivots!!!!!
 
 
-test('permutateArray', () => {
-    expect(permutateArray([1, 2])).toEqual([
-        [1, 2],
-        [2, 1]
-    ]);
-    expect(permutateArray([1, 2, 3])).toEqual(
-        [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]
-    );
-    expect(permutateArray(["C", "E", "G", "B"]).length).toBe(24);
-    expect(permutateArray(["C", "E", "G", "B", "D"]).length).toBe(120);
-});
 
-// c(n) = c(n-1) * n + n
-test('permutationComplexity', () => {
-    expect(permutationComplexity(['C', 'E', 'G'], voicingValidator())).toBe(12);
-    expect(permutationComplexity(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#'], voicingValidator())).toBe(372);
-    expect(permutationComplexity(['C', 'D', 'E', 'F', 'G', 'A', 'B'], voicingValidator())).toBe(1187);
-    expect(permutationComplexity(['C', 'Eb', 'Gb', 'A'], voicingValidator())).toBe(44);
-    expect(permutationComplexity(['C', 'D', 'F', 'G'], voicingValidator())).toBe(29);
-    expect(permutationComplexity(['C', 'Eb', 'G', 'Bb'], voicingValidator())).toBe(33);
-    expect(permutationComplexity(['C', 'E', 'G', 'B', 'D'], voicingValidator())).toBe(86);
-    expect(permutationComplexity(['C', 'D', 'E', 'F'], voicingValidator())).toBe(23);
-});
-
-test('permutateElements, getVoicingCombinations', () => {
-
-    function validateRule7(path, next, array) {
-        return validateInterval(interval => Interval.semitones(interval) <= 6)(path, next, array)
-    }
-
-    expect(permutateElements(["C", "E", "G", "B"], validateRule7)).toEqual(
-        [["C", "E", "G", "B"], ["E", "G", "B", "C"], ["G", "B", "C", "E"], ["B", "C", "E", "G"], ["B", "E", "G", "C"]]
-    );
-
-    function validateRules75(path, next, array) {
-        return combineValidators(
-            validateInterval(interval => Interval.semitones(interval) <= 6),
-            validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) > 2)
-        )(path, next, array)
-    }
-
-    expect(permutateElements(["C", "E", "G", "B"], validateRules75)).toEqual(
-        [["C", "E", "G", "B"], ["G", "B", "C", "E"], ["B", "C", "E", "G"], ["B", "E", "G", "C"]]
-    );
-
-    expect(permutateElements(["C", "E", "G", "B"], voicingValidator())).toEqual(
-        [["C", "E", "G", "B"], ["G", "B", "C", "E"], ["B", "E", "G", "C"]]
-    );
-
-    expect(permutateElements(['D', 'F', 'A', 'C'], voicingValidator())).toEqual(
-        [["D", "F", "A", "C"], ["A", "C", "D", "F"], ["C", "F", "A", "D"]]
-    );
-
-    expect(permutationComplexity(['D', 'F', 'A', 'C'], voicingValidator())).toEqual(33);
-});
-
-test('getVoicingCombinations', () => {
-
-    // this is just sugar for permutationComplexity with voicing validator
-    expect(getVoicingCombinations(['F', 'A', 'C', 'E'])).toEqual(
-        [['F', 'A', 'C', 'E'], ['C', 'E', 'F', 'A'], ['E', 'A', 'C', 'F']]
-    );
-    expect(getVoicingCombinations(['F', 'A', 'C', 'E'], { topNotes: ['A', 'E'] })).toEqual(
-        [['F', 'A', 'C', 'E'], ['C', 'E', 'F', 'A']]
-    );
-    expect(getVoicingCombinations(['F', 'A', 'C', 'E'], { bottomNotes: ['E'] }))
-        .toEqual([['E', 'A', 'C', 'F']]);
-
-    expect(getVoicingCombinations(['F', 'A', 'C', 'E'], { bottomNotes: ['A'], minTopDistance: 0 }))
-        .toEqual([['A', 'C', 'E', 'F']]);
-
-    expect(getVoicingCombinations(['B', 'D', 'F', 'A'])).toEqual(
-        [['B', 'D', 'F', 'A'], ['B', 'F', 'A', 'D'], ['F', 'A', 'B', 'D'], ['A', 'D', 'F', 'B']]
-    );
-
-    expect(getVoicingCombinations(['E', 'G', 'C'])).toEqual(
-        [['E', 'G', 'C'], ['G', 'C', 'E'], ['C', 'E', 'G']]
-    );
-    expect(permutateElements(['E', 'G', 'C'],
-        voicingValidator({
-            maxDistance: 6
-        }))
-    ).toEqual(
-        [['E', 'G', 'C'], ['G', 'C', 'E'], ['C', 'E', 'G']]
-    );
-});
-
-test('voicingMovement #2', () => {
-    expect(util.voicingMovement(['F', 'A', 'C', 'E'], ['F', 'A', 'B', 'D'])).toBe(-3); // A -> E
-    expect(util.voicingDifference(['F', 'A', 'C', 'E'], ['F', 'A', 'B', 'D'])).toBe(3);
-    expect(util.voicingMovement(['C', 'E', 'F', 'A'], ['B', 'D', 'F', 'A'])).toBe(-3); // B -> D
-    expect(util.voicingMovement(['E', 'A', 'C', 'F'], ['A', 'D', 'F', 'B'])).toBe(21);
-    expect(util.voicingMovement(['E', 'A', 'C', 'F'], ['B', 'F', 'A', 'D'])).toBe(-15);
-    expect(util.voicingMovement(['F', 'A', 'C', 'E'], ['B', 'F', 'A', 'D'])).toBe(-3);
-    expect(util.voicingDifference(['F', 'A', 'C', 'E'], ['B', 'F', 'A', 'D'])).toBe(15);
-});
-test('bestCombination', () => {
-    const c = [['C', 'E', 'G'], ['E', 'G', 'C'], ['G', 'C', 'E']];
-    const g = [['G', 'B', 'D'], ['B', 'D', 'G'], ['D', 'G', 'B']];
-    expect(getVoicingCombinations(['C', 'E', 'G'])).toEqual(c);
-    expect(getVoicingCombinations(['G', 'B', 'D'])).toEqual(g);
-    expect(bestCombination(c[0], g)).toEqual(g[1]);
-    expect(bestCombination(c[1], g)).toEqual(g[2]);
-    expect(bestCombination(c[2], g)).toEqual(g[0]);
-
-    const dmin = [['F', 'A', 'C', 'E'], ['C', 'E', 'F', 'A'], ['E', 'A', 'C', 'F']];
-    const g7 = [['B', 'D', 'F', 'A'], ['B', 'F', 'A', 'D'], ['F', 'A', 'B', 'D'], ['A', 'D', 'F', 'B']]
-    expect(getVoicingCombinations(['F', 'A', 'C', 'E'])).toEqual(dmin);
-    expect(getVoicingCombinations(['B', 'D', 'F', 'A'])).toEqual(g7);
-
-    expect(bestCombination(dmin[0], g7)).toEqual(['F', 'A', 'B', 'D']);
-    expect(bestCombination(dmin[1], g7)).toEqual(['B', 'D', 'F', 'A']);
-    expect(bestCombination(dmin[2], g7)).toEqual(['F', 'A', 'B', 'D']);
-
-    expect(bestCombination(dmin[0], g7)).toEqual(['F', 'A', 'B', 'D']);
-});
 
 test('getChordNotes', () => {
     expect(getChordNotes('C#-7')).toEqual(['C#', 'E', 'G#', 'B']);
     expect(getChordNotes('C#-7', (note, { degree }) => degree !== 1)).toEqual(['E', 'G#', 'B']);
     expect(getChordNotes('C#-7', validateWithoutRoot)).toEqual(['E', 'G#', 'B']);
-});
-
-test('getNextVoicing', () => {
-    /* expect(getNextVoicing('C-7', ['D4', 'F4', 'A4', 'C5'])).toEqual(['Bb3', 'Eb4', 'G4', 'C5']); */
-    /* expect(getNextVoicing('C-7', ['A3', 'C4', 'D4', 'F4'])).toEqual(['G3', 'Bb3', 'C4', 'Eb4']); */
-    expect(getNextVoicing('G', ['C4', 'E4', 'G4'])).toEqual(['B3', 'D4', 'G4']);
-
-    /* let voicing;
-    let times = 5;
-    for (let i = 0; i < times; ++i) {
-        Note.names(' ').concat(['C']).forEach(note => {
-            voicing = getNextVoicing(note + '-7', voicing, ['F3', 'C5']);
-        });
-    }  */
 });

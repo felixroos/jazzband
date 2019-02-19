@@ -13,7 +13,7 @@ import { bossa } from '../src/grooves/bossa';
 import { Snippet } from '../src/sheet/Snippet';
 import { Sheet } from '../src/sheet/Sheet';
 import * as Tone from 'tone';
-import { Logger } from '../src/Logger';
+import { Logger } from '../src/util/Logger';
 
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
@@ -192,7 +192,7 @@ function playSheet(chords, melody = false) {
             }
             const chord = event.chord;
             latest = voicing || latest;
-            voicing = jazz.util.getNextVoicing(chord, latest, range, 5);
+            voicing = jazz.Voicing.getNextVoicing(chord, latest, range, 5);
             if (voicing) {
                 piano.triggerAttackRelease(voicing, "1n");
                 const note = chord.match((/[A-G][b|#]?/))[0] + '2';

@@ -8,11 +8,13 @@ import { Synthesizer } from './instruments/Synthesizer';
 import { Sampler } from './instruments/Sampler';
 import { PlasticDrums } from './instruments/PlasticDrums';
 import { Trio } from './Trio';
-import * as util from './util';
+import * as util from './util/util';
 import { Pulse } from './Pulse';
 import { RealParser } from './sheet/RealParser';
 import { MidiOut } from './instruments/MidiOut';
 import Permutator from './musicians/Permutator';
+import { Voicing } from './harmony/Voicing';
+import { Permutation } from './util/Permutation';
 /* import { WebAudioFont } from './instruments/WebAudioFont'; */
 
 export {
@@ -21,15 +23,17 @@ export {
     Pianist,
     Bassist,
     Drummer,
-    Permutator,
     Instrument,
     Musician,
     Synthesizer,
     Sampler,
     /* WebAudioFont, */
+    Permutator,
     MidiOut,
     PlasticDrums,
     Pulse,
     util,
-    RealParser
+    RealParser,
+    Voicing,
+    Permutation
 };

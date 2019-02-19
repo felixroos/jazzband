@@ -1,4 +1,4 @@
-import { Synthesizer } from './instruments/Synthesizer';
+import { Synthesizer } from '../instruments/Synthesizer';
 export declare function randomNumber(n: any): number;
 export declare function arraySum(array: any): any;
 export declare function randomElement(array: any, weighted?: any): any;
@@ -33,7 +33,7 @@ export declare function sortMinInterval(preferredDirection?: intervalDirection, 
 /** Returns the note with the least distance to "from" */
 export declare function getNearestNote(from: any, to: any, direction?: intervalDirection): any;
 /** Returns the note with the least distance to "from". TODO: add range */
-export declare function getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection): any;
+export declare function getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
 export declare function intervalMatrix(from: any, to: any): any;
 export declare function randomSynth(mix: any, allowed?: string[], settings?: {}): Synthesizer;
 export interface ADSRParams {
@@ -99,7 +99,6 @@ export declare function analyzeVoicing(notes: any, root?: any): {
     intervals: any;
     spread: any;
 };
-export declare function analyzeVoiceLeading(voicings: any, min?: boolean): any;
 export declare function minIntervals(chordA: any, chordB: any): any;
 export declare function semitoneDifference(intervals: any): any;
 export declare function semitoneMovement(intervals: any): any;
@@ -113,9 +112,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
-export declare function bestCombination(notes: any, combinations?: any[]): any;
-export declare function sortCombinationsByMovement(notes: any, combinations: any, direction?: intervalDirection, min?: boolean): any;
+export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

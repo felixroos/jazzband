@@ -1,4 +1,4 @@
-import { intervalDirection } from './util';
+import { intervalDirection } from '../util/util';
 declare type VoicingValidation = {
     maxDistance?: number;
     minBottomDistance?: number;
@@ -20,7 +20,7 @@ export declare class Voicing {
         array: any;
     }) => boolean): (path: any, next: any, array: any) => boolean;
     static notesAtPositionValidator(notes: any[], position: any): (selected: any, note: any, remaining: any) => boolean;
-    static voicingValidator(options?: VoicingValidation): (path: any, next: any, array: any) => any;
+    static voicingValidator(options?: VoicingValidation): (path: any, next: any, array: any) => boolean;
     static getVoicingCombinations(notes: any, options?: VoicingValidation, validator?: (path: any, next: any, array: any) => boolean): any;
     static voiceLeading(chordA: any, chordB: any): any;
     static bestVoiceLeading(chordA: any, chordB: any, sortFn?: any): any;

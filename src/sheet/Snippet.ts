@@ -1,7 +1,7 @@
 import * as JsDiff from 'diff';
 import { Measure } from './Measure';
 import { Sheet } from './Sheet';
-import { isSameNote, noteArray } from '../util';
+import { isSameNote, noteArray } from '../util/util';
 
 export class Snippet {
 
