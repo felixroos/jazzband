@@ -3,6 +3,7 @@ import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
 import { swing } from '../grooves/swing';
 import { Voicing } from '../harmony/Voicing';
+import { Note } from 'tonal';
 
 export default class Pianist extends Musician {
     name = 'Pianist';
@@ -103,7 +104,7 @@ export default class Pianist extends Musician {
         this.playedChords.push(chord);
 
         let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), this.range); // TODO: range currently only respects first note
-
+        notes = notes.map(note => Note.simplify(note));
 
         /*         if (this.playedNotes.length > 1) {
                     const { movement, averageDifference, latestDifference, latestMovement } = analyzeVoiceLeading(this.playedNotes);

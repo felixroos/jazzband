@@ -22,7 +22,6 @@ test('Voicing.getAvailableTensions', () => {
     expect(Voicing.getAvailableTensions('C7sus4')).toEqual(['Db', 'D', 'D#', 'E', 'Ab', 'A']);
     expect(Voicing.getAvailableTensions('C7#5')).toEqual(['Db', 'D', 'D#', 'F#', 'A']);
 });
-
 test('Voicing.getRequiredNotes', () => {
     expect(Voicing.getRequiredNotes('C^7')).toEqual(['E', 'B']);
     expect(Voicing.getRequiredNotes('C7')).toEqual(['E', 'Bb']);

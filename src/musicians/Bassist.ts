@@ -1,7 +1,8 @@
-import { resolveChords, getTonalChord, randomElement, randomDelay } from '../util/util';
+import { resolveChords, randomElement, randomDelay } from '../util/util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';
+import { Harmony } from '../harmony/Harmony';
 
 export default class Bassist extends Musician {
     name = 'Bassist';
@@ -29,7 +30,7 @@ export default class Bassist extends Musician {
     }
 
     getStep(step, chord, octave = 2) {
-        const tokens = Chord.tokenize(getTonalChord(chord));
+        const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
         const interval = Chord.intervals(tokens[1]).find(i => parseInt(i[0]) === step);
         return Distance.transpose(tokens[0] + octave, interval);
     }
@@ -53,7 +54,7 @@ export default class Bassist extends Musician {
         if (value.value === 1 && chord.split('/').length > 1) {
             note = chord.split('/')[1] + octave;
         } else {
-            note = this.getStep(steps[path[1]], getTonalChord(chord), octave);
+            note = this.getStep(steps[path[1]], Harmony.getTonalChord(chord), octave);
         }
         const duration = value.fraction * pulse.getMeasureLength();
 

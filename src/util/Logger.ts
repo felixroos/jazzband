@@ -1,6 +1,7 @@
-import { isSameNote, noteArray, isBlack, getRangePosition } from './util';
+import { noteArray, getRangePosition } from './util';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
+import { Harmony } from '../harmony/Harmony';
 
 export class Logger {
     static emoji = {
@@ -120,10 +121,10 @@ export class Logger {
         ];
         const allNotes = noteArray(span);
         const keyboard = allNotes.map((note, index) => {
-            const active = !!activeNotes.find(n => isSameNote(note, n));
-            const idle = !!idleNotes.find(n => isSameNote(note, n));
-            const added = !!addedNotes.find(n => isSameNote(note, n));
-            const black = isBlack(note);
+            const active = !!activeNotes.find(n => Harmony.isSameNote(note, n));
+            const idle = !!idleNotes.find(n => Harmony.isSameNote(note, n));
+            const added = !!addedNotes.find(n => Harmony.isSameNote(note, n));
+            const black = Harmony.isBlack(note);
             let css = '', sign = '_';
             if (added && !black) {
                 css = 'color:green;';
@@ -172,8 +173,8 @@ export class Logger {
     static logVoicing({ chord, lastVoicing, bestPick, pick, range, choice, direction, choices, force }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
         lastVoicing = lastVoicing || [];
-        const idle = lastVoicing.filter(n => pick.find(p => isSameNote(n, p)));
-        const active = pick.filter(n => !lastVoicing.find(p => isSameNote(n, p)))
+        const idle = lastVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
+        const active = pick.filter(n => !lastVoicing.find(p => Harmony.isSameNote(n, p)))
         const added = choice ? choice.added : [];
         let konsole = Logger.logNotes(active, idle, added, range);
         const movement = choice ? choice.movement : 0;

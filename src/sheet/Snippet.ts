@@ -1,7 +1,7 @@
 import * as JsDiff from 'diff';
 import { Measure } from './Measure';
 import { Sheet } from './Sheet';
-import { isSameNote, noteArray } from '../util/util';
+import { noteArray } from '../util/util';
 
 export class Snippet {
 
@@ -287,11 +287,5 @@ export class Snippet {
         return JsDiff.diffWords(
             diffFormat[0], diffFormat[1]
         );
-    }
-
-    static voicing(notes, range) {
-        return noteArray(range)
-            .map(note => !!notes.find(n => isSameNote(note, n)) ? '|' : '-')
-            .join('')
     }
 }

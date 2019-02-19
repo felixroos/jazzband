@@ -1,4 +1,4 @@
-import { intervalDirection } from '../util/util';
+import { intervalDirection } from './Harmony';
 declare type VoicingValidation = {
     maxDistance?: number;
     minBottomDistance?: number;

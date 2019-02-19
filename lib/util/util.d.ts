@@ -1,12 +1,10 @@
 import { Synthesizer } from '../instruments/Synthesizer';
+import { step, intervalDirection } from '../harmony/Harmony';
 export declare function randomNumber(n: any): number;
 export declare function arraySum(array: any): any;
 export declare function randomElement(array: any, weighted?: any): any;
 export declare function shuffleArray(a: any): any;
-export declare function isBlack(note: any): boolean;
-export declare function isSameNote(noteA: any, noteB: any): boolean;
-export declare function getTonalChord(chord: string): any;
-export declare function getMidi(note: any, offset?: number): number;
+/** OLD SHEET / RHYTHM STUFF */
 /** Travels path along measures */
 export declare function getPath(path: any, measures: any, traveled?: any[]): any;
 export declare function getDuration(divisions: any, noteLength?: number, measureLength?: number): number;
@@ -19,22 +17,6 @@ export declare function resolveChords(pattern: any, measures: any, path: any, di
 };
 export declare function hasOff(pattern: any, division?: number): boolean;
 export declare function offbeatReducer(settings: any): (measures: any, bar: any, index: any) => any;
-export declare function intervalComplement(interval: any): any;
-export declare function invertInterval(interval: any): string;
-/** Transforms interval into one octave (octave+ get octaved down) */
-export declare function fixInterval(interval?: string, simplify?: boolean): string;
-export declare type intervalDirection = 'up' | 'down';
-export declare type step = string | number;
-/** inverts the interval if it does not go to the desired direction */
-export declare function forceDirection(interval: any, direction: intervalDirection, noUnison?: boolean): any;
-export declare function minInterval(interval: any, direction?: intervalDirection, noUnison?: any): any;
-export declare function mapMinInterval(direction?: intervalDirection): (interval: any) => any;
-export declare function sortMinInterval(preferredDirection?: intervalDirection, accessor?: (i: any) => any): (a: any, b: any) => number;
-/** Returns the note with the least distance to "from" */
-export declare function getNearestNote(from: any, to: any, direction?: intervalDirection): any;
-/** Returns the note with the least distance to "from". TODO: add range */
-export declare function getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
-export declare function intervalMatrix(from: any, to: any): any;
 export declare function randomSynth(mix: any, allowed?: string[], settings?: {}): Synthesizer;
 export interface ADSRParams {
     attack?: number;
@@ -99,7 +81,6 @@ export declare function analyzeVoicing(notes: any, root?: any): {
     intervals: any;
     spread: any;
 };
-export declare function minIntervals(chordA: any, chordB: any): any;
 export declare function semitoneDifference(intervals: any): any;
 export declare function semitoneMovement(intervals: any): any;
 export declare function longestChild(array: any[][]): any[];
@@ -112,7 +93,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
+export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

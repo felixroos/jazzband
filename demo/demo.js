@@ -262,7 +262,7 @@ window.onload = function () {
         console.log(standard.composer + ' - ' + standard.title + "\n\n" + snippet);
         console.log(standard.composer + ' - ' + standard.title + " (expanded)\n\n" + Snippet.expand(snippet, { forms }));
 
-        return playSheet(standard.music.measures);
+        /* return playSheet(standard.music.measures); */
 
         console.log('groove', groove);
         // const bpm = 70 + Math.random() * 100;

@@ -1,7 +1,8 @@
 import { swing } from "../grooves/swing";
 import { Note } from 'tonal';
-import { getPatternInChord, randomElement, getNearestTargets, transposeToRange, getDigitalPattern, shuffleArray, getRangePosition, otherDirection, getStepInChord } from "../util/util";
+import { getPatternInChord, randomElement, transposeToRange, getDigitalPattern, getRangePosition, otherDirection, getStepInChord } from "../util/util";
 import { Improvisation } from "./Improvisation";
+import { Harmony } from '../harmony/Harmony';
 
 export const permutator = new Improvisation({
     groove: swing,
@@ -36,7 +37,7 @@ export const permutator = new Improvisation({
                 console.warn('no choice..')
                 return;
             }
-            let targets = getNearestTargets(lastNote(), material(), direction(), flip());
+            let targets = Harmony.getNearestTargets(lastNote(), material(), direction(), flip());
             targets = targets.slice(0, reach());
             note = randomElement(targets);
             note = Note.simplify(note, true);

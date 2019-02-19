@@ -1,6 +1,7 @@
 import { Chord, Distance, Interval, Note, PcSet, Scale } from 'tonal';
 import { Synthesizer } from '../instruments/Synthesizer';
 import { scaleNames } from '../symbols';
+import { Harmony, step, intervalDirection } from '../harmony/Harmony';
 
 const steps = {
     '1P': ['1', '8'],
@@ -65,34 +66,7 @@ export function shuffleArray(a) {
     return a;
 }
 
-export function isBlack(note) {
-    return Note.props(note).acc !== '';
-}
-
-export function isSameNote(noteA, noteB) {
-    return Note.midi(noteA) === Note.midi(noteB);
-}
-
-export function getTonalChord(chord: string) {
-    chord = chord
-        .replace('-', 'm')
-        .replace('^', 'M')
-        .replace('h7', 'm7b5')
-        .replace('h', 'dim');
-    /**
-     * Chords that dont work:
-     * slash cords are ignored
-     * 7b9b5 does not work
-     * 
-     */
-    const tokens = Chord.tokenize(chord);
-    const s = tokens[1].split('/');
-    return tokens[0] + (s[0] || 'M');
-}
-
-export function getMidi(note, offset = 0) {
-    return Note.midi(note) - offset;
-}
+/** OLD SHEET / RHYTHM STUFF */
 
 /** Travels path along measures */
 export function getPath(path, measures, traveled = []) {
@@ -142,128 +116,6 @@ export function offbeatReducer(settings) {
     };
 }
 
-export function intervalComplement(interval) {
-    const fix = {
-        '8P': '1P',
-        '8d': '1A',
-        '8A': '1d',
-        '1A': '8d',
-        '1d': '8A',
-    }
-    const fixIndex = Object.keys(fix).find(key => interval.match(key));
-    if (fixIndex) {
-        return fix[fixIndex];
-    }
-
-    return Interval.invert(interval);
-}
-
-export function invertInterval(interval) {
-    if (!interval) {
-        return null;
-    }
-    const positive = interval.replace('-', '');
-    const complement = intervalComplement(positive);
-    const isNegative = interval.length > positive.length;
-    return (isNegative ? '' : '-') + complement;
-}
-
-/** Transforms interval into one octave (octave+ get octaved down) */
-export function fixInterval(interval = '', simplify = false) {
-    let fix: { [key: string]: string } = {
-        '0A': '1P',
-        '-0A': '1P',
-        /*  */
-    }
-    if (simplify) {
-        fix = {
-            ...fix,
-            '8P': '1P',
-            '-8P': '1P',
-            /* '-1A': '-2m',
-            '1A': '2m',
-            '8d': '7M',
-            '-8d': '-7M', */
-        }
-        interval = Interval.simplify(interval);
-    }
-    if (Object.keys(fix).includes(interval)) {
-        return fix[interval];
-    }
-    return interval;
-}
-
-export declare type intervalDirection = 'up' | 'down';
-export declare type step = string | number;
-
-/** inverts the interval if it does not go to the desired direction */
-export function forceDirection(interval, direction: intervalDirection, noUnison = false) {
-    const semitones = Interval.semitones(interval);
-    if ((direction === 'up' && semitones < 0) ||
-        (direction === 'down' && semitones > 0)) {
-        return invertInterval(interval);
-    }
-    if (interval === '1P' && noUnison) {
-        return (direction === 'down' ? '-' : '') + '8P';
-    }
-    return interval;
-}
-
-// use Interval.ic?
-export function minInterval(interval, direction?: intervalDirection, noUnison?) {
-    interval = fixInterval(interval, true);
-    if (direction) {
-        return forceDirection(interval, direction, noUnison)
-    }
-    let inversion = invertInterval(interval);
-    if (Math.abs(Interval.semitones(inversion)) < Math.abs(Interval.semitones(interval))) {
-        interval = inversion;
-    }
-    return interval;
-}
-
-export function mapMinInterval(direction?: intervalDirection) {
-    return (interval) => minInterval(interval, direction);
-}
-
-// sort function
-export function sortMinInterval(preferredDirection: intervalDirection = 'up', accessor = (i => i)) {
-    return (a, b) => {
-        const diff = Math.abs(Interval.semitones(accessor(a))) - Math.abs(Interval.semitones(accessor(b)));
-        if (diff === 0) {
-            return preferredDirection === 'up' ? -1 : 1;
-        }
-        return diff;
-    }
-}
-
-/** Returns the note with the least distance to "from" */
-export function getNearestNote(from, to, direction?: intervalDirection) {
-    let interval = minInterval(Distance.interval(Note.pc(from), Note.pc(to)), direction);
-    return Distance.transpose(from, interval);
-}
-
-/** Returns the note with the least distance to "from". TODO: add range */
-export function getNearestTargets(from, targets, preferredDirection: intervalDirection = 'down', flip = false) {
-    let intervals = targets
-        .map((target) => Distance.interval(Note.pc(from), target))
-        .map(mapMinInterval(preferredDirection))
-        .sort(sortMinInterval(preferredDirection))
-    /* if (flip) {
-        intervals = intervals.reverse();
-    } */
-    return intervals.map(i => Distance.transpose(from, i));
-}
-
-export function intervalMatrix(from, to) {
-    return to.map(note => from
-        .map(n => {
-            return Distance.interval(n, note)
-        })
-        .map(d => minInterval(d))
-        /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
-    )
-}
 
 export function randomSynth(mix, allowed = ['sine', 'triangle', 'square', 'sawtooth'], settings = {}) {
     const gains = {
@@ -325,12 +177,12 @@ export function transposeToRange(notes, range, times = 0) {
 }
 
 export function getAverageMidi(notes, offset?) {
-    return notes.reduce((sum, note) => sum + getMidi(note, offset), 0) / notes.length;
+    return notes.reduce((sum, note) => sum + Harmony.getMidi(note, offset), 0) / notes.length;
 }
 
 export function getRangePosition(note: string | number, range) {
-    note = getMidi(note);
-    range = range.map(n => getMidi(n));
+    note = Harmony.getMidi(note);
+    range = range.map(n => Harmony.getMidi(n));
     const semitones = [note - range[0], range[1] - range[0]];
     return semitones[0] / semitones[1];
 }
@@ -373,13 +225,13 @@ export function getStepsFromDegree(degree) {
 export function getStepInChord(note, chord, group?) {
     return getStepFromInterval(
         Distance.interval(
-            Chord.tokenize(getTonalChord(chord))[0],
+            Chord.tokenize(Harmony.getTonalChord(chord))[0],
             Note.pc(note))
     );
 }
 
 export function getChordScales(chord, group = 'Diatonic') {
-    const tokens = Chord.tokenize(getTonalChord(chord));
+    const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
     const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1]));
     return scaleNames(group).filter(name => isSuperset(Scale.intervals(name)));
 }
@@ -399,7 +251,7 @@ export function findDegree(degreeOrStep: number | step, intervalsOrSteps: string
     if (typeof degreeOrStep === 'number') { // is degree
         const degree = Math.abs(degreeOrStep);
         return intervals.find(i => {
-            i = minInterval(i, 'up');
+            i = Harmony.minInterval(i, 'up');
             if (!steps[i]) {
                 console.error('interval', i, 'is not valid', intervals);
             }
@@ -446,7 +298,7 @@ export function getStepFromInterval(interval) {
 }
 
 export function getDegreeFromInterval(interval = '-1', simplify = false) {
-    const fixed = fixInterval(interval, simplify) || '';
+    const fixed = Harmony.fixInterval(interval, simplify) || '';
     const match = fixed.match(/[-]?([1-9])+/);
     if (!match) {
         return 0;
@@ -460,14 +312,14 @@ export function getDegreeFromStep(step: step) {
 }
 
 export function getDegreeInChord(degree, chord) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const intervals = Chord.intervals(chord);
     const tokens = Chord.tokenize(chord);
     return Distance.transpose(tokens[0], findDegree(degree, intervals));
 }
 
 export function getPatternInChord(pattern, chord) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const intervals = Chord.intervals(chord);
     const tokens = Chord.tokenize(chord);
     let permutation;
@@ -490,7 +342,7 @@ export function getPatternInChord(pattern, chord) {
 // TODO: motives aka start pattern from different note in different scale
 
 export function getDigitalPattern(chord) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const intervals = Chord.intervals(chord);
     if (intervals.includes('3m')) {
         return [1, 3, 4, 5];
@@ -506,7 +358,7 @@ export function renderDigitalPattern(chord) {
 }
 
 export function getGuideTones(chord) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     return getPatternInChord([3, 7], chord);
 }
 
@@ -576,7 +428,7 @@ export function renderAbsoluteNotes(notes, octave = 3, direction: intervalDirect
             return [current + octave];
         }
         let interval = Distance.interval(notes[index - 1], current);
-        interval = minInterval(interval, direction);
+        interval = Harmony.minInterval(interval, direction);
         if (interval === '1P') {
             interval = direction === 'down' ? '-8P' : '8P';
         }
@@ -609,7 +461,7 @@ export function smallestInterval(intervals) {
 }
 
 export function sortNotes(notes, direction: intervalDirection = 'up') {
-    return notes.sort((a, b) => getMidi(a) - getMidi(b));
+    return notes.sort((a, b) => Harmony.getMidi(a) - Harmony.getMidi(b));
 }
 
 export function analyzeVoicing(notes, root?) {
@@ -619,7 +471,7 @@ export function analyzeVoicing(notes, root?) {
     notes = sortNotes(notes);
     root = root || notes[0]; // TODO: get degrees
     const intervals = getIntervals(notes);
-    const sortedIntervals = intervals.sort(sortMinInterval());
+    const sortedIntervals = intervals.sort(Harmony.sortMinInterval());
     return {
         notes,
         minInterval: sortedIntervals[0],
@@ -629,10 +481,6 @@ export function analyzeVoicing(notes, root?) {
     }
 }
 
-// returns array of intervals that lead the voices of chord A to chordB
-export function minIntervals(chordA, chordB) {
-    return chordA.map((n, i) => minInterval(Distance.interval(n, chordB[i])));
-}
 
 export function semitoneDifference(intervals) {
     return intervals.reduce((semitones, interval) => {
@@ -702,7 +550,7 @@ Intervals can be appendend with "?" to indicate that those degrees could also be
 (but when present they should match)
 */
 export function chordHasIntervals(chord, intervals) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const has = Chord.intervals(chord);
     return intervals.reduce((match, current) => {
         const isOptional = current.includes('?');
@@ -749,7 +597,7 @@ export function getChordType(chord) {
 }
 
 export function getChordNotes(chord, validate?) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const tokens = Chord.tokenize(chord);
     const notes = Chord.notes(chord);
     return notes.filter(note => {
@@ -775,7 +623,7 @@ export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }
     omitRoot?: boolean,
     quartal?: boolean
 } = {}) {
-    chord = getTonalChord(chord);
+    chord = Harmony.getTonalChord(chord);
     const tokens = Chord.tokenize(chord);
     let notes = Chord.notes(chord);
     if (omitRoot) {

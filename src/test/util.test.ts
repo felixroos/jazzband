@@ -3,74 +3,17 @@ import {
     getChordNotes,
     validateWithoutRoot,
     semitoneDifference,
-    getMidi,
     getAverageMidi,
 } from '../util/util';
 import { Scale } from 'tonal';
-import { Chord } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { Note } from 'tonal';
+import { Harmony } from '../harmony/Harmony';
 
 test('getIntervalFromStep: undefined', () => {
     expect(util.getIntervalFromStep('d3g2g3')).toEqual(undefined);
 });
-
-test('isBlack', () => {
-    expect(util.isBlack('B3')).toEqual(false);
-    expect(util.isBlack('Ab3')).toEqual(true);
-    expect(util.isBlack('Bb3')).toEqual(true);
-    expect(util.isBlack('C3')).toEqual(false);
-});
-test('isSame', () => {
-    expect(util.isSameNote('Bb3', 'A#3')).toEqual(true);
-    expect(util.isSameNote('Cb3', 'B2')).toEqual(true);
-    expect(util.isSameNote('A3', 'A2')).toEqual(false);
-    expect(util.isSameNote('A3', 'B2')).toEqual(false);
-    expect(util.isSameNote('A3', 'A2')).toEqual(false);
-});
-
-/* 
-test('voiceLeading', () => {
-    expect(util.voiceLeading(['C', 'E', 'G', 'B'], ['E', 'G', 'B'])).toEqual([
-        { note: 'C', interval: null },
-        { note: 'E', interval: '1P' },
-        { note: 'G', interval: '1P' },
-        { note: 'B', interval: '1P' },
-    ]);
-
-    expect(util.voiceLeading(['E', 'G', 'B'], ['C', 'E', 'G', 'B'])).toEqual([
-        { note: 'C', interval: null },
-        { note: 'E', interval: '1P' },
-        { note: 'G', interval: '1P' },
-        { note: 'B', interval: '1P' },
-    ]);
-
-    expect(util.voiceLeading(['C', 'E', 'G', 'A'], ['E', 'G', 'B'])).toEqual([
-        { note: 'C', interval: null },
-        { note: 'E', interval: '1P' },
-        { note: 'G', interval: '1P' },
-        { note: 'A', interval: '2M' },
-    ]);
-    expect(util.voiceLeading(['E', 'G', 'B'], ['C', 'E', 'G', 'A'])).toEqual([
-        { note: 'C', interval: null },
-        { note: 'E', interval: '1P' },
-        { note: 'G', interval: '1P' },
-        { note: 'A', interval: '-2M' },
-    ]);
-
-}); */
-
-/* test('minVoiceDifference', () => {
-    expect(util.minVoiceDifference(['C', 'E', 'G', 'B'], ['E', 'G', 'B'])).toEqual(0);
-    expect(util.minVoiceDifference(['E', 'G', 'B'], ['C', 'E', 'G', 'B'])).toEqual(0);
-    expect(util.minVoiceDifference(['C', 'E', 'G', 'B'], ['E', 'G', 'C'])).toEqual(1);
-    expect(util.minVoiceDifference(['E', 'G', 'C'], ['C', 'E', 'G', 'B'])).toEqual(1);
-    expect(util.minVoiceMovement(['C', 'E', 'G', 'B'], ['E', 'G', 'B'])).toEqual(0);
-    expect(util.minVoiceMovement(['E', 'G', 'B'], ['C', 'E', 'G', 'B'])).toEqual(0);
-    expect(util.minVoiceMovement(['C', 'E', 'G', 'B'], ['E', 'G', 'Bb'])).toEqual(-1);
-    expect(util.minVoiceMovement(['C', 'E', 'G', 'B'], ['E', 'G', 'C'])).toEqual(1);
-}); */
 
 test('getIntervalFromStep: numbers', () => {
     expect(util.getIntervalFromStep(1)).toEqual('1P');
@@ -88,13 +31,6 @@ test('getIntervalFromStep: strings', () => {
     expect(util.getIntervalFromStep('1')).toEqual('1P');
     expect(util.getIntervalFromStep('b2')).toEqual('2m');
     expect(util.getIntervalFromStep('b3')).toEqual('3m');
-});
-
-test('getMidi', () => {
-    expect(getMidi('A4')).toBe(69);
-    expect(Note.midi('A4')).toBe(69);
-    expect(Note.midi(69)).toBe(69);
-    expect(getMidi(69)).toBe(69);
 });
 
 test('getChordScales', () => {
@@ -214,38 +150,38 @@ test('getGuideTones', () => {
 });
 
 test('fixInterval', () => {
-    expect(util.fixInterval('8P')).toBe('8P');
-    expect(util.fixInterval('8P', true)).toBe('1P');
-    expect(util.fixInterval('-8P')).toBe('-8P');
-    expect(util.fixInterval('-8P', true)).toBe('1P');
-    expect(util.fixInterval('1P')).toBe('1P');
-    expect(util.fixInterval('0A')).toBe('1P');
-    expect(util.fixInterval('-0A')).toBe('1P');
-    expect(util.fixInterval('2A')).toBe('2A');
-    expect(util.fixInterval('5A')).toBe('5A');
-    expect(util.fixInterval('9M', true)).toBe('2M');
-    expect(util.fixInterval('-9M', true)).toBe('-2M');
-    expect(util.fixInterval('-2M')).toBe('-2M');
+    expect(Harmony.fixInterval('8P')).toBe('8P');
+    expect(Harmony.fixInterval('8P', true)).toBe('1P');
+    expect(Harmony.fixInterval('-8P')).toBe('-8P');
+    expect(Harmony.fixInterval('-8P', true)).toBe('1P');
+    expect(Harmony.fixInterval('1P')).toBe('1P');
+    expect(Harmony.fixInterval('0A')).toBe('1P');
+    expect(Harmony.fixInterval('-0A')).toBe('1P');
+    expect(Harmony.fixInterval('2A')).toBe('2A');
+    expect(Harmony.fixInterval('5A')).toBe('5A');
+    expect(Harmony.fixInterval('9M', true)).toBe('2M');
+    expect(Harmony.fixInterval('-9M', true)).toBe('-2M');
+    expect(Harmony.fixInterval('-2M')).toBe('-2M');
 });
 
 test('minInterval', () => {
-    expect(util.minInterval('9M')).toBe('2M');
-    expect(util.minInterval('9M')).toBe('2M');
-    expect(util.minInterval('8P')).toBe('1P');
-    expect(util.minInterval('2m')).toBe('2m');
-    expect(util.minInterval('-7M')).toBe('2m');
-    expect(util.minInterval('-7M', 'up')).toBe('2m');
-    expect(util.minInterval('-7M', 'down')).toBe('-7M');
-    expect(util.minInterval('2m', 'down')).toBe('-7M');
-    expect(util.minInterval('2m', 'up')).toBe('2m');
-    expect(util.minInterval('13M', 'up')).toBe('6M');
-    expect(util.minInterval('1P')).toBe('1P');
-    expect(util.minInterval('1P', 'down')).toBe('1P');
-    expect(util.minInterval('1P', 'up')).toBe('1P');
-    expect(util.minInterval('1P', 'up', true)).toBe('8P');
-    expect(util.minInterval('1P', 'down', true)).toBe('-8P');
+    expect(Harmony.minInterval('9M')).toBe('2M');
+    expect(Harmony.minInterval('9M')).toBe('2M');
+    expect(Harmony.minInterval('8P')).toBe('1P');
+    expect(Harmony.minInterval('2m')).toBe('2m');
+    expect(Harmony.minInterval('-7M')).toBe('2m');
+    expect(Harmony.minInterval('-7M', 'up')).toBe('2m');
+    expect(Harmony.minInterval('-7M', 'down')).toBe('-7M');
+    expect(Harmony.minInterval('2m', 'down')).toBe('-7M');
+    expect(Harmony.minInterval('2m', 'up')).toBe('2m');
+    expect(Harmony.minInterval('13M', 'up')).toBe('6M');
+    expect(Harmony.minInterval('1P')).toBe('1P');
+    expect(Harmony.minInterval('1P', 'down')).toBe('1P');
+    expect(Harmony.minInterval('1P', 'up')).toBe('1P');
+    expect(Harmony.minInterval('1P', 'up', true)).toBe('8P');
+    expect(Harmony.minInterval('1P', 'down', true)).toBe('-8P');
     expect(Interval.simplify('3')).toBe(null);
-    expect(util.minInterval('3')).toBe(null);
+    expect(Harmony.minInterval('3')).toBe(null);
 });
 
 
@@ -262,106 +198,106 @@ test('isInterval', () => {
 
 test('mapMinInterval', () => {
     expect(['2M', '2m', '7M', '4P']
-        .map(util.mapMinInterval('up')))
+        .map(Harmony.mapMinInterval('up')))
         .toEqual(['2M', '2m', '7M', '4P']);
     expect(['2M', '2m', '7M', '4P']
-        .map(util.mapMinInterval('down')))
+        .map(Harmony.mapMinInterval('down')))
         .toEqual(['-7m', '-7M', '-2m', '-5P']);
 
-    expect(util.minInterval('7M')).toBe('-2m');
+    expect(Harmony.minInterval('7M')).toBe('-2m');
 
     expect(['2M', '2m', '7M', '4P']
-        .map(util.mapMinInterval()))
+        .map(Harmony.mapMinInterval()))
         .toEqual(['2M', '2m', '-2m', '4P']);
 });
 
 test('sortMinIntervals', () => {
     expect(['2M', '2m', '-2m', '4P']
-        .sort(util.sortMinInterval()))
+        .sort(Harmony.sortMinInterval()))
         .toEqual(['2m', '-2m', '2M', '4P']);
 });
 
 test('invertInterval', () => {
-    expect(util.invertInterval('1A')).toEqual('-8d');
-    expect(util.invertInterval('-1A')).toEqual('8d');
+    expect(Harmony.invertInterval('1A')).toEqual('-8d');
+    expect(Harmony.invertInterval('-1A')).toEqual('8d');
 });
 
 test('forceDirection', () => {
-    expect(util.forceDirection('-2M', 'up')).toEqual('7m');
-    expect(util.forceDirection('-2M', 'down')).toEqual('-2M');
-    expect(util.forceDirection('3M', 'up')).toEqual('3M');
-    expect(util.forceDirection('3M', 'down')).toEqual('-6m');
-    expect(util.forceDirection('-8A', 'down')).toEqual('-8A');
-    expect(util.forceDirection('-8P', 'up')).toEqual('1P');
-    /* expect(util.forceDirection('-8P', 'up',true)).toEqual('8P'); */
-    expect(util.forceDirection('1A', 'down')).toEqual('-8d');
+    expect(Harmony.forceDirection('-2M', 'up')).toEqual('7m');
+    expect(Harmony.forceDirection('-2M', 'down')).toEqual('-2M');
+    expect(Harmony.forceDirection('3M', 'up')).toEqual('3M');
+    expect(Harmony.forceDirection('3M', 'down')).toEqual('-6m');
+    expect(Harmony.forceDirection('-8A', 'down')).toEqual('-8A');
+    expect(Harmony.forceDirection('-8P', 'up')).toEqual('1P');
+    /* expect(Harmony.forceDirection('-8P', 'up',true)).toEqual('8P'); */
+    expect(Harmony.forceDirection('1A', 'down')).toEqual('-8d');
 });
 
 test('getNearestNote', () => {
     expect(Distance.interval('C', 'G')).toBe('5P');
-    expect(util.intervalComplement('5P')).toBe('4P');
-    expect(util.invertInterval('5P')).toBe('-4P');
-    expect(util.minInterval('5P')).toBe('-4P');
+    expect(Harmony.intervalComplement('5P')).toBe('4P');
+    expect(Harmony.invertInterval('5P')).toBe('-4P');
+    expect(Harmony.minInterval('5P')).toBe('-4P');
 
-    expect(util.getNearestNote('C4', 'G')).toBe('G3');
-    expect(util.getNearestNote('C4', 'G2')).toBe('G3');
-    expect(util.getNearestNote('C4', 'F')).toBe('F4');
-    expect(util.getNearestNote('C4', 'F', 'down')).toBe('F3');
-    expect(util.getNearestNote('C4', 'F', 'up')).toBe('F4');
+    expect(Harmony.getNearestNote('C4', 'G')).toBe('G3');
+    expect(Harmony.getNearestNote('C4', 'G2')).toBe('G3');
+    expect(Harmony.getNearestNote('C4', 'F')).toBe('F4');
+    expect(Harmony.getNearestNote('C4', 'F', 'down')).toBe('F3');
+    expect(Harmony.getNearestNote('C4', 'F', 'up')).toBe('F4');
 
-    expect(util.intervalComplement('8P')).toBe('1P');
-    expect(util.intervalComplement('8A')).toBe('1d');
-    expect(util.intervalComplement('8d')).toBe('1A');
+    expect(Harmony.intervalComplement('8P')).toBe('1P');
+    expect(Harmony.intervalComplement('8A')).toBe('1d');
+    expect(Harmony.intervalComplement('8d')).toBe('1A');
 
     expect(Interval.invert('7m')).toBe('2M');
 
 
-    expect(util.invertInterval('8d')).toBe('-1A');
-    expect(util.minInterval('8d')).toBe('-1A');
+    expect(Harmony.invertInterval('8d')).toBe('-1A');
+    expect(Harmony.minInterval('8d')).toBe('-1A');
 
-    expect(util.getNearestNote('D5', 'Db')).toBe('Db5');
-    expect(util.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
-    expect(util.getNearestNote('D5', 'Db', 'up')).toBe('Db6');
+    expect(Harmony.getNearestNote('D5', 'Db')).toBe('Db5');
+    expect(Harmony.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
+    expect(Harmony.getNearestNote('D5', 'Db', 'up')).toBe('Db6');
 
-    expect(util.getNearestNote('D5', 'D#')).toBe('D#5');
+    expect(Harmony.getNearestNote('D5', 'D#')).toBe('D#5');
 
     expect(Distance.interval('D', 'D#')).toBe('1A');
 
-    expect(util.minInterval('1A')).toBe('1A');
-    expect(util.intervalComplement('1A')).toBe('8d');
-    expect(util.invertInterval('1A')).toBe('-8d');
-    expect(util.intervalComplement('5A')).toBe('4d');
-    expect(util.intervalComplement('5d')).toBe('4A');
-    expect(util.intervalComplement('4d')).toBe('5A');
-    expect(util.intervalComplement('4A')).toBe('5d');
+    expect(Harmony.minInterval('1A')).toBe('1A');
+    expect(Harmony.intervalComplement('1A')).toBe('8d');
+    expect(Harmony.invertInterval('1A')).toBe('-8d');
+    expect(Harmony.intervalComplement('5A')).toBe('4d');
+    expect(Harmony.intervalComplement('5d')).toBe('4A');
+    expect(Harmony.intervalComplement('4d')).toBe('5A');
+    expect(Harmony.intervalComplement('4A')).toBe('5d');
 
-    expect(util.minInterval('1A', 'down')).toBe('-8d');
+    expect(Harmony.minInterval('1A', 'down')).toBe('-8d');
 
-    expect(util.minInterval('5d')).toBe('5d');
-    expect(util.minInterval('5d', 'down')).toBe('-4A');
-    expect(util.minInterval('5d', 'up')).toBe('5d');
+    expect(Harmony.minInterval('5d')).toBe('5d');
+    expect(Harmony.minInterval('5d', 'down')).toBe('-4A');
+    expect(Harmony.minInterval('5d', 'up')).toBe('5d');
 
-    expect(util.getNearestNote('D5', 'D#', 'down')).toBe('D#4');
+    expect(Harmony.getNearestNote('D5', 'D#', 'down')).toBe('D#4');
 
-    expect(util.getNearestNote('D5', 'Db')).toBe('Db5');
-    expect(util.getNearestNote('D5', 'Db', 'up')).toBe('Db6');
-    expect(util.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
+    expect(Harmony.getNearestNote('D5', 'Db')).toBe('Db5');
+    expect(Harmony.getNearestNote('D5', 'Db', 'up')).toBe('Db6');
+    expect(Harmony.getNearestNote('D5', 'Db', 'down')).toBe('Db5');
 });
 
 
 test('getNearestTargets', () => {
-    expect(util.getNearestTargets('C4', ['F', 'G'])[0]).toBe('G3');
-    expect(util.getNearestTargets('E5', ['G', 'D'])[0]).toBe('D5');
-    expect(util.getNearestTargets('C4', ['F', 'G'], 'up')[0]).toBe('F4');
-    expect(util.getNearestTargets('C4', ['F', 'G'], 'down')[0]).toBe('G3');
-    expect(util.getNearestTargets('C4', ['F', 'Gb'], 'down')[0]).toBe('Gb3');
-    expect(util.getNearestTargets('C4', ['F', 'F#'], 'down')[0]).toBe('F#3');
-    expect(util.getNearestTargets('D5', ['Db', 'Ab'], 'down')[0]).toBe('Db5');
-    expect(util.getNearestTargets('C4', ['D', 'E'], 'down')[0]).toBe('E3');
-    expect(util.getNearestTargets('C4', ['D', 'Db'], 'down')[0]).toBe('D3');
-    expect(util.getNearestTargets('C4', ['D', 'C#'], 'down')[0]).toBe('D3');
-    expect(util.getNearestTargets('C4', ['Db', 'C#'], 'down')[0]).toBe('C#3');
-    expect(util.getNearestTargets('B3', ['Bb', 'E'], 'down')[0]).toBe('Bb3');
+    expect(Harmony.getNearestTargets('C4', ['F', 'G'])[0]).toBe('G3');
+    expect(Harmony.getNearestTargets('E5', ['G', 'D'])[0]).toBe('D5');
+    expect(Harmony.getNearestTargets('C4', ['F', 'G'], 'up')[0]).toBe('F4');
+    expect(Harmony.getNearestTargets('C4', ['F', 'G'], 'down')[0]).toBe('G3');
+    expect(Harmony.getNearestTargets('C4', ['F', 'Gb'], 'down')[0]).toBe('Gb3');
+    expect(Harmony.getNearestTargets('C4', ['F', 'F#'], 'down')[0]).toBe('F#3');
+    expect(Harmony.getNearestTargets('D5', ['Db', 'Ab'], 'down')[0]).toBe('Db5');
+    expect(Harmony.getNearestTargets('C4', ['D', 'E'], 'down')[0]).toBe('E3');
+    expect(Harmony.getNearestTargets('C4', ['D', 'Db'], 'down')[0]).toBe('D3');
+    expect(Harmony.getNearestTargets('C4', ['D', 'C#'], 'down')[0]).toBe('D3');
+    expect(Harmony.getNearestTargets('C4', ['Db', 'C#'], 'down')[0]).toBe('C#3');
+    expect(Harmony.getNearestTargets('B3', ['Bb', 'E'], 'down')[0]).toBe('Bb3');
 });
 
 test('getAverageMidi', () => {
@@ -381,7 +317,6 @@ test('getRangePosition', () => {
     const range = ['C3', 'C4'];
     expect(util.getRangePosition(getAverageMidi(range), range)).toBe(.5);
 });
-
 
 test('getRangeDirection', () => {
     const fn = util.getRangeDirection;
@@ -492,9 +427,9 @@ test('analyzeVoicing', () => {
 
 
 test('minIntervals', () => {
-    expect(util.minIntervals(['C', 'E', 'G'], ['C', 'E', 'G'])).toEqual(['1P', '1P', '1P']);
-    expect(util.minIntervals(['C', 'E', 'G'], ['C', 'F', 'G'])).toEqual(['1P', '2m', '1P']);
-    expect(util.minIntervals(['C', 'F', 'G'], ['C', 'E', 'G'])).toEqual(['1P', '-2m', '1P']);
+    expect(Harmony.minIntervals(['C', 'E', 'G'], ['C', 'E', 'G'])).toEqual(['1P', '1P', '1P']);
+    expect(Harmony.minIntervals(['C', 'E', 'G'], ['C', 'F', 'G'])).toEqual(['1P', '2m', '1P']);
+    expect(Harmony.minIntervals(['C', 'F', 'G'], ['C', 'E', 'G'])).toEqual(['1P', '-2m', '1P']);
 });
 
 test('semitoneDifference', () => {
@@ -602,8 +537,6 @@ test('getChordType', () => {
 // - can now decide which scale is best (based on function to scale mappings)
 // - can now color correctly based on root
 // -- use gradients on pivots!!!!!
-
-
 
 
 test('getChordNotes', () => {

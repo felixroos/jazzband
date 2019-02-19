@@ -1,8 +1,8 @@
-import { resolveChords, randomElement, getNearestTargets, transposeToRange, getPatternInChord, getGuideTones, isBarStart, isFormStart, isOffbeat } from '../util/util';
-import { Musician } from './Musician';
 import { swing } from '../grooves/swing';
 import { Improvisation } from '../improvisation/Improvisation';
 import { defaultMethod } from '../improvisation/methods';
+import { isBarStart, isFormStart, isOffbeat, resolveChords } from '../util/util';
+import { Musician } from './Musician';
 
 export default class Improvisor extends Musician {
     name = 'Improvisor';

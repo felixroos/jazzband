@@ -5,26 +5,22 @@ import { Note } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import {
-    getTonalChord,
     randomElement,
     renderAbsoluteNotes,
-    getNearestNote,
     getRangeDirection,
     isDominantChord,
     getIntervalFromStep,
     hasDegree,
     getDegreeInChord,
-    minInterval,
     semitoneDistance,
     chordHasIntervals,
     semitoneMovement,
-    intervalDirection,
     semitoneDifference,
     isPitchClass,
-    fixInterval,
     getDegreeFromInterval,
-    isSameNote
 } from '../util/util';
+
+import { Harmony, intervalDirection } from './Harmony';
 
 declare type VoicingValidation = {
     maxDistance?: number,
@@ -38,7 +34,7 @@ export class Voicing {
 
     static getNextVoicing(chord, lastVoicing, range = ['C3', 'C5'], maxVoices = 4) {
         // make sure tonal can read the chord
-        chord = getTonalChord(chord);
+        chord = Harmony.getTonalChord(chord);
         if (chord === 'r') {
             return null;
         }
@@ -63,7 +59,7 @@ export class Voicing {
         if (!lastVoicing || !lastVoicing.length) { // no previous chord
             // get lowest possible bottom note
             const firstPick = randomElement(combinations);
-            const firstNoteInRange = getNearestNote(range[0], firstPick[0], 'up');
+            const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
             const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
             Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick });
             return pick;
@@ -108,7 +104,7 @@ export class Voicing {
 
     static getVoices(chord, voices = 4, rootless = false, tension = 1) {
         // THE PROBLEM: TENSION MUST BE CHOSEN WHEN SELECTING THE OPTIMAL VOICING!
-        chord = getTonalChord(chord);
+        chord = Harmony.getTonalChord(chord);
         const intervals = Chord.intervals(chord);
         const tokens = Chord.tokenize(chord);
         const required = Voicing.getRequiredNotes(chord);
@@ -133,7 +129,7 @@ export class Voicing {
     }
 
     static getAvailableTensions(chord) {
-        chord = getTonalChord(chord);
+        chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
         if (isDominantChord(chord)) {
             return Voicing.getAllTensions(notes[0])
@@ -165,7 +161,7 @@ export class Voicing {
 
     // Returns all notes required for a shell chord
     static getRequiredNotes(chord) {
-        chord = getTonalChord(chord);
+        chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
         const intervals = Chord.intervals(chord);
 
@@ -183,7 +179,7 @@ export class Voicing {
     }
 
     static getOptionalNotes(chord, required?) {
-        chord = getTonalChord(chord);
+        chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
         required = required || Voicing.getRequiredNotes(chord);
         return notes.filter(note => !required.includes(note));
@@ -205,8 +201,8 @@ export class Voicing {
             return {
                 combination,
                 bottomNotes: [
-                    Distance.transpose(lastVoicing[0], minInterval(bottomInterval, 'down')),
-                    Distance.transpose(lastVoicing[0], minInterval(bottomInterval, 'up')),
+                    Distance.transpose(lastVoicing[0], Harmony.minInterval(bottomInterval, 'down')),
+                    Distance.transpose(lastVoicing[0], Harmony.minInterval(bottomInterval, 'up')),
                 ]
             }
         }).reduce((all, { combination, bottomNotes }) => {
@@ -272,9 +268,9 @@ export class Voicing {
             .map(permutation => {
                 const [from, to] = flare ? [chordB, permutation] : [permutation, chordB];
                 let intervals = Voicing.voicingIntervals(from, to, false)
-                    .map(interval => fixInterval(interval, false));
+                    .map(interval => Harmony.fixInterval(interval, false));
                 const degrees = intervals.map(i => getDegreeFromInterval(i));
-                const oblique = origin.filter((n, i) => targets.find(note => isSameNote(n, note)));
+                const oblique = origin.filter((n, i) => targets.find(note => Harmony.isSameNote(n, note)));
                 let dropped = [], added = [];
                 const difference = semitoneDifference(intervals);
                 if (!flare) {
@@ -330,7 +326,7 @@ export class Voicing {
                 return interval;
             }
             if (isPitchClass(n) && isPitchClass(chordB[i])) {
-                return minInterval(interval, direction);
+                return Harmony.minInterval(interval, direction);
             }
             return interval;
         });

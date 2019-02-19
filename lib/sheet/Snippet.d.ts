@@ -11,5 +11,4 @@ export declare class Snippet {
     static from(sheet: any, format?: boolean): string;
     static expand(snippet: any, options?: any): string;
     static diff(snippetA: any, snippetB: any): any;
-    static voicing(notes: any, range: any): string;
 }
