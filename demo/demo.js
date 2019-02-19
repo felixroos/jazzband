@@ -186,8 +186,8 @@ window.onload = function () {
         return; */
         /* SheetPlayer.play(['E^7', 'E', 'B7', 'E6']);
         return; */
-        alice();
-        return;
+        /* alice();
+        return; */
 
         const forms = 2;
         const cycle = 4;

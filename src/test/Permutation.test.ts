@@ -67,7 +67,7 @@ test('Permutation.permutateElements, getVoicingCombinations', () => {
     );
 
     expect(Permutation.permutateElements(['D', 'F', 'A', 'C'], Voicing.voicingValidator())).toEqual(
-        [["D", "F", "A", "C"], ["A", "C", "D", "F"], ["C", "F", "A", "D"]]
+        [["D", "F", "A", "C"], ["F", "A", "C", "D"], ["A", "C", "D", "F"], ["C", "F", "A", "D"]]
     );
 
     expect(Permutation.permutationComplexity(['D', 'F', 'A', 'C'], Voicing.voicingValidator())).toEqual(33);

@@ -7,7 +7,7 @@ declare type VoicingValidation = {
     bottomNotes?: string[];
 };
 export declare class Voicing {
-    static getNextVoicing(chord: any, lastVoicing: any, range?: string[], maxVoices?: number): any;
+    static getNextVoicing(chord: any, lastVoicing: any, range?: string[], maxVoices?: number, rootless?: boolean): any;
     static getVoices(chord: any, voices?: number, rootless?: boolean, tension?: number): any[];
     static getAvailableTensions(chord: any): any;
     static getAllTensions(root: any): any[];

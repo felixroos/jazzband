@@ -17,6 +17,7 @@ export class Harmony {
 
     static getTonalChord(chord: string) {
         chord = chord
+            .replace(/([A-G][b|#]?)(69)/, '$1M69')
             .replace('-', 'm')
             .replace('^', 'M')
             .replace('h7', 'm7b5')

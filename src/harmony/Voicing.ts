@@ -32,7 +32,7 @@ declare type VoicingValidation = {
 
 export class Voicing {
 
-    static getNextVoicing(chord, lastVoicing, range = ['C3', 'C5'], maxVoices = 4) {
+    static getNextVoicing(chord, lastVoicing, range = ['C3', 'C5'], maxVoices = 4, rootless = false) {
         // make sure tonal can read the chord
         chord = Harmony.getTonalChord(chord);
         if (chord === 'r') {
@@ -40,7 +40,8 @@ export class Voicing {
         }
         // get chord notes
         // const notes = getVoices(chord, 5, false, 0);
-        const notes = Voicing.getVoices(chord, maxVoices, false, 0);
+        /* const notes = Voicing.getVoices(chord, maxVoices, false, 0); */
+        const notes = Voicing.getVoices(chord, maxVoices, rootless, 0);
         // find valid combinations
 
         let combinations = Voicing.getVoicingCombinations(notes, {
@@ -53,7 +54,9 @@ export class Voicing {
             })); */
         if (!combinations.length) {
             console.log('no combinations found chord', chord, notes, lastVoicing);
-            return [];
+            const pick = [];
+            Logger.logVoicing({ chord, lastVoicing, range, notes, combinations, pick });
+            return pick;
         }
 
         if (!lastVoicing || !lastVoicing.length) { // no previous chord
@@ -90,9 +93,9 @@ export class Voicing {
         });
         choice = choices.find(choice => {
             if (direction === 'up') {
-                return choice.movement > 0
+                return choice.movement >= 0
             }
-            return choice.movement < 0;
+            return choice.movement <= 0;
         });
         if (!choice) {
             choice = choices[0];
@@ -166,7 +169,7 @@ export class Voicing {
         const notes = Chord.notes(chord);
         const intervals = Chord.intervals(chord);
 
-        let required = [3, 4, 'b5', 7].reduce((required, degree) => {
+        let required = [3, 7, 4, 'b5', 6].reduce((required, degree) => {
             if (hasDegree(degree, intervals)) {
                 required.push(getDegreeInChord(degree, chord));
             }
@@ -241,7 +244,7 @@ export class Voicing {
         options = {
             maxDistance: 6, // max semitones between any two sequential notes
             minBottomDistance: 3, // min semitones between the two bottom notes
-            minTopDistance: 3, // min semitones between the two top notes
+            minTopDistance: 2, // min semitones between the two top notes
             ...options,
         }
         return (path, next, array) => {

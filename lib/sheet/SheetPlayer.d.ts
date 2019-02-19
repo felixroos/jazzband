@@ -8,12 +8,13 @@ export declare class SheetPlayer {
     static melody(sequence: any, { lead }: {
         lead: any;
     }): any;
-    static comp(sheet: any, { bass, piano, maxVoices }: {
+    static comp(sheet: any, { bass, piano, maxVoices, rootless }: {
         bass: any;
         piano: any;
         maxVoices: any;
+        rootless: any;
     }): any;
     static getBass(): any;
-    static getPiano(): any;
+    static getPiano(voices?: number): any;
     static getLead(): any;
 }

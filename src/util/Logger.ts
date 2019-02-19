@@ -66,6 +66,10 @@ export class Logger {
             icon: '☯️',
             description: 'The Voices generally did not move anywhere'
         },
+        fewCombinations: {
+            icon: '💢',
+            description: 'There were very few valid combinations to choose from'
+        }
         // ️️️️️➡️↘️↗️⬇️⬆️⬅️
     }
 
@@ -194,7 +198,7 @@ export class Logger {
         return args;
     }
 
-    static logVoicing({ chord, lastVoicing, bestPick, pick, range, choice, direction, choices, force }: any) {
+    static logVoicing({ chord, lastVoicing, combinations, bestPick, pick, range, choice, direction, choices, force }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
         lastVoicing = lastVoicing || [];
         const idle = lastVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
@@ -255,6 +259,11 @@ export class Logger {
         }
         lastVoicing = lastVoicing || []
         konsole.push(`${difference}/${movement}: ${chord} (${choices.indexOf(choice) + 1}/${choices.length})`);
+        if (combinations) {
+            if (combinations.length < 4) {
+                konsole.push(Logger.emoji.fewCombinations.icon);
+            }
+        }
         if (console && console.table) {
             Logger.logCustom(konsole, console.groupCollapsed);
 
@@ -266,6 +275,7 @@ export class Logger {
                 console.group('Pick:');
                 Logger.logChoice(choice);
                 console.groupEnd();
+                console.log('Combinations', combinations);
                 console.groupCollapsed('All Choices:');
                 choices.forEach(c => Logger.logChoice(c));
                 console.groupEnd();

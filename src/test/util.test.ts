@@ -468,12 +468,14 @@ test('isDominantChord', () => {
     expect(util.isDominantChord('C')).toBe(false);
     expect(util.isDominantChord('G7b9b13')).toBe(true);
     expect(util.isDominantChord('Eb-7')).toBe(false);
+    expect(util.isDominantChord('F69')).toBe(false);
 });
 test('isMajorChord', () => {
     expect(util.isMajorChord('D^7')).toBe(true);
     expect(util.isMajorChord('D7')).toBe(false);
     expect(util.isMajorChord('D')).toBe(true);
     expect(util.isMajorChord('Eb-7')).toBe(false);
+    expect(util.isMajorChord('F69')).toBe(true);
 });
 test('isMinorChord', () => {
     expect(util.isMinorChord('D^7')).toBe(false);
@@ -483,6 +485,7 @@ test('isMinorChord', () => {
     expect(util.isMinorChord('Eb-')).toBe(true);
     expect(util.isMinorChord('Eb-^7')).toBe(true);
     expect(util.isMinorChord('Eb-7b5')).toBe(true);
+    expect(util.isMinorChord('F69')).toBe(false);
 });
 test('isMinorChord', () => {
     expect(util.isMinorChord('D^7')).toBe(false);
@@ -492,7 +495,9 @@ test('isMinorChord', () => {
     expect(util.isMinorChord('Eb-')).toBe(true);
     expect(util.isMinorChord('Eb-^7')).toBe(true);
     expect(util.isMinorChord('Eb-7b5')).toBe(true);
+    expect(util.isMinorChord('F69')).toBe(false);
 });
+
 test('isMinorTonic', () => {
     expect(util.isMinorTonic('D^7')).toBe(false);
     expect(util.isMinorTonic('D7')).toBe(false);
@@ -509,6 +514,7 @@ test('getChordType', () => {
     expect(fn('C7')).toBe('dominant');
     expect(fn('C-7')).toBe('minor');
     expect(fn('C^7')).toBe('major');
+    expect(fn('F69')).toBe('major');
     expect(fn('C-6')).toBe('minor-tonic');
 });
 

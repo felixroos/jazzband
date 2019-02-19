@@ -1,5 +1,6 @@
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
+import { Chord } from 'tonal';
 
 test('Tonal.Interval', () => {
     expect(Distance.interval('D', 'C')).toBe('7m');
@@ -20,3 +21,7 @@ test('Tonal.Interval', () => {
     expect(Interval.invert('8P')).toBe('1P');
     expect(Interval.invert('8d')).toBe('1A'); */
 });
+
+test('Tonal.chord', () => {
+    expect(Chord.notes('FM69')).toEqual(['F', 'A', 'C', 'D', 'G'])
+})

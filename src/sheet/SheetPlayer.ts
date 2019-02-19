@@ -3,6 +3,7 @@ import { Sheet } from './Sheet';
 import { Measure } from './Measure';
 import * as Tone from 'tone';
 import { Voicing } from '..';
+import { Note } from 'tonal';
 
 export class SheetPlayer {
 
@@ -21,6 +22,7 @@ export class SheetPlayer {
             bpm: 130,
             swing: 0.7,
             maxVoices: 4,
+            rootless: true,
             ...sheet,
         }
         let {
@@ -31,14 +33,15 @@ export class SheetPlayer {
             cycle,
             swing,
             bpm,
-            maxVoices
+            maxVoices,
+            rootless
         } = sheet;
         Logger.logLegend();
         Logger.logSheet(sheet);
 
 
         var bass = SheetPlayer.getBass();
-        const piano = SheetPlayer.getPiano();
+        const piano = SheetPlayer.getPiano(maxVoices);
         const lead = SheetPlayer.getLead();
 
         Tone.Transport.bpm.value = bpm;
@@ -48,7 +51,7 @@ export class SheetPlayer {
             console.group('SheetPlayer.play');
         }
         if (chords) {
-            SheetPlayer.comp(chords, { bass, piano, maxVoices }).start(0);;
+            SheetPlayer.comp(chords, { bass, piano, maxVoices, rootless }).start(0);;
         }
         if (melody) {
             SheetPlayer.melody(melody, { lead }).start(0);;
@@ -57,7 +60,7 @@ export class SheetPlayer {
     }
 
     static melody(sequence, { lead }) {
-        
+
         /* const sequence = SheetPlayer.getSequence(sheet); */
         return new Tone.Sequence((time, note) => {
             if (note.match(/[a-g][b|#]?[0-6]/)) {
@@ -66,7 +69,7 @@ export class SheetPlayer {
         }, sequence, "1m");
     }
 
-    static comp(sheet, { bass, piano, maxVoices }) {
+    static comp(sheet, { bass, piano, maxVoices, rootless }) {
         maxVoices = maxVoices || 4;
         const sequence = SheetPlayer.getSequence(sheet);
         // console.log('comp', sheet, sequence);
@@ -80,7 +83,8 @@ export class SheetPlayer {
             }
             const chord = event.chord;
             latest = voicing || latest;
-            voicing = Voicing.getNextVoicing(chord, latest, range, maxVoices);
+            voicing = Voicing.getNextVoicing(chord, latest, range, maxVoices, rootless);
+            voicing = voicing.map(note => Note.simplify(note));
             if (voicing) {
                 piano.triggerAttackRelease(voicing, "1n");
                 const note = chord.match((/[A-G][b|#]?/))[0] + '2';
@@ -107,8 +111,8 @@ export class SheetPlayer {
         }).toMaster();
     }
 
-    static getPiano() {
-        return new Tone.PolySynth(4, Tone.Synth, {
+    static getPiano(voices = 4) {
+        return new Tone.PolySynth(voices, Tone.Synth, {
             "volume": -18,
             "oscillator": {
                 "partials": [1, .5, .25, .125],

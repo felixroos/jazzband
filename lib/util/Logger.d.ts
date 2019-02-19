@@ -60,6 +60,10 @@ export declare class Logger {
             icon: string;
             description: string;
         };
+        fewCombinations: {
+            icon: string;
+            description: string;
+        };
     };
     static logCustom(args: any, logFn?: (message?: any, ...optionalParams: any[]) => void): void;
     static logLegend(): void;
@@ -67,5 +71,5 @@ export declare class Logger {
     static logLabel(key: any): any;
     static logChoice(choice: any): void;
     static logNotes(activeNotes: any, idleNotes: any, addedNotes: any, range: any): string[];
-    static logVoicing({ chord, lastVoicing, bestPick, pick, range, choice, direction, choices, force }: any): any;
+    static logVoicing({ chord, lastVoicing, combinations, bestPick, pick, range, choice, direction, choices, force }: any): any;
 }
