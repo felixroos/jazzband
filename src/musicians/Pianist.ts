@@ -103,7 +103,7 @@ export default class Pianist extends Musician {
         }
         this.playedChords.push(chord);
 
-        let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), this.range); // TODO: range currently only respects first note
+        let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), { range: this.range }); // TODO: range currently only respects first note
         notes = notes.map(note => Note.simplify(note));
 
         /*         if (this.playedNotes.length > 1) {

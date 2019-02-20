@@ -52,12 +52,26 @@ function getStandard(playlist) {
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Thang'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('One Note Samba'))); */
+    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
     /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Ain\'t She Sweet'))); */
+    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus'))); */
     const standard = jazz.util.randomElement(playlist.songs);
     standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
     console.log('standard', standard);
     return standard;
 }
+
+const options = {
+    // forceDirection: 'down',
+    range: ['C3', 'C5'], // allowed voice range
+    maxVoices: 2, // maximum number of voices per chord
+    maxDistance: 7,  // general max distance between single voices
+    minDistance: 1,  // general max distance between single voices
+    minBottomDistance: 3, // min semitones between the two bottom notes
+    minTopDistance: 2, // min semitones between the two top notes
+    real: false,
+    pedal: true
+};
 
 let lastVoicing;
 
@@ -85,7 +99,7 @@ function alice() {
         title: 'Blues For Alice',
         chords,
         melody
-    });
+    }, options);
 }
 
 function steps() {
@@ -109,11 +123,11 @@ function steps() {
         title: 'Giant Steps',
         composer: 'John Coltrane',
         chords, melody
-    })
+    }, options)
 }
 
 function knife() {
-    let melody = Snippet.parse2(`
+    /* let melody = Snippet.parse2(`
     f#5 d5 | b4  g4 |
     bb4  / | b4  a4 |
     d5 bb4 | g4  eb4 |
@@ -122,14 +136,14 @@ function knife() {
     d5  / | eb5  db5 |
     f#5 / | g5  f5 |
     bb5  / | f#5  f#5 |
-     `);
+     `); */
     let chords = Snippet.parse2(`
     |  B^7 D7   |  G^7 Bb7   |  Eb^7  |  A-7 D7    |
     |  G^7 Bb7  |  Eb^7 F#7  |  B^7   |  F-7 Bb7   |
     |  Eb^7     |  A-7 D7    |  G^7   |  C#-7 F#7  |
     |  B^7      |  F-7 Bb7   |  Eb^7  |  C#-7 F#7  |
     `);
-    SheetPlayer.play(chords, melody)
+    SheetPlayer.play({ chords, /* melody */ }, options)
 }
 
 
@@ -173,24 +187,17 @@ window.onload = function () {
     playChord.addEventListener('click', () => {
         voiceChord(chordInput.value);
     });
-
-
     let standard/*  = getStandard(); */
 
     function play(groove = swing) {
-        /* SheetPlayer.play(['C^7', 'D-', 'E-7', 'F', 'G7', 'A-', 'B-7b5']); */
-        /* SheetPlayer.play(['C^7', 'D-7', 'E-7', 'F^7', 'G7', 'A-7', 'B-7b5', 'C6'].reverse()); */
-        /* SheetPlayer.play(['C^7', 'C7', 'C-7', 'C-6', 'C-', 'A7', 'D^7', 'Db^7']); */
-        /* SheetPlayer.play(['C^7', 'E-', 'G7', 'C']); */
-        /* SheetPlayer.play(['A7', 'Ab7']);
+        SheetPlayer.stop();
+        /* SheetPlayer.play({ chords: ['C', 'C', 'C/B', 'C/Bb', 'F', 'F/E', 'G6', 'G/F'] }, { retrigger: false });
         return; */
-        /* SheetPlayer.play(['E^7', 'E', 'B7', 'E6']);
-        return; */
-        /* alice();
+        /* knife();
         return; */
 
         const forms = 2;
-        const cycle = 4;
+        const time = 4;
 
         return SheetPlayer.play(
             {
@@ -198,20 +205,11 @@ window.onload = function () {
                 title: standard.title,
                 groove,
                 forms,
-                cycle,
+                time,
                 chords: standard.music.measures,
-            },
-            {
-                // forceDirection: 'down',
-                range: ['C3', 'C5'], // allowed voice range
-                maxVoices: 4, // maximum number of voices per chord
-                maxDistance: 7,  // general max distance between single voices
-                minDistance: 1,  // general max distance between single voices
-                minBottomDistance: 3, // min semitones between the two bottom notes
-                minTopDistance: 2, // min semitones between the two top notes
-            });
+            }, options);
 
-        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle, bpm, groove/* , arpeggio: true */ });
+        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle: time, bpm, groove/* , arpeggio: true */ });
 
     }
 
@@ -229,7 +227,8 @@ window.onload = function () {
     playBossa.addEventListener('click', () => play(bossa));
 
     stop.addEventListener('click', () => {
-        band.pulse.stop();
+        /* band.pulse.stop(); */
+        SheetPlayer.stop();
     });
     slower.addEventListener('click', () => {
         band.pulse.changeTempo(band.pulse.props.bpm - 10);

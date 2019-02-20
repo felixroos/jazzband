@@ -21,3 +21,12 @@ test('getMidi', () => {
     expect(Note.midi(69)).toBe(69);
     expect(Harmony.getMidi(69)).toBe(69);
 });
+
+test('getBassNote', () => {
+    expect(Harmony.getBassNote('C7')).toBe('C');
+    expect(Harmony.getBassNote('C7/Bb')).toBe('Bb');
+    expect(Harmony.getBassNote('F#^7')).toBe('F#');
+    expect(Harmony.getBassNote('Gb-7b5')).toBe('Gb');
+    expect(Harmony.getBassNote('Gb-7b5/Db')).toBe('Db');
+    expect(Harmony.getBassNote('')).toBe(null);
+})

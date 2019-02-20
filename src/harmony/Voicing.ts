@@ -5,9 +5,7 @@ import { Note } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import {
-    randomElement,
     renderAbsoluteNotes,
-    getRangeDirection,
     isDominantChord,
     getIntervalFromStep,
     hasDegree,
@@ -25,21 +23,29 @@ import {
 import { Harmony, intervalDirection } from './Harmony';
 
 export declare type VoicingValidation = {
-    maxDistance?: number,
-    minBottomDistance?: number,
-    minTopDistance?: number,
-    topNotes?: string[] // accepted top notes
-    bottomNotes?: string[] // accepted top notes
-    range?: string[],
-    maxVoices?: number;
+    maxDistance?: number;
+    minBottomDistance?: number;
     minDistance?: number;
-    forceDirection?: intervalDirection;
+    minTopDistance?: number;
+    topNotes?: string[]; // accepted top notes
+    bottomNotes?: string[]; // accepted top notes
 };
 
+export declare interface VoiceLeadingOptions extends VoicingValidation {
+    range?: string[];
+    maxVoices?: number;
+    forceDirection?: intervalDirection;
+    // the lower and upper distance to the range end that is tolerated before forcing a direction
+    rangeBorders?: number[];
+}
+
+
+
 export class Voicing {
-    static getNextVoicing(chord, lastVoicing, options: VoicingValidation = {}) {
-        let { maxVoices, range, forceDirection }: VoicingValidation = {
+    static getNextVoicing(chord, lastVoicing, options: VoiceLeadingOptions = {}) {
+        let { maxVoices, range, forceDirection, rangeBorders }: VoiceLeadingOptions = {
             range: ['C3', 'C5'],
+            rangeBorders: [3, 3],
             maxVoices: 4,
             forceDirection: null,
             maxDistance: 7,
@@ -69,10 +75,17 @@ export class Voicing {
         }
 
         if (!lastVoicing || !lastVoicing.length) { // no previous chord
-            // get lowest possible bottom note
-            // const firstPick = randomElement(combinations);
+
+            // filter out combinations that are out of range
+            combinations = combinations.filter(combination => {
+                const firstNote = Harmony.getNearestNote(range[0], combination[0], 'up');
+                const pick = renderAbsoluteNotes(combination, Note.oct(firstNote));
+                return isInRange(pick[0], range) && isInRange(pick[pick.length - 1], range);
+            });
+
             const firstPick = combinations[0];
             const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
+
             const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
             Logger.logVoicing({ chord, lastVoicing, range, combinations, pick });
             return pick;
@@ -82,8 +95,8 @@ export class Voicing {
         if (!choices.length) {
             return exit();
         }
-        let bestPick = choices[0].notes, choice;
-        const direction = Voicing.getDesiredDirection(lastVoicing, range) || forceDirection;
+        let bestPick = choices[0].targets, choice;
+        const direction = Voicing.getDesiredDirection(lastVoicing, range, rangeBorders) || forceDirection;
 
         if (!direction) {
             const pick = bestPick;
@@ -103,13 +116,12 @@ export class Voicing {
         if (!choice) { // keep hanging in the corner of the range..
             choice = choices[0];
         }
-        const pick = choice.notes;
+        const pick = choice.targets;
         Logger.logVoicing({ chord, lastVoicing, range, combinations, pick, direction, bestPick, choice, choices });
         return pick;
     }
 
-    static getDesiredDirection(voicing, range) {
-        const thresholds = [3, 3];
+    static getDesiredDirection(voicing, range, thresholds = [3, 3]) {
         let distances = getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
         if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
             console.error('range is too small to fit the comfy zone');
@@ -253,40 +265,36 @@ export class Voicing {
 
     static getAllChoices(combinations, lastVoicing, range?) {
         const lastPitches = lastVoicing.map(note => Note.pc(note));
-        return combinations.map(combination => ({
-            combination,
-            bottomInterval: Distance.interval(lastPitches[0], combination[0]),
-        })).map(({ combination, bottomInterval }) => {
-            return {
-                combination,
-                bottomNotes: [
+        return combinations
+            .map((combination) => {
+                const bottomInterval = Distance.interval(lastPitches[0], combination[0]);
+                let bottomNotes = [
                     Distance.transpose(lastVoicing[0], Harmony.minInterval(bottomInterval, 'down')),
                     Distance.transpose(lastVoicing[0], Harmony.minInterval(bottomInterval, 'up')),
-                ]
-            }
-        }).reduce((all, { combination, bottomNotes }) => {
-            return all.concat([
-                renderAbsoluteNotes(combination, Note.oct(bottomNotes[0])),
-                renderAbsoluteNotes(combination, Note.oct(bottomNotes[1])),
-            ])
-        }, []).filter((targets) => {
-            return !range ||
-                isInRange(targets[0], range) &&
-                isInRange(targets[targets.length - 1], range)
-        }).map(notes => {
-            return Voicing.bestVoiceLeading(lastVoicing, notes, (a, b) => {
-                /* return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval)) */
-                return Math.abs(a.movement) - Math.abs(b.movement);
-                /* return a.difference - b.difference; */
+                ];
+                if (bottomNotes[0] === bottomNotes[1]) {
+                    bottomNotes = [bottomNotes[0]];
+                }
+                return { combination, bottomNotes }
             })
-        }).sort((a, b) => {
-            /* return Math.abs(a.movement) - Math.abs(b.movement) */
-            return Math.abs(a.difference) - Math.abs(b.difference)
-        });
+            .reduce((all, { combination, bottomNotes }) => all.concat(
+                bottomNotes.map(bottomNote => renderAbsoluteNotes(combination, Note.oct(bottomNote)))
+            ), [])
+            .filter((targets) => {
+                return !range ||
+                    isInRange(targets[0], range) &&
+                    isInRange(targets[targets.length - 1], range)
+            })
+            .reduce((all, notes) => {
+                const leads = Voicing.voiceLeading(lastVoicing, notes)
+                return all.concat(leads);
+            }, [])
+            .sort((a, b) => {
+                /* return Math.abs(a.movement) - Math.abs(b.movement) */
+                return Math.abs(a.difference) - Math.abs(b.difference)
+                /* return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval)) */
+            });
     }
-
-
-
 
     static validateInterval(validate: (interval: string, { path, next, array }) => boolean) {
         return (path, next, array) => {
@@ -300,7 +308,6 @@ export class Voicing {
             return !notes.length || selected.length !== position || notes.includes(note);
         }
     }
-
 
     static voicingValidator(options?: VoicingValidation) {
         options = {
@@ -381,11 +388,6 @@ export class Voicing {
     static bestVoiceLeading(chordA, chordB, sortFn?) {
         sortFn = sortFn || ((a, b) => a.difference - b.difference);
         const voices = Voicing.voiceLeading(chordA, chordB)
-            .map(voicing => ({
-                ...voicing,
-                origin: chordA,
-                notes: chordB
-            }))
             .sort((best, current) => {
                 return sortFn(best, current);
             }, null);
@@ -412,8 +414,6 @@ export class Voicing {
     static voicingDifference(chordA, chordB, min = true) {
         return semitoneDifference(Voicing.voicingIntervals(chordA, chordB, min));
     }
-
-
 
     static minVoiceMovement(chordA, chordB) {
         [chordA, chordB] = [chordA, chordB].sort((a, b) => b.length - a.length);

@@ -71,9 +71,9 @@ The tonal-chord package contains the basic structure of all common chord symbols
 
 One idea to find out voicings could be to generate all possible orderings of the outputted notes.
 
-A triad would have 6 different combinations (3 * 2 * 1).
+A triad has 6 different combinations (3 * 2 * 1).
 
-A 7th chord would have 24 different orderings (4 * 6).
+A 7th chord has 24 different orderings (4 * 6).
 
 A 9th chord 120 (5 * 24).
 
@@ -99,7 +99,7 @@ export function permutateArray(array: any[]) {
 For example Cmaj7:
 
 ```js
-permutateArray(Chord.notes("Cmaj7")) // => ["C", "E", "G", "B"]
+permutateArray(Chord.notes("Cmaj7"))
 ```
 
 outputs
@@ -165,7 +165,7 @@ Bruteforcing all combinations and sorting out the bad ones would work but the al
 
 ### Custom Combination Algorithm
 
-Instead of just generating all combinations, the bad ones could be avoided at the time of generation by not allowing sub combinations that violate the rules.
+Instead of just generating all combinations, the bad ones could be avoided at the time of generation by stopping the recursion as soon as the rules are violated.
 The following algorithm is similar to permutateArray, but with a validate function param added:
 
 ```js
@@ -198,7 +198,11 @@ This algorithm will be called on all elements that could be combined with the cu
             return Interval.semitones(interval) < 6; // less than fifth
     }
     expect(permutateElements(["C", "E", "G", "B"], rule7)).toEqual(
-        [["C", "E", "G", "B"], ["E", "G", "B", "C"], ["G", "B", "C", "E"], ["B", "C", "E", "G"], ["B", "E", "G", "C"]]
+        [["C", "E", "G", "B"],
+        ["E", "G", "B", "C"],
+        ["G", "B", "C", "E"],
+        ["B", "C", "E", "G"],
+        ["B", "E", "G", "C"]]
     );
 ```
 
@@ -218,11 +222,15 @@ The validation could now be wrapped to be combinable with more validation rules:
     }
 
     expect(permutateElements(["C", "E", "G", "B"], validate)).toEqual(
-        [["C", "E", "G", "B"], ["E", "G", "B", "C"], ["G", "B", "C", "E"], ["B", "C", "E", "G"], ["B", "E", "G", "C"]]
+        [["C", "E", "G", "B"],
+         ["E", "G", "B", "C"],
+         ["G", "B", "C", "E"],
+         ["B", "C", "E", "G"],
+         ["B", "E", "G", "C"]]
     );
 ```
 
-.. adding rule 5 and 3 + combineValidators Method + combineValidators helper:
+.. adding rule 5 and 3 + combineValidators Method + combineValidators sugar:
 
 ```js
     // accepts validators as arguments and combines their results with logical and. Returns validator function.
@@ -245,7 +253,7 @@ The validation could now be wrapped to be combinable with more validation rules:
 
 ### Wrapping up
 
-For sugar, lets add a new method to always get valid voicings for a given set of notes:
+For more sugar, lets add a new method to always get valid voicings for a given set of notes:
 
 ```js
 export function getVoicingCombinations(notes, validator = (path, next, array) => true) {
@@ -308,7 +316,6 @@ c(n) = c(n-1) * n + n
 
 Adding custom voicing validation, the complexity depends on the interval structure of the input.
 But roughly said, the call counts are now reduced by 92%-98% on the upper limit, and 51% for four voices.
-
 
 ## Voice Leading
 
@@ -472,7 +479,12 @@ test.only('getNextVoicing', () => {
 ```
 
 This snippet will generate voicings that increase in seconds. The best voice leading for seconds
-will always keep the existing structure. This means that the overall pitch will increase each time and eventually exhaust the range of the instrument. A real pianist will always stay in the range where the chords sound good, even if the jumps do not follow the best voice leading. So the algorithm needs a mechanism to force leading the voices in a certain direction. The direction could be implemented at:
+will always keep the existing structure. This means that the overall pitch will increase each time and eventually exhaust the range of the instrument. A real pianist will always stay in the range where the chords sound good, even if the jumps do not follow the best voice leading. So the algorithm needs a mechanism to force leading the voices in a certain direction. The direction could be implemented at.
+
+## Next Try: 
+
+
+
 
 ## Available and Unavailable Tensions
 

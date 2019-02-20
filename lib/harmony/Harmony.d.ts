@@ -4,6 +4,7 @@ export declare class Harmony {
     static isBlack(note: any): boolean;
     static isSameNote(noteA: any, noteB: any): boolean;
     static getTonalChord(chord: string): any;
+    static getBassNote(chord: string): string;
     static getMidi(note: any, offset?: number): number;
     static intervalComplement(interval: any): any;
     static invertInterval(interval: any): string;

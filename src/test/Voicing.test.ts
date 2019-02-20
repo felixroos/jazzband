@@ -183,6 +183,7 @@ test('Voicing.getVoices', () => {
     expect(Voicing.getVoicingCombinations(['F', 'C', 'D'])).toEqual([]);
 
     // C7b9#5 hat keine kombi !?!? E7#9#5 auch nicht?!
+    // A7b9b5 auch nettttttt
     // Ebm6 hat auch wenig
     // D13sus hat auch wenig..
     // A9#11 auch

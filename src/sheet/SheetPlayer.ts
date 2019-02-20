@@ -4,9 +4,21 @@ import { Measure } from './Measure';
 import * as Tone from 'tone';
 import { Voicing } from '..';
 import { Note } from 'tonal';
-import { VoicingValidation } from '../harmony/Voicing';
+import { VoiceLeadingOptions } from '../harmony/Voicing';
+import { Harmony } from '../harmony/Harmony';
+import { piano as pianoSamples } from '../../demo/samples/piano/index.js';
+
+export declare interface SheetPlayerOptions extends VoiceLeadingOptions {
+    /** If true, a new voicing will not attack notes that stayed since the last voicing */
+    pedal?: boolean;
+    /** If true, "real" instruments will be used */
+    real?: boolean;
+}
 
 export class SheetPlayer {
+    static parts = [];
+    static instruments = [];
+    static realPiano;
 
     static getSequence(sheet) {
         return Sheet.render(sheet)
@@ -14,7 +26,7 @@ export class SheetPlayer {
                 .map((chord, chordIndex) => ({ chord, path: [measureIndex, chordIndex], measure })));
     }
 
-    static play(sheet, options?: VoicingValidation) {
+    static async play(sheet, options?: SheetPlayerOptions) {
         sheet = {
             chords: [],
             melody: [],
@@ -41,12 +53,27 @@ export class SheetPlayer {
             console.group('SheetPlayer.play');
         }
         if (chords) {
-            SheetPlayer.comp(chords, options).start(0);;
+            const compingPart = await SheetPlayer.comp(chords, options);
+            SheetPlayer.parts.push(compingPart.start(0));
         }
         if (melody) {
-            SheetPlayer.melody(melody).start(0);;
+            const melodyPart = await SheetPlayer.melody(melody);
+            SheetPlayer.parts.push(melodyPart.start(0));
         }
         Tone.Transport.start('+1');
+    }
+
+    static stop() {
+        SheetPlayer.parts.forEach(part => {
+            part.stop();
+        });
+        SheetPlayer.instruments.forEach(instrument => {
+            if (instrument.releaseAll) {
+                instrument.releaseAll();
+            } else {
+                instrument.triggerRelease();
+            }
+        });
     }
 
     static melody(sequence) {
@@ -60,7 +87,7 @@ export class SheetPlayer {
         }, sequence, "1m");
     }
 
-    static comp(sheet, options?: VoicingValidation) {
+    static async comp(sheet, options?: SheetPlayerOptions) {
 
         options = {
             range: ['C3', 'C5'],
@@ -70,34 +97,92 @@ export class SheetPlayer {
             minTopDistance: 2, // min semitones between the two top notes
             ...options
         }
-        let { maxVoices } = options;
+        let { maxVoices, pedal, real }: SheetPlayerOptions =
+        {
+            pedal: false,
+            real: true,
+            ...options
+        };
 
-        const bass = SheetPlayer.getBass();
-        const piano = SheetPlayer.getPiano(maxVoices);
+        const bass = await SheetPlayer.getBass(real);
+        SheetPlayer.instruments.push(bass);
+        const piano = await SheetPlayer.getPiano(maxVoices, real);
+        SheetPlayer.instruments.push(piano);
+
 
         const sequence = SheetPlayer.getSequence(sheet);
-        // console.log('comp', sheet, sequence);
-        const range = ['C3', 'C5'];
-        let voicing, latest;
+
+        let currentVoicing, lastVoicing, currentBassnote, lastBassNote;
         return new Tone.Sequence(function (time, event) {
+            const { chord } = event;
             if (event.path[1] === 0) {
                 if (event.path[0] === 0) {
                     console.log(`-- new chorus --`);
                 }
             }
-            const chord = event.chord;
-            latest = voicing || latest;
-            voicing = Voicing.getNextVoicing(chord, latest, options);
-            voicing = voicing.map(note => Note.simplify(note));
-            if (voicing) {
-                piano.triggerAttackRelease(voicing, "1n");
-                const note = chord.match((/[A-G][b|#]?/))[0] + '2';
-                bass.triggerAttackRelease(note, "1n", time);
+
+            currentVoicing = Voicing.getNextVoicing(chord, lastVoicing, options);
+            currentVoicing = currentVoicing.map(note => Note.simplify(note));
+            if (currentVoicing) {
+                let pianoNotes = SheetPlayer.getAttackRelease(currentVoicing, lastVoicing, pedal);
+                /* piano.triggerRelease(pianoNotes.release, time);
+                piano.triggerAttack(pianoNotes.attack, time); */
+                SheetPlayer.releaseAll(pianoNotes.release, piano, time);
+                SheetPlayer.attackAll(pianoNotes.attack, piano, time);
+
+                /* piano.triggerAttack(currentVoicing[0], time); */
+                lastVoicing = currentVoicing;
+                // piano.triggerAttackRelease(pianoNotes.attack);
+            } else if (lastVoicing) {
+                // TODO
+                piano.triggerRelease(lastVoicing, time);
+                lastVoicing = null;
             }
-        }, sequence, "1m")
+
+            currentBassnote = Harmony.getBassNote(chord) + '2';
+            if (currentBassnote) {
+                if (!pedal || currentBassnote !== lastBassNote) {
+                    /* bass.triggerRelease(lastBassNote, time); */
+                    bass.triggerAttack(currentBassnote, time);
+                }
+                lastBassNote = currentBassnote;
+                //bass.triggerAttack(note, "1n", time);
+            } else if (lastBassNote) {
+                /* bass.triggerRelease(lastBassNote, time); */
+                piano.triggerRelease(lastBassNote, time);
+                lastBassNote = null;
+            }
+
+        }, sequence, "1m");
     }
 
-    static getBass() {
+    static attackAll(notes, instrument, time = 0) {
+        notes.forEach(note => instrument.triggerAttack(note, time));
+    }
+
+    static releaseAll(notes, instrument, time = 0) {
+        notes.forEach(note => instrument.triggerRelease(note, time));
+    }
+
+    static getAttackRelease(newNotes = [], oldNotes = [], pedal = false) {
+        if (!newNotes) {
+            return;
+        }
+        let attack = [], release = [];
+        if (!pedal) {
+            release = oldNotes;
+            attack = newNotes;
+        } else {
+            release = oldNotes.filter(note => !newNotes.find(n => Harmony.isSameNote(note, n)));
+            attack = newNotes.filter(note => !oldNotes.find(n => Harmony.isSameNote(note, n)));
+        }
+        return { attack, release };
+    }
+
+    static getBass(real = false) {
+        if (real) {
+            return SheetPlayer.getRealPiano();
+        }
         return new Tone.MonoSynth({
             "volume": -22,
             "envelope": {
@@ -115,13 +200,29 @@ export class SheetPlayer {
         }).toMaster();
     }
 
-    static getPiano(voices = 4) {
+    static getPiano(voices = 4, real = true) {
+        if (real) {
+            return SheetPlayer.getRealPiano();
+        }
         return new Tone.PolySynth(voices, Tone.Synth, {
             "volume": -18,
             "oscillator": {
                 "partials": [1, .5, .25, .125],
             }
         }).toMaster();
+    }
+
+    static getRealPiano() {
+        if (SheetPlayer.realPiano) {
+            return SheetPlayer.realPiano;
+        }
+        SheetPlayer.realPiano = new Promise((resolve, reject) => {
+            const sampler = new Tone.Sampler(pianoSamples, {
+                volume: -4,
+                onload: () => resolve(sampler)
+            }).toMaster();
+        });
+        return SheetPlayer.realPiano;
     }
 
     static getLead() {

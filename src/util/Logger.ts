@@ -39,6 +39,10 @@ export class Logger {
             icon: '🥌',
             description: 'All voices changed position. (Not shown when parallel)'
         },
+        noChange: {
+            icon: '🛋',
+            description: 'All voices remained in position.'
+        },
         topAdded: {
             icon: '🌤',
             description: 'A top voice was added',
@@ -271,6 +275,12 @@ export class Logger {
             if (!Voicing.hasTonic(pick, chord)) {
                 konsole.push(Logger.emoji.rootless.icon);
             }
+            if (!choice.parallel && choice.oblique.length === 0) {
+                konsole.push(Logger.emoji.noOblique.icon);
+            }
+            if (choice.oblique.length === choice.targets.length) {
+                konsole.push(Logger.emoji.noChange.icon);
+            }
         }
         lastVoicing = lastVoicing || []
         konsole.push(`${difference}/${movement}: ${chord} (${choices.indexOf(choice) + 1}/${choices.length})`);
@@ -278,9 +288,6 @@ export class Logger {
             if (combinations.length < 4) {
                 konsole.push(Logger.emoji.fewCombinations.icon);
             }
-        }
-        if (choice && !choice.parallel && choice.oblique.length === 0) {
-            konsole.push(Logger.emoji.noOblique.icon);
         }
         if (console && console.table) {
             Logger.logCustom(konsole, console.groupCollapsed);

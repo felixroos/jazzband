@@ -32,6 +32,10 @@ export declare class Logger {
             icon: string;
             description: string;
         };
+        noChange: {
+            icon: string;
+            description: string;
+        };
         topAdded: {
             icon: string;
             description: string;

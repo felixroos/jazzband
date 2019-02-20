@@ -16,6 +16,9 @@ export class Harmony {
     }
 
     static getTonalChord(chord: string) {
+        if (!chord) {
+            return null;
+        }
         chord = chord
             .replace(/([A-G][b|#]?)(69)/, '$1M69')
             .replace('-', 'm')
@@ -31,6 +34,16 @@ export class Harmony {
         const tokens = Chord.tokenize(chord);
         const s = tokens[1].split('/');
         return tokens[0] + (s[0] || 'M');
+    }
+
+    static getBassNote(chord: string) {
+        if (!chord) {
+            return null;
+        }
+        if (chord.includes('/')) {
+            return chord.split('/')[1];
+        }
+        return chord.match((/[A-G][b|#]?/))[0];
     }
 
 

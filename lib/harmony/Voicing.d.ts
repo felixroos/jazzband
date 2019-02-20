@@ -2,17 +2,20 @@ import { intervalDirection } from './Harmony';
 export declare type VoicingValidation = {
     maxDistance?: number;
     minBottomDistance?: number;
+    minDistance?: number;
     minTopDistance?: number;
     topNotes?: string[];
     bottomNotes?: string[];
+};
+export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
     maxVoices?: number;
-    minDistance?: number;
     forceDirection?: intervalDirection;
-};
+    rangeBorders?: number[];
+}
 export declare class Voicing {
-    static getNextVoicing(chord: any, lastVoicing: any, options?: VoicingValidation): any;
-    static getDesiredDirection(voicing: any, range: any): "up" | "down";
+    static getNextVoicing(chord: any, lastVoicing: any, options?: VoiceLeadingOptions): any;
+    static getDesiredDirection(voicing: any, range: any, thresholds?: number[]): "up" | "down";
     static hasTonic(voicing: any, chord: any): any;
     static getNoteCombinations(chord: any, length?: number): any;
     static getVoicePermutations(chord: any, length: any, voicingOptions?: VoicingValidation): any;
