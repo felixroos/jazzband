@@ -13,6 +13,8 @@ import { piano } from '../samples/piano';
 
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
+console.log('playlist', playlist.songs[0]);
+
 // bass = new Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
 const keyboard = new Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
 // const keyboard = new WebAudioFont({ context, preset: 50, gain: .8 });
