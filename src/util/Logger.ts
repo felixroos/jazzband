@@ -298,20 +298,16 @@ export class Logger {
                 konsole.push(Logger.emoji.noChange.icon);
             }
         }
-        previousVoicing = previousVoicing || []
-        konsole.push(`${difference}/${movement}: ${chord} (${choices.indexOf(choice) + 1}/${choices.length})`);
         if (combinations) {
-            if (combinations.length < 4) {
+            if (combinations.length < 3) {
                 konsole.push(Logger.emoji.fewCombinations.icon);
             }
         }
+        konsole.push(`${chord}`);
         if (console && console.table) {
             Logger.logCustom(konsole, console.groupCollapsed);
-
-            console.table({
-                previousVoicing: previousVoicing.join(' '),
-                pick: pick.join(' '),
-            });
+            console.log(`${previousVoicing.join(' ')} > ${pick.join(' ')} (${choices.indexOf(choice) + 1}. choice of ${choices.length})`);
+            previousVoicing = previousVoicing || []
             if (choice) {
                 console.group('Choice:');
                 Logger.logChoice(choice);
