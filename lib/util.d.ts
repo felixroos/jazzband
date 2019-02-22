@@ -117,7 +117,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
+export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
 export declare function permutateArray(array: any): any;
 export declare function permutateElements(array: any, validate?: any, path?: any[]): any;
 export declare function permutationComplexity(array: any, validate?: any, path?: any[]): number;

@@ -3,10 +3,15 @@ node_modules
 **/**/dist/*.mp3
 **/**/.cache
 demo/dist
-#**/**/samples/piano
+**/**/samples/piano
 **/**/samples/harp
-#**/**/samples/drummer
+**/**/samples/drummer
 **/**/samples/MetronomeUp.wav
 .vscode
 
 legacy.md
+
+docs
+
+songs
+samples
