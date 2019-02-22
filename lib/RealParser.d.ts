@@ -1,4 +1,4 @@
-import { Sheet } from "./Song";
+import { Leadsheet } from "./sheet/Sheet";
 export declare class RealParser {
     /**
      * The RegExp for a complete chord. The match array contains:
@@ -9,25 +9,19 @@ export declare class RealParser {
      * 5 - the top chord as (chord)
      * @type RegExp
      */
-    chordRegex: RegExp;
-    regExps: RegExp[];
-    replacements: {
+    static chordRegex: RegExp;
+    static regExps: RegExp[];
+    static replacements: {
         "LZ": string[];
         "XyQ": string[];
         "Kcl": string[];
     };
-    raw: string;
-    sections: any;
-    bars: any;
-    tokens: any;
-    sheet: Sheet;
-    measures: any;
-    constructor(raw: any);
-    getChord(iRealChord: any): any;
-    getSheet(tokens: any): Sheet;
-    parse(raw: string): any;
-    parseChord(match: any): iRealChord;
-    newToken(arr: any): iRealToken;
+    static getChord(iRealChord: any): any;
+    static parseSheet(raw: any): Leadsheet;
+    static getSheet(tokens: any): Leadsheet;
+    static parse(raw: string): any;
+    static parseChord(match: any): iRealChord;
+    static newToken(arr: any): iRealToken;
 }
 declare class iRealChord {
     note: any;

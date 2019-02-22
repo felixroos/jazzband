@@ -1,4 +1,4 @@
-import { randomElement } from "../util";
+import { randomElement } from "../util/util";
 
 const off = () => randomElement([0, [0, 0, 2]], [6, 1]);
 const eightFour = () => randomElement(

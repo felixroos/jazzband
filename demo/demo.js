@@ -1,125 +1,148 @@
-import * as jazz from '../lib';
-import link from './playlists/1350.json';
-//import link from './playlists/zw.json';
-import { RealParser } from '../src/RealParser';
-import { piano } from './samples/piano';
-/* import { harp } from './samples/harp'; */
-import { drumset } from './samples/drumset';
 import iRealReader from 'ireal-reader';
-import { swing } from '../src/grooves/swing';
+import { Trio, Sampler, util } from '../lib';
+import { bossa } from '../src/grooves/bossa';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
-import { bossa } from '../src/grooves/bossa';
+import { swing } from '../src/grooves/swing';
+import { RealParser } from '../src/sheet/RealParser';
+import { Snippet } from '../src/sheet/Snippet';
+import link from '../songs/1350.json';
+/* import { harp } from './samples/harp'; */
+import { drumset } from '../samples/drumset';
+import { piano } from '../samples/piano';
+var AudioContext = window.AudioContext // Default
+    || window.webkitAudioContext // Safari and old versions of Chrome
+    || false;
+if (!AudioContext) {
+    alert("Sorry, but the Web Audio API is not supported by your browser. Please, consider upgrading to the latest version or downloading Google Chrome or Mozilla Firefox");
+}
 const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
 
-// bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
-
-const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
-// const keyboard = new jazz.WebAudioFont({ context, preset: 50, gain: .8 });
-/* const bass = new jazz.WebAudioFont({ context, preset: 366 }); */
+// bass = new Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
+const keyboard = new Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
+// const keyboard = new WebAudioFont({ context, preset: 50, gain: .8 });
+// const bass = new WebAudioFont({ context, preset: 366 });
 const bass = keyboard;
-/* const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context }); */
-const drums = new jazz.Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
-
-const band = new jazz.Trio({ context, piano: keyboard, bass, drums, solo: false });
-
-
-/* band.pianist.gain = .4;
-band.bassist.gain = .9;
-band.drummer.gain = .8; */
-/* band.soloist.gain = .6; */
+// const harpInstrument = new Sampler({ samples: harp, midiOffset: 24, gain: 1, context });
+const drums = new Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
+const band = new Trio({ context, piano: keyboard, bass, drums, solo: false });
 
 function getStandard(playlist) {
-    console.log('playlist', playlist);
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Lone Jack (Page 1)'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Minor Strain'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('El Cajon'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mirror, Mirror'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Falling Grace')));
-    const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Confirmation')));
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Giant Steps'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Autumn Leaves'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs); */
-    const parser = new RealParser(standard.music.raw);
-    //console.log('tokens',parser.tokens);
-    standard.music.measures = parser.sheet; // TODO: add Song that can be passed to comp
-    console.log('standard', standard, standard.music.measures);
-    console.log('sheet', parser.sheet);
+    /* const standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus'))); */
+    const standard = util.randomElement(playlist.songs);
+    standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
+    console.log('standard', standard);
     return standard;
 }
-
-let lastVoicing;
 
 window.onload = function () {
     // buttons
     const playJazz = document.getElementById('jazz');
     const playFunk = document.getElementById('funk');
     const playBossa = document.getElementById('bossa');
-    const stop = document.getElementById('stop');
+    const stopButton = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
     const next = document.getElementById('next');
-    const randomInstruments = document.getElementById('instruments');
-    const playChord = document.getElementById('playChord');
-    const a = document.getElementById('a');
-    const b = document.getElementById('b');
-    const c = document.getElementById('c');
-    const d = document.getElementById('d');
-    const e = document.getElementById('e');
-    const f = document.getElementById('f');
-    const g = document.getElementById('g');
-    const chordInput = document.getElementById('chordInput');
+    const playChords = document.getElementById('playChords');
+    const format = document.getElementById('format');
+    const minify = document.getElementById('minify');
+    const standardTitle = document.getElementById('standardTitle');
+    const textarea = document.getElementById('chords');
+    const cheapSynths = document.getElementById('cheapsynths');
+    const usePiano = document.getElementById('usePiano');
+    let standard, sheet, groove = swing;
 
-    function voiceChord(chord) {
-        const notes = jazz.util.getNextVoicing(chord, lastVoicing);
-        lastVoicing = notes;
-        console.log(chord, notes);
-        context.resume();
-        keyboard.playNotes(notes, { duration: 500 });
-    }
+    loadStandard();
 
-    a.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    b.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    c.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    d.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    e.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    f.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    g.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-
-
-    playChord.addEventListener('click', () => {
-        voiceChord(chordInput.value);
-    })
-
-
-    let standard/*  = getStandard(); */
-
-    function play(groove = swing) {
-        console.log('groove', groove);
-        // const bpm = 70 + Math.random() * 100;
-        const bpm = /* groove.tempo ||  */160;
-        console.log('tempo', bpm);
-        const cycle = 4;
-        band.comp(standard.music.measures, { metronome: false, exact: true, cycle, bpm, groove/* , arpeggio: true */ })
-    }
-
-    randomInstruments.addEventListener('click', () => {
-        const allowed = ['sine', 'triangle', 'square', 'sawtooth'];
-        band.pianist.instrument = jazz.util.randomSynth(band.mix, allowed);
-        band.bassist.instrument = jazz.util.randomSynth(band.mix, ['sine']);
-        /* band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed); */
-        console.log('pianist:', band.pianist.instrument.type);
-        console.log('bassist:', band.bassist.instrument.type);
+    next.addEventListener('click', () => {
+        loadStandard();
     });
 
-    playJazz.addEventListener('click', () => play(swing));
-    playFunk.addEventListener('click', () => play(funk));
-    playBossa.addEventListener('click', () => play(bossa));
+    function stop() {
+        if (band.pulse) {
+            band.pulse.stop();
+        }
+    }
 
-    stop.addEventListener('click', () => {
-        band.pulse.stop();
+    function loadStandard() {
+        standard = getStandard(playlist);
+        textarea.value = Snippet.from(standard.music.measures);
+        setTitle(standard.composer + ' - ' + standard.title);
+        sheet = {
+            composer: standard.composer,
+            title: standard.title,
+            chords: standard.music.measures
+        };
+        stop();
+    }
+
+    function setTitle(title) {
+        standardTitle.innerHTML = title;
+    }
+
+    function play(leadsheet = sheet, groove = swing) {
+        if (band.pulse) {
+            band.pulse.stop();
+        }
+        const forms = 2;
+        const time = 4;
+        const bpm = groove.tempo || 130;
+        setTitle(sheet.composer + ' - ' + sheet.title);
+        band.comp(sheet, {
+            render: { forms },
+            metronome: false,
+            exact: false,
+            cycle: time,
+            bpm,
+            groove,
+            voicings: {
+                range: ['C3', 'C5'], // allowed voice range
+                maxVoices: 3, // maximum number of voices per chord
+                maxDistance: 7,  // general max distance between single voices
+                minDistance: 1,  // general max distance between single voices
+                minBottomDistance: 3, // min semitones between the two bottom notes
+                minTopDistance: 2, // min semitones between the two top notes
+                noTopDrop: true,
+                noTopAdd: true,
+                noBottomDrop: false,
+                noBottomAdd: false,
+                logging: true
+            },
+            onMeasure: (measure) => {
+                selectCell(measure.index);
+
+            }
+        });
+    }
+    usePiano.addEventListener('click', () => {
+        stop();
+        band.pianist.instrument = keyboard;
+        band.bassist.instrument = bass;
+        /* band.soloist.instrument = util.randomSynth(band.mix, allowed); */
+        console.log('pianist:', band.pianist.instrument.type);
+        console.log('bassist:', band.bassist.instrument.type);
+        play();
+    });
+    cheapSynths.addEventListener('click', () => {
+        stop();
+        const allowed = ['triangle', 'square', 'sawtooth'];
+        band.pianist.instrument = util.randomSynth(band.mix, allowed);
+        band.bassist.instrument = util.randomSynth(band.mix, ['sine']);
+        /* band.soloist.instrument = util.randomSynth(band.mix, allowed); */
+        console.log('pianist:', band.pianist.instrument.type);
+        console.log('bassist:', band.bassist.instrument.type);
+        play()
+    });
+
+    playJazz.addEventListener('click', () => play(sheet, swing));
+    playFunk.addEventListener('click', () => play(sheet, funk));
+    playBossa.addEventListener('click', () => play(sheet, bossa));
+
+
+    stopButton.addEventListener('click', () => {
+        stop();
     });
     slower.addEventListener('click', () => {
         band.pulse.changeTempo(band.pulse.props.bpm - 10);
@@ -130,11 +153,41 @@ window.onload = function () {
         console.log('tempo', band.pulse.props.bpm);
     });
 
-    next.addEventListener('click', () => {
+    textarea.addEventListener('click', () => {
         if (band.pulse) {
             band.pulse.stop();
         }
-        standard = getStandard(playlist);
-        setTimeout(() => play(), 500);
-    })
+        sheet = {
+            title: 'Custom Changes',
+            composer: 'You',
+            chords: Snippet.parse(textarea.value),
+        }
+        setTitle(sheet.composer + ' - ' + sheet.title);
+    });
+
+    playChords.addEventListener('click', () => {
+        // the parseChords fn will transform the textarea string to a chord array
+        sheet = {
+            title: sheet.title,
+            composer: sheet.composer,
+            chords: Snippet.parse(textarea.value),
+        }
+        textarea.value = Snippet.format(textarea.value);
+        play();
+    });
+
+    function selectCell(n) {
+        const bounds = Snippet.getCellBounds(n, textarea.value);
+        textarea.focus();
+        textarea.setSelectionRange(bounds[0], bounds[1]);
+    }
+    let n = 0;
+    format.addEventListener('click', () => {
+        textarea.value = Snippet.format(textarea.value);
+        selectCell(n++);
+
+    });
+    minify.addEventListener('click', () => {
+        textarea.value = Snippet.minify(textarea.value, true);
+    });
 }

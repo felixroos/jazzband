@@ -1,12 +1,11 @@
 import { Musician } from './Musician';
 import { Instrument } from '../instruments/Instrument';
+import { VoiceLeadingOptions } from '../harmony/Voicing';
 export default class Pianist extends Musician {
     name: string;
     playedNotes: any[];
-    playedPatterns: any[];
     playedChords: any[];
     defaults: {
-        intelligentVoicings: boolean;
         groove: {
             name: string;
             tempo: number;
@@ -26,12 +25,11 @@ export default class Pianist extends Musician {
             hihat: () => number[];
             solo: () => any;
         };
-        noTonic: boolean;
     };
     min: (...values: number[]) => number;
     rollFactor: number;
     props: any;
-    range: string[];
+    voicingOptions: VoiceLeadingOptions;
     instrument: Instrument;
     constructor(instrument: any, props?: {});
     play({ pulse, measures, settings }: {
@@ -40,8 +38,7 @@ export default class Pianist extends Musician {
         settings: any;
     }): any;
     getLastVoicing(): any;
-    playNotes(scorenotes: any, { tonic, deadline, interval, gain, duration, pulse }: {
-        tonic: any;
+    playNotes(scorenotes: any, { deadline, interval, gain, duration, pulse }: {
         deadline: any;
         interval: any;
         gain: any;

@@ -1,5 +1,5 @@
-import { getMidi } from "../util";
 import { Pulse } from "../Pulse";
+import { Harmony } from '../harmony/Harmony';
 
 export interface NoteEvent {
     note: string;
@@ -50,7 +50,7 @@ export class Instrument {
                 }))
             });
         }
-        const midi = notes.map(note => getMidi(note, this.midiOffset));
+        const midi = notes.map(note => Harmony.getMidi(note, this.midiOffset));
         const noteOff = settings.deadline + settings.duration / 1000;
 
         const notesOn = notes.map((note, index) => ({

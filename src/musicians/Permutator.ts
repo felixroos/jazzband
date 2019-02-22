@@ -1,4 +1,4 @@
-import { resolveChords, getDigitalPattern, randomDelay, randomElement, getGuideTones, getPatternInChord, renderDigitalPattern } from '../util';
+import { resolveChords, getDigitalPattern, randomDelay, randomElement, getGuideTones, getPatternInChord, renderDigitalPattern } from '../util/util';
 import { Musician } from './Musician';
 import { Chord, Distance } from 'tonal';
 import { swing } from '../grooves/swing';

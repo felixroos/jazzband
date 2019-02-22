@@ -1,5 +1,5 @@
 import { Instrument } from './Instrument';
-import { adsr } from '../util';
+import { adsr } from '../util/util';
 
 export class Sampler extends Instrument {
     buffers = {};

@@ -1,10 +1,14 @@
 import { Pulse } from './Pulse';
 import { Musician } from './musicians/Musician';
-import { renderSheet } from './Song';
+import { Sheet, Leadsheet } from './sheet/Sheet';
+import { Metronome } from './Metronome';
+import { Logger } from './util/Logger';
 
+/** Band */
 export default class Band {
     props: any;
     pulse: Pulse;
+    mix: any;
     musicians: Musician[];
     defaults = {
         cycle: 4,
@@ -14,11 +18,21 @@ export default class Band {
     }
     context: AudioContext;
     onMeasure: (measure, tick?) => {};
+    metronome: Metronome;
 
     constructor({ context, musicians, onMeasure }: any = {}) {
         this.context = context || new AudioContext();
         this.onMeasure = onMeasure;
         this.musicians = musicians || [];
+        this.mix = this.setupMix(this.context);
+        this.metronome = new Metronome(this.mix);
+    }
+
+    setupMix(context) {
+        const mix = context.createGain();
+        mix.gain.value = 0.9;
+        mix.connect(context.destination);
+        return mix;
     }
 
     addMember(musician) {
@@ -33,11 +47,16 @@ export default class Band {
         return this.context.resume().then(() => this.context);
     }
 
-    comp(sheet, settings) {
+    comp(sheet: Leadsheet, settings) {
         if (this.pulse) {
             this.pulse.stop();
         }
-        let measures = renderSheet(sheet);
+        Logger.logLegend();
+        Logger.logSheet(sheet);
+        if (settings.onMeasure) {
+            this.onMeasure = settings.onMeasure;
+        }
+        let measures = Sheet.render(sheet.chords, settings.render);
         measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });
         this.play(measures, settings);
@@ -46,6 +65,9 @@ export default class Band {
     play(measures, settings) {
         this.ready().then(() => {
             this.pulse = settings.pulse || new Pulse(settings);
+            return this.count(this.pulse, settings.metronome ? null : 0)
+        }).then((tick) => {
+            /* settings.deadline = tick.deadline; */
             if (this.onMeasure) {
                 // TODO: add onChord for setting tonics + circle chroma etc
                 this.pulse.tickArray(measures.map(measure => ({ measure })),
@@ -57,5 +79,12 @@ export default class Band {
             musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });
+    }
+
+    count(pulse, bars = 1) {
+        if (pulse.getMeasureLength() < 1.5) {
+            bars *= 2; //double countin bars when countin would be shorter than 1.5s
+        }
+        return this.metronome.count(pulse, bars);
     }
 }
