@@ -94,7 +94,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "major" | "minor" | "dominant" | "minor-tonic";
+export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

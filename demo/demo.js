@@ -1,81 +1,96 @@
 import iRealReader from 'ireal-reader';
-import * as jazz from '../lib';
-import { bossa } from '../src/grooves/bossa';
-// import { disco } from '../src/grooves/disco';
-import { funk } from '../src/grooves/funk';
+import * as util from '../src/util/util';
 import { swing } from '../src/grooves/swing';
-//import link from './playlists/zw.json';
+import { Voicing } from '../src/harmony/Voicing';
 import { RealParser } from '../src/sheet/RealParser';
 import { Snippet } from '../src/sheet/Snippet';
 import { SheetPlayer } from '../src/sheet/SheetPlayer';
 import link from './playlists/1350.json';
-/* import { harp } from './samples/harp'; */
-import { drumset } from './samples/drumset';
-import { piano } from './samples/piano';
 
-const context = new AudioContext();
 const playlist = new iRealReader(decodeURI(link));
 
-// bass = new jazz.Synthesizer({ duration: 400, gain: gains[w1], type: w1, mix });
-
-const keyboard = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
-// const keyboard = new jazz.WebAudioFont({ context, preset: 50, gain: .8 });
-/* const bass = new jazz.WebAudioFont({ context, preset: 366 }); */
-const bass = keyboard;
-/* const harpInstrument = new jazz.Sampler({ samples: harp, midiOffset: 24, gain: 1, context }); */
-const drums = new jazz.Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
-
-const band = new jazz.Trio({ context, piano: keyboard, bass, drums, solo: false });
-
-
-/* band.pianist.gain = .4;
-band.bassist.gain = .9;
-band.drummer.gain = .8; */
-/* band.soloist.gain = .6; */
-
 function getStandard(playlist) {
-    /* console.log('playlist', playlist); */
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Lone Jack (Page 1)'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Minor Strain'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('El Cajon'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mirror, Mirror'))); // TODO: fix
-    //const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Falling Grace')));
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Confirmation'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Giant Steps'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Autumn Leaves'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Blues For Alice'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Pink'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Knife'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Opener, The'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Forget Me'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Harlequin'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Thang'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('One Note Samba'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Ain\'t She Sweet'))); */
-    /* const standard = jazz.util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus'))); */
-    const standard = jazz.util.randomElement(playlist.songs);
-    standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
-    console.log('standard', standard);
+    let standard;
+    // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus')));
+    standard = util.randomElement(playlist.songs);
+    standard.music.measures = RealParser.parseSheet(standard.music.raw);
+    // console.log('standard', standard);
     return standard;
 }
 
 const options = {
     // forceDirection: 'down',
-    range: ['C3', 'C5'], // allowed voice range
-    maxVoices: 2, // maximum number of voices per chord
+    range: ['C3', 'G5'], // allowed voice range
+    maxVoices: 4, // maximum number of voices per chord
     maxDistance: 7,  // general max distance between single voices
     minDistance: 1,  // general max distance between single voices
     minBottomDistance: 3, // min semitones between the two bottom notes
     minTopDistance: 2, // min semitones between the two top notes
     real: false,
-    pedal: true
+    swing: 0,
+    pedal: true,
+    noTopDrop: true,
+    noTopAdd: true,
+    noBottomDrop: false,
+    noBottomAdd: false,
+    filterChoices: (choice) => {
+        return true;
+    },
+    sortChoices: (a, b) => {
+        return a.difference - b.difference;
+        /* return Math.abs(a.movement) - Math.abs(b.movement) */
+        /* return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval)) */
+    }
 };
 
-let lastVoicing;
+window.onload = function () {
+    // buttons
+    const stop = document.getElementById('stop');
+    const steps = document.getElementById('steps');
+    const alice = document.getElementById('alice');
+    const next = document.getElementById('next');
+    const playChord = document.getElementById('playChord');
+    const a = document.getElementById('a');
+    const b = document.getElementById('b');
+    const c = document.getElementById('c');
+    const d = document.getElementById('d');
+    const e = document.getElementById('e');
+    const f = document.getElementById('f');
+    const g = document.getElementById('g');
+    const chordInput = document.getElementById('chordInput');
+    let standard;
 
-function alice() {
+    next.addEventListener('click', () => {
+        standard = getStandard(playlist);
+        setTimeout(() => play(), 500);
+    });
+
+    function play(groove = swing) {
+        //SheetPlayer.play({ chords: ['C', 'C', 'C/B', 'C/Bb', 'F', 'F/E', 'G6', 'G/F'] }, { pedal: true });
+        /* SheetPlayer.play({ chords: ['C^7', 'E-', 'C^7', 'E-'] }, options);
+        return; */
+        return SheetPlayer.play(
+            {
+                composer: standard.composer,
+                title: standard.title,
+                forms: 1,
+                time: 4,
+                groove,
+                chords: standard.music.measures,
+            }, options);
+    }
+    stop.addEventListener('click', () => {
+        SheetPlayer.stop();
+    });
+    steps.addEventListener('click', () => {
+        giantSteps();
+    });
+    alice.addEventListener('click', () => {
+        bluesForAlice();
+    });
+}
+
+function bluesForAlice() {
     let melody = Snippet.parse2(`
     f4 . c4 a3 . e4 . c4 a3 |
     d4 e4 b3 d4 db4 bb3 g3 ab3 |
@@ -102,7 +117,7 @@ function alice() {
     }, options);
 }
 
-function steps() {
+function giantSteps() {
     let melody = Snippet.parse2(`
     f#4 d4 | b3  g3 |
     bb3  / | b3  a3 |
@@ -123,20 +138,10 @@ function steps() {
         title: 'Giant Steps',
         composer: 'John Coltrane',
         chords, melody
-    }, options)
+    }, options);
 }
 
 function knife() {
-    /* let melody = Snippet.parse2(`
-    f#5 d5 | b4  g4 |
-    bb4  / | b4  a4 |
-    d5 bb4 | g4  eb4 |
-    f#4  / | g4  f4 |
-    bb4  / | b4  a4 |
-    d5  / | eb5  db5 |
-    f#5 / | g5  f5 |
-    bb5  / | f#5  f#5 |
-     `); */
     let chords = Snippet.parse2(`
     |  B^7 D7   |  G^7 Bb7   |  Eb^7  |  A-7 D7    |
     |  G^7 Bb7  |  Eb^7 F#7  |  B^7   |  F-7 Bb7   |
@@ -144,106 +149,4 @@ function knife() {
     |  B^7      |  F-7 Bb7   |  Eb^7  |  C#-7 F#7  |
     `);
     SheetPlayer.play({ chords, /* melody */ }, options)
-}
-
-
-window.onload = function () {
-    // buttons
-    const playJazz = document.getElementById('jazz');
-    const playFunk = document.getElementById('funk');
-    const playBossa = document.getElementById('bossa');
-    const stop = document.getElementById('stop');
-    const slower = document.getElementById('slower');
-    const faster = document.getElementById('faster');
-    const next = document.getElementById('next');
-    const randomInstruments = document.getElementById('instruments');
-    const playChord = document.getElementById('playChord');
-    const a = document.getElementById('a');
-    const b = document.getElementById('b');
-    const c = document.getElementById('c');
-    const d = document.getElementById('d');
-    const e = document.getElementById('e');
-    const f = document.getElementById('f');
-    const g = document.getElementById('g');
-    const chordInput = document.getElementById('chordInput');
-
-    function voiceChord(chord) {
-        const notes = jazz.util.getNextVoicing(chord, lastVoicing);
-        lastVoicing = notes;
-        console.log(chord, notes);
-        context.resume();
-        keyboard.playNotes(notes, { duration: 500 });
-    }
-
-    a.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    b.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    c.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    d.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    e.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    f.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-    g.addEventListener('click', (e) => voiceChord(e.target.innerHTML));
-
-
-    playChord.addEventListener('click', () => {
-        voiceChord(chordInput.value);
-    });
-    let standard/*  = getStandard(); */
-
-    function play(groove = swing) {
-        SheetPlayer.stop();
-        /* SheetPlayer.play({ chords: ['C', 'C', 'C/B', 'C/Bb', 'F', 'F/E', 'G6', 'G/F'] }, { retrigger: false });
-        return; */
-        /* knife();
-        return; */
-
-        const forms = 2;
-        const time = 4;
-
-        return SheetPlayer.play(
-            {
-                composer: standard.composer,
-                title: standard.title,
-                groove,
-                forms,
-                time,
-                chords: standard.music.measures,
-            }, options);
-
-        band.comp(standard.music.measures, { render: { forms }, metronome: false, exact: false, cycle: time, bpm, groove/* , arpeggio: true */ });
-
-    }
-
-    randomInstruments.addEventListener('click', () => {
-        const allowed = ['sine', 'triangle', 'square', 'sawtooth'];
-        band.pianist.instrument = jazz.util.randomSynth(band.mix, allowed);
-        band.bassist.instrument = jazz.util.randomSynth(band.mix, ['sine']);
-        /* band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed); */
-        console.log('pianist:', band.pianist.instrument.type);
-        console.log('bassist:', band.bassist.instrument.type);
-    });
-
-    playJazz.addEventListener('click', () => play(swing));
-    playFunk.addEventListener('click', () => play(funk));
-    playBossa.addEventListener('click', () => play(bossa));
-
-    stop.addEventListener('click', () => {
-        /* band.pulse.stop(); */
-        SheetPlayer.stop();
-    });
-    slower.addEventListener('click', () => {
-        band.pulse.changeTempo(band.pulse.props.bpm - 10);
-        console.log('tempo', band.pulse.props.bpm);
-    });
-    faster.addEventListener('click', () => {
-        band.pulse.changeTempo(band.pulse.props.bpm + 10);
-        console.log('tempo', band.pulse.props.bpm);
-    });
-
-    next.addEventListener('click', () => {
-        if (band.pulse) {
-            band.pulse.stop();
-        }
-        standard = getStandard(playlist);
-        setTimeout(() => play(), 500);
-    })
 }

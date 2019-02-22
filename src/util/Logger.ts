@@ -49,11 +49,11 @@ export class Logger {
         },
         topRemoved: {
             icon: '⛅',
-            description: 'A top voice was removed'
+            description: 'A top voice was dropped'
         },
         bottomRemoved: {
             icon: '🛫',
-            description: 'A bottom voice was removed'
+            description: 'A bottom voice was dropped'
         },
         bottomAdded: {
             icon: '🌳',
@@ -92,8 +92,12 @@ export class Logger {
     }
 
     static logLegend() {
-        if (console.table) {
+        if (console.groupCollapsed) {
+            console.groupCollapsed('Show Emoji Legend');
             console.table(Logger.emoji);
+            console.groupEnd();
+        } else {
+            console.log('Emoji Legend:', Logger.emoji);
         }
     }
 
@@ -132,7 +136,10 @@ export class Logger {
             return
         }
         let { difference,
+            origin,
             targets,
+            from,
+            to,
             movement,
             similar,
             added,
@@ -141,21 +148,29 @@ export class Logger {
             parallel,
             topInterval,
             bottomInterval,
+            topNotes,
+            bottomNotes,
             intervals,
             degrees,
         } = choice;
         console.table({
             difference,
             movement,
+            origin: origin.join(' '),
+            dropped: dropped.join(' '),
+            added: added.join(' '),
             targets: targets.join(' '),
+            /* from: from.join(' '),
+            to: to.join(' '), */
             intervals: intervals.join(' '),
             degrees: degrees.join(' '),
             [Logger.logLabel('similar')]: similar,
             [Logger.logLabel('contrary')]: contrary,
             [Logger.logLabel('parallel')]: parallel,
-            topInterval, bottomInterval,
-            added: added.join(' '),
-            dropped: dropped.join(' '),
+            topNotes: topNotes.join(' '),
+            topInterval,
+            bottomNotes: bottomNotes.join(' '),
+            bottomInterval,
         });
     }
 
@@ -215,11 +230,12 @@ export class Logger {
         return args;
     }
 
-    static logVoicing({ chord, lastVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any) {
+    static logVoicing({ chord, previousVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
-        lastVoicing = lastVoicing || [];
-        const idle = lastVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
-        const active = pick.filter(n => !lastVoicing.find(p => Harmony.isSameNote(n, p)))
+        pick = pick || [];
+        previousVoicing = previousVoicing || [];
+        const idle = previousVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
+        const active = pick.filter(n => !previousVoicing.find(p => Harmony.isSameNote(n, p)))
         const added = choice ? choice.added : [];
         let konsole = Logger.logNotes(active, idle, added, range);
         const movement = choice ? choice.movement : 0;
@@ -260,10 +276,10 @@ export class Logger {
             if (choice.parallel) {
                 konsole.push(Logger.emoji.parallel.icon);
             }
-            if (choice.added.length && choice.added[choice.added.length - 1] === choice.targets[choice.targets.length - 1]) {
+            if (choice.added.length && choice.added[choice.added.length - 1] === choice.topNotes[1]) {
                 konsole.push(Logger.emoji.topAdded.icon);
             }
-            if (choice.dropped.length && choice.dropped[choice.dropped.length - 1] === choice.origin[choice.targets.length - 1]) {
+            if (choice.dropped.length && choice.dropped[choice.dropped.length - 1] === choice.topNotes[0]) {
                 konsole.push(Logger.emoji.topRemoved.icon);
             }
             if (choice.dropped.length && choice.dropped[0] === choice.origin[0]) {
@@ -282,7 +298,7 @@ export class Logger {
                 konsole.push(Logger.emoji.noChange.icon);
             }
         }
-        lastVoicing = lastVoicing || []
+        previousVoicing = previousVoicing || []
         konsole.push(`${difference}/${movement}: ${chord} (${choices.indexOf(choice) + 1}/${choices.length})`);
         if (combinations) {
             if (combinations.length < 4) {
@@ -293,7 +309,7 @@ export class Logger {
             Logger.logCustom(konsole, console.groupCollapsed);
 
             console.table({
-                lastVoicing: lastVoicing.join(' '),
+                previousVoicing: previousVoicing.join(' '),
                 pick: pick.join(' '),
             });
             if (choice) {

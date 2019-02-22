@@ -481,11 +481,6 @@ test.only('getNextVoicing', () => {
 This snippet will generate voicings that increase in seconds. The best voice leading for seconds
 will always keep the existing structure. This means that the overall pitch will increase each time and eventually exhaust the range of the instrument. A real pianist will always stay in the range where the chords sound good, even if the jumps do not follow the best voice leading. So the algorithm needs a mechanism to force leading the voices in a certain direction. The direction could be implemented at.
 
-## Next Try: 
-
-
-
-
 ## Available and Unavailable Tensions
 
 https://www.youtube.com/watch?v=KKk1HLsbi7A

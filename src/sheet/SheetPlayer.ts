@@ -7,18 +7,27 @@ import { Note } from 'tonal';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { Harmony } from '../harmony/Harmony';
 import { piano as pianoSamples } from '../../demo/samples/piano/index.js';
+import { drumSamples } from '../../demo/samples/drumset';
+import { Snippet } from './Snippet';
+
+export declare type noteTrigger = (time, duration?) => any;
+
 
 export declare interface SheetPlayerOptions extends VoiceLeadingOptions {
     /** If true, a new voicing will not attack notes that stayed since the last voicing */
     pedal?: boolean;
     /** If true, "real" instruments will be used */
     real?: boolean;
+    start?: number; // when to start
+    swing?: number; // amount of swing
+    swingSubdivision?: string;
 }
 
 export class SheetPlayer {
     static parts = [];
     static instruments = [];
     static realPiano;
+    static realDrums;
 
     static getSequence(sheet) {
         return Sheet.render(sheet)
@@ -27,19 +36,22 @@ export class SheetPlayer {
     }
 
     static async play(sheet, options?: SheetPlayerOptions) {
+        SheetPlayer.stop();
         sheet = {
             chords: [],
             melody: [],
             forms: 2,
             cycle: 4,
             bpm: 130,
-            swing: 0.7,
+            swing: 0.5,
+            swingSubdivision: '8n',
             ...sheet,
         }
         let {
             chords,
             melody,
             swing,
+            swingSubdivision,
             bpm,
         } = sheet;
         Logger.logLegend();
@@ -47,23 +59,24 @@ export class SheetPlayer {
 
         Tone.Transport.bpm.value = bpm;
         Tone.Transport.swing = swing;
-        Tone.Transport.swingSubdivision = "8n"
+        Tone.Transport.swingSubdivision = swingSubdivision;
 
-        if (console.group) {
-            console.group('SheetPlayer.play');
-        }
-        if (chords) {
-            const compingPart = await SheetPlayer.comp(chords, options);
-            SheetPlayer.parts.push(compingPart.start(0));
-        }
-        if (melody) {
-            const melodyPart = await SheetPlayer.melody(melody);
-            SheetPlayer.parts.push(melodyPart.start(0));
-        }
+        SheetPlayer.playParts([
+            await SheetPlayer.playChords(chords, options),
+            await SheetPlayer.playBass(chords, options),
+            await SheetPlayer.playMelody(melody, options),
+            /* ...(await SheetPlayer.playDrums(sheet, options)) */
+        ]);
+
         Tone.Transport.start('+1');
     }
 
-    static stop() {
+    static playParts(parts) {
+        SheetPlayer.parts = parts.filter(p => !!p);
+        SheetPlayer.parts.forEach(part => part.start(0));
+    }
+
+    static stop(): void {
         SheetPlayer.parts.forEach(part => {
             part.stop();
         });
@@ -74,21 +87,62 @@ export class SheetPlayer {
                 instrument.triggerRelease();
             }
         });
+        SheetPlayer.parts = [];
+        SheetPlayer.instruments = [];
     }
 
-    static melody(sequence) {
-
-        const lead = SheetPlayer.getLead();
-        /* const sequence = SheetPlayer.getSequence(sheet); */
+    static async playMelody(sequence, options?: SheetPlayerOptions): Promise<Tone.Sequence> {
+        let { real } = options;
+        const lead = await SheetPlayer.getLead(real);
         return new Tone.Sequence((time, note) => {
             if (note.match(/[a-g][b|#]?[0-6]/)) {
-                lead.triggerAttackRelease(note, "1n");
+                if (note) {
+                    lead.triggerAttackRelease(note, '2n', time);
+                }
             }
         }, sequence, "1m");
     }
 
-    static async comp(sheet, options?: SheetPlayerOptions) {
+    static async playDrums(sheet, options?: SheetPlayerOptions): Promise<Tone.Sequence[]> {
+        let { real } = {
+            ...options
+        };
+        return SheetPlayer.getDrums(true).then(drums => {
 
+            SheetPlayer.instruments.push(drums);
+
+            const short = {
+                'bd': 'kick',
+                'sn': 'snare',
+                'hh': 'hihat',
+                'rc': 'ride',
+                'rs': 'rimshot',
+                'cr': 'crash',
+            }
+
+            const swing = [
+                'rc . rc ~ rc . rc . rc ~ rc',
+                '~ . hh . ~ . hh ',
+                /* '~ . ~ rs ', */
+                /* 'bd | ~ | bd | ~', */
+                /* '~ | ~ | ~ | ~ . ~ ~ ~ ~ ~ sn' */,
+            ];
+            const triggerSound = (time, sound) => {
+                if (drums[sound]) {
+                    drums[sound](time);
+                }
+            }
+            return swing.map(p => Snippet.parse2(p))
+                .map(seq => new Tone.Sequence((time, sound) =>
+                    triggerSound(time, short[sound]),
+                    seq, "1m"));
+        });
+    }
+
+    static async playChords(sheet, options: SheetPlayerOptions = {}): Promise<Tone.Sequence> {
+        if (!sheet) {
+            return;
+        }
         options = {
             range: ['C3', 'C5'],
             maxVoices: 4,
@@ -103,16 +157,11 @@ export class SheetPlayer {
             real: true,
             ...options
         };
-
-        const bass = await SheetPlayer.getBass(real);
-        SheetPlayer.instruments.push(bass);
         const piano = await SheetPlayer.getPiano(maxVoices, real);
         SheetPlayer.instruments.push(piano);
 
-
         const sequence = SheetPlayer.getSequence(sheet);
-
-        let currentVoicing, lastVoicing, currentBassnote, lastBassNote;
+        let currentVoicing, previousVoicing;
         return new Tone.Sequence(function (time, event) {
             const { chord } = event;
             if (event.path[1] === 0) {
@@ -120,51 +169,63 @@ export class SheetPlayer {
                     console.log(`-- new chorus --`);
                 }
             }
-
-            currentVoicing = Voicing.getNextVoicing(chord, lastVoicing, options);
+            currentVoicing = Voicing.getNextVoicing(chord, previousVoicing, options);
             currentVoicing = currentVoicing.map(note => Note.simplify(note));
             if (currentVoicing) {
-                let pianoNotes = SheetPlayer.getAttackRelease(currentVoicing, lastVoicing, pedal);
-                /* piano.triggerRelease(pianoNotes.release, time);
-                piano.triggerAttack(pianoNotes.attack, time); */
-                SheetPlayer.releaseAll(pianoNotes.release, piano, time);
+                let pianoNotes = SheetPlayer.getAttackRelease(currentVoicing, previousVoicing, pedal);
+
+                if (pedal) {
+                    SheetPlayer.releaseAll(pianoNotes.release, piano, time);
+                } else {
+                    piano.releaseAll(time);
+                }
                 SheetPlayer.attackAll(pianoNotes.attack, piano, time);
 
-                /* piano.triggerAttack(currentVoicing[0], time); */
-                lastVoicing = currentVoicing;
-                // piano.triggerAttackRelease(pianoNotes.attack);
-            } else if (lastVoicing) {
+                previousVoicing = currentVoicing;
+            } else if (previousVoicing) {
                 // TODO
-                piano.triggerRelease(lastVoicing, time);
-                lastVoicing = null;
+                piano.triggerRelease(previousVoicing, time);
+                previousVoicing = null;
             }
-
-            currentBassnote = Harmony.getBassNote(chord) + '2';
-            if (currentBassnote) {
-                if (!pedal || currentBassnote !== lastBassNote) {
-                    /* bass.triggerRelease(lastBassNote, time); */
-                    bass.triggerAttack(currentBassnote, time);
-                }
-                lastBassNote = currentBassnote;
-                //bass.triggerAttack(note, "1n", time);
-            } else if (lastBassNote) {
-                /* bass.triggerRelease(lastBassNote, time); */
-                piano.triggerRelease(lastBassNote, time);
-                lastBassNote = null;
-            }
-
         }, sequence, "1m");
     }
 
-    static attackAll(notes, instrument, time = 0) {
+    static async playBass(sheet, options: SheetPlayerOptions = {}): Promise<Tone.Sequence> {
+        if (!sheet) {
+            return;
+        }
+        let { real, pedal } = {
+            ...options
+        };
+        const sequence = SheetPlayer.getSequence(sheet);
+
+        const bass = await SheetPlayer.getBass(real);
+        SheetPlayer.instruments.push(bass);
+        let currentBassnote, previousBassNote;
+        return new Tone.Sequence(function (time, event) {
+            const { chord } = event;
+            currentBassnote = Harmony.getBassNote(chord) + '2';
+            if (currentBassnote) {
+                if (!pedal || currentBassnote !== previousBassNote) {
+                    bass.triggerAttack(currentBassnote, time);
+                }
+                previousBassNote = currentBassnote;
+            } else if (previousBassNote) {
+                bass.triggerRelease(previousBassNote, time);
+                previousBassNote = null;
+            }
+        }, sequence, "1m");
+    }
+
+    static attackAll(notes, instrument, time = 0): void {
         notes.forEach(note => instrument.triggerAttack(note, time));
     }
 
-    static releaseAll(notes, instrument, time = 0) {
+    static releaseAll(notes, instrument, time = 0): void {
         notes.forEach(note => instrument.triggerRelease(note, time));
     }
 
-    static getAttackRelease(newNotes = [], oldNotes = [], pedal = false) {
+    static getAttackRelease(newNotes = [], oldNotes = [], pedal = false): { attack: string[], release: string[] } {
         if (!newNotes) {
             return;
         }
@@ -179,65 +240,138 @@ export class SheetPlayer {
         return { attack, release };
     }
 
-    static getBass(real = false) {
+    static getBass(real = false): Promise<Tone.Instrument> {
         if (real) {
             return SheetPlayer.getRealPiano();
         }
-        return new Tone.MonoSynth({
-            "volume": -22,
-            "envelope": {
-                "attack": 0.02,
-                "decay": 0.3,
-                "release": 2,
+        return Promise.resolve(
+            new Tone.MonoSynth({
+                "volume": -22,
+                "envelope": {
+                    "attack": 0.02,
+                    "decay": 0.3,
+                    "release": 2,
+                },
+                "filterEnvelope": {
+                    "attack": 0.001,
+                    "decay": 0.001,
+                    "sustain": 0.4,
+                    "baseFrequency": 130,
+                    "octaves": 2.6
+                }
+            }).toMaster()
+        );
+    }
+
+    static async getDrums(real = true): Promise<{ [sound: string]: noteTrigger }> {
+        if (real) {
+            return SheetPlayer.getRealDrums();
+        }
+        const hihat = await SheetPlayer.hihat();
+        const ride = await SheetPlayer.ride();
+        return {
+            // hihat: (time, duration) => hihat.triggerAttackRelease(time, duration),
+            ride: (time, duration) => {
+                console.log('ride', time, duration);
+                ride.triggerAttackRelease(time, duration)
             },
-            "filterEnvelope": {
-                "attack": 0.001,
-                "decay": 0.001,
-                "sustain": 0.4,
-                "baseFrequency": 130,
-                "octaves": 2.6
-            }
-        }).toMaster();
+        }
     }
 
-    static getPiano(voices = 4, real = true) {
+    static ride() {
+        return Promise.resolve(
+            new Tone.MetalSynth({
+                volume: -30,
+                frequency: 200,
+                envelope: {
+                    attack: 0.001,
+                    decay: 1,
+                    release: 1
+                },
+                harmonicity: 6,
+                modulationIndex: 8,
+                resonance: 3000,
+                octaves: 1
+            }).toMaster()
+        );
+    }
+    static hihat() {
+        return Promise.resolve(
+            new Tone.MetalSynth({
+                volume: -22,
+                frequency: 200,
+                envelope: {
+                    attack: 0.001,
+                    decay: .1,
+                    release: .1
+                },
+                harmonicity: 5.1,
+                modulationIndex: 100,
+                resonance: 100,
+                octaves: 2
+            }).toMaster()
+        );
+    }
+
+    static getPiano(voices = 4, real = true): Promise<Tone.Instrument> {
         if (real) {
             return SheetPlayer.getRealPiano();
         }
-        return new Tone.PolySynth(voices, Tone.Synth, {
-            "volume": -18,
-            "oscillator": {
-                "partials": [1, .5, .25, .125],
-            }
-        }).toMaster();
+        return Promise.resolve(
+            new Tone.PolySynth(voices, Tone.Synth, {
+                "volume": -18,
+                "oscillator": {
+                    "partials": [1, 2, 3],
+                }
+            }).toMaster()
+        );
     }
 
-    static getRealPiano() {
+    static getRealPiano(): Promise<Tone.Instrument> {
         if (SheetPlayer.realPiano) {
             return SheetPlayer.realPiano;
         }
-        SheetPlayer.realPiano = new Promise((resolve, reject) => {
-            const sampler = new Tone.Sampler(pianoSamples, {
-                volume: -4,
-                onload: () => resolve(sampler)
-            }).toMaster();
-        });
+        SheetPlayer.realPiano = SheetPlayer.getSampler(pianoSamples, { volume: -4 });
         return SheetPlayer.realPiano;
     }
 
-    static getLead() {
-        return new Tone.Synth({
-            "volume": -12,
-            oscillator: {
-                type: 'triangle'
-            },
+    static async getRealDrums(): Promise<Tone.Instrument> {
+        if (SheetPlayer.realDrums) {
+            return SheetPlayer.realDrums;
+        }
+        const sampler = await SheetPlayer.getSampler(drumSamples, { volume: -8 });
+        SheetPlayer.realDrums = {
+            kick: (time, duration) => sampler.triggerAttackRelease('C1', time),
+            snare: (time, duration) => sampler.triggerAttackRelease('C2', time),
+            hihat: (time, duration) => sampler.triggerAttackRelease('C3', time),
+            ride: (time, duration) => sampler.triggerAttackRelease('C4', time),
+            crash: (time, duration) => sampler.triggerAttackRelease('C5', time),
+            rimshot: (time, duration) => sampler.triggerAttackRelease('C6', time),
+        }
+        return SheetPlayer.realDrums;
+    }
+
+    static getSampler(samples, options): Promise<Tone.Instrument> {
+        return new Promise((resolve, reject) => {
+            const sampler = new Tone.Sampler(samples, {
+                ...options, onload: () => resolve(sampler)
+            }).toMaster();
+        });
+    }
+
+    static getLead(real?): Tone.Instrument {
+        if (real) {
+            return SheetPlayer.getRealPiano();
+        }
+        return new Tone.FMSynth({
+            volume: -12,
             envelope: {
                 attack: 0.001,
                 decay: 0.1,
                 sustain: 0.6,
                 release: 0.1
             },
-            portamento: 0.01
+            portamento: 0.05
         }).toMaster();
     }
 }

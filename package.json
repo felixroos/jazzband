@@ -9,6 +9,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
+    "demo-old": "parcel ./demo/demo-old.html --out-dir ./demo/dist --no-hmr",
     "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist"
   },
   "repository": {
@@ -35,7 +36,7 @@
     "babel-core": "^6.26.3",
     "babel-jest": "^23.4.2",
     "jest": "^23.5.0",
-    "tone": "^0.12.80",
+    "tone": "^13.4.9",
     "ts-jest": "^23.1.4",
     "typescript": "^3.0.1"
   },
