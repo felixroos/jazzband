@@ -90,9 +90,9 @@ window.onload = function () {
 
     randomInstruments.addEventListener('click', () => {
         const allowed = ['sine', 'triangle', 'square', 'sawtooth'];
-        band.pianist.instrument = jazz.util.randomSynth(band.mix, allowed);
-        band.bassist.instrument = jazz.util.randomSynth(band.mix, ['sine']);
-        /* band.soloist.instrument = jazz.util.randomSynth(band.mix, allowed); */
+        band.pianist.instrument = util.randomSynth(band.mix, allowed);
+        band.bassist.instrument = util.randomSynth(band.mix, ['sine']);
+        /* band.soloist.instrument = util.randomSynth(band.mix, allowed); */
         console.log('pianist:', band.pianist.instrument.type);
         console.log('bassist:', band.bassist.instrument.type);
     });
