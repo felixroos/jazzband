@@ -1,8 +1,10 @@
 import { Pulse } from './Pulse';
 import { Musician } from './musicians/Musician';
-import { Sheet } from './sheet/Sheet';
+import { Sheet, Leadsheet } from './sheet/Sheet';
 import { Metronome } from './Metronome';
+import { Logger } from './util/Logger';
 
+/** Band */
 export default class Band {
     props: any;
     pulse: Pulse;
@@ -45,11 +47,14 @@ export default class Band {
         return this.context.resume().then(() => this.context);
     }
 
-    comp(sheet, settings) {
+    comp(sheet: Leadsheet, settings) {
         if (this.pulse) {
             this.pulse.stop();
         }
-        let measures = Sheet.render(sheet, settings.render);
+        Logger.logLegend();
+        Logger.logSheet(sheet);
+
+        let measures = Sheet.render(sheet.chords, settings.render);
         measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });
         this.play(measures, settings);

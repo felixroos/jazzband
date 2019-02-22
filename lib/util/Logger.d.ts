@@ -77,7 +77,10 @@ export declare class Logger {
             description: string;
         };
     };
-    static logCustom(args: any, logFn?: (message?: any, ...optionalParams: any[]) => void): void;
+    static logCustom(args: any, logFn?: {
+        (message?: any, ...optionalParams: any[]): void;
+        (message?: any, ...optionalParams: any[]): void;
+    }): void;
     static logLegend(): void;
     static logSheet(sheet: any): void;
     static logLabel(key: any): any;

@@ -1,16 +1,19 @@
 import { Measure, MeasureOrString } from './Measure';
 
-export type Leadsheet = Array<MeasureOrString>;
+export type Measures = Array<MeasureOrString>;
 
-export type Song = {
+export type Leadsheet = {
     name: string,
     composer?: string,
     style?: string,
     bpm?: number,
     repeats?: number,
     key?: string,
-    sheet: Leadsheet
+    measures?: Measures,
+    chords?: Measures,
+    melody?: Measures,
 }
+
 
 export type JumpSign = {
     pair?: string,
@@ -22,7 +25,7 @@ export type JumpSign = {
 export type SheetState = {
     measures?: [],
     index?: number,
-    sheet?: Leadsheet,
+    sheet?: Measures,
     jumps?: { [key: number]: number },
     visits?: { [key: number]: number },
     nested?: boolean,
@@ -52,7 +55,7 @@ export class Sheet {
         }
     };
 
-    static render(sheet, options = {}): Leadsheet {
+    static render(sheet, options = {}): Measures {
         let state: SheetState = {
             sheet,
             measures: [],
@@ -165,7 +168,7 @@ export class Sheet {
     static findPair(
         sheet,
         index: number,
-        pairs: Array<(measure?: Measure, options?: { sheet?: Leadsheet, index?: number }) => boolean>,
+        pairs: Array<(measure?: Measure, options?: { sheet?: Measures, index?: number }) => boolean>,
         move = 1,
         stack = 0): number {
         let match = -1; // start with no match
@@ -188,7 +191,7 @@ export class Sheet {
     static findMatch(
         sheet,
         index: number,
-        find: (measure?: Measure, options?: { sheet?: Leadsheet, index?: number }) => boolean,
+        find: (measure?: Measure, options?: { sheet?: Measures, index?: number }) => boolean,
         move = 1): number {
         let match = -1; // start with no match
         while (match === -1 && index >= 0 && index < sheet.length) {
@@ -225,7 +228,7 @@ export class Sheet {
 
     // returns the index of the repeat sign that pairs with the given index
     static getBracePair(
-        { sheet, index, fallbackToZero }: { sheet: Leadsheet, index: number, fallbackToZero?: boolean }
+        { sheet, index, fallbackToZero }: { sheet: Measures, index: number, fallbackToZero?: boolean }
     ): number {
         if (fallbackToZero === undefined) {
             fallbackToZero = true;

@@ -1,6 +1,9 @@
 import * as Tone from 'tone';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 export declare type noteTrigger = (time: any, duration?: any) => any;
+declare interface Tone {
+    [key: string]: any;
+}
 export declare interface SheetPlayerOptions extends VoiceLeadingOptions {
     /** If true, a new voicing will not attack notes that stayed since the last voicing */
     pedal?: boolean;
@@ -45,3 +48,4 @@ export declare class SheetPlayer {
     static getSampler(samples: any, options: any): Promise<Tone.Instrument>;
     static getLead(real?: any): Tone.Instrument;
 }
+export {};

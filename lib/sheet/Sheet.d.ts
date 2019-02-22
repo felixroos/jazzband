@@ -1,13 +1,15 @@
 import { Measure, MeasureOrString } from './Measure';
-export declare type Leadsheet = Array<MeasureOrString>;
-export declare type Song = {
+export declare type Measures = Array<MeasureOrString>;
+export declare type Leadsheet = {
     name: string;
     composer?: string;
     style?: string;
     bpm?: number;
     repeats?: number;
     key?: string;
-    sheet: Leadsheet;
+    measures?: Measures;
+    chords?: Measures;
+    melody?: Measures;
 };
 export declare type JumpSign = {
     pair?: string;
@@ -18,7 +20,7 @@ export declare type JumpSign = {
 export declare type SheetState = {
     measures?: [];
     index?: number;
-    sheet?: Leadsheet;
+    sheet?: Measures;
     jumps?: {
         [key: number]: number;
     };
@@ -35,7 +37,7 @@ export declare class Sheet {
     static jumpSigns: {
         [sign: string]: JumpSign;
     };
-    static render(sheet: any, options?: {}): Leadsheet;
+    static render(sheet: any, options?: {}): Measures;
     static nextMeasure(state: any): SheetState;
     static nextIndex(state: any): SheetState;
     static newForm(state: any): SheetState;
@@ -43,16 +45,16 @@ export declare class Sheet {
     static nextSection(state: SheetState): SheetState;
     /** Starts at a given index, stops when the pair functions returned equally often */
     static findPair(sheet: any, index: number, pairs: Array<(measure?: Measure, options?: {
-        sheet?: Leadsheet;
+        sheet?: Measures;
         index?: number;
     }) => boolean>, move?: number, stack?: number): number;
     static findMatch(sheet: any, index: number, find: (measure?: Measure, options?: {
-        sheet?: Leadsheet;
+        sheet?: Measures;
         index?: number;
     }) => boolean, move?: number): number;
     static getJumpDestination(state: SheetState): number;
     static getBracePair({ sheet, index, fallbackToZero }: {
-        sheet: Leadsheet;
+        sheet: Measures;
         index: number;
         fallbackToZero?: boolean;
     }): number;

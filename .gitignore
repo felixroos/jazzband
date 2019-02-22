@@ -2,11 +2,16 @@ node_modules
 **/**/dist/*.wav
 **/**/dist/*.mp3
 **/**/.cache
-demo/dist
-#**/**/samples/piano
+#demo/dist
+**/**/samples/piano
 **/**/samples/harp
-#**/**/samples/drummer
+**/**/samples/drummer
 **/**/samples/MetronomeUp.wav
 .vscode
 
+samples
+songs
+
 legacy.md
+
+docs

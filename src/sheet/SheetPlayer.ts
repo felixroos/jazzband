@@ -6,12 +6,15 @@ import { Voicing } from '..';
 import { Note } from 'tonal';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { Harmony } from '../harmony/Harmony';
-import { piano as pianoSamples } from '../../demo/samples/piano/index.js';
-import { drumSamples } from '../../demo/samples/drumset';
+import { piano as pianoSamples } from '../../samples/piano/index.js';
+import { drumSamples } from '../../samples/drumset';
 import { Snippet } from './Snippet';
 
 export declare type noteTrigger = (time, duration?) => any;
 
+declare interface Tone {
+    [key: string]: any
+};
 
 export declare interface SheetPlayerOptions extends VoiceLeadingOptions {
     /** If true, a new voicing will not attack notes that stayed since the last voicing */
