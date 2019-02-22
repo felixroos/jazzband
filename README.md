@@ -31,8 +31,8 @@ npm install jazzband --save
 ```ts
 import { Trio } from 'jazzband';
 const context = new AudioContext();
-const band = new Trio({context});
-band.comp(['D-7', 'G7', 'C^7', 'C^7'], { bpm: 120 });
+const band = new Trio({ context });
+band.comp({ chords: ['D-7', 'G7', 'C^7', 'C^7'] }, { bpm: 120 });
 ```
 
 The above snippet will setup the default Trio which is a Robot Rhythm Section playing only Synthesizers 🤖 🎹.

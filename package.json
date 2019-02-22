@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --watch",
     "publish": "npm publish",
+    "deploy": "node ./scripts/pages.js",
     "build": "tsc",
     "watch": "tsc --watch",
     "docs": "typedoc src",
@@ -37,6 +38,7 @@
     "@types/jest": "^23.3.1",
     "babel-core": "^6.26.3",
     "babel-jest": "^23.4.2",
+    "gh-pages": "^2.0.1",
     "jest": "^23.5.0",
     "parcel-plugin-clean-dist": "0.0.6",
     "tone": "^13.4.9",
