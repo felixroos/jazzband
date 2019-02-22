@@ -25,61 +25,7 @@ export class Snippet {
         compact = Snippet.wrapPipes(compact);
 
         if (linebreaks) {
-            // insert spaces before first chord
-            let bars = compact.split('|').slice(1, -1);
-            bars = bars.map((bar, index) => {
-                if (!bar[0].match(/[1-9:]/)) {
-                    bar = '  ' + bar;
-                } else if (bar[0] === ':') {
-                    bar = ': ' + bar.slice(1);
-                }
-                return bar;
-            });
-            // find out indices of first houses
-            const houses = bars.reduce((offset, bar, index) => {
-                if (bar[0] === '1') {
-                    offset.push(index);
-                }
-                return offset;
-            }, []);
-            // insert empty bars before additional houses
-            bars = bars.reduce((bars, bar, index) => {
-                if (bar[0].match(/[2-9]/)) {
-                    const offset = houses.filter(h => h < index).reverse()[0];
-                    bars = bars.concat(new Array(offset % 4).fill(''));
-                }
-                bars.push(bar);
-                return bars;
-            }, []);
-            // find out the maximal number of chars per column
-            const chars = bars.reduce((max, bar, index) => {
-                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
-                return max;
-            }, []);
-            // fill up each bar with spaces
-            compact = bars.map((bar, index) => {
-                let diff = chars[index % 4] - bar.length + 2;
-                if (diff > 0) {
-                    bar += new Array(diff).fill(' ').join('');
-                }
-                // move double dots to end of bar
-                bar = bar.replace(/:(\s+)$/, '$1:');
-                return bar;
-            }).join('|');
-
-            compact = Snippet.wrapPipes(compact);
-            // break string all 4 bars
-            let pipeIndex = -1;
-            compact = compact.split('').reduce((string, char, index) => {
-                if (char === '|') {
-                    pipeIndex++;
-                }
-                if (char === '|' && pipeIndex % 4 === 0 && index > 0 && index < compact.length - 1) {
-                    char = "|\n|";
-                    pipeIndex = 0;
-                }
-                return string + char;
-            }, '');
+            compact = Snippet.parseBars(snippet).compact;
         } else {
             compact = compact.replace(/\n/g, '|');
         }
@@ -88,6 +34,90 @@ export class Snippet {
             .replace(/\|( +)\|( +)/g, ' $1 $2') // remove spacer bar pipes
             .replace(/\|( +)\|([1-9])/g, ' $1|$2')
             .replace(/^\s+|\s+$/g, '') // remove spaces/line breaks from start/end
+    }
+
+    static parseBars(snippet) {
+        let compact = Snippet.minify(snippet, false);
+        compact = Snippet.wrapPipes(compact);
+        // insert spaces before first chord
+        let cells = compact.split('|').slice(1, -1);
+        cells = cells.map((bar, index) => {
+            if (!bar[0].match(/[1-9:]/)) {
+                bar = '  ' + bar;
+            } else if (bar[0] === ':') {
+                bar = ': ' + bar.slice(1);
+            }
+            return bar;
+        });
+        // find out indices of first houses
+        const houses = cells.reduce((offset, bar, index) => {
+            if (bar[0] === '1') {
+                offset.push(index);
+            }
+            return offset;
+        }, []);
+        // insert empty cells before additional houses
+        cells = cells.reduce((cells, bar, index) => {
+            if (bar[0].match(/[2-9]/)) {
+                const offset = houses.filter(h => h < index).reverse()[0];
+                cells = cells.concat(new Array(offset % 4).fill(''));
+            }
+            cells.push(bar);
+            return cells;
+        }, []);
+        // find out the maximal number of chars per column
+        const chars = cells.reduce((max, bar, index) => {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+        // fill up each bar with spaces
+        compact = cells.map((bar, index) => {
+            let diff = chars[index % 4] - bar.length + 2;
+            if (diff > 0) {
+                bar += new Array(diff).fill(' ').join('');
+            }
+            // move double dots to end of bar
+            bar = bar.replace(/:(\s+)$/, '$1:');
+            return bar;
+        }).join('|');
+
+        compact = Snippet.wrapPipes(compact);
+        // break string all 4 cells
+        let pipeIndex = -1;
+        compact = compact.split('').reduce((string, char, index) => {
+            if (char === '|') {
+                pipeIndex++;
+            }
+            if (char === '|' && pipeIndex % 4 === 0 && index > 0 && index < compact.length - 1) {
+                char = "|\n|";
+                pipeIndex = 0;
+            }
+            return string + char;
+        }, '');
+        return { compact, cells, houses, chars };
+    }
+
+    static columnChars(snippet) {
+        const bars = snippet.split('|');
+        const chars = bars.reduce((max, bar, index) => {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+    }
+
+    static getCellBounds(index, snippet) {
+        const { chars, cells, houses } = Snippet.parseBars(snippet);
+        if (houses.length && index > houses[0]) {
+            const offset = (houses.filter(h => h < index).reverse()[0]) % 4;
+            index += offset;
+        }
+        index = index % cells.length;
+        const col = index % 4;
+        const row = Math.floor(index / 4);
+        const rowlength = chars.reduce((sum, current) => sum + current + 3, 0) + 2;
+        const rowLeft = rowlength * row;
+        const left = rowLeft + chars.slice(0, col).reduce((sum, current, i) => sum + current + 3, 0) + 1;
+        return [left, left + chars[col] + 2];
     }
 
     static minify(snippet, urlsafe = false) {

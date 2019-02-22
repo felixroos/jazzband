@@ -3,6 +3,14 @@ export declare class Snippet {
     static wrapPipes(string: any): string;
     static formatForDiff(snippet: any): string;
     static format(snippet: any, linebreaks?: boolean): string;
+    static parseBars(snippet: any): {
+        compact: string;
+        cells: string[];
+        houses: any[];
+        chars: any[];
+    };
+    static columnChars(snippet: any): void;
+    static getCellBounds(index: any, snippet: any): any[];
     static minify(snippet: any, urlsafe?: boolean): string;
     static parse(snippet: any, simplify?: boolean): any[];
     static nest(string: any): any;

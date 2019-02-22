@@ -5,7 +5,6 @@ import { bossa } from '../src/grooves/bossa';
 import { funk } from '../src/grooves/funk';
 import { swing } from '../src/grooves/swing';
 import { RealParser } from '../src/sheet/RealParser';
-import { Voicing } from '../src/harmony/Voicing';
 import { Snippet } from '../src/sheet/Snippet';
 import link from '../songs/1350.json';
 /* import { harp } from './samples/harp'; */
@@ -110,6 +109,10 @@ window.onload = function () {
                 noBottomDrop: false,
                 noBottomAdd: false,
                 logging: true
+            },
+            onMeasure: (measure) => {
+                selectCell(measure.index);
+
             }
         });
     }
@@ -172,8 +175,17 @@ window.onload = function () {
         textarea.value = Snippet.format(textarea.value);
         play();
     });
+
+    function selectCell(n) {
+        const bounds = Snippet.getCellBounds(n, textarea.value);
+        textarea.focus();
+        textarea.setSelectionRange(bounds[0], bounds[1]);
+    }
+    let n = 0;
     format.addEventListener('click', () => {
         textarea.value = Snippet.format(textarea.value);
+        selectCell(n++);
+
     });
     minify.addEventListener('click', () => {
         textarea.value = Snippet.minify(textarea.value, true);

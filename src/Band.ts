@@ -53,7 +53,9 @@ export default class Band {
         }
         Logger.logLegend();
         Logger.logSheet(sheet);
-
+        if (settings.onMeasure) {
+            this.onMeasure = settings.onMeasure;
+        }
         let measures = Sheet.render(sheet.chords, settings.render);
         measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });

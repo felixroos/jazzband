@@ -6850,67 +6850,103 @@ var Snippet = /** @class */function () {
         var compact = Snippet.minify(snippet, false);
         compact = Snippet.wrapPipes(compact);
         if (linebreaks) {
-            // insert spaces before first chord
-            var bars = compact.split('|').slice(1, -1);
-            bars = bars.map(function (bar, index) {
-                if (!bar[0].match(/[1-9:]/)) {
-                    bar = '  ' + bar;
-                } else if (bar[0] === ':') {
-                    bar = ': ' + bar.slice(1);
-                }
-                return bar;
-            });
-            // find out indices of first houses
-            var houses_1 = bars.reduce(function (offset, bar, index) {
-                if (bar[0] === '1') {
-                    offset.push(index);
-                }
-                return offset;
-            }, []);
-            // insert empty bars before additional houses
-            bars = bars.reduce(function (bars, bar, index) {
-                if (bar[0].match(/[2-9]/)) {
-                    var offset = houses_1.filter(function (h) {
-                        return h < index;
-                    }).reverse()[0];
-                    bars = bars.concat(new Array(offset % 4).fill(''));
-                }
-                bars.push(bar);
-                return bars;
-            }, []);
-            // find out the maximal number of chars per column
-            var chars_1 = bars.reduce(function (max, bar, index) {
-                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
-                return max;
-            }, []);
-            // fill up each bar with spaces
-            compact = bars.map(function (bar, index) {
-                var diff = chars_1[index % 4] - bar.length + 2;
-                if (diff > 0) {
-                    bar += new Array(diff).fill(' ').join('');
-                }
-                // move double dots to end of bar
-                bar = bar.replace(/:(\s+)$/, '$1:');
-                return bar;
-            }).join('|');
-            compact = Snippet.wrapPipes(compact);
-            // break string all 4 bars
-            var pipeIndex_1 = -1;
-            compact = compact.split('').reduce(function (string, char, index) {
-                if (char === '|') {
-                    pipeIndex_1++;
-                }
-                if (char === '|' && pipeIndex_1 % 4 === 0 && index > 0 && index < compact.length - 1) {
-                    char = "|\n|";
-                    pipeIndex_1 = 0;
-                }
-                return string + char;
-            }, '');
+            compact = Snippet.parseBars(snippet).compact;
         } else {
             compact = compact.replace(/\n/g, '|');
         }
         return compact.replace(/\|+/g, '|').replace(/\|( +)\|( +)/g, ' $1 $2') // remove spacer bar pipes
         .replace(/\|( +)\|([1-9])/g, ' $1|$2').replace(/^\s+|\s+$/g, ''); // remove spaces/line breaks from start/end
+    };
+    Snippet.parseBars = function (snippet) {
+        var compact = Snippet.minify(snippet, false);
+        compact = Snippet.wrapPipes(compact);
+        // insert spaces before first chord
+        var cells = compact.split('|').slice(1, -1);
+        cells = cells.map(function (bar, index) {
+            if (!bar[0].match(/[1-9:]/)) {
+                bar = '  ' + bar;
+            } else if (bar[0] === ':') {
+                bar = ': ' + bar.slice(1);
+            }
+            return bar;
+        });
+        // find out indices of first houses
+        var houses = cells.reduce(function (offset, bar, index) {
+            if (bar[0] === '1') {
+                offset.push(index);
+            }
+            return offset;
+        }, []);
+        // insert empty cells before additional houses
+        cells = cells.reduce(function (cells, bar, index) {
+            if (bar[0].match(/[2-9]/)) {
+                var offset = houses.filter(function (h) {
+                    return h < index;
+                }).reverse()[0];
+                cells = cells.concat(new Array(offset % 4).fill(''));
+            }
+            cells.push(bar);
+            return cells;
+        }, []);
+        // find out the maximal number of chars per column
+        var chars = cells.reduce(function (max, bar, index) {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+        // fill up each bar with spaces
+        compact = cells.map(function (bar, index) {
+            var diff = chars[index % 4] - bar.length + 2;
+            if (diff > 0) {
+                bar += new Array(diff).fill(' ').join('');
+            }
+            // move double dots to end of bar
+            bar = bar.replace(/:(\s+)$/, '$1:');
+            return bar;
+        }).join('|');
+        compact = Snippet.wrapPipes(compact);
+        // break string all 4 cells
+        var pipeIndex = -1;
+        compact = compact.split('').reduce(function (string, char, index) {
+            if (char === '|') {
+                pipeIndex++;
+            }
+            if (char === '|' && pipeIndex % 4 === 0 && index > 0 && index < compact.length - 1) {
+                char = "|\n|";
+                pipeIndex = 0;
+            }
+            return string + char;
+        }, '');
+        return { compact: compact, cells: cells, houses: houses, chars: chars };
+    };
+    Snippet.columnChars = function (snippet) {
+        var bars = snippet.split('|');
+        var chars = bars.reduce(function (max, bar, index) {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+    };
+    Snippet.getCellBounds = function (index, snippet) {
+        var _a = Snippet.parseBars(snippet),
+            chars = _a.chars,
+            cells = _a.cells,
+            houses = _a.houses;
+        if (houses.length && index > houses[0]) {
+            var offset = houses.filter(function (h) {
+                return h < index;
+            }).reverse()[0] % 4;
+            index += offset;
+        }
+        index = index % cells.length;
+        var col = index % 4;
+        var row = Math.floor(index / 4);
+        var rowlength = chars.reduce(function (sum, current) {
+            return sum + current + 3;
+        }, 0) + 2;
+        var rowLeft = rowlength * row;
+        var left = rowLeft + chars.slice(0, col).reduce(function (sum, current, i) {
+            return sum + current + 3;
+        }, 0) + 1;
+        return [left, left + chars[col] + 2];
     };
     Snippet.minify = function (snippet, urlsafe) {
         if (urlsafe === void 0) {
@@ -8194,6 +8230,9 @@ var Band = /** @class */function () {
         }
         Logger_1.Logger.logLegend();
         Logger_1.Logger.logSheet(sheet);
+        if (settings.onMeasure) {
+            this.onMeasure = settings.onMeasure;
+        }
         var measures = Sheet_1.Sheet.render(sheet.chords, settings.render);
         measures = measures.concat(measures);
         settings = Object.assign(this.defaults, settings, { context: this.context });
@@ -10013,7 +10052,7 @@ var Voicing_1 = require("./harmony/Voicing");
 exports.Voicing = Voicing_1.Voicing;
 var Permutation_1 = require("./util/Permutation");
 exports.Permutation = Permutation_1.Permutation;
-},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../src/instruments/Instrument.js":[function(require,module,exports) {
+},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../src/instruments/Instrument.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -10114,7 +10153,7 @@ var Instrument = /** @class */function () {
     return Instrument;
 }();
 exports.Instrument = Instrument;
-},{"../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/instruments/Synthesizer.js":[function(require,module,exports) {
+},{"../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/instruments/Synthesizer.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -10226,7 +10265,7 @@ var Synthesizer = /** @class */function (_super) {
     return Synthesizer;
 }(Instrument_1.Instrument);
 exports.Synthesizer = Synthesizer;
-},{"./Instrument":"../src/instruments/Instrument.js","tonal":"../node_modules/tonal/index.js","../util/util":"../src/util/util.js"}],"../src/util/util.js":[function(require,module,exports) {
+},{"./Instrument":"../src/instruments/Instrument.ts","tonal":"../node_modules/tonal/index.js","../util/util":"../src/util/util.ts"}],"../src/util/util.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11018,7 +11057,7 @@ exports.factorial = factorial;
     return sorted.map(movement => movement.combination);
 }
  */
-},{"tonal":"../node_modules/tonal/index.js","../instruments/Synthesizer":"../src/instruments/Synthesizer.js","../symbols":"../lib/symbols.js","../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/grooves/bossa.js":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","../instruments/Synthesizer":"../src/instruments/Synthesizer.ts","../symbols":"../lib/symbols.js","../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/grooves/bossa.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11069,7 +11108,7 @@ exports.bossa = {
         return util_1.randomElement([[eightFour(), eightFour(), eightFour(), eightFour()], [eightFour(), 2, 0, eightFour()], [0, 0, eightFour(), eightOff()], [[1, 4], 0, eightFour(), eightFour()], [4, 0, 0, 0], halfTriplet().concat(halfTriplet()), [eightOff(), eightOff(), eightOff(), eightOff()]]);
     }
 };
-},{"../util/util":"../src/util/util.js"}],"../src/grooves/funk.js":[function(require,module,exports) {
+},{"../util/util":"../src/util/util.ts"}],"../src/grooves/funk.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11093,7 +11132,7 @@ exports.funk = {
         return [[.5, .6], [.4, .7], [.3, .6], [.5, .7]];
     }
 };
-},{"../util/util":"../src/util/util.js"}],"../src/grooves/swing.js":[function(require,module,exports) {
+},{"../util/util":"../src/util/util.ts"}],"../src/grooves/swing.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11156,1879 +11195,7 @@ exports.swing = {
     }
     /* solo: () => [1, 1, 0, 1] */
 };
-},{"../util/util":"../src/util/util.js"}],"../src/sheet/Sheet.js":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) {
-                if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var Measure_1 = require("./Measure");
-var Sheet = /** @class */function () {
-    function Sheet() {}
-    Sheet.render = function (sheet, options) {
-        if (options === void 0) {
-            options = {};
-        }
-        var state = __assign({ sheet: sheet, measures: [], forms: 1, nested: true, fallbackToZero: true, firstTime: true }, options);
-        state = __assign({}, state, Sheet.newForm(state));
-        var runs = 0;
-        while (runs < 100 && state.index < sheet.length) {
-            runs++;
-            state = Sheet.nextMeasure(state);
-        }
-        return state.measures /* .map(m => Measure.from(m)) */;
-    };
-    Sheet.nextMeasure = function (state) {
-        state = __assign({}, state, Sheet.nextSection(state)); // moves to the right house (if any)
-        var sheet = state.sheet,
-            index = state.index,
-            measures = state.measures;
-        state = __assign({}, state, { measures: measures.concat([__assign({}, Measure_1.Measure.from(sheet[index]), { index: index // add index for mapping
-            })]) }, Sheet.nextIndex(state));
-        return Sheet.nextForm(state);
-    };
-    Sheet.nextIndex = function (state) {
-        var _a;
-        var sheet = state.sheet,
-            index = state.index,
-            jumps = state.jumps,
-            nested = state.nested,
-            fallbackToZero = state.fallbackToZero;
-        if (!Sheet.shouldJump({ sheet: sheet, index: index, jumps: jumps })) {
-            return {
-                index: index + 1
-            };
-        }
-        var braces = [Sheet.getJumpDestination({ sheet: sheet, index: index, fallbackToZero: fallbackToZero, nested: nested }), index];
-        jumps = Sheet.wipeKeys(jumps, [braces[0], braces[1] - 1]); // wipes indices inside braces
-        return {
-            index: braces[0],
-            jumps: __assign({}, jumps, (_a = {}, _a[braces[1]] = (jumps[braces[1]] || 0) + 1, _a))
-        };
-    };
-    Sheet.newForm = function (state) {
-        return __assign({}, state, { index: 0, jumps: {}, visits: {}, lastTime: state.forms === 1 });
-    };
-    Sheet.nextForm = function (state, force) {
-        if (force === void 0) {
-            force = false;
-        }
-        var sheet = state.sheet,
-            index = state.index,
-            forms = state.forms;
-        if (force || index >= sheet.length && forms > 1) {
-            return Sheet.newForm(__assign({}, state, { firstTime: false, forms: forms - 1 }));
-        }
-        return state;
-    };
-    // moves the index to the current house (if any)
-    Sheet.nextSection = function (state) {
-        var _a;
-        var sheet = state.sheet,
-            index = state.index,
-            visits = state.visits,
-            firstTime = state.firstTime,
-            lastTime = state.lastTime;
-        // skip intro when not firstTime
-        if (!firstTime && Measure_1.Measure.from(sheet[index]).section === 'IN') {
-            return {
-                index: Sheet.getNextSectionIndex({ sheet: sheet, index: index })
-            };
-        }
-        // skip coda when not last time
-        if (Measure_1.Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state)) {
-            return Sheet.nextForm(state, true);
-        }
-        if (!Measure_1.Measure.hasHouse(sheet[index], 1)) {
-            return {};
-        }
-        var next = Sheet.getNextHouseIndex({ sheet: sheet, index: index, visits: visits });
-        if (next === -1) {
-            next = index;
-            visits = {}; // reset visits
-        }
-        return {
-            visits: __assign({}, visits, (_a = {}, _a[next] = (visits[next] || 0) + 1, _a)),
-            index: next
-        };
-    };
-    /** Starts at a given index, stops when the pair functions returned equally often */
-    Sheet.findPair = function (sheet, index, pairs, move, stack) {
-        if (move === void 0) {
-            move = 1;
-        }
-        if (stack === void 0) {
-            stack = 0;
-        }
-        var match = -1; // start with no match
-        while (match === -1 && index >= 0 && index < sheet.length) {
-            if (pairs[0](sheet[index], { sheet: sheet, index: index })) {
-                // same sign
-                stack++;
-            }
-            if (pairs[1](sheet[index], { sheet: sheet, index: index })) {
-                // pair sign
-                stack--;
-            }
-            if (stack === 0) {
-                // all pairs resolved > match!
-                match = index;
-            } else {
-                index += move;
-            }
-        }
-        return match;
-    };
-    Sheet.findMatch = function (sheet, index, find, move) {
-        if (move === void 0) {
-            move = 1;
-        }
-        var match = -1; // start with no match
-        while (match === -1 && index >= 0 && index < sheet.length) {
-            if (find(sheet[index], { sheet: sheet, index: index })) {
-                match = index;
-            } else {
-                index += move;
-            }
-        }
-        return match;
-    };
-    // simple matching for brace start, ignores nested repeats
-    Sheet.getJumpDestination = function (state) {
-        var sheet = state.sheet,
-            index = state.index,
-            fallbackToZero = state.fallbackToZero,
-            nested = state.nested;
-        var sign = Measure_1.Measure.getJumpSign(sheet[index]);
-        // if fine > jump till end
-        if (sign.fine) {
-            return sheet.length;
-        }
-        // if no pair given => da capo
-        if (!sign.pair) {
-            return 0;
-        }
-        // if nested mode on and opening brace is searched, use getBracePair..
-        if (nested !== false && sign.pair === '{') {
-            return Sheet.getBracePair({ sheet: sheet, index: index, fallbackToZero: fallbackToZero });
-        }
-        var destination = Sheet.findMatch(sheet, index, function (m) {
-            return Measure_1.Measure.hasSign(sign.pair, m);
-        }, sign.move || -1); // default move back
-        if (fallbackToZero) {
-            // default to zero when searching repeat start (could be forgotten)
-            return destination === -1 ? 0 : destination;
-        }
-        return destination;
-    };
-    // returns the index of the repeat sign that pairs with the given index
-    Sheet.getBracePair = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index,
-            fallbackToZero = _a.fallbackToZero;
-        if (fallbackToZero === undefined) {
-            fallbackToZero = true;
-        }
-        if (Measure_1.Measure.hasSign('{', sheet[index])) {
-            return Sheet.findPair(sheet, index, [function (m) {
-                return Measure_1.Measure.hasSign('{', m);
-            }, function (m) {
-                return Measure_1.Measure.hasSign('}', m);
-            }], 1);
-        } else if (Measure_1.Measure.hasSign('}', sheet[index])) {
-            var pair = Sheet.findPair(sheet, index, [function (m, state) {
-                // this logic could be infinitely complex, having many side effects and interpretations
-                // the current behaviour is similar to musescore or ireal handling braces
-                if (!Measure_1.Measure.hasSign('}', m)) {
-                    return false;
-                }
-                if (index === state.index) {
-                    return true;
-                }
-                var relatedHouse = Sheet.getRelatedHouse({ sheet: sheet, index: state.index });
-                return relatedHouse === -1;
-            }, function (m) {
-                return Measure_1.Measure.hasSign('{', m);
-            }], -1);
-            if (fallbackToZero) {
-                return pair === -1 ? 0 : pair; // default to zero when searching repeat start (could be forgotten)
-            }
-            return pair;
-        }
-        return -1;
-    };
-    // returns true if the house at the given index has not been visited enough times
-    Sheet.canVisitHouse = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index,
-            visits = _a.visits;
-        var houses = sheet[index].house;
-        if (houses === undefined) {
-            return false;
-        }
-        if (!Array.isArray(houses)) {
-            houses = [houses];
-        }
-        var visited = visits[index] || 0;
-        return visited < houses.length;
-    };
-    // returns the next house that can be visited (from the given index)
-    Sheet.getNextHouseIndex = function (_a, move) {
-        var sheet = _a.sheet,
-            index = _a.index,
-            visits = _a.visits;
-        if (move === void 0) {
-            move = 1;
-        }
-        return Sheet.findMatch(sheet, index, function (m, step) {
-            return Measure_1.Measure.hasHouse(m) && Sheet.canVisitHouse({ sheet: sheet, index: step.index, visits: visits });
-        }, move);
-    };
-    Sheet.getNextSectionIndex = function (_a, move) {
-        var sheet = _a.sheet,
-            index = _a.index;
-        if (move === void 0) {
-            move = 1;
-        }
-        return Sheet.findMatch(sheet, index + 1, function (m) {
-            return Measure_1.Measure.from(m).section !== undefined;
-        }, 1);
-    };
-    // wipes all keys in the given range
-    Sheet.wipeKeys = function (numberMap, range) {
-        var wiped = {};
-        Object.keys(numberMap).map(function (i) {
-            return parseInt(i);
-        }).filter(function (i) {
-            return i < range[0] || i > range[1];
-        }).forEach(function (i) {
-            return wiped[i] = numberMap[i];
-        });
-        return wiped;
-    };
-    Sheet.getRelatedHouse = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index;
-        var latestHouse = Sheet.findPair(sheet, index, [function (m, state) {
-            return index === state.index || Measure_1.Measure.hasSign('}', m);
-        }, function (m) {
-            return Measure_1.Measure.hasHouse(m);
-        }], -1);
-        return latestHouse;
-    };
-    Sheet.isFirstHouse = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index;
-        return Measure_1.Measure.hasHouse(sheet[index], 1);
-    };
-    Sheet.getAllowedJumps = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index;
-        if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
-            return 0;
-        }
-        var measure = Measure_1.Measure.from(sheet[index]);
-        if (measure.times !== undefined) {
-            return measure.times;
-        }
-        return 1;
-    };
-    Sheet.readyForFineOrCoda = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index,
-            jumps = _a.jumps,
-            lastTime = _a.lastTime;
-        var signs = Object.keys(Sheet.jumpSigns).filter(function (s) {
-            return s.includes('DC') || s.includes('DS');
-        });
-        var backJump = Sheet.findMatch(sheet, index, function (m) {
-            return signs.reduce(function (match, sign) {
-                return match || Measure_1.Measure.hasSign(sign, m);
-            }, false);
-        });
-        if (backJump === -1) {
-            return lastTime; // last time
-        }
-        return jumps[backJump] > 0;
-    };
-    Sheet.shouldJump = function (_a) {
-        var sheet = _a.sheet,
-            index = _a.index,
-            jumps = _a.jumps;
-        if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
-            return false;
-        }
-        var sign = Measure_1.Measure.getJumpSign(sheet[index]);
-        if (sign.validator && !sign.validator({ sheet: sheet, index: index, jumps: jumps })) {
-            return false;
-        }
-        var allowedJumps = Sheet.getAllowedJumps({ sheet: sheet, index: index });
-        var timesJumped = jumps[index] || 0;
-        return timesJumped < allowedJumps;
-    };
-    Sheet.jumpSigns = {
-        '}': { pair: '{', move: -1 },
-        'DC': {},
-        'DS': { pair: 'Segno', move: -1 },
-        'DS.Fine': { pair: 'Segno', move: -1 },
-        'DS.Coda': { pair: 'Segno', move: -1 },
-        'DC.Fine': {},
-        'DC.Coda': {},
-        'Fine': {
-            fine: true,
-            validator: function validator(state) {
-                return Sheet.readyForFineOrCoda(state);
-            }
-        },
-        'ToCoda': {
-            pair: 'Coda', move: 1,
-            validator: function validator(state) {
-                return Sheet.readyForFineOrCoda(state);
-            }
-        }
-    };
-    return Sheet;
-}();
-exports.Sheet = Sheet;
-/*
-TODO:
-
-more typings
-special sections:
-IN: only play the first time
-CODA: only play last time
-
-test standards:
-- Alice in Wonderland (dc al 2nd ending)
-- All or Nothing at All (dc al coda)
-- Are you real (intro + coda)
-- Armageddon (intro)
-- The Bat (coda sign inside repeat): ireal plays coda directly first time..
-- Bennys Tune (intro+coda sign inside repeat): ireal plays coda directly first time..
-- Bess You Is My Woman (coda sign inside repeat): ireal plays coda directly first time..
-- Blessed Relief (nested repeats, with odd behaviour)
-- Blue in Green (coda)
-- Miles Ahead (coda)
-*/
-},{"./Measure":"../src/sheet/Measure.js"}],"../src/sheet/Measure.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Sheet_1 = require("./Sheet");
-;
-var Measure = /** @class */function () {
-    function Measure() {}
-    Measure.from = function (measure) {
-        if (typeof measure === 'string') {
-            return {
-                chords: [measure]
-            };
-        }
-        if (Array.isArray(measure)) {
-            return {
-                chords: [].concat(measure)
-            };
-        }
-        return Object.assign({}, measure);
-        // return measure;
-    };
-    Measure.hasSign = function (sign, measure) {
-        measure = Measure.from(measure);
-        return !!measure.signs && measure.signs.includes(sign);
-    };
-    Measure.hasHouse = function (measure, number) {
-        measure = Measure.from(measure);
-        var house = measure.house;
-        if (!house) {
-            return false;
-        } else if (number === undefined) {
-            return true;
-        }
-        if (!Array.isArray(house)) {
-            house = [house];
-        }
-        return house.includes(number);
-    };
-    Measure.getJumpSign = function (measure) {
-        var signs = (Measure.from(measure).signs || []).filter(function (s) {
-            return Object.keys(Sheet_1.Sheet.jumpSigns).includes(s);
-        });
-        if (signs.length > 1) {
-            console.warn('measure cannot contain more than one repeat sign', measure);
-        }
-        return Sheet_1.Sheet.jumpSigns[signs[0]];
-    };
-    Measure.hasJumpSign = function (measure) {
-        return Object.keys(Sheet_1.Sheet.jumpSigns).reduce(function (match, current) {
-            return match || Measure.hasSign(current, measure);
-        }, false);
-    };
-    return Measure;
-}();
-exports.Measure = Measure;
-},{"./Sheet":"../src/sheet/Sheet.js"}],"../src/sheet/RealParser.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Measure_1 = require("./Measure");
-// extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
-var RealParser = /** @class */function () {
-    function RealParser() {}
-    RealParser.getChord = function (iRealChord) {
-        return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
-    };
-    RealParser.parseSheet = function (raw) {
-        return RealParser.getSheet(RealParser.parse(raw));
-    };
-    RealParser.getSheet = function (tokens) {
-        var _this = this;
-        var parsed = tokens.reduce(function (current, token, index, array) {
-            var lastBarEnded = ['{', '|', '[', '||' /* 'Z',  */ /* , ']' */].includes(token.bars || token.token);
-            var signs = token.annots || [];
-            var repeatStart = (token.bars || token.token) === '{';
-            var repeatEnd = (token.bars || token.token) === '}';
-            if (repeatStart) {
-                signs.push('{');
-            }
-            if (repeatEnd) {
-                signs.push('}');
-            }
-            // current.measure ends
-            if (lastBarEnded) {
-                if (current.measure) {
-                    // simplify measure if no signs
-                    /* if (Object.keys(current.measure).find(k=>k)) {
-                        current.measure = current.measure.chords;
-                    } */
-                    current.measures.push(current.measure);
-                }
-                current.measure = { chords: [] };
-            }
-            var sectionStart = signs.find(function (a) {
-                return a.match(/^\*[a-zA-Z]/);
-            });
-            if (sectionStart) {
-                signs = signs.filter(function (s) {
-                    return s !== sectionStart;
-                });
-                current.measure.section = sectionStart.replace('*', '');
-            }
-            var hasCodaSign = signs.includes('Q');
-            if (hasCodaSign) {
-                signs = signs.filter(function (s) {
-                    return s !== 'Q';
-                });
-                var codaSign = 'ToCoda';
-                if (!!current.measures.find(function (m) {
-                    return Measure_1.Measure.hasSign('ToCoda', m);
-                })) {
-                    codaSign = 'Coda';
-                }
-                current.measure.signs = (current.measure.signs || []).concat([codaSign]);
-            }
-            var houseStart = signs.find(function (s) {
-                return !!s.match(/^N./);
-            });
-            if (houseStart) {
-                signs = signs.filter(function (s) {
-                    return s !== houseStart;
-                });
-                current.measure.house = parseInt(houseStart.replace('N', ''));
-            }
-            var time = signs.find(function (a) {
-                return a.match(/^T\d\d/);
-            });
-            if (time) {
-                signs = signs.filter(function (s) {
-                    return s !== time;
-                });
-                current.measure.time = time.replace('T', '');
-            }
-            if (token.chord) {
-                current.measure.chords.push(_this.getChord(token.chord));
-            } else if (token.token === 'n') {
-                current.measure.chords.push(0);
-            }
-            var last = current.measures[current.measures.length - 1];
-            if (last && last.chords[0] === 'r') {
-                last.chords = current.measures[current.measures.length - 3].chords;
-                current.measure.chords = current.measures[current.measures.length - 2].chords;
-            }
-            if (last && current.measure.chords[0] === 'x') {
-                current.measure.chords = [].concat(last.chords);
-                current.measure.idle = true;
-            }
-            if (signs.length) {
-                current.measure.signs = (current.measure.signs || []).concat(signs);
-            }
-            if (token.comments.length) {
-                current.measure.comments = (current.measure.comments || []).concat(token.comments.map(function (c) {
-                    return c.trim();
-                }));
-            }
-            return current;
-        }, { measure: null, signs: null, measures: [] });
-        if (parsed.measure.chords.length) {
-            parsed.measures.push(parsed.measure);
-        }
-        return parsed.measures;
-    };
-    RealParser.parse = function (raw) {
-        var text = raw;
-        var arr = [],
-            headers = [],
-            comments = [];
-        var i;
-        text = text.trim();
-        // text = text.trimRight();
-        while (text) {
-            var found = false;
-            for (i = 0; i < RealParser.regExps.length; i++) {
-                var match = RealParser.regExps[i].exec(text);
-                if (match) {
-                    found = true;
-                    if (match.length <= 2) {
-                        var replacement = match[0];
-                        var repl = RealParser.replacements[replacement];
-                        arr = arr.concat(repl ? repl : [replacement]);
-                        text = text.substr(replacement.length);
-                    } else {
-                        // a chord
-                        arr.push(match);
-                        text = text.substr(match[0].length);
-                    }
-                    break;
-                }
-            }
-            if (!found) {
-                // ignore the comma separator
-                if (text[0] !== ',') arr.push(text[0]);
-                text = text.substr(1);
-            }
-        }
-        //		console.log(arr);
-        // pass 2: extract prefixes, suffixes, annotations and comments
-        var out = [];
-        var obj = RealParser.newToken(out);
-        for (i = 0; i < arr.length; i++) {
-            var token = arr[i];
-            if (token instanceof Array) {
-                obj.chord = RealParser.parseChord(token);
-                token = " ";
-            }
-            switch (token[0]) {
-                case ',':
-                    token = null;
-                    break; // separator
-                case 'S': // segno
-                case 'T': // time measurement
-                case 'Q': // coda
-                case 'N': // repeat
-                case 'U': // END
-                case 's': // small
-                case 'l': // normal
-                case 'f': // fermata
-                case '*':
-                    obj.annots.push(token);
-                    token = null;
-                    break;
-                case 'Y':
-                    obj.spacer++;
-                    token = null;
-                    break;
-                case 'r':
-                case 'x':
-                case 'W':
-                    obj.chord = new iRealChord(token, "", null, null);
-                    break;
-                case '<':
-                    token = token.substr(1, token.length - 2);
-                    token = token.replace(/XyQ/g, "   "); // weird; needs to be done
-                    obj.comments.push(token);
-                    token = null;
-                    break;
-                default:
-            }
-            if (token) {
-                if ("]}Z".indexOf(arr[i + 1]) >= 0) obj.bars += arr[++i];
-                if ("{[|".indexOf(token) >= 0) {
-                    obj.bars += token;
-                    token = null;
-                }
-            }
-            if (token && i < arr.length - 1) {
-                obj.token = token;
-                obj = RealParser.newToken(out);
-            }
-        }
-        return out;
-    };
-    RealParser.parseChord = function (match) {
-        var note = match[1] || " ";
-        var modifiers = match[2] || "";
-        var comment = match[3] || "";
-        if (comment) modifiers += comment.substr(1, comment.length - 2).replace("XyQ", "   ");
-        var over = match[4] || "";
-        if (over[0] === '/') over = over.substr(1);
-        var alternate = match[5] || null;
-        if (alternate) {
-            match = RealParser.chordRegex.exec(alternate.substr(1, alternate.length - 2));
-            if (!match) alternate = null;else alternate = this.parseChord(match);
-        }
-        // empty cell?
-        if (note === " " && !alternate && !over) return null;
-        if (over) {
-            var offset = over[1] === '#' || over[1] === 'b' ? 2 : 1;
-            over = new iRealChord(over.substr(0, offset), over.substr(offset), null, null);
-        } else over = null;
-        return new iRealChord(note, modifiers, over, alternate);
-    };
-    RealParser.newToken = function (arr) {
-        var obj = new iRealToken();
-        arr.push(obj);
-        return obj;
-    };
-    /**
-     * The RegExp for a complete chord. The match array contains:
-     * 1 - the base note
-     * 2 - the modifiers (+-ohd0123456789 and su for sus)
-     * 3 - any comments (may be e.g. add, sub, or private stuff)
-     * 4 - the "over" part starting with a slash
-     * 5 - the top chord as (chord)
-     * @type RegExp
-     */
-    RealParser.chordRegex = /^([ A-GW][b#]?)((?:sus|[\+\-\^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
-    RealParser.regExps = [/^\*[a-zA-Z]/, /^T\d\d/, /^N./, /^<.*?>/, /^ \(.*?\)/, RealParser.chordRegex, /^LZ/, /^XyQ/, /^Kcl/ // repeat last bar
-    ];
-    RealParser.replacements = {
-        "LZ": [" ", "|"],
-        "XyQ": [" ", " ", " "],
-        "Kcl": ["|", "x", " "]
-    };
-    return RealParser;
-}();
-exports.RealParser = RealParser;
-var iRealChord = /** @class */function () {
-    function iRealChord(note, modifiers, over, alternate) {
-        this.note = note;
-        this.modifiers = modifiers;
-        this.over = over;
-        this.alternate = alternate;
-    }
-    return iRealChord;
-}();
-var iRealToken = /** @class */function () {
-    function iRealToken() {
-        this.annots = [];
-        this.comments = [];
-        this.bars = "";
-        this.spacer = 0;
-        this.chord = null;
-    }
-    return iRealToken;
-}();
-},{"./Measure":"../src/sheet/Measure.js"}],"../src/sheet/Snippet.js":[function(require,module,exports) {
-"use strict";
-
-var __importStar = this && this.__importStar || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) {
-        if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    }result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var JsDiff = __importStar(require("diff"));
-var Measure_1 = require("./Measure");
-var Sheet_1 = require("./Sheet");
-var Snippet = /** @class */function () {
-    function Snippet() {}
-    Snippet.render = function (snippet, options) {
-        var parsed = Snippet.parse(snippet);
-        return Sheet_1.Sheet.render(parsed, options);
-    };
-    Snippet.wrapPipes = function (string) {
-        return ("|" + string + "|").replace(/\|+/g, '|');
-    };
-    Snippet.formatForDiff = function (snippet) {
-        return Snippet.minify(snippet).replace(/\|/g, ' | ').trim();
-    };
-    Snippet.format = function (snippet, linebreaks) {
-        if (linebreaks === void 0) {
-            linebreaks = true;
-        }
-        // replaces url chars back
-        var compact = Snippet.minify(snippet, false);
-        compact = Snippet.wrapPipes(compact);
-        if (linebreaks) {
-            // insert spaces before first chord
-            var bars = compact.split('|').slice(1, -1);
-            bars = bars.map(function (bar, index) {
-                if (!bar[0].match(/[1-9:]/)) {
-                    bar = '  ' + bar;
-                } else if (bar[0] === ':') {
-                    bar = ': ' + bar.slice(1);
-                }
-                return bar;
-            });
-            // find out indices of first houses
-            var houses_1 = bars.reduce(function (offset, bar, index) {
-                if (bar[0] === '1') {
-                    offset.push(index);
-                }
-                return offset;
-            }, []);
-            // insert empty bars before additional houses
-            bars = bars.reduce(function (bars, bar, index) {
-                if (bar[0].match(/[2-9]/)) {
-                    var offset = houses_1.filter(function (h) {
-                        return h < index;
-                    }).reverse()[0];
-                    bars = bars.concat(new Array(offset % 4).fill(''));
-                }
-                bars.push(bar);
-                return bars;
-            }, []);
-            // find out the maximal number of chars per column
-            var chars_1 = bars.reduce(function (max, bar, index) {
-                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
-                return max;
-            }, []);
-            // fill up each bar with spaces
-            compact = bars.map(function (bar, index) {
-                var diff = chars_1[index % 4] - bar.length + 2;
-                if (diff > 0) {
-                    bar += new Array(diff).fill(' ').join('');
-                }
-                // move double dots to end of bar
-                bar = bar.replace(/:(\s+)$/, '$1:');
-                return bar;
-            }).join('|');
-            compact = Snippet.wrapPipes(compact);
-            // break string all 4 bars
-            var pipeIndex_1 = -1;
-            compact = compact.split('').reduce(function (string, char, index) {
-                if (char === '|') {
-                    pipeIndex_1++;
-                }
-                if (char === '|' && pipeIndex_1 % 4 === 0 && index > 0 && index < compact.length - 1) {
-                    char = "|\n|";
-                    pipeIndex_1 = 0;
-                }
-                return string + char;
-            }, '');
-        } else {
-            compact = compact.replace(/\n/g, '|');
-        }
-        return compact.replace(/\|+/g, '|').replace(/\|( +)\|( +)/g, ' $1 $2') // remove spacer bar pipes
-        .replace(/\|( +)\|([1-9])/g, ' $1|$2').replace(/^\s+|\s+$/g, ''); // remove spaces/line breaks from start/end
-    };
-    Snippet.minify = function (snippet, urlsafe) {
-        if (urlsafe === void 0) {
-            urlsafe = false;
-        }
-        var compact = ("|" + snippet + "|").replace(/\n+/g, '|') // replace line breaks with pipes
-        .replace(/\s+/g, ' ') // no repeated pipes
-        .replace(/\s?\|\s?/g, '|') // no pipes with spaces
-        .replace(/\s?\:\s?/g, ':') // no repeat with spaces
-        .replace(/\|+/g, '|'); // no repeated pipes
-        if (urlsafe) {
-            // replaces url unfriendly chars
-            compact = compact.replace(/\|+/g, 'I').replace(/\s+/g, '_').replace(/:/g, 'R').replace(/\^/g, 'M').replace(/\#/g, 'S').replace(/\%/g, 'X');
-        } else {
-            // replaces url unfriendly chars
-            compact = compact.replace(/\I+/g, '|').replace(/\_+/g, ' ').replace(/R/g, ':').replace(/M/g, '^').replace(/X/g, 'x').replace(/S/g, '#');
-        }
-        return compact.slice(1, -1);
-    };
-    Snippet.parse = function (snippet, simplify) {
-        if (simplify === void 0) {
-            simplify = true;
-        }
-        var formatted = Snippet.format(snippet, false);
-        return formatted.split('|') // split into measures
-        .map(function (measure) {
-            return measure.split(' ');
-        }) // split measures by spaces
-        .map(function (measure) {
-            return measure.filter(function (chord) {
-                return !!chord;
-            });
-        }) // kill empty chords
-        .filter(function (measure) {
-            return !measure || measure.length;
-        }) // kill empty measures
-        .map(function (measure) {
-            return { symbols: measure, signs: [] };
-        })
-        // parse symbols to chords and signs
-        .map(function (measure) {
-            // repeat start
-            if (measure.symbols[0][0] === ':') {
-                if (measure.symbols[0].length === 1) {
-                    measure.symbols = measure.symbols.slice(1);
-                }
-                measure.signs.unshift('{');
-            }
-            var last = measure.symbols[measure.symbols.length - 1];
-            // repeat end
-            if (last[last.length - 1] === ':') {
-                if (last.length === 1) {
-                    measure.symbols.pop();
-                }
-                measure.signs.push('}');
-            }
-            measure.symbols = measure.symbols.map(function (s) {
-                return s.replace(/:/g, '');
-            });
-            var house = measure.symbols.find(function (s) {
-                return s.match(/^[1-9]$/);
-            });
-            if (house) {
-                measure.house = parseInt(house);
-            }
-            measure.symbols = measure.symbols.filter(function (s) {
-                return !s.match(/^[1-9]$/);
-            });
-            // houses
-            measure.chords = [].concat(measure.symbols);
-            delete measure.symbols;
-            return measure;
-        }).map(function (measure) {
-            if (!simplify) {
-                return measure;
-            }
-            if (measure.signs.length === 0) {
-                delete measure.signs;
-            }
-            if (measure.chords.length === 0) {
-                delete measure.chords;
-            }
-            return measure;
-        })
-        // kill empty measures
-        .filter(function (measure) {
-            return Object.keys(measure).length > 0;
-        })
-        // simplify => measures with only chords will be arrays
-        .map(function (measure) {
-            if (!simplify) {
-                return measure;
-            }
-            if (measure.chords && Object.keys(measure).length === 1) {
-                return measure.chords.length === 1 ? measure.chords[0] : // simplify one chord measures
-                measure.chords;
-            }
-            return measure;
-        });
-    };
-    Snippet.nest = function (string) {
-        var nested = string.split('.').map(function (group) {
-            return group.trim();
-        }).map(function (group) {
-            return group.split(' ');
-        }).map(function (group) {
-            return group.filter(function (chord) {
-                return !!chord;
-            });
-        }) // kill empty chords
-        .filter(function (group) {
-            return !group || group.length;
-        }).map(function (group) {
-            return group.length === 1 ? group[0] : group;
-        });
-        nested = nested.length === 1 ? nested[0] : nested;
-        return nested;
-    };
-    Snippet.parse2 = function (snippet, simplify) {
-        if (simplify === void 0) {
-            simplify = true;
-        }
-        var formatted = Snippet.format(snippet, false);
-        return formatted.split('|') // split into measures
-        .filter(function (measure) {
-            return measure && measure.length;
-        }) // kill empty measures
-        .map(function (measure) {
-            return { symbols: measure.trim(), signs: [] };
-        })
-        // parse symbols to chords and signs
-        .map(function (measure) {
-            // repeat start
-            if (measure.symbols[0] === ':') {
-                measure.signs.unshift('{');
-            }
-            var last = measure.symbols[measure.symbols.length - 1];
-            // repeat end
-            if (last === ':') {
-                measure.signs.push('}');
-            }
-            measure.symbols = measure.symbols.replace(/:/g, '');
-            /* const house = measure.symbols[0].match(/^[1-9]$/);
-            if (house) {
-                measure.house = parseInt(house);
-                measure.symbols = measure.symbols.slice(1);
-            } */
-            measure.chords = [].concat(Snippet.nest(measure.symbols));
-            delete measure.symbols;
-            return measure;
-        }).map(function (measure) {
-            if (!simplify) {
-                return measure;
-            }
-            if (measure.signs.length === 0) {
-                delete measure.signs;
-            }
-            if (measure.chords.length === 0) {
-                delete measure.chords;
-            }
-            return measure;
-        })
-        // kill empty measures
-        .filter(function (measure) {
-            return Object.keys(measure).length > 0;
-        })
-        // simplify => measures with only chords will be arrays
-        .map(function (measure) {
-            if (!simplify) {
-                return measure;
-            }
-            if (measure.chords && Object.keys(measure).length === 1) {
-                return measure.chords.length === 1 ? measure.chords[0] : // simplify one chord measures
-                measure.chords;
-            }
-            return measure;
-        });
-    };
-    Snippet.testFormat = function (sheet) {
-        return sheet.map(function (m) {
-            return Measure_1.Measure.from(m);
-        }).map(function (m) {
-            return m.chords;
-        }).join(' ');
-    };
-    Snippet.from = function (sheet, format) {
-        if (format === void 0) {
-            format = true;
-        }
-        var snippet = sheet.map(function (m) {
-            return Measure_1.Measure.from(m);
-        }).reduce(function (snippet, _a) {
-            var signs = _a.signs,
-                house = _a.house,
-                chords = _a.chords;
-            var repeatStart = signs && signs.includes('{');
-            var repeatEnd = signs && signs.includes('}');
-            return snippet + ("|" + (repeatStart ? ':' : '') + (house || '') + " " + (chords ? chords.join(' ') : '') + (repeatEnd ? ':' : ''));
-        }, '');
-        if (format) {
-            return Snippet.format(snippet);
-        }
-        return Snippet.minify(snippet);
-    };
-    Snippet.expand = function (snippet, options) {
-        var rendered = Snippet.render(snippet, options);
-        rendered = rendered.map(function (m) {
-            return Measure_1.Measure.from(m);
-        }).map(function (m) {
-            delete m.house;
-            delete m.signs;
-            return m;
-        });
-        var expanded = Snippet.from(rendered);
-        return expanded;
-        /* return from(Sheet.render(render(snippet))); */
-    };
-    Snippet.diff = function (snippetA, snippetB) {
-        var diffFormat = [Snippet.formatForDiff(snippetA), Snippet.formatForDiff(snippetB)];
-        return JsDiff.diffWords(diffFormat[0], diffFormat[1]);
-    };
-    return Snippet;
-}();
-exports.Snippet = Snippet;
-},{"diff":"../node_modules/diff/dist/diff.js","./Measure":"../src/sheet/Measure.js","./Sheet":"../src/sheet/Sheet.js"}],"../src/util/Logger.js":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) {
-                if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = require("./util");
-var tonal_1 = require("tonal");
-var tonal_2 = require("tonal");
-var Harmony_1 = require("../harmony/Harmony");
-var Snippet_1 = require("../sheet/Snippet");
-var Voicing_1 = require("../harmony/Voicing");
-var Logger = /** @class */function () {
-    function Logger() {}
-    Logger.logCustom = function (args, logFn) {
-        if (logFn === void 0) {
-            logFn = console.log;
-        }
-        /* console.clear(); */
-        logFn.apply(console, args);
-    };
-    Logger.logLegend = function () {
-        if (console.groupCollapsed) {
-            console.groupCollapsed('Show Emoji Legend');
-            console.table(Logger.emoji);
-            console.groupEnd();
-        } else {
-            console.log('Emoji Legend:', Logger.emoji);
-        }
-    };
-    Logger.logSheet = function (sheet) {
-        sheet = __assign({ title: 'Untitled', composer: 'Unkown', chords: [], forms: 3, tempo: 130, style: 'Swing' }, sheet);
-        var snippet = Snippet_1.Snippet.from(sheet.chords);
-        console.log(sheet.composer + " - " + sheet.title);
-        console.log(sheet.tempo + "bpm, Style: " + sheet.style);
-        console.log(snippet);
-        if (console.groupCollapsed) {
-            console.log('Sheet', sheet);
-            /* console.log('Groove', sheet.groove); */
-            console.groupCollapsed("show " + sheet.forms + " rendered forms");
-            console.log("expanded view\n\n" + Snippet_1.Snippet.expand(snippet, { forms: sheet.forms || 1 }));
-            console.groupEnd();
-        }
-    };
-    Logger.logLabel = function (key) {
-        if (!Logger.emoji[key]) {
-            return key;
-        }
-        return Logger.emoji[key].icon + ' ' + key;
-    };
-    Logger.logChoice = function (choice) {
-        var _a;
-        if (!choice) {
-            return;
-        }
-        var difference = choice.difference,
-            origin = choice.origin,
-            targets = choice.targets,
-            from = choice.from,
-            to = choice.to,
-            movement = choice.movement,
-            similar = choice.similar,
-            added = choice.added,
-            dropped = choice.dropped,
-            contrary = choice.contrary,
-            parallel = choice.parallel,
-            topInterval = choice.topInterval,
-            bottomInterval = choice.bottomInterval,
-            topNotes = choice.topNotes,
-            bottomNotes = choice.bottomNotes,
-            intervals = choice.intervals,
-            degrees = choice.degrees;
-        console.table((_a = {
-            difference: difference,
-            movement: movement,
-            origin: origin.join(' '),
-            dropped: dropped.join(' '),
-            added: added.join(' '),
-            targets: targets.join(' '),
-            /* from: from.join(' '),
-            to: to.join(' '), */
-            intervals: intervals.join(' '),
-            degrees: degrees.join(' ')
-        }, _a[Logger.logLabel('similar')] = similar, _a[Logger.logLabel('contrary')] = contrary, _a[Logger.logLabel('parallel')] = parallel, _a.topNotes = topNotes.join(' '), _a.topInterval = topInterval, _a.bottomNotes = bottomNotes.join(' '), _a.bottomInterval = bottomInterval, _a));
-    };
-    Logger.logNotes = function (activeNotes, idleNotes, addedNotes, range) {
-        var span = [tonal_1.Distance.transpose(range[0], tonal_2.Interval.fromSemitones(-7)), tonal_1.Distance.transpose(range[1], tonal_2.Interval.fromSemitones(12))];
-        var allNotes = util_1.noteArray(span);
-        var keyboard = allNotes.map(function (note, index) {
-            var active = !!activeNotes.find(function (n) {
-                return Harmony_1.Harmony.isSameNote(note, n);
-            });
-            var idle = !!idleNotes.find(function (n) {
-                return Harmony_1.Harmony.isSameNote(note, n);
-            });
-            var added = !!addedNotes.find(function (n) {
-                return Harmony_1.Harmony.isSameNote(note, n);
-            });
-            var black = Harmony_1.Harmony.isBlack(note);
-            var css = '',
-                sign = '_';
-            if (added && !black) {
-                css = 'color:green;';
-                sign = '█';
-            } else if (added && black) {
-                css = 'color:darkgreen;';
-                sign = '█';
-            } else if (active && black) {
-                css = 'color:#a50909;';
-                sign = '█';
-            } else if (active && !black) {
-                css = 'color:#eda3a3;';
-                sign = '█';
-            } else if (idle && !black) {
-                css = 'color:gray;';
-                sign = '█';
-            } else if (idle && black) {
-                css = 'color:black;';
-                sign = '█';
-            } else {
-                css = black ? 'color:black;' : 'color:#eee;';
-            }
-            var position = util_1.getRangePosition(note, range);
-            if (position < 0 || position > 1) {
-                if (active || idle || added) {
-                    css += 'color:red;';
-                } else {
-                    sign = ' ';
-                }
-            }
-            return {
-                sign: sign,
-                css: css
-            };
-        });
-        var args = [keyboard.map(function (key) {
-            return "%c" + key.sign;
-        }).join('')].concat(keyboard.map(function (key) {
-            return key.css + ";";
-        }));
-        /* Snippet.logCustom(args); */
-        return args;
-    };
-    Logger.logVoicing = function (_a) {
-        var chord = _a.chord,
-            previousVoicing = _a.previousVoicing,
-            combinations = _a.combinations,
-            bestPick = _a.bestPick,
-            pick = _a.pick,
-            range = _a.range,
-            choice = _a.choice,
-            direction = _a.direction,
-            choices = _a.choices;
-        /* pick = pick.map(n => Note.simplify(n)); */
-        pick = pick || [];
-        previousVoicing = previousVoicing || [];
-        var idle = previousVoicing.filter(function (n) {
-            return pick.find(function (p) {
-                return Harmony_1.Harmony.isSameNote(n, p);
-            });
-        });
-        var active = pick.filter(function (n) {
-            return !previousVoicing.find(function (p) {
-                return Harmony_1.Harmony.isSameNote(n, p);
-            });
-        });
-        var added = choice ? choice.added : [];
-        var konsole = Logger.logNotes(active, idle, added, range);
-        var movement = choice ? choice.movement : 0;
-        var difference = choice ? choice.difference : 0;
-        choices = choices || [];
-        if (movement > 0) {
-            konsole.push(Logger.emoji.movedUp.icon);
-        } else if (movement < 0) {
-            konsole.push(Logger.emoji.movedDown.icon);
-        } else {
-            konsole.push(Logger.emoji.equilibrium.icon);
-        }
-        if (!pick.length) {
-            konsole.push(Logger.emoji.error.icon);
-        }
-        // TODO replace force with filter of choices after isInRange
-        //      isInRange: checks if top and bottom note are inside the range
-        if (!direction) {
-            konsole.push(Logger.emoji.bestMatch.icon);
-        } else {
-            if (bestPick !== pick) {
-                konsole.push(Logger.emoji.force.icon);
-            } else {
-                konsole.push(Logger.emoji.lucky.icon);
-            }
-            // wrong direction?
-            if (direction === 'up' && movement < 0 || direction === 'down' && movement > 0) {
-                konsole.push(Logger.emoji.wrong.icon);
-            }
-        }
-        if (choice) {
-            if (choice.similar) {
-                konsole.push(Logger.emoji.similar.icon);
-            }
-            if (choice.contrary) {
-                konsole.push(Logger.emoji.contrary.icon);
-            }
-            if (choice.parallel) {
-                konsole.push(Logger.emoji.parallel.icon);
-            }
-            if (choice.added.length && choice.added[choice.added.length - 1] === choice.topNotes[1]) {
-                konsole.push(Logger.emoji.topAdded.icon);
-            }
-            if (choice.dropped.length && choice.dropped[choice.dropped.length - 1] === choice.topNotes[0]) {
-                konsole.push(Logger.emoji.topRemoved.icon);
-            }
-            if (choice.dropped.length && choice.dropped[0] === choice.origin[0]) {
-                konsole.push(Logger.emoji.bottomRemoved.icon);
-            }
-            if (choice.added.length && choice.added[0] === choice.targets[0]) {
-                konsole.push(Logger.emoji.bottomAdded.icon);
-            }
-            if (!Voicing_1.Voicing.hasTonic(pick, chord)) {
-                konsole.push(Logger.emoji.rootless.icon);
-            }
-            if (!choice.parallel && choice.oblique.length === 0) {
-                konsole.push(Logger.emoji.noOblique.icon);
-            }
-            if (choice.oblique.length === choice.targets.length) {
-                konsole.push(Logger.emoji.noChange.icon);
-            }
-        }
-        previousVoicing = previousVoicing || [];
-        konsole.push(difference + "/" + movement + ": " + chord + " (" + (choices.indexOf(choice) + 1) + "/" + choices.length + ")");
-        if (combinations) {
-            if (combinations.length < 4) {
-                konsole.push(Logger.emoji.fewCombinations.icon);
-            }
-        }
-        if (console && console.table) {
-            Logger.logCustom(konsole, console.groupCollapsed);
-            console.table({
-                previousVoicing: previousVoicing.join(' '),
-                pick: pick.join(' ')
-            });
-            if (choice) {
-                console.group('Choice:');
-                Logger.logChoice(choice);
-                console.groupEnd();
-                console.groupCollapsed('All Choices:');
-                choices.forEach(function (c) {
-                    return Logger.logChoice(c);
-                });
-                console.groupEnd();
-                console.groupCollapsed('Combinations:');
-                console.log(combinations);
-                console.groupEnd();
-            }
-            console.groupEnd();
-        }
-        //console.log(`${ Snippet.voicing(voicing, ['G2', 'C5']) } ${ chord }: ${ voicing.join(' ') } `);
-        //console.log(`#${ event.path[1] + 1 }: ${ chord }: ${ latest } > ${ voicing }.moved ${ moves } (avg | ${ avgDiff } | total ${ totalMoves })`);
-        // console.log(chord, voicing);
-        // G#o7 2 (5.25) (4) ["G3", "D4", "F4", "Bb4"] > (4) ["B2", "D3", "E#3", "G#3"]
-        /* } */
-        return pick;
-    };
-    Logger.emoji = {
-        bestMatch: {
-            icon: '🎹',
-            description: 'The selected voicing had the best possible voice leading from the previous voicing'
-        },
-        force: {
-            icon: '💪',
-            description: 'Voicing had to be forced in the desired direction. The best pick would have gone in the wrong direction.'
-        },
-        lucky: {
-            icon: '🍀',
-            description: 'The best pick moved in the direction that would have been forced.'
-        },
-        wrong: {
-            icon: '💀',
-            description: 'Continued moving in the wrong direction'
-        },
-        similar: {
-            icon: '😇',
-            description: 'All voices are moving in the same direction'
-        },
-        parallel: {
-            icon: '⛓',
-            description: 'All voices are moving by parallel intervals'
-        },
-        contrary: {
-            icon: '👹',
-            description: 'Some voices were moving in opposite directions'
-        },
-        noOblique: {
-            icon: '🥌',
-            description: 'All voices changed position. (Not shown when parallel)'
-        },
-        noChange: {
-            icon: '🛋',
-            description: 'All voices remained in position.'
-        },
-        topAdded: {
-            icon: '🌤',
-            description: 'A top voice was added'
-        },
-        topRemoved: {
-            icon: '⛅',
-            description: 'A top voice was dropped'
-        },
-        bottomRemoved: {
-            icon: '🛫',
-            description: 'A bottom voice was dropped'
-        },
-        bottomAdded: {
-            icon: '🌳',
-            description: 'A bottom note was added'
-        },
-        movedUp: {
-            icon: '↗️',
-            description: 'The Voices generally moved up'
-        },
-        movedDown: {
-            icon: '↙️',
-            description: 'The Voices generally moved down'
-        },
-        equilibrium: {
-            icon: '☯️',
-            description: 'The Voices generally did not move anywhere'
-        },
-        fewCombinations: {
-            icon: '💢',
-            description: 'There were very few valid combinations to choose from'
-        },
-        error: {
-            icon: '❌',
-            description: 'No notes could be selected. Some error happened.'
-        },
-        rootless: {
-            icon: '⛵',
-            description: 'The voicing does not contain its root note (tonic).'
-            // ️️️️️➡️↘️↗️⬇️⬆️⬅️
-        } };
-    return Logger;
-}();
-exports.Logger = Logger;
-},{"./util":"../src/util/util.js","tonal":"../node_modules/tonal/index.js","../harmony/Harmony":"../lib/harmony/Harmony.js","../sheet/Snippet":"../src/sheet/Snippet.js","../harmony/Voicing":"../src/harmony/Voicing.js"}],"../src/harmony/Voicing.js":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) {
-                if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var Permutation_1 = require("../util/Permutation");
-var Logger_1 = require("../util/Logger");
-var tonal_1 = require("tonal");
-var tonal_2 = require("tonal");
-var tonal_3 = require("tonal");
-var tonal_4 = require("tonal");
-var util_1 = require("../util/util");
-var Harmony_1 = require("./Harmony");
-var Voicing = /** @class */function () {
-    function Voicing() {}
-    /** Returns the next voicing that should follow the previously played voicing.
-    */
-    Voicing.getNextVoicing = function (chord, previousVoicing, options) {
-        if (options === void 0) {
-            options = {};
-        }
-        var _a = __assign({ range: ['C3', 'C5'], rangeBorders: [3, 3], maxVoices: 4, forceDirection: null, maxDistance: 7, minBottomDistance: 3, minTopDistance: 2, noTopDrop: true, noTopAdd: true, noBottomDrop: false, noBottomAdd: false, logging: true }, options),
-            maxVoices = _a.maxVoices,
-            range = _a.range,
-            forceDirection = _a.forceDirection,
-            rangeBorders = _a.rangeBorders,
-            sortChoices = _a.sortChoices,
-            filterChoices = _a.filterChoices,
-            noTopDrop = _a.noTopDrop,
-            noTopAdd = _a.noTopAdd,
-            noBottomDrop = _a.noBottomDrop,
-            noBottomAdd = _a.noBottomAdd,
-            logging = _a.logging;
-        // make sure tonal can read the chord
-        chord = Harmony_1.Harmony.getTonalChord(chord);
-        if (chord === 'r') {
-            return null;
-        }
-        var combinations = Voicing.getAllVoicePermutations(chord, maxVoices, options);
-        var exit = function exit() {
-            var pick = [];
-            if (logging) {
-                Logger_1.Logger.logVoicing({ chord: chord, previousVoicing: previousVoicing, range: range, combinations: combinations, pick: pick });
-            }
-            return pick;
-        };
-        if (!combinations.length) {
-            return exit();
-        }
-        if (!previousVoicing || !previousVoicing.length) {
-            // no previous chord
-            // filter out combinations that are out of range
-            combinations = combinations.filter(function (combination) {
-                var firstNote = Harmony_1.Harmony.getNearestNote(range[0], combination[0], 'up');
-                var pick = util_1.renderAbsoluteNotes(combination, tonal_2.Note.oct(firstNote));
-                return util_1.isInRange(pick[0], range) && util_1.isInRange(pick[pick.length - 1], range);
-            });
-            var firstPick = combinations[0];
-            var firstNoteInRange = Harmony_1.Harmony.getNearestNote(range[0], firstPick[0], 'up');
-            var pick_1 = util_1.renderAbsoluteNotes(firstPick, tonal_2.Note.oct(firstNoteInRange));
-            if (logging) {
-                Logger_1.Logger.logVoicing({ chord: chord, previousVoicing: previousVoicing, range: range, combinations: combinations, pick: pick_1 });
-            }
-            return pick_1;
-        }
-        var choices = Voicing.getAllChoices(combinations, previousVoicing, range).filter(function (choice) {
-            return (!noTopDrop || !choice.dropped.includes(choice.topNotes[0])) && (!noTopAdd || !choice.added.includes(choice.topNotes[1])) && (!noBottomDrop || !choice.dropped.includes(choice.topNotes[0])) && (!noBottomAdd || !choice.added.includes(choice.topNotes[1])) && (!filterChoices || filterChoices(choice));
-        }).sort(sortChoices ? function (a, b) {
-            return sortChoices(a, b);
-        } : function (a, b) {
-            return a.difference - b.difference;
-        });
-        if (!choices.length) {
-            return exit();
-        }
-        var bestPick = choices[0].targets,
-            choice;
-        var direction = Voicing.getDesiredDirection(previousVoicing, range, rangeBorders) || forceDirection;
-        if (!direction) {
-            var pick_2 = bestPick;
-            choice = choices[0];
-            if (logging) {
-                Logger_1.Logger.logVoicing({ chord: chord, previousVoicing: previousVoicing, range: range, combinations: combinations, pick: pick_2, direction: direction, bestPick: bestPick, choice: choice, choices: choices });
-            }
-            return pick_2;
-        }
-        // sort after movement instead of difference
-        choice = choices.sort(function (a, b) {
-            return Math.abs(a.movement) - Math.abs(b.movement);
-        }).find(function (choice) {
-            if (direction === 'up') {
-                return choice.movement >= 0;
-            }
-            return choice.movement <= 0;
-        });
-        if (!choice) {
-            // keep hanging in the corner of the range..
-            choice = choices[0];
-        }
-        var pick = choice.targets;
-        if (logging) {
-            Logger_1.Logger.logVoicing({ chord: chord, previousVoicing: previousVoicing, range: range, combinations: combinations, pick: pick, direction: direction, bestPick: bestPick, choice: choice, choices: choices });
-        }
-        return pick;
-    };
-    /** Computes all valid voice permutations for a given chord and voice number.
-     * Runs getVoicePermutations for each possible selection of notes.
-     */
-    Voicing.getAllVoicePermutations = function (chord, length, voicingOptions) {
-        return Voicing.getAllNoteSelections(chord, length).reduce(function (combinations, combination) {
-            return combinations.concat(Voicing.getVoicePermutations(combination, voicingOptions));
-        }, []);
-    };
-    /** Get all permutations of the given notes that would make a good voicing. */
-    Voicing.getVoicePermutations = function (notes, options) {
-        if (options === void 0) {
-            options = {};
-        }
-        if (notes.length === 1) {
-            return [notes];
-        }
-        var validator = options.validatePermutation || function (path, next, array) {
-            return true;
-        };
-        return Permutation_1.Permutation.permutateElements(notes, Permutation_1.Permutation.combineValidators(validator, Voicing.voicingValidator(options)));
-    };
-    /** Configurable Validator that sorts out note combinations with untasty intervals.  */
-    Voicing.voicingValidator = function (options) {
-        options = __assign({ maxDistance: 6, minDistance: 1, minBottomDistance: 3, minTopDistance: 2 }, options);
-        return function (path, next, array) {
-            return Permutation_1.Permutation.combineValidators(Voicing.notesAtPositionValidator(options.topNotes, path.length + array.length - 1), Voicing.notesAtPositionValidator(options.bottomNotes, 0), Voicing.validateInterval(function (interval) {
-                return tonal_4.Interval.semitones(interval) <= options.maxDistance;
-            }), Voicing.validateInterval(function (interval) {
-                return tonal_4.Interval.semitones(interval) >= options.minDistance;
-            }), Voicing.validateInterval(function (interval, _a) {
-                var array = _a.array;
-                return array.length !== 1 || tonal_4.Interval.semitones(interval) >= options.minTopDistance;
-            }), Voicing.validateInterval(function (interval, _a) {
-                var path = _a.path;
-                return path.length !== 1 || tonal_4.Interval.semitones(interval) >= options.minBottomDistance;
-            }))(path, next, array);
-        };
-    };
-    /** Validates the interval to the next note. You can write your own logic inside the validate fn. */
-    Voicing.validateInterval = function (validate) {
-        return function (path, next, array) {
-            if (!path.length) {
-                return true;
-            }
-            var interval = tonal_3.Distance.interval(path[path.length - 1], next);
-            return validate(interval, { path: path, next: next, array: array });
-        };
-    };
-    /** Returns all possible combinations of required and optional notes for a given chord and desired length.
-     * If the voices number is higher than the required notes of the chord, the rest number will be permutated from the optional notes */
-    Voicing.getAllNoteSelections = function (chord, voices) {
-        if (voices === void 0) {
-            voices = 2;
-        }
-        var required = Voicing.getRequiredNotes(chord);
-        if (voices === 1) {
-            return required.map(function (note) {
-                return [note];
-            });
-        }
-        var fill = voices - required.length;
-        if (fill === 0) {
-            return [required];
-        }
-        if (fill < 0) {
-            // required notes are enough
-            return Permutation_1.Permutation.binomial(required, voices);
-        }
-        var optional = Voicing.getOptionalNotes(chord, required);
-        if (fill >= optional.length) {
-            return [required.concat(optional)];
-        }
-        return Permutation_1.Permutation.binomial(optional, fill).map(function (selection) {
-            return required.concat(selection);
-        });
-    };
-    /** Get available tensions for a given chord. Omits tensions that kill the chord quality */
-    Voicing.getAvailableTensions = function (chord) {
-        chord = Harmony_1.Harmony.getTonalChord(chord);
-        var notes = tonal_1.Chord.notes(chord);
-        if (util_1.isDominantChord(chord)) {
-            return Voicing.getAllTensions(notes[0])
-            // filter out tensions that are part of the chord
-            .filter(function (note) {
-                return !notes.find(function (n) {
-                    return util_1.semitoneDistance(notes[0], note) === util_1.semitoneDistance(notes[0], n);
-                });
-            })
-            // filter out tensions that are a semitone above the 3 (if exists)
-            .filter(function (note) {
-                return util_1.chordHasIntervals(chord, ['3!']) || util_1.semitoneDistance(util_1.getDegreeInChord(3, chord), note) > 1;
-            })
-            // filter out tensions that are a semitone above the 4 (if exists => sus)
-            .filter(function (note) {
-                return !util_1.chordHasIntervals(chord, ['4P']) || util_1.semitoneDistance(util_1.getDegreeInChord(4, chord), note) > 1;
-            })
-            // filter out tensions that are a semitone above the 7
-            .filter(function (note) {
-                return util_1.semitoneDistance(util_1.getDegreeInChord(7, chord), note) > 1;
-            });
-        }
-        return notes.slice(0, 4)
-        // notes less than 3 semitones away from root are omitted (tensions 2M above would be in next octave)
-        .filter(function (note) {
-            return note === notes[0] || util_1.semitoneDistance(note, notes[0]) > 2;
-        })
-        // all tensions are a major second above a chord note
-        .map(function (note) {
-            return tonal_3.Distance.transpose(note, '2M');
-        })
-        // tensions 2 semiontes below root are flat 7 => changes chord quality
-        .filter(function (note) {
-            return util_1.semitoneDistance(note, notes[0]) !== 2;
-        });
-        // omit tensions that end up on a chord note again?
-    };
-    /** Returns all Tensions that could be in any chord */
-    Voicing.getAllTensions = function (root) {
-        return ['b9', '9', '#9', '3', '11', '#11', 'b13', '13', '7'].map(function (step) {
-            return util_1.getIntervalFromStep(step);
-        }).map(function (interval) {
-            return tonal_3.Distance.transpose(root, interval);
-        });
-    };
-    /** Returns all notes that are required to outline a chord */
-    Voicing.getRequiredNotes = function (chord) {
-        chord = Harmony_1.Harmony.getTonalChord(chord);
-        var notes = tonal_1.Chord.notes(chord);
-        var intervals = tonal_1.Chord.intervals(chord);
-        var requiredSteps = [3, 7, 'b5', 6]; // order is important
-        if (!util_1.hasDegree(3, intervals)) {
-            requiredSteps.push(4); // fixes m6 chords
-        }
-        var required = requiredSteps.reduce(function (req, degree) {
-            if (util_1.hasDegree(degree, intervals)) {
-                req.push(util_1.getDegreeInChord(degree, chord));
-            }
-            return req;
-        }, []);
-        // WHY 3??
-        if (notes.length > 3 && !required.includes(notes[notes.length - 1])) {
-            required.push(notes[notes.length - 1]); // could check if is 5 than dont push
-        }
-        return required;
-    };
-    /** Returns all notes that are not required */
-    Voicing.getOptionalNotes = function (chord, required) {
-        chord = Harmony_1.Harmony.getTonalChord(chord);
-        var notes = tonal_1.Chord.notes(chord);
-        required = required || Voicing.getRequiredNotes(chord);
-        return notes.filter(function (note) {
-            return !required.includes(note);
-        });
-    };
-    /** Returns all possible note choices for the given combinations.
-     * Takes the bottom note of the previous voicing and computes the minimal intervals up and down to the next bottom note.
-     */
-    Voicing.getAllChoices = function (combinations, previousVoicing, range) {
-        var lastPitches = previousVoicing.map(function (note) {
-            return tonal_2.Note.pc(note);
-        });
-        return combinations.map(function (combination) {
-            var bottomInterval = tonal_3.Distance.interval(lastPitches[0], combination[0]);
-            var bottomNotes = [tonal_3.Distance.transpose(previousVoicing[0], Harmony_1.Harmony.minInterval(bottomInterval, 'down')), tonal_3.Distance.transpose(previousVoicing[0], Harmony_1.Harmony.minInterval(bottomInterval, 'up'))];
-            if (bottomNotes[0] === bottomNotes[1]) {
-                bottomNotes = [bottomNotes[0]];
-            }
-            return { combination: combination, bottomNotes: bottomNotes };
-        }).reduce(function (all, _a) {
-            var combination = _a.combination,
-                bottomNotes = _a.bottomNotes;
-            return all.concat(bottomNotes.map(function (bottomNote) {
-                return util_1.renderAbsoluteNotes(combination, tonal_2.Note.oct(bottomNote));
-            }));
-        }, []).filter(function (targets) {
-            return !range || util_1.isInRange(targets[0], range) && util_1.isInRange(targets[targets.length - 1], range);
-        }).reduce(function (all, targets) {
-            var leads = Voicing.voiceLeading(previousVoicing, targets);
-            return all.concat(leads);
-        }, []);
-    };
-    /** Analyzes all possible voice movements for all possible transitions. Handles inequal lengths */
-    Voicing.voiceLeading = function (origin, targets) {
-        // if same length > dont permutate
-        if (origin.length === targets.length) {
-            return Voicing.analyzeVoiceLeading(origin, targets);
-        }
-        var _a = [origin, targets].sort(function (a, b) {
-            return b.length - a.length;
-        }),
-            more = _a[0],
-            less = _a[1];
-        return Permutation_1.Permutation.binomial(more, less.length).map(function (selection) {
-            var _a, _b;
-            var from, to;
-            if (origin.length < targets.length) {
-                _a = [origin, selection], from = _a[0], to = _a[1];
-            } else {
-                _b = [selection, targets], from = _b[0], to = _b[1];
-            }
-            return Voicing.analyzeVoiceLeading(from, to, origin, targets);
-        });
-    };
-    /** Analyzed the voice leading for the movement from > to.
-     * Origin and targets needs to be passed if the voice transition over unequal lengths
-     */
-    Voicing.analyzeVoiceLeading = function (from, to, origin, targets) {
-        var _a;
-        _a = [origin || from, targets || to], origin = _a[0], targets = _a[1];
-        var intervals = Voicing.voicingIntervals(from, to, false).map(function (interval) {
-            return Harmony_1.Harmony.fixInterval(interval, false);
-        });
-        /** Interval qualities */
-        var degrees = intervals.map(function (i) {
-            return util_1.getDegreeFromInterval(i);
-        });
-        /** Voices that did not move */
-        var oblique = from.filter(function (n, i) {
-            return to.find(function (note) {
-                return Harmony_1.Harmony.isSameNote(n, note);
-            });
-        });
-        /** abs sum of semitones movements of voices */
-        var difference = util_1.semitoneDifference(intervals);
-        /** relative sum of semitone movements */
-        var movement = util_1.semitoneMovement(intervals);
-        /** voice differences did not cancel each other out > moved in same direction */
-        var similar = Math.abs(movement) === Math.abs(difference);
-        /** moves parallel if all interval qualities the same and in the same direction */
-        var parallel = difference > 0 && similar && degrees.reduce(function (match, degree, index) {
-            return match && (index === 0 || degrees[index - 1] === degree);
-        }, true);
-        // find out which notes have been dropped / added
-        var dropped = [],
-            added = [];
-        if (origin.length < targets.length) {
-            added = targets.filter(function (n) {
-                return !to.includes(n);
-            });
-        } else {
-            dropped = origin.filter(function (n) {
-                return !from.includes(n);
-            });
-        }
-        return {
-            from: from,
-            to: to,
-            origin: origin,
-            targets: targets,
-            intervals: intervals,
-            difference: difference,
-            movement: movement,
-            bottomInterval: intervals[0],
-            topInterval: intervals[intervals.length - 1],
-            topNotes: [origin[origin.length - 1], targets[targets.length - 1]],
-            bottomNotes: [origin[0], targets[0]],
-            similar: similar,
-            contrary: !similar,
-            parallel: parallel,
-            oblique: oblique,
-            degrees: degrees,
-            added: added,
-            dropped: dropped
-        };
-    };
-    /** Returns true if the given note is contained in the given voicing. */
-    Voicing.containsNote = function (note, voicing, enharmonic) {
-        if (enharmonic === void 0) {
-            enharmonic = true;
-        }
-        if (!enharmonic) {
-            return voicing.includes(note);
-        }
-        return !!voicing.find(function (n) {
-            return Harmony_1.Harmony.isSameNote(note, n);
-        });
-    };
-    /** Returns the intervals between the given chord voicings.
-     * Can be passed pitch classes or absolute notes.
-     * The two voicings should have the same length. */
-    Voicing.voicingIntervals = function (chordA, chordB, min, direction) {
-        if (min === void 0) {
-            min = true;
-        }
-        if (chordA.length !== chordB.length) {
-            // console.log('voicingIntervals: not the same length..');
-        }
-        var intervals = chordA.map(function (n, i) {
-            var interval = tonal_3.Distance.interval(n, chordB[i]);
-            if (min === false) {
-                return interval;
-            }
-            if (util_1.isPitchClass(n) && util_1.isPitchClass(chordB[i])) {
-                return Harmony_1.Harmony.minInterval(interval, direction);
-            }
-            return interval;
-        });
-        return intervals;
-    };
-    /** Validates the current permutation to have a note at a certain position (array index) */
-    Voicing.notesAtPositionValidator = function (notes, position) {
-        if (notes === void 0) {
-            notes = [];
-        }
-        return function (selected, note, remaining) {
-            return !notes.length || selected.length !== position || notes.includes(note);
-        };
-    };
-    /** Returns true if the given voicing contains its root */
-    Voicing.hasTonic = function (voicing, chord) {
-        var tokens = tonal_1.Chord.tokenize(Harmony_1.Harmony.getTonalChord(chord));
-        return voicing.map(function (n) {
-            return tonal_2.Note.pc(n);
-        }).includes(tokens[0]);
-    };
-    /** Returns the best direction to move for a given voicing in a range.
-     * Outputs a direction as soon as the semitone distance of one of the outer notes is below the given threshold
-     */
-    Voicing.getDesiredDirection = function (voicing, range, thresholds) {
-        if (thresholds === void 0) {
-            thresholds = [3, 3];
-        }
-        var distances = util_1.getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
-        if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
-            console.error('range is too small to fit the comfy zone');
-            return;
-        }
-        if (distances[0] < thresholds[0]) {
-            return 'up';
-        }
-        if (distances[1] < thresholds[1]) {
-            return 'down';
-        }
-    };
-    return Voicing;
-}();
-exports.Voicing = Voicing;
-/**
- *
-
-
-
-    static getPossibleVoicings(chord, voices = 4) {
-        const required = getRequiredNotes(chord);
-        const optional = getOptionalNotes(chord);
-        const tensions = getAvailableTensions(chord);
-        return { required, optional, tensions };
-    }
-    static voicingDifference(chordA, chordB, min = true) {
-        return semitoneDifference(Voicing.voicingIntervals(chordA, chordB, min));
-    }
-
-    static voicingMovement(chordA, chordB, min = true, direction?: intervalDirection) {
-        return semitoneMovement(Voicing.voicingIntervals(chordA, chordB, min, direction));
-    }
-
-    static bestVoiceLeading(chordA, chordB, sortFn?) {
-        sortFn = sortFn || ((a, b) => a.difference - b.difference);
-        const voices = Voicing.voiceLeading(chordA, chordB)
-            .sort((best, current) => {
-                return sortFn(best, current);
-            }, null);
-        return voices[0];
-    }
-
-    static minVoiceMovement(chordA, chordB) {
-        [chordA, chordB] = [chordA, chordB].sort((a, b) => b.length - a.length);
-        const picks = Permutation.binomial(chordA, chordB.length);
-        return picks.reduce((min, current) => {
-            const diff = Voicing.voicingMovement(current, chordB, false);
-            if (Math.abs(diff) < Math.abs(min)) {
-                return diff;
-            }
-            return min;
-        }, 100);
-    }
-
-    static getVoices(chord, voices = 4, rootless = false, tension = 1) {
-        // THE PROBLEM: TENSION MUST BE CHOSEN WHEN SELECTING THE OPTIMAL VOICING!
-        chord = Harmony.getTonalChord(chord);
-        const tokens = Chord.tokenize(chord);
-        const required = Voicing.getRequiredNotes(chord);
-        let optional = Voicing.getOptionalNotes(chord, required);
-        let choices = [].concat(required);
-        const remaining = () => voices - choices.length;
-        if (tension > 0) {
-            choices = choices.concat(Voicing.getAvailableTensions(chord).slice(0, tension));
-        }
-        if (remaining() > 0) {
-            choices = choices.concat(optional);
-        }
-        if (remaining() < 0 && rootless) {
-            choices = choices.filter(n => n !== tokens[0]);
-        }
-        if (remaining() > 0) {
-            // console.warn(`${remaining} notes must be doubled!!!`);
-            choices = choices.concat(required, optional).slice(0, voices);
-        }
-        return choices.slice(0, voices);
-    }
- */
-},{"../util/Permutation":"../lib/util/Permutation.js","../util/Logger":"../src/util/Logger.js","tonal":"../node_modules/tonal/index.js","../util/util":"../src/util/util.js","./Harmony":"../lib/harmony/Harmony.js"}],"../src/sheet/Sheet.ts":[function(require,module,exports) {
+},{"../util/util":"../src/util/util.ts"}],"../src/sheet/Sheet.ts":[function(require,module,exports) {
 "use strict";
 
 var __assign = this && this.__assign || function () {
@@ -13448,7 +11615,268 @@ var Measure = /** @class */function () {
     return Measure;
 }();
 exports.Measure = Measure;
-},{"./Sheet":"../src/sheet/Sheet.ts"}],"../src/sheet/Snippet.ts":[function(require,module,exports) {
+},{"./Sheet":"../src/sheet/Sheet.ts"}],"../src/sheet/RealParser.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Measure_1 = require("./Measure");
+// extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
+var RealParser = /** @class */function () {
+    function RealParser() {}
+    RealParser.getChord = function (iRealChord) {
+        return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
+    };
+    RealParser.parseSheet = function (raw) {
+        return RealParser.getSheet(RealParser.parse(raw));
+    };
+    RealParser.getSheet = function (tokens) {
+        var _this = this;
+        var parsed = tokens.reduce(function (current, token, index, array) {
+            var lastBarEnded = ['{', '|', '[', '||' /* 'Z',  */ /* , ']' */].includes(token.bars || token.token);
+            var signs = token.annots || [];
+            var repeatStart = (token.bars || token.token) === '{';
+            var repeatEnd = (token.bars || token.token) === '}';
+            if (repeatStart) {
+                signs.push('{');
+            }
+            if (repeatEnd) {
+                signs.push('}');
+            }
+            // current.measure ends
+            if (lastBarEnded) {
+                if (current.measure) {
+                    // simplify measure if no signs
+                    /* if (Object.keys(current.measure).find(k=>k)) {
+                        current.measure = current.measure.chords;
+                    } */
+                    current.measures.push(current.measure);
+                }
+                current.measure = { chords: [] };
+            }
+            var sectionStart = signs.find(function (a) {
+                return a.match(/^\*[a-zA-Z]/);
+            });
+            if (sectionStart) {
+                signs = signs.filter(function (s) {
+                    return s !== sectionStart;
+                });
+                current.measure.section = sectionStart.replace('*', '');
+            }
+            var hasCodaSign = signs.includes('Q');
+            if (hasCodaSign) {
+                signs = signs.filter(function (s) {
+                    return s !== 'Q';
+                });
+                var codaSign = 'ToCoda';
+                if (!!current.measures.find(function (m) {
+                    return Measure_1.Measure.hasSign('ToCoda', m);
+                })) {
+                    codaSign = 'Coda';
+                }
+                current.measure.signs = (current.measure.signs || []).concat([codaSign]);
+            }
+            var houseStart = signs.find(function (s) {
+                return !!s.match(/^N./);
+            });
+            if (houseStart) {
+                signs = signs.filter(function (s) {
+                    return s !== houseStart;
+                });
+                current.measure.house = parseInt(houseStart.replace('N', ''));
+            }
+            var time = signs.find(function (a) {
+                return a.match(/^T\d\d/);
+            });
+            if (time) {
+                signs = signs.filter(function (s) {
+                    return s !== time;
+                });
+                current.measure.time = time.replace('T', '');
+            }
+            if (token.chord) {
+                current.measure.chords.push(_this.getChord(token.chord));
+            } else if (token.token === 'n') {
+                current.measure.chords.push(0);
+            }
+            var last = current.measures[current.measures.length - 1];
+            if (last && last.chords[0] === 'r') {
+                last.chords = current.measures[current.measures.length - 3].chords;
+                current.measure.chords = current.measures[current.measures.length - 2].chords;
+            }
+            if (last && current.measure.chords[0] === 'x') {
+                current.measure.chords = [].concat(last.chords);
+                current.measure.idle = true;
+            }
+            if (signs.length) {
+                current.measure.signs = (current.measure.signs || []).concat(signs);
+            }
+            if (token.comments.length) {
+                current.measure.comments = (current.measure.comments || []).concat(token.comments.map(function (c) {
+                    return c.trim();
+                }));
+            }
+            return current;
+        }, { measure: null, signs: null, measures: [] });
+        if (parsed.measure.chords.length) {
+            parsed.measures.push(parsed.measure);
+        }
+        return parsed.measures;
+    };
+    RealParser.parse = function (raw) {
+        var text = raw;
+        var arr = [],
+            headers = [],
+            comments = [];
+        var i;
+        text = text.trim();
+        // text = text.trimRight();
+        while (text) {
+            var found = false;
+            for (i = 0; i < RealParser.regExps.length; i++) {
+                var match = RealParser.regExps[i].exec(text);
+                if (match) {
+                    found = true;
+                    if (match.length <= 2) {
+                        var replacement = match[0];
+                        var repl = RealParser.replacements[replacement];
+                        arr = arr.concat(repl ? repl : [replacement]);
+                        text = text.substr(replacement.length);
+                    } else {
+                        // a chord
+                        arr.push(match);
+                        text = text.substr(match[0].length);
+                    }
+                    break;
+                }
+            }
+            if (!found) {
+                // ignore the comma separator
+                if (text[0] !== ',') arr.push(text[0]);
+                text = text.substr(1);
+            }
+        }
+        //		console.log(arr);
+        // pass 2: extract prefixes, suffixes, annotations and comments
+        var out = [];
+        var obj = RealParser.newToken(out);
+        for (i = 0; i < arr.length; i++) {
+            var token = arr[i];
+            if (token instanceof Array) {
+                obj.chord = RealParser.parseChord(token);
+                token = " ";
+            }
+            switch (token[0]) {
+                case ',':
+                    token = null;
+                    break; // separator
+                case 'S': // segno
+                case 'T': // time measurement
+                case 'Q': // coda
+                case 'N': // repeat
+                case 'U': // END
+                case 's': // small
+                case 'l': // normal
+                case 'f': // fermata
+                case '*':
+                    obj.annots.push(token);
+                    token = null;
+                    break;
+                case 'Y':
+                    obj.spacer++;
+                    token = null;
+                    break;
+                case 'r':
+                case 'x':
+                case 'W':
+                    obj.chord = new iRealChord(token, "", null, null);
+                    break;
+                case '<':
+                    token = token.substr(1, token.length - 2);
+                    token = token.replace(/XyQ/g, "   "); // weird; needs to be done
+                    obj.comments.push(token);
+                    token = null;
+                    break;
+                default:
+            }
+            if (token) {
+                if ("]}Z".indexOf(arr[i + 1]) >= 0) obj.bars += arr[++i];
+                if ("{[|".indexOf(token) >= 0) {
+                    obj.bars += token;
+                    token = null;
+                }
+            }
+            if (token && i < arr.length - 1) {
+                obj.token = token;
+                obj = RealParser.newToken(out);
+            }
+        }
+        return out;
+    };
+    RealParser.parseChord = function (match) {
+        var note = match[1] || " ";
+        var modifiers = match[2] || "";
+        var comment = match[3] || "";
+        if (comment) modifiers += comment.substr(1, comment.length - 2).replace("XyQ", "   ");
+        var over = match[4] || "";
+        if (over[0] === '/') over = over.substr(1);
+        var alternate = match[5] || null;
+        if (alternate) {
+            match = RealParser.chordRegex.exec(alternate.substr(1, alternate.length - 2));
+            if (!match) alternate = null;else alternate = this.parseChord(match);
+        }
+        // empty cell?
+        if (note === " " && !alternate && !over) return null;
+        if (over) {
+            var offset = over[1] === '#' || over[1] === 'b' ? 2 : 1;
+            over = new iRealChord(over.substr(0, offset), over.substr(offset), null, null);
+        } else over = null;
+        return new iRealChord(note, modifiers, over, alternate);
+    };
+    RealParser.newToken = function (arr) {
+        var obj = new iRealToken();
+        arr.push(obj);
+        return obj;
+    };
+    /**
+     * The RegExp for a complete chord. The match array contains:
+     * 1 - the base note
+     * 2 - the modifiers (+-ohd0123456789 and su for sus)
+     * 3 - any comments (may be e.g. add, sub, or private stuff)
+     * 4 - the "over" part starting with a slash
+     * 5 - the top chord as (chord)
+     * @type RegExp
+     */
+    RealParser.chordRegex = /^([ A-GW][b#]?)((?:sus|[\+\-\^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
+    RealParser.regExps = [/^\*[a-zA-Z]/, /^T\d\d/, /^N./, /^<.*?>/, /^ \(.*?\)/, RealParser.chordRegex, /^LZ/, /^XyQ/, /^Kcl/ // repeat last bar
+    ];
+    RealParser.replacements = {
+        "LZ": [" ", "|"],
+        "XyQ": [" ", " ", " "],
+        "Kcl": ["|", "x", " "]
+    };
+    return RealParser;
+}();
+exports.RealParser = RealParser;
+var iRealChord = /** @class */function () {
+    function iRealChord(note, modifiers, over, alternate) {
+        this.note = note;
+        this.modifiers = modifiers;
+        this.over = over;
+        this.alternate = alternate;
+    }
+    return iRealChord;
+}();
+var iRealToken = /** @class */function () {
+    function iRealToken() {
+        this.annots = [];
+        this.comments = [];
+        this.bars = "";
+        this.spacer = 0;
+        this.chord = null;
+    }
+    return iRealToken;
+}();
+},{"./Measure":"../src/sheet/Measure.ts"}],"../src/sheet/Snippet.ts":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -13483,67 +11911,103 @@ var Snippet = /** @class */function () {
         var compact = Snippet.minify(snippet, false);
         compact = Snippet.wrapPipes(compact);
         if (linebreaks) {
-            // insert spaces before first chord
-            var bars = compact.split('|').slice(1, -1);
-            bars = bars.map(function (bar, index) {
-                if (!bar[0].match(/[1-9:]/)) {
-                    bar = '  ' + bar;
-                } else if (bar[0] === ':') {
-                    bar = ': ' + bar.slice(1);
-                }
-                return bar;
-            });
-            // find out indices of first houses
-            var houses_1 = bars.reduce(function (offset, bar, index) {
-                if (bar[0] === '1') {
-                    offset.push(index);
-                }
-                return offset;
-            }, []);
-            // insert empty bars before additional houses
-            bars = bars.reduce(function (bars, bar, index) {
-                if (bar[0].match(/[2-9]/)) {
-                    var offset = houses_1.filter(function (h) {
-                        return h < index;
-                    }).reverse()[0];
-                    bars = bars.concat(new Array(offset % 4).fill(''));
-                }
-                bars.push(bar);
-                return bars;
-            }, []);
-            // find out the maximal number of chars per column
-            var chars_1 = bars.reduce(function (max, bar, index) {
-                max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
-                return max;
-            }, []);
-            // fill up each bar with spaces
-            compact = bars.map(function (bar, index) {
-                var diff = chars_1[index % 4] - bar.length + 2;
-                if (diff > 0) {
-                    bar += new Array(diff).fill(' ').join('');
-                }
-                // move double dots to end of bar
-                bar = bar.replace(/:(\s+)$/, '$1:');
-                return bar;
-            }).join('|');
-            compact = Snippet.wrapPipes(compact);
-            // break string all 4 bars
-            var pipeIndex_1 = -1;
-            compact = compact.split('').reduce(function (string, char, index) {
-                if (char === '|') {
-                    pipeIndex_1++;
-                }
-                if (char === '|' && pipeIndex_1 % 4 === 0 && index > 0 && index < compact.length - 1) {
-                    char = "|\n|";
-                    pipeIndex_1 = 0;
-                }
-                return string + char;
-            }, '');
+            compact = Snippet.parseBars(snippet).compact;
         } else {
             compact = compact.replace(/\n/g, '|');
         }
         return compact.replace(/\|+/g, '|').replace(/\|( +)\|( +)/g, ' $1 $2') // remove spacer bar pipes
         .replace(/\|( +)\|([1-9])/g, ' $1|$2').replace(/^\s+|\s+$/g, ''); // remove spaces/line breaks from start/end
+    };
+    Snippet.parseBars = function (snippet) {
+        var compact = Snippet.minify(snippet, false);
+        compact = Snippet.wrapPipes(compact);
+        // insert spaces before first chord
+        var cells = compact.split('|').slice(1, -1);
+        cells = cells.map(function (bar, index) {
+            if (!bar[0].match(/[1-9:]/)) {
+                bar = '  ' + bar;
+            } else if (bar[0] === ':') {
+                bar = ': ' + bar.slice(1);
+            }
+            return bar;
+        });
+        // find out indices of first houses
+        var houses = cells.reduce(function (offset, bar, index) {
+            if (bar[0] === '1') {
+                offset.push(index);
+            }
+            return offset;
+        }, []);
+        // insert empty cells before additional houses
+        cells = cells.reduce(function (cells, bar, index) {
+            if (bar[0].match(/[2-9]/)) {
+                var offset = houses.filter(function (h) {
+                    return h < index;
+                }).reverse()[0];
+                cells = cells.concat(new Array(offset % 4).fill(''));
+            }
+            cells.push(bar);
+            return cells;
+        }, []);
+        // find out the maximal number of chars per column
+        var chars = cells.reduce(function (max, bar, index) {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+        // fill up each bar with spaces
+        compact = cells.map(function (bar, index) {
+            var diff = chars[index % 4] - bar.length + 2;
+            if (diff > 0) {
+                bar += new Array(diff).fill(' ').join('');
+            }
+            // move double dots to end of bar
+            bar = bar.replace(/:(\s+)$/, '$1:');
+            return bar;
+        }).join('|');
+        compact = Snippet.wrapPipes(compact);
+        // break string all 4 cells
+        var pipeIndex = -1;
+        compact = compact.split('').reduce(function (string, char, index) {
+            if (char === '|') {
+                pipeIndex++;
+            }
+            if (char === '|' && pipeIndex % 4 === 0 && index > 0 && index < compact.length - 1) {
+                char = "|\n|";
+                pipeIndex = 0;
+            }
+            return string + char;
+        }, '');
+        return { compact: compact, cells: cells, houses: houses, chars: chars };
+    };
+    Snippet.columnChars = function (snippet) {
+        var bars = snippet.split('|');
+        var chars = bars.reduce(function (max, bar, index) {
+            max[index % 4] = Math.max(bar.length, max[index % 4] || 0);
+            return max;
+        }, []);
+    };
+    Snippet.getCellBounds = function (index, snippet) {
+        var _a = Snippet.parseBars(snippet),
+            chars = _a.chars,
+            cells = _a.cells,
+            houses = _a.houses;
+        if (houses.length && index > houses[0]) {
+            var offset = houses.filter(function (h) {
+                return h < index;
+            }).reverse()[0] % 4;
+            index += offset;
+        }
+        index = index % cells.length;
+        var col = index % 4;
+        var row = Math.floor(index / 4);
+        var rowlength = chars.reduce(function (sum, current) {
+            return sum + current + 3;
+        }, 0) + 2;
+        var rowLeft = rowlength * row;
+        var left = rowLeft + chars.slice(0, col).reduce(function (sum, current, i) {
+            return sum + current + 3;
+        }, 0) + 1;
+        return [left, left + chars[col] + 2];
     };
     Snippet.minify = function (snippet, urlsafe) {
         if (urlsafe === void 0) {
@@ -14356,8 +12820,6 @@ var _swing = require('../src/grooves/swing');
 
 var _RealParser = require('../src/sheet/RealParser');
 
-var _Voicing = require('../src/harmony/Voicing');
-
 var _Snippet = require('../src/sheet/Snippet');
 
 var _ = require('../songs/1350.json');
@@ -14371,11 +12833,11 @@ var _piano = require('../samples/piano');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* import { harp } from './samples/harp'; */
-
-// import { disco } from '../src/grooves/disco';
 var AudioContext = window.AudioContext // Default
 || window.webkitAudioContext // Safari and old versions of Chrome
 || false;
+// import { disco } from '../src/grooves/disco';
+
 if (!AudioContext) {
     alert("Sorry, but the Web Audio API is not supported by your browser. Please, consider upgrading to the latest version or downloading Google Chrome or Mozilla Firefox");
 }
@@ -14477,6 +12939,9 @@ window.onload = function () {
                 noBottomDrop: false,
                 noBottomAdd: false,
                 logging: true
+            },
+            onMeasure: function onMeasure(measure) {
+                selectCell(measure.index);
             }
         });
     }
@@ -14544,12 +13009,20 @@ window.onload = function () {
         textarea.value = _Snippet.Snippet.format(textarea.value);
         play();
     });
+
+    function selectCell(n) {
+        var bounds = _Snippet.Snippet.getCellBounds(n, textarea.value);
+        textarea.focus();
+        textarea.setSelectionRange(bounds[0], bounds[1]);
+    }
+    var n = 0;
     format.addEventListener('click', function () {
         textarea.value = _Snippet.Snippet.format(textarea.value);
+        selectCell(n++);
     });
     minify.addEventListener('click', function () {
         textarea.value = _Snippet.Snippet.minify(textarea.value, true);
     });
 };
-},{"ireal-reader":"../node_modules/ireal-reader/index.js","../lib":"../lib/index.js","../src/grooves/bossa":"../src/grooves/bossa.js","../src/grooves/funk":"../src/grooves/funk.js","../src/grooves/swing":"../src/grooves/swing.js","../src/sheet/RealParser":"../src/sheet/RealParser.js","../src/harmony/Voicing":"../src/harmony/Voicing.js","../src/sheet/Snippet":"../src/sheet/Snippet.ts","../songs/1350.json":"../songs/1350.json","../samples/drumset":"../samples/drumset.js","../samples/piano":"../samples/piano.js"}]},{},["demo.js"], null)
+},{"ireal-reader":"../node_modules/ireal-reader/index.js","../lib":"../lib/index.js","../src/grooves/bossa":"../src/grooves/bossa.ts","../src/grooves/funk":"../src/grooves/funk.ts","../src/grooves/swing":"../src/grooves/swing.ts","../src/sheet/RealParser":"../src/sheet/RealParser.ts","../src/sheet/Snippet":"../src/sheet/Snippet.ts","../songs/1350.json":"../songs/1350.json","../samples/drumset":"../samples/drumset.js","../samples/piano":"../samples/piano.js"}]},{},["demo.js"], null)
 //# sourceMappingURL=/demo.c3860e96.map
