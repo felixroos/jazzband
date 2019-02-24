@@ -44,8 +44,8 @@ The above snippet will setup the default Trio which is a Robot Rhythm Section pl
 If you want better sound, try the Sampler Instrument:
 
 ```ts
-import { piano } from 'jazzband/demo/samples/piano';
-import { drumset } from 'jazzband/demo/samples/drumset';
+import { piano } from 'jazzband/samples/piano';
+import { drumset } from 'jazzband/samples/drumset';
 // create keys from piano samples with correct offset
 const keys = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
 // create drums from drum samples

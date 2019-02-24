@@ -119,8 +119,8 @@ export class Voicing {
             .filter(choice => { // apply flag filters + filerChoices if any
                 return (!noTopDrop || !choice.dropped.includes(choice.topNotes[0])) &&
                     (!noTopAdd || !choice.added.includes(choice.topNotes[1])) &&
-                    (!noBottomDrop || !choice.dropped.includes(choice.topNotes[0])) &&
-                    (!noBottomAdd || !choice.added.includes(choice.topNotes[1])) &&
+                    (!noBottomDrop || !choice.dropped.includes(choice.bottomNotes[0])) &&
+                    (!noBottomAdd || !choice.added.includes(choice.bottomNotes[1])) &&
                     (!filterChoices || filterChoices(choice))
             })
             .sort(sortChoices ?
@@ -211,7 +211,7 @@ export class Voicing {
     static validateInterval(validate: (interval: string, { path, next, array }) => boolean) {
         return (path, next, array) => {
             if (!path.length) { return true }
-            const interval = Distance.interval(path[path.length - 1], next);
+            const interval = Distance.interval(path[path.length - 1], next) + '';
             return validate(interval, { path, next, array });
         }
     }

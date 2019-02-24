@@ -3,7 +3,7 @@ import { Measure, MeasureOrString } from './Measure';
 export type Measures = Array<MeasureOrString>;
 
 export type Leadsheet = {
-    name: string,
+    name?: string,
     composer?: string,
     style?: string,
     bpm?: number,

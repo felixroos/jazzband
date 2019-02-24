@@ -8,8 +8,8 @@ import { RealParser } from '../src/sheet/RealParser';
 import { Snippet } from '../src/sheet/Snippet';
 import link from '../songs/1350.json';
 /* import { harp } from './samples/harp'; */
-import { drumset } from '../samples/drumset';
-import { piano } from '../samples/piano';
+import { drumset } from '../src/samples/drumset';
+import { piano } from '../src/samples/piano';
 var AudioContext = window.AudioContext // Default
     || window.webkitAudioContext // Safari and old versions of Chrome
     || false;
@@ -99,7 +99,7 @@ window.onload = function () {
             groove,
             voicings: {
                 range: ['C3', 'C5'], // allowed voice range
-                maxVoices: 3, // maximum number of voices per chord
+                maxVoices: 4, // maximum number of voices per chord
                 maxDistance: 7,  // general max distance between single voices
                 minDistance: 1,  // general max distance between single voices
                 minBottomDistance: 3, // min semitones between the two bottom notes
@@ -107,7 +107,7 @@ window.onload = function () {
                 noTopDrop: true,
                 noTopAdd: true,
                 noBottomDrop: false,
-                noBottomAdd: false,
+                noBottomAdd: true,
                 logging: true
             },
             onMeasure: (measure) => {

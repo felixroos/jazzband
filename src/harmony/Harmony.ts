@@ -8,7 +8,7 @@ export declare type step = string | number;
 
 export class Harmony {
     static isBlack(note) {
-        return Note.props(note).acc !== '';
+        return Note.props(note)['acc'] !== '';
     }
 
     static isSameNote(noteA, noteB) {
@@ -152,7 +152,7 @@ export class Harmony {
     /** Returns the note with the least distance to "from" */
     static getNearestNote(from, to, direction?: intervalDirection) {
         let interval = Harmony.minInterval(Distance.interval(Note.pc(from), Note.pc(to)), direction);
-        return Distance.transpose(from, interval);
+        return Distance.transpose(from, interval) + '';
     }
 
     /** Returns the note with the least distance to "from". TODO: add range */
