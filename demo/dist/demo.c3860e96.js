@@ -13114,14 +13114,6 @@ var bass = keyboard;
 var drums = new _lib.Sampler({ samples: _drumset.drumset, context: context, gain: 0.5, duration: 6000 });
 var band = new _lib.Trio({ context: context, piano: keyboard, bass: bass, drums: drums, solo: false });
 
-function getStandard(playlist) {
-    /* const standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus'))); */
-    var standard = _lib.util.randomElement(playlist.songs);
-    standard.music.measures = _RealParser.RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
-    console.log('standard', standard);
-    return standard;
-}
-
 window.onload = function () {
     // buttons
     var playJazz = document.getElementById('jazz');
@@ -13131,6 +13123,7 @@ window.onload = function () {
     var slower = document.getElementById('slower');
     var faster = document.getElementById('faster');
     var next = document.getElementById('next');
+    var searchInput = document.getElementById('searchInput');
     var playChords = document.getElementById('playChords');
     var format = document.getElementById('format');
     var minify = document.getElementById('minify');
@@ -13142,10 +13135,31 @@ window.onload = function () {
         sheet = void 0,
         groove = _swing.swing;
 
+    function getStandard(playlist, query) {
+        var newStandard = void 0;
+        if (query) {
+            newStandard = _lib.util.randomElement(playlist.songs.filter(function (s) {
+                return s.title.toLowerCase().includes(query.toLowerCase());
+            }));
+        } else {
+            newStandard = _lib.util.randomElement(playlist.songs);
+        }
+        if (newStandard) {
+            newStandard.music.measures = _RealParser.RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
+            return newStandard;
+        }
+    }
+
     loadStandard();
 
     next.addEventListener('click', function () {
         loadStandard();
+        searchInput.value = '';
+    });
+
+    searchInput.addEventListener('keyup', function () {
+        var query = searchInput.value;
+        loadStandard(query);
     });
 
     function stop() {
@@ -13154,8 +13168,8 @@ window.onload = function () {
         }
     }
 
-    function loadStandard() {
-        standard = getStandard(playlist);
+    function loadStandard(query) {
+        standard = getStandard(playlist, query) || standard;
         textarea.value = _Snippet.Snippet.from(standard.music.measures);
         setTitle(standard.composer + ' - ' + standard.title);
         sheet = {

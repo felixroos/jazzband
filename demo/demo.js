@@ -28,13 +28,6 @@ const bass = keyboard;
 const drums = new Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
 const band = new Trio({ context, piano: keyboard, bass, drums, solo: false });
 
-function getStandard(playlist) {
-    /* const standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus'))); */
-    const standard = util.randomElement(playlist.songs);
-    standard.music.measures = RealParser.parseSheet(standard.music.raw); // TODO: add Song that can be passed to comp
-    console.log('standard', standard);
-    return standard;
-}
 
 window.onload = function () {
     // buttons
@@ -45,6 +38,7 @@ window.onload = function () {
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
     const next = document.getElementById('next');
+    const searchInput = document.getElementById('searchInput');
     const playChords = document.getElementById('playChords');
     const format = document.getElementById('format');
     const minify = document.getElementById('minify');
@@ -54,10 +48,29 @@ window.onload = function () {
     const usePiano = document.getElementById('usePiano');
     let standard, sheet, groove = swing;
 
+    function getStandard(playlist, query) {
+        let newStandard;
+        if (query) {
+            newStandard = util.randomElement(playlist.songs.filter(s => s.title.toLowerCase().includes(query.toLowerCase())));
+        } else {
+            newStandard = util.randomElement(playlist.songs);
+        }
+        if (newStandard) {
+            newStandard.music.measures = RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
+            return newStandard;
+        }
+    }
+
     loadStandard();
 
     next.addEventListener('click', () => {
         loadStandard();
+        searchInput.value = '';
+    });
+
+    searchInput.addEventListener('keyup', () => {
+        const query = searchInput.value;
+        loadStandard(query);
     });
 
     function stop() {
@@ -66,8 +79,8 @@ window.onload = function () {
         }
     }
 
-    function loadStandard() {
-        standard = getStandard(playlist);
+    function loadStandard(query) {
+        standard = getStandard(playlist, query) || standard;
         textarea.value = Snippet.from(standard.music.measures);
         setTitle(standard.composer + ' - ' + standard.title);
         sheet = {
