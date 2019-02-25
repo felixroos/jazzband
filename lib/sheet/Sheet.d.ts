@@ -1,7 +1,7 @@
 import { Measure, MeasureOrString } from './Measure';
 export declare type Measures = Array<MeasureOrString>;
 export declare type Leadsheet = {
-    name: string;
+    name?: string;
     composer?: string;
     style?: string;
     bpm?: number;

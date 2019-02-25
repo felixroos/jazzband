@@ -39,7 +39,9 @@ export class RealParser {
     }
 
     static parseSheet(raw): Measures {
-        return RealParser.getSheet(RealParser.parse(raw));
+        const tokens = RealParser.parse(raw);
+        console.log('tokensss!', tokens);
+        return RealParser.getSheet(tokens);
     }
 
     static getSheet(tokens): Measures {

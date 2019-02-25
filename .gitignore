@@ -2,7 +2,8 @@ node_modules
 **/**/dist/*.wav
 **/**/dist/*.mp3
 **/**/.cache
-#demo/dist
+demo/dist
+demo-tone/dist
 **/**/samples/piano
 **/**/samples/harp
 **/**/samples/drummer

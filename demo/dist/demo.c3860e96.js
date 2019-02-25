@@ -3341,7 +3341,7 @@ var tonal_4 = require("tonal");
 var Harmony = /** @class */function () {
     function Harmony() {}
     Harmony.isBlack = function (note) {
-        return tonal_1.Note.props(note).acc !== '';
+        return tonal_1.Note.props(note)['acc'] !== '';
     };
     Harmony.isSameNote = function (noteA, noteB) {
         return tonal_1.Note.midi(noteA) === tonal_1.Note.midi(noteB);
@@ -3480,7 +3480,7 @@ var Harmony = /** @class */function () {
     /** Returns the note with the least distance to "from" */
     Harmony.getNearestNote = function (from, to, direction) {
         var interval = Harmony.minInterval(tonal_4.Distance.interval(tonal_1.Note.pc(from), tonal_1.Note.pc(to)), direction);
-        return tonal_4.Distance.transpose(from, interval);
+        return tonal_4.Distance.transpose(from, interval) + '';
     };
     /** Returns the note with the least distance to "from". TODO: add range */
     Harmony.getNearestTargets = function (from, targets, preferredDirection, flip) {
@@ -9025,7 +9025,7 @@ var PlasticDrums = /** @class */function (_super) {
             var missing = keys.filter(function (key) {
                 return !_this.keys[key];
             });
-            console.warn('PlasticDrums missing keys:', missing);
+            // console.warn('PlasticDrums missing keys:', missing);
         }
         sounds.forEach(function (sound) {
             return sound.trigger(deadline);
@@ -9587,7 +9587,9 @@ var RealParser = /** @class */function () {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
     };
     RealParser.parseSheet = function (raw) {
-        return RealParser.getSheet(RealParser.parse(raw));
+        var tokens = RealParser.parse(raw);
+        console.log('tokensss!', tokens);
+        return RealParser.getSheet(tokens);
     };
     RealParser.getSheet = function (tokens) {
         var _this = this;
@@ -10094,203 +10096,7 @@ var Voicing_1 = require("./harmony/Voicing");
 exports.Voicing = Voicing_1.Voicing;
 var Permutation_1 = require("./util/Permutation");
 exports.Permutation = Permutation_1.Permutation;
-},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../src/harmony/Harmony.ts":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) {
-                if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var tonal_1 = require("tonal");
-var tonal_2 = require("tonal");
-var tonal_3 = require("tonal");
-var tonal_4 = require("tonal");
-var Harmony = /** @class */function () {
-    function Harmony() {}
-    Harmony.isBlack = function (note) {
-        return tonal_1.Note.props(note)['acc'] !== '';
-    };
-    Harmony.isSameNote = function (noteA, noteB) {
-        return tonal_1.Note.midi(noteA) === tonal_1.Note.midi(noteB);
-    };
-    Harmony.getTonalChord = function (chord) {
-        if (!chord) {
-            return null;
-        }
-        chord = chord.replace(/([A-G][b|#]?)(69)/, '$1M69').replace('-', 'm').replace('^', 'M').replace('h7', 'm7b5').replace('h', 'dim');
-        /**
-         * Chords that dont work:
-         * slash cords are ignored
-         * 7b9b5 does not work
-         *
-         */
-        var tokens = tonal_2.Chord.tokenize(chord);
-        var s = tokens[1].split('/');
-        return tokens[0] + (s[0] || 'M');
-    };
-    Harmony.getBassNote = function (chord) {
-        if (!chord) {
-            return null;
-        }
-        if (chord.includes('/')) {
-            return chord.split('/')[1];
-        }
-        return chord.match(/[A-G][b|#]?/)[0];
-    };
-    Harmony.getMidi = function (note, offset) {
-        if (offset === void 0) {
-            offset = 0;
-        }
-        return tonal_1.Note.midi(note) - offset;
-    };
-    Harmony.intervalComplement = function (interval) {
-        var fix = {
-            '8P': '1P',
-            '8d': '1A',
-            '8A': '1d',
-            '1A': '8d',
-            '1d': '8A'
-        };
-        var fixIndex = Object.keys(fix).find(function (key) {
-            return interval.match(key);
-        });
-        if (fixIndex) {
-            return fix[fixIndex];
-        }
-        return tonal_3.Interval.invert(interval);
-    };
-    Harmony.invertInterval = function (interval) {
-        if (!interval) {
-            return null;
-        }
-        var positive = interval.replace('-', '');
-        var complement = Harmony.intervalComplement(positive);
-        var isNegative = interval.length > positive.length;
-        return (isNegative ? '' : '-') + complement;
-    };
-    /** Transforms interval into one octave (octave+ get octaved down) */
-    Harmony.fixInterval = function (interval, simplify) {
-        if (interval === void 0) {
-            interval = '';
-        }
-        if (simplify === void 0) {
-            simplify = false;
-        }
-        var fix = {
-            '0A': '1P',
-            '-0A': '1P'
-        };
-        if (simplify) {
-            fix = __assign({}, fix, { '8P': '1P', '-8P': '1P' });
-            interval = tonal_3.Interval.simplify(interval);
-        }
-        if (Object.keys(fix).includes(interval)) {
-            return fix[interval];
-        }
-        return interval;
-    };
-    /** inverts the interval if it does not go to the desired direction */
-    Harmony.forceDirection = function (interval, direction, noUnison) {
-        if (noUnison === void 0) {
-            noUnison = false;
-        }
-        var semitones = tonal_3.Interval.semitones(interval);
-        if (direction === 'up' && semitones < 0 || direction === 'down' && semitones > 0) {
-            return Harmony.invertInterval(interval);
-        }
-        if (interval === '1P' && noUnison) {
-            return (direction === 'down' ? '-' : '') + '8P';
-        }
-        return interval;
-    };
-    // use Interval.ic?
-    Harmony.minInterval = function (interval, direction, noUnison) {
-        interval = Harmony.fixInterval(interval, true);
-        if (direction) {
-            return Harmony.forceDirection(interval, direction, noUnison);
-        }
-        var inversion = Harmony.invertInterval(interval);
-        if (Math.abs(tonal_3.Interval.semitones(inversion)) < Math.abs(tonal_3.Interval.semitones(interval))) {
-            interval = inversion;
-        }
-        return interval;
-    };
-    // returns array of intervals that lead the voices of chord A to chordB
-    Harmony.minIntervals = function (chordA, chordB) {
-        return chordA.map(function (n, i) {
-            return Harmony.minInterval(tonal_4.Distance.interval(n, chordB[i]));
-        });
-    };
-    Harmony.mapMinInterval = function (direction) {
-        return function (interval) {
-            return Harmony.minInterval(interval, direction);
-        };
-    };
-    // sort function
-    Harmony.sortMinInterval = function (preferredDirection, accessor) {
-        if (preferredDirection === void 0) {
-            preferredDirection = 'up';
-        }
-        if (accessor === void 0) {
-            accessor = function accessor(i) {
-                return i;
-            };
-        }
-        return function (a, b) {
-            var diff = Math.abs(tonal_3.Interval.semitones(accessor(a))) - Math.abs(tonal_3.Interval.semitones(accessor(b)));
-            if (diff === 0) {
-                return preferredDirection === 'up' ? -1 : 1;
-            }
-            return diff;
-        };
-    };
-    /** Returns the note with the least distance to "from" */
-    Harmony.getNearestNote = function (from, to, direction) {
-        var interval = Harmony.minInterval(tonal_4.Distance.interval(tonal_1.Note.pc(from), tonal_1.Note.pc(to)), direction);
-        return tonal_4.Distance.transpose(from, interval) + '';
-    };
-    /** Returns the note with the least distance to "from". TODO: add range */
-    Harmony.getNearestTargets = function (from, targets, preferredDirection, flip) {
-        if (preferredDirection === void 0) {
-            preferredDirection = 'down';
-        }
-        if (flip === void 0) {
-            flip = false;
-        }
-        var intervals = targets.map(function (target) {
-            return tonal_4.Distance.interval(tonal_1.Note.pc(from), target);
-        }).map(Harmony.mapMinInterval(preferredDirection)).sort(Harmony.sortMinInterval(preferredDirection));
-        /* if (flip) {
-            intervals = intervals.reverse();
-        } */
-        return intervals.map(function (i) {
-            return tonal_4.Distance.transpose(from, i);
-        });
-    };
-    Harmony.intervalMatrix = function (from, to) {
-        return to.map(function (note) {
-            return from.map(function (n) {
-                return tonal_4.Distance.interval(n, note);
-            }).map(function (d) {
-                return Harmony.minInterval(d);
-            });
-        }
-        /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
-        );
-    };
-    return Harmony;
-}();
-exports.Harmony = Harmony;
-},{"tonal":"../node_modules/tonal/index.js"}],"../src/instruments/Instrument.ts":[function(require,module,exports) {
+},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../src/instruments/Instrument.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -10391,7 +10197,7 @@ var Instrument = /** @class */function () {
     return Instrument;
 }();
 exports.Instrument = Instrument;
-},{"../harmony/Harmony":"../src/harmony/Harmony.ts"}],"../src/instruments/Synthesizer.ts":[function(require,module,exports) {
+},{"../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/instruments/Synthesizer.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -10906,7 +10712,6 @@ function getStepFromInterval(interval, min) {
     if (min) {
         return step[1] || step[0] || 0;
     }
-    console.log('not min', interval);
     return step[0] || 0;
 }
 exports.getStepFromInterval = getStepFromInterval;
@@ -11318,7 +11123,7 @@ exports.factorial = factorial;
     return sorted.map(movement => movement.combination);
 }
  */
-},{"tonal":"../node_modules/tonal/index.js","../instruments/Synthesizer":"../src/instruments/Synthesizer.ts","../symbols":"../lib/symbols.js","../harmony/Harmony":"../src/harmony/Harmony.ts"}],"../src/grooves/bossa.ts":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","../instruments/Synthesizer":"../src/instruments/Synthesizer.ts","../symbols":"../lib/symbols.js","../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/grooves/bossa.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -11888,7 +11693,9 @@ var RealParser = /** @class */function () {
         return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
     };
     RealParser.parseSheet = function (raw) {
-        return RealParser.getSheet(RealParser.parse(raw));
+        var tokens = RealParser.parse(raw);
+        console.log('tokensss!', tokens);
+        return RealParser.getSheet(tokens);
     };
     RealParser.getSheet = function (tokens) {
         var _this = this;
@@ -13144,8 +12951,11 @@ window.onload = function () {
         } else {
             newStandard = _lib.util.randomElement(playlist.songs);
         }
+
         if (newStandard) {
             newStandard.music.measures = _RealParser.RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
+            console.log('m', newStandard.music.measures);
+
             return newStandard;
         }
     }

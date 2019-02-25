@@ -55,9 +55,13 @@ window.onload = function () {
         } else {
             newStandard = util.randomElement(playlist.songs);
         }
+        
         if (newStandard) {
             newStandard.music.measures = RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
+            console.log('m',newStandard.music.measures);
+            
             return newStandard;
+
         }
     }
 

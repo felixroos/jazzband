@@ -9,8 +9,8 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "docs": "typedoc src",
-    "demo-tonal": "parcel ./demo-tonal/index.html --out-dir ./demo-tonal/dist --no-hmr",
-    "demo-tonal-build": "parcel build ./demo-tonal/index.html --out-dir ./demo-tonal/dist",
+    "demo-tone": "parcel ./demo-tone/index.html --out-dir ./demo-tone/dist --no-hmr",
+    "demo-tone-build": "parcel build ./demo-tone/index.html --out-dir ./demo-tone/dist",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
     "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist --public-url ./",
     "deploy-demo": "npm run demo-build && node ./scripts/pages.js"

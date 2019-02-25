@@ -17,7 +17,7 @@ export declare class Harmony {
     static mapMinInterval(direction?: intervalDirection): (interval: any) => any;
     static sortMinInterval(preferredDirection?: intervalDirection, accessor?: (i: any) => any): (a: any, b: any) => number;
     /** Returns the note with the least distance to "from" */
-    static getNearestNote(from: any, to: any, direction?: intervalDirection): any;
+    static getNearestNote(from: any, to: any, direction?: intervalDirection): string;
     /** Returns the note with the least distance to "from". TODO: add range */
     static getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
     static intervalMatrix(from: any, to: any): any;
