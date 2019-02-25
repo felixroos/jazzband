@@ -10,7 +10,7 @@
     "watch": "tsc --watch",
     "docs": "typedoc src",
     "demo-tone": "parcel ./demo-tone/index.html --out-dir ./demo-tone/dist --no-hmr",
-    "demo-tone-build": "parcel build ./demo-tone/index.html --out-dir ./demo-tone/dist",
+    "demo-tone-build": "parcel build ./demo-tone/index.html --out-dir ./demo-tone/dist --public-url ./",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
     "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist --public-url ./",
     "deploy-demo": "npm run demo-build && node ./scripts/pages.js"
@@ -34,17 +34,17 @@
   },
   "homepage": "https://github.com/felixroos/jazzband#readme",
   "devDependencies": {
-    "@babel/core": "^7.0.0-rc.1",
-    "@types/jest": "^23.3.1",
+    "@babel/core": "^7.3.3",
+    "@types/jest": "^24.0.6",
     "babel-core": "^6.26.3",
     "babel-jest": "^23.4.2",
     "gh-pages": "^2.0.1",
-    "jest": "^23.5.0",
+    "jest": "^24.1.0",
     "parcel-plugin-clean-dist": "0.0.6",
     "tone": "^13.4.9",
     "ts-jest": "^23.1.4",
     "typedoc": "^0.14.2",
-    "typescript": "^3.0.1"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "diff": "^3.5.0",
