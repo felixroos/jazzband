@@ -1,4 +1,6 @@
 node_modules
+demo/dist
+demo-tone/dist
 **/**/dist/*.wav
 **/**/dist/*.mp3
 **/**/.cache
