@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --watch",
     "publish": "npm publish",
-    "build": "tsc",
+    "build": "rm -rf lib/ && tsc",
     "watch": "tsc --watch",
     "docs": "typedoc src",
     "demo-tone": "parcel ./demo-tone/index.html --out-dir ./demo-tone/dist --no-hmr",
@@ -37,19 +37,19 @@
     "@babel/core": "^7.3.3",
     "@types/jest": "^24.0.6",
     "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.2",
+    "babel-jest": "^24.1.0",
     "gh-pages": "^2.0.1",
     "jest": "^24.1.0",
     "parcel-plugin-clean-dist": "0.0.6",
     "tone": "^13.4.9",
-    "ts-jest": "^23.1.4",
+    "ts-jest": "^24.0.0",
     "typedoc": "^0.14.2",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "diff": "^3.5.0",
-    "ireal-reader": "^1.2.5",
-    "tonal": "^2.1.2",
+    "diff": "^4.0.1",
+    "ireal-reader": "^1.3.0",
+    "tonal": "^2.2.1",
     "waaclock": "^0.5.3"
   },
   "jest": {

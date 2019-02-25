@@ -88,7 +88,6 @@ A Range is an array with the lowest note and highest note that can be played.
 - ```transposeToRange(notes, range)```: will transpose the given notes inside the given range
 - ```getRangePosition(note, range)```: Depends on where the note is inside the given range. e.g. returns 0 for first note 0.5 for middle note and 1 for top note.
 
-
 ### Steps
 
 Extend intervals with widely used steps/degrees. The interval to step mapping is:

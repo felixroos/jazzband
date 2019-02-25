@@ -1,5 +1,4 @@
 import { Distance } from 'tonal';
-import { Interval } from 'tonal';
 import { Chord } from 'tonal';
 
 test('Tonal.Interval', () => {

@@ -1,4 +1,4 @@
-import { Improvisation } from "./Improvisation";
+import { Improvisation } from "../improvisation/Improvisation";
 
 const defaults = {
     octave: 5,
