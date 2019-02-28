@@ -118,7 +118,7 @@ window.onload = function () {
             voicings: {
                 range: ['C3', 'C6'], // allowed voice range
                 maxVoices: 4, // maximum number of voices per chord
-                maxDistance: 10,  // general max distance between single voices
+                maxDistance: 7,  // general max distance between single voices
                 minDistance: 1,  // general max distance between single voices
                 minBottomDistance: 3, // min semitones between the two bottom notes
                 minTopDistance: 2, // min semitones between the two top notes
