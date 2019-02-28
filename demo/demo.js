@@ -116,7 +116,7 @@ window.onload = function () {
             bpm,
             groove,
             voicings: {
-                range: ['C3', 'C6'], // allowed voice range
+                range: ['C3', 'C#5'], // allowed voice range
                 maxVoices: 4, // maximum number of voices per chord
                 maxDistance: 7,  // general max distance between single voices
                 minDistance: 1,  // general max distance between single voices
