@@ -104,6 +104,7 @@ window.onload = function () {
         if (band.pulse) {
             band.pulse.stop();
         }
+        textarea.value = Snippet.format(textarea.value);
         const forms = 2;
         const time = 4;
         const bpm = groove ? groove.tempo : 130;
