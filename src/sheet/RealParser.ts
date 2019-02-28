@@ -1,4 +1,4 @@
-import { Measure, MeasureOrString } from './Measure';
+import { Measure } from './Measure';
 import { Measures } from './Sheet';
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
@@ -39,7 +39,8 @@ export class RealParser {
     }
 
     static parseSheet(raw): Measures {
-        return RealParser.getSheet(RealParser.parse(raw));
+        const tokens = RealParser.parse(raw);
+        return RealParser.getSheet(tokens);
     }
 
     static getSheet(tokens): Measures {

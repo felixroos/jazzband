@@ -19,7 +19,7 @@ export class PlasticDrums extends Instrument {
         const sounds = keys.filter(key => !!this.keys[key]).map(key => this.keys[key]);
         if (sounds.length < keys.length) {
             const missing = keys.filter(key => !this.keys[key]);
-            console.warn('PlasticDrums missing keys:', missing);
+            // console.warn('PlasticDrums missing keys:', missing);
         }
         sounds.forEach(sound => sound.trigger(deadline));
     }

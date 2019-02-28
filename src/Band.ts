@@ -44,7 +44,7 @@ export default class Band {
     }
 
     resume() { // https://goo.gl/7K7WLu
-        return this.context.resume().then(() => this.context);
+        return this.context.resume ? this.context.resume().then(() => this.context) : Promise.resolve(this.context);
     }
 
     comp(sheet: Leadsheet, settings) {

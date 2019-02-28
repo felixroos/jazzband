@@ -1,16 +1,16 @@
 {
   "name": "jazzband",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "A Virtual Jazz Band that plays chords with the Web Audio API.",
   "main": "lib/index.js",
   "scripts": {
     "test": "jest --watch",
     "publish": "npm publish",
-    "build": "tsc",
+    "build": "rm -rf lib/ && tsc",
     "watch": "tsc --watch",
     "docs": "typedoc src",
-    "demo-tonal": "parcel ./demo-tonal/index.html --out-dir ./demo-tonal/dist --no-hmr",
-    "demo-tonal-build": "parcel build ./demo-tonal/index.html --out-dir ./demo-tonal/dist",
+    "demo-tone": "parcel ./demo-tone/index.html --out-dir ./demo-tone/dist --no-hmr",
+    "demo-tone-build": "parcel build ./demo-tone/index.html --out-dir ./demo-tone/dist --public-url ./",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
     "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist --public-url ./",
     "deploy-demo": "npm run demo-build && node ./scripts/pages.js"
@@ -34,22 +34,22 @@
   },
   "homepage": "https://github.com/felixroos/jazzband#readme",
   "devDependencies": {
-    "@babel/core": "^7.0.0-rc.1",
-    "@types/jest": "^23.3.1",
+    "@babel/core": "^7.3.3",
+    "@types/jest": "^24.0.6",
     "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.2",
+    "babel-jest": "^24.1.0",
     "gh-pages": "^2.0.1",
-    "jest": "^23.5.0",
+    "jest": "^24.1.0",
     "parcel-plugin-clean-dist": "0.0.6",
     "tone": "^13.4.9",
-    "ts-jest": "^23.1.4",
+    "ts-jest": "^24.0.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.0.1"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "diff": "^3.5.0",
-    "ireal-reader": "^1.2.5",
-    "tonal": "^2.1.2",
+    "diff": "^4.0.1",
+    "ireal-reader": "^1.3.0",
+    "tonal": "^2.2.1",
     "waaclock": "^0.5.3"
   },
   "jest": {

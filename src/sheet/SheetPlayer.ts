@@ -6,8 +6,8 @@ import { Voicing } from '..';
 import { Note } from 'tonal';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { Harmony } from '../harmony/Harmony';
-import { piano as pianoSamples } from '../../samples/piano/index.js';
-import { drumSamples } from '../../samples/drumset';
+import { piano as pianoSamples } from '../samples/piano/index.js';
+import { drumSamples } from '../samples/drumset';
 import { Snippet } from './Snippet';
 
 export declare type noteTrigger = (time, duration?) => any;
@@ -237,8 +237,8 @@ export class SheetPlayer {
             release = oldNotes;
             attack = newNotes;
         } else {
-            release = oldNotes.filter(note => !newNotes.find(n => Harmony.isSameNote(note, n)));
-            attack = newNotes.filter(note => !oldNotes.find(n => Harmony.isSameNote(note, n)));
+            release = oldNotes.filter(note => !newNotes.find(n => Harmony.hasSamePitch(note, n)));
+            attack = newNotes.filter(note => !oldNotes.find(n => Harmony.hasSamePitch(note, n)));
         }
         return { attack, release };
     }

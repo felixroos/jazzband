@@ -1,9 +1,8 @@
-import { noteArray, getRangePosition } from './util';
-import { Distance } from 'tonal';
-import { Interval } from 'tonal';
+import { Distance, Interval } from 'tonal';
 import { Harmony } from '../harmony/Harmony';
-import { Snippet } from '../sheet/Snippet';
 import { Voicing } from '../harmony/Voicing';
+import { Snippet } from '../sheet/Snippet';
+import { getRangePosition, getStepsInChord, noteArray, getDegreeFromStep } from './util';
 
 export class Logger {
     static emoji = {
@@ -71,8 +70,8 @@ export class Logger {
             icon: '☯️',
             description: 'The Voices generally did not move anywhere'
         },
-        fewCombinations: {
-            icon: '💢',
+        fewChoices: {
+            icon: '❓',
             description: 'There were very few valid combinations to choose from'
         },
         error: {
@@ -174,43 +173,50 @@ export class Logger {
         });
     }
 
-    static logNotes(activeNotes, idleNotes, addedNotes, range) {
+    static logNotes(options) {
+        let { notes, active, idle, added, range, labels }: any = {
+            labels: [],
+            ...options
+        };
         const span = [
             Distance.transpose(range[0], Interval.fromSemitones(-7)),
             Distance.transpose(range[1], Interval.fromSemitones(12))
         ];
         const allNotes = noteArray(span);
         const keyboard = allNotes.map((note, index) => {
-            const active = !!activeNotes.find(n => Harmony.isSameNote(note, n));
-            const idle = !!idleNotes.find(n => Harmony.isSameNote(note, n));
-            const added = !!addedNotes.find(n => Harmony.isSameNote(note, n));
-            const black = Harmony.isBlack(note);
+            const isActive = active.find(n => Harmony.hasSamePitch(note, n));
+            const isUsed = notes.find(n => Harmony.hasSamePitch(note, n));
+            let i = notes.indexOf(isUsed);
+            const isIdle = idle.find(n => Harmony.hasSamePitch(note, n));
+            const isAdded = added.find(n => Harmony.hasSamePitch(note, n));
+            const isBlack = Harmony.isBlack(note);
             let css = '', sign = '_';
-            if (added && !black) {
-                css = 'color:green;';
-                sign = '█';
-            } else if (added && black) {
-                css = 'color:darkgreen;';
-                sign = '█';
-            } else if (active && black) {
-                css = 'color:#a50909;';
-                sign = '█';
-            } else if (active && !black) {
-                css = 'color:#eda3a3;';
-                sign = '█';
-            } else if (idle && !black) {
-                css = 'color:gray;';
-                sign = '█';
-            } else if (idle && black) {
-                css = 'color:black;';
-                sign = '█';
+            if (isAdded && !isBlack) {
+                css = 'background:green;color:white;';
+                sign = labels[i] || '█';
+            } else if (isAdded && isBlack) {
+                css = 'background:darkgreen;color:white;';
+                sign = labels[i] || '█';
+            } else if (isActive && isBlack) {
+                css = 'background:#a50909;color:white;';
+                sign = labels[i] || '█';
+            } else if (isActive && !isBlack) {
+                css = 'background:#e52929;color:white;';
+                sign = labels[i] || '█';
+            } else if (isIdle && !isBlack) {
+                css = 'background:gray;color:white;';
+                sign = labels[i] || '█';
+            } else if (isIdle && isBlack) {
+                css = 'background:darkgray;color:white;';
+                sign = labels[i] || '█';
             } else {
-                css = black ? 'color:black;' : 'color:#eee;';
+                css = isBlack ? 'color:black;' : 'color:#eee;';
             }
             const position = getRangePosition(note, range);
             if (position < 0 || position > 1) {
                 if (active || idle || added) {
                     css += 'color:red;';
+                    sign = ' ';
                 } else {
                     sign = ' ';
                 }
@@ -234,10 +240,17 @@ export class Logger {
         /* pick = pick.map(n => Note.simplify(n)); */
         pick = pick || [];
         previousVoicing = previousVoicing || [];
-        const idle = previousVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
-        const active = pick.filter(n => !previousVoicing.find(p => Harmony.isSameNote(n, p)))
+        const idle = previousVoicing.filter(n => pick.find(p => Harmony.hasSamePitch(n, p)));
+        const isIdle = choice && choice.oblique.length === choice.targets.length;
+        if (isIdle) {
+            return;
+        }
+        const active = pick.filter(n => !previousVoicing.find(p => Harmony.hasSamePitch(n, p)))
         const added = choice ? choice.added : [];
-        let konsole = Logger.logNotes(active, idle, added, range);
+        let degrees = getStepsInChord(pick, chord, true)
+            .map(step => getDegreeFromStep(step))
+            .map(step => step === 8 ? 1 : step);
+        let konsole = Logger.logNotes({ notes: pick, active, idle, added, range, labels: degrees });
         const movement = choice ? choice.movement : 0;
         const difference = choice ? choice.difference : 0;
         choices = choices || [];
@@ -294,13 +307,13 @@ export class Logger {
             if (!choice.parallel && choice.oblique.length === 0) {
                 konsole.push(Logger.emoji.noOblique.icon);
             }
-            if (choice.oblique.length === choice.targets.length) {
+            if (isIdle) {
                 konsole.push(Logger.emoji.noChange.icon);
             }
         }
-        if (combinations) {
-            if (combinations.length < 3) {
-                konsole.push(Logger.emoji.fewCombinations.icon);
+        if (choices.length) {
+            if (choices.length < pick.length) {
+                konsole.push(Logger.emoji.fewChoices.icon);
             }
         }
         konsole.push(`${chord}`);

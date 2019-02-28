@@ -5,7 +5,10 @@ export declare type VoicingValidation = {
     minDistance?: number;
     minTopDistance?: number;
     topNotes?: string[];
+    topDegrees?: number[];
     bottomNotes?: string[];
+    bottomDegrees?: number[];
+    omitNotes?: string[];
     validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
     sortChoices?: (choiceA: any, choiceB: any) => number;
     filterChoices?: (choice: any) => boolean;
@@ -13,6 +16,7 @@ export declare type VoicingValidation = {
     noTopAdd?: boolean;
     noBottomDrop?: boolean;
     noBottomAdd?: boolean;
+    root?: string;
 };
 export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
@@ -20,6 +24,7 @@ export declare interface VoiceLeadingOptions extends VoicingValidation {
     forceDirection?: intervalDirection;
     rangeBorders?: number[];
     logging?: boolean;
+    idleChance?: number;
 }
 export declare class Voicing {
     /** Returns the next voicing that should follow the previously played voicing.
@@ -41,15 +46,16 @@ export declare class Voicing {
     }) => boolean): (path: any, next: any, array: any) => boolean;
     /** Returns all possible combinations of required and optional notes for a given chord and desired length.
      * If the voices number is higher than the required notes of the chord, the rest number will be permutated from the optional notes */
-    static getAllNoteSelections(chord: any, voices?: number): any;
+    static getAllNoteSelections(chord: any, voices?: number, omitNotes?: any[]): any;
+    static withoutPitches(pitches: any[], voicing: string[]): string[];
     /** Get available tensions for a given chord. Omits tensions that kill the chord quality */
     static getAvailableTensions(chord: any): any;
     /** Returns all Tensions that could be in any chord */
     static getAllTensions(root: any): any[];
     /** Returns all notes that are required to outline a chord */
-    static getRequiredNotes(chord: any): any[];
+    static getRequiredNotes(chord: any, voices?: number): any[];
     /** Returns all notes that are not required */
-    static getOptionalNotes(chord: any, required?: any): any;
+    static getOptionalNotes(chord: any, voices?: any, required?: any): any;
     /** Returns all possible note choices for the given combinations.
      * Takes the bottom note of the previous voicing and computes the minimal intervals up and down to the next bottom note.
      */
@@ -80,13 +86,15 @@ export declare class Voicing {
         dropped: any[];
     };
     /** Returns true if the given note is contained in the given voicing. */
-    static containsNote(note: any, voicing: any, enharmonic?: boolean): any;
+    static containsPitch(note: any, voicing: any, enharmonic?: boolean): any;
     /** Returns the intervals between the given chord voicings.
      * Can be passed pitch classes or absolute notes.
      * The two voicings should have the same length. */
     static voicingIntervals(chordA: any, chordB: any, min?: boolean, direction?: intervalDirection): any;
     /** Validates the current permutation to have a note at a certain position (array index) */
-    static notesAtPositionValidator(notes: any[], position: any): (selected: any, note: any, remaining: any) => boolean;
+    static notesAtPositionValidator(notes: any[], position: any): (selected: any, note: any, remaining: any) => any;
+    /** Validates the current permutation to have a note at a certain position (array index) */
+    static degreesAtPositionValidator(degrees: any[], position: any, root: any): (selected: any, note: any, remaining: any) => boolean;
     /** Returns true if the given voicing contains its root */
     static hasTonic(voicing: any, chord: any): any;
     /** Returns the best direction to move for a given voicing in a range.

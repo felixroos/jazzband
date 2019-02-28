@@ -28,7 +28,10 @@ export declare type VoicingValidation = {
     minDistance?: number;
     minTopDistance?: number;
     topNotes?: string[]; // accepted top notes
+    topDegrees?: number[]; // accepted top degrees
     bottomNotes?: string[]; // accepted top notes
+    bottomDegrees?: number[]; // accepted bottom degrees
+    omitNotes?: string[];
     /* custom validator for permutation of notes */
     validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
     /* Custom sort function for choices. Defaults to smaller difference. */
@@ -38,6 +41,7 @@ export declare type VoicingValidation = {
     noTopAdd?: boolean;
     noBottomDrop?: boolean;
     noBottomAdd?: boolean;
+    root?: string; // validate relative to that root
 };
 
 export declare interface VoiceLeadingOptions extends VoicingValidation {
@@ -47,6 +51,7 @@ export declare interface VoiceLeadingOptions extends VoicingValidation {
     // the lower and upper distance to the range end that is tolerated before forcing a direction
     rangeBorders?: number[];
     logging?: boolean; // if true, all voice leading infos will be logged to the console
+    idleChance?: number; // if true, next voicings cant use all the same notes again (difference !== 0)
 }
 
 export class Voicing {
@@ -64,6 +69,7 @@ export class Voicing {
             noTopAdd,
             noBottomDrop,
             noBottomAdd,
+            idleChance,
             logging
         }: VoiceLeadingOptions = {
             range: ['C3', 'C5'],
@@ -77,6 +83,7 @@ export class Voicing {
             noTopAdd: true,
             noBottomDrop: false,
             noBottomAdd: false,
+            idleChance: 1,
             logging: true,
             ...options
         };
@@ -119,9 +126,10 @@ export class Voicing {
             .filter(choice => { // apply flag filters + filerChoices if any
                 return (!noTopDrop || !choice.dropped.includes(choice.topNotes[0])) &&
                     (!noTopAdd || !choice.added.includes(choice.topNotes[1])) &&
-                    (!noBottomDrop || !choice.dropped.includes(choice.topNotes[0])) &&
-                    (!noBottomAdd || !choice.added.includes(choice.topNotes[1])) &&
-                    (!filterChoices || filterChoices(choice))
+                    (!noBottomDrop || !choice.dropped.includes(choice.bottomNotes[0])) &&
+                    (!noBottomAdd || !choice.added.includes(choice.bottomNotes[1])) &&
+                    (!filterChoices || filterChoices(choice)) &&
+                    (choice.difference > 0 || Math.random() < idleChance)
             })
             .sort(sortChoices ?
                 (a, b) => sortChoices(a, b) :
@@ -164,11 +172,13 @@ export class Voicing {
     /** Computes all valid voice permutations for a given chord and voice number.
      * Runs getVoicePermutations for each possible selection of notes.
      */
-    static getAllVoicePermutations(chord, length, voicingOptions?: VoicingValidation) {
-        return Voicing.getAllNoteSelections(chord, length)
+    static getAllVoicePermutations(chord, length, voicingOptions: VoicingValidation = {}) {
+        const root = Harmony.getBassNote(chord, true);
+        const { omitNotes } = voicingOptions;
+        return Voicing.getAllNoteSelections(chord, length, omitNotes)
             .reduce((combinations, combination) => {
                 return combinations.concat(
-                    Voicing.getVoicePermutations(combination, voicingOptions))
+                    Voicing.getVoicePermutations(combination, { ...voicingOptions, root }))
             }, []);
     }
 
@@ -199,8 +209,10 @@ export class Voicing {
             return Permutation.combineValidators(
                 Voicing.notesAtPositionValidator(options.topNotes, path.length + array.length - 1),
                 Voicing.notesAtPositionValidator(options.bottomNotes, 0),
+                Voicing.degreesAtPositionValidator(options.topDegrees, path.length + array.length - 1, options.root),
+                Voicing.degreesAtPositionValidator(options.bottomDegrees, 0, options.root),
                 Voicing.validateInterval(interval => Interval.semitones(interval) <= options.maxDistance),
-                Voicing.validateInterval(interval => Interval.semitones(interval) >= options.minDistance),
+                Voicing.validateInterval((interval, { path, array }) => array.length === 1 || path.length === 1 || Interval.semitones(interval) >= options.minDistance),
                 Voicing.validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) >= options.minTopDistance),
                 Voicing.validateInterval((interval, { path }) => path.length !== 1 || Interval.semitones(interval) >= options.minBottomDistance)
             )(path, next, array);
@@ -211,15 +223,16 @@ export class Voicing {
     static validateInterval(validate: (interval: string, { path, next, array }) => boolean) {
         return (path, next, array) => {
             if (!path.length) { return true }
-            const interval = Distance.interval(path[path.length - 1], next);
+            const interval = Distance.interval(path[path.length - 1], next) + '';
             return validate(interval, { path, next, array });
         }
     }
 
     /** Returns all possible combinations of required and optional notes for a given chord and desired length. 
      * If the voices number is higher than the required notes of the chord, the rest number will be permutated from the optional notes */
-    static getAllNoteSelections(chord, voices = 2) {
-        const required = Voicing.getRequiredNotes(chord);
+    static getAllNoteSelections(chord, voices = 2, omitNotes = []) {
+        let required = Voicing.getRequiredNotes(chord, voices);
+        required = Voicing.withoutPitches(omitNotes, required);
         if (voices === 1) {
             return required.map(note => [note]);
         }
@@ -230,12 +243,18 @@ export class Voicing {
         if (fill < 0) { // required notes are enough
             return Permutation.binomial(required, voices);
         }
-        let optional = Voicing.getOptionalNotes(chord, required);
+        let optional = Voicing.getOptionalNotes(chord, voices, required);
+        optional = Voicing.withoutPitches(omitNotes, optional);
+
         if (fill >= optional.length) {
             return [required.concat(optional)];
         }
         return Permutation.binomial(optional, fill)
             .map(selection => required.concat(selection))
+    }
+
+    static withoutPitches(pitches = [], voicing: string[]) {
+        return voicing.filter(r => !pitches.find(o => Harmony.hasSamePitch(r, o)));
     }
 
     /** Get available tensions for a given chord. Omits tensions that kill the chord quality */
@@ -272,11 +291,11 @@ export class Voicing {
 
 
     /** Returns all notes that are required to outline a chord */
-    static getRequiredNotes(chord) {
+    static getRequiredNotes(chord, voices = 2) {
         chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
         const intervals = Chord.intervals(chord);
-        let requiredSteps = [3, 7, 'b5', 6]; // order is important
+        let requiredSteps = [3, 7, 'b5', 6].slice(0, Math.max(voices, 2)); // order is important
         if (!hasDegree(3, intervals)) {
             requiredSteps.push(4); // fixes m6 chords
         }
@@ -286,18 +305,17 @@ export class Voicing {
             }
             return req;
         }, []);
-        // WHY 3??
-        if (notes.length > 3 && !required.includes(notes[notes.length - 1])) {
-            required.push(notes[notes.length - 1]); // could check if is 5 than dont push
+        if (voices > 3 && !required.includes(notes[notes.length - 1])) {
+            required.push(notes[notes.length - 1]);
         }
         return required;
     }
 
     /** Returns all notes that are not required */
-    static getOptionalNotes(chord, required?) {
+    static getOptionalNotes(chord, voices?, required?) {
         chord = Harmony.getTonalChord(chord);
         const notes = Chord.notes(chord);
-        required = required || Voicing.getRequiredNotes(chord);
+        required = required || Voicing.getRequiredNotes(chord, voices);
         return notes.filter(note => !required.includes(note));
     }
 
@@ -361,7 +379,7 @@ export class Voicing {
         /** Interval qualities */
         const degrees = intervals.map(i => getDegreeFromInterval(i));
         /** Voices that did not move */
-        const oblique = from.filter((n, i) => to.find(note => Harmony.isSameNote(n, note)));
+        const oblique = from.filter((n, i) => to.find(note => Harmony.hasSamePitch(n, note)));
         /** abs sum of semitones movements of voices */
         const difference = semitoneDifference(intervals);
         /** relative sum of semitone movements */
@@ -401,11 +419,11 @@ export class Voicing {
     }
 
     /** Returns true if the given note is contained in the given voicing. */
-    static containsNote(note, voicing, enharmonic = true) {
+    static containsPitch(note, voicing, enharmonic = true) {
         if (!enharmonic) {
             return voicing.includes(note);
         }
-        return !!voicing.find(n => Harmony.isSameNote(note, n));
+        return !!voicing.find(n => Harmony.hasSamePitch(note, n));
     }
 
     /** Returns the intervals between the given chord voicings. 
@@ -431,7 +449,18 @@ export class Voicing {
     /** Validates the current permutation to have a note at a certain position (array index) */
     static notesAtPositionValidator(notes = [], position) {
         return (selected, note, remaining) => {
-            return !notes.length || selected.length !== position || notes.includes(note);
+            return !notes.length || selected.length !== position || Voicing.containsPitch(note, notes)/*  notes.includes(note) */;
+        }
+    }
+
+    /** Validates the current permutation to have a note at a certain position (array index) */
+    static degreesAtPositionValidator(degrees = [], position, root) {
+        return (selected, note, remaining) => {
+            if (!degrees.length || !root || selected.length !== position) {
+                return true;
+            }
+            const degree = getDegreeFromInterval(Distance.interval(root, note));
+            return degrees.includes(degree);
         }
     }
 

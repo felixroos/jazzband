@@ -28,7 +28,8 @@
             color: #73A88E;
         }
 
-        button {
+        button,
+        input {
             background: white;
             border: 1px solid #8CCDAA;
             padding: 10px;
@@ -59,21 +60,27 @@
             <li><b>Open the dev console to see which keys are pressed + much more</b></li>
         </ul>
 
-        <button id="next">Load another random Jazz Standard</button>
+        <input type="text" placeholder="type a tune.." id="searchInput">
+        <button id="next">.. or load a random standard</button>
         <h2 id="standardTitle"></h2>
         <button id="playChords">▶</button>
         <button id="stop">◼</button>
-        <button id="slower">slower</button>
-        <button id="faster">faster</button>
+        <button id="slower">-</button>
+        <button id="faster">+</button>
+        |
         <button id="jazz">Swing</button>
         <button id="bossa">Bossa</button>
         <button id="funk">Funk</button>
-        <button id="cheapsynths">Use random cheap Synths</button>
+        <button id="exact">Exact</button>
+        |
+        <button id="cheapsynths">Use cheap Synths</button>
         <button id="usePiano">Use Piano</button>
         <textarea id="chords">
 </textarea><br />
         <button id="format">Format</button>
         <button id="minify">make urlsafe</button>
+        <!-- <button id="transposeUp">transpose+</button>
+        <button id="transposeDown">transpose-</button> -->
     </section>
     <a target="_blank" href="https://github.com/felixroos/jazzband" class="github-corner"
         aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250"

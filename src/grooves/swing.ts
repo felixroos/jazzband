@@ -51,17 +51,24 @@ export const swing = {
         }
 
         if (t === '4/3') {
-            return [1, [0, 0, 2], [0, 0, 4], 0];
+            return randomElement([
+                [1, [0, 0, 2], [0, 0, 4], 0],
+                [1, [2, 0, 0], 2, 0],
+                [1, 1, 2, 0],
+                [[2, 0, 0], 1, 2, 0],
+                [2, 0, 1, 1]
+            ]);
         }
         if ('4/4') {
             return randomElement([
                 [1, 1, 1, 1],
-                [[1, 0, 2], [0, 0, 2], 0, 1]
+                /* [[1, 0, 2], [0, 0, 2], 0, 1] */
             ]);
         }
     },
     bass: () => randomElement([
-        [1, 1, 1, 1],
+        [1, 1, 1, 1]
+        /* [2, 0, 2, 0] */,
     ]),
     crash: ({ measures, index }) => {
         const fill = index !== 0 && index % measures.length === 0;

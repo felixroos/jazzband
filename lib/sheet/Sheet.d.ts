@@ -1,7 +1,7 @@
 import { Measure, MeasureOrString } from './Measure';
 export declare type Measures = Array<MeasureOrString>;
 export declare type Leadsheet = {
-    name: string;
+    name?: string;
     composer?: string;
     style?: string;
     bpm?: number;
@@ -89,4 +89,5 @@ export declare class Sheet {
     }): number;
     static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean;
     static shouldJump({ sheet, index, jumps }: SheetState): boolean;
+    static transpose(sheet: Leadsheet, interval: any): Leadsheet;
 }

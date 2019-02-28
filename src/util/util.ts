@@ -231,18 +231,28 @@ export function getStepsFromDegree(degree) {
     return
 }
 
-export function getStepInChord(note, chord, group?) {
+export function getStepsInChord(notes: string[], chord: string, min = false) {
+    const root = Chord.tokenize(Harmony.getTonalChord(chord))[0];
+    return notes.map(note => {
+        let interval = Distance.interval(root, Note.pc(note));
+        return getStepFromInterval(interval, min);
+    });
+}
+export function getStepInChord(note, chord, min = false) {
     return getStepFromInterval(
         Distance.interval(
             Chord.tokenize(Harmony.getTonalChord(chord))[0],
-            Note.pc(note))
+            Note.pc(note), min)
     );
 }
 
 export function getChordScales(chord, group = 'Diatonic') {
     const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
-    const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1]));
-    return scaleNames(group).filter(name => isSuperset(Scale.intervals(name)));
+    /* const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1])); */
+    return scaleNames(group).filter(name =>
+        /* isSuperset(Scale.intervals(name)) */
+        PcSet.isSupersetOf(Chord.intervals(tokens[1]), Scale.intervals(name))
+    );
 }
 
 export function pickChordScale(chord, group = 'Diatonic') {
@@ -302,12 +312,16 @@ export function permutateIntervals(intervals, pattern) {
     return pattern.map(d => findDegree(d, intervals));
 }
 
-export function getStepFromInterval(interval) {
-    return steps[interval] ? steps[interval][0] : 0;
+export function getStepFromInterval(interval, min = false) {
+    const step = steps[interval] || [];
+    if (min) {
+        return step[1] || step[0] || 0;
+    }
+    return step[0] || 0;
 }
 
 export function getDegreeFromInterval(interval = '-1', simplify = false) {
-    const fixed = Harmony.fixInterval(interval, simplify) || '';
+    const fixed = Harmony.fixInterval(interval + '', simplify) || '';
     const match = fixed.match(/[-]?([1-9])+/);
     if (!match) {
         return 0;
@@ -317,7 +331,12 @@ export function getDegreeFromInterval(interval = '-1', simplify = false) {
 
 export function getDegreeFromStep(step: step) {
     step = getStep(step);
-    return parseInt(step.match(/([1-9])+/)[0], 10);
+    const match = step.match(/([1-9])+/);
+    if (!match || !match.length) {
+        console.log('no valid step', step);
+        return 0;
+    }
+    return parseInt(match[0], 10);
 }
 
 export function getDegreeInChord(degree, chord) {
@@ -417,7 +436,7 @@ export function totalDiff(diff) {
 export function sortByDegree(notes, degree) {
     degree = Math.max(degree, (degree + 8) % 8)
     /* const semitones = Interval.semitones(interval); */
-    const diffDegrees = (a, b) => Math.abs(getDegreeFromInterval(Distance.interval(a, b)) - degree);
+    const diffDegrees = (a, b) => Math.abs(getDegreeFromInterval(Distance.interval(a, b) + '') - degree);
     /* const diffTones = (a, b) => Math.abs(Distance.interval(a, b) - semitones); */
     notes = notes.slice(1).reduce((chain, note) => {
         const closest = notes
@@ -441,7 +460,7 @@ export function renderAbsoluteNotes(notes, octave = 3, direction: intervalDirect
         if (interval === '1P') {
             interval = direction === 'down' ? '-8P' : '8P';
         }
-        absolute.push(Distance.transpose(absolute[index - 1], interval));
+        absolute.push(Distance.transpose(absolute[index - 1], interval + ''));
         return absolute;
     }, []);
 }
@@ -462,7 +481,7 @@ export function isInterval(interval) {
 
 export function smallestInterval(intervals) {
     return intervals.reduce((min, current) => {
-        if (!min || Distance.semitones(current) < Distance.semitones(min)) {
+        if (!min || Interval.semitones(current) < Interval.semitones(min)) {
             return current;
         }
         return min;
@@ -616,7 +635,7 @@ export function getChordNotes(chord, validate?) {
             symbol: tokens[1],
             interval,
             step: getStepFromInterval(interval),
-            degree: getDegreeFromInterval(interval)
+            degree: getDegreeFromInterval(interval + '')
         });
     });
 }
@@ -647,14 +666,14 @@ export function getVoicing(chord, { voices, previousVoicing, omitRoot, quartal }
 }
 
 export function semitoneDistance(noteA, noteB) {
-    return Interval.semitones(Distance.interval(noteA, noteB));
+    return Interval.semitones(Distance.interval(noteA, noteB) + '');
 }
 
 export function noteArray(range) {
-    const slots = Interval.semitones(Distance.interval(range[0], range[1]));
+    const slots = Interval.semitones(Distance.interval(range[0], range[1]) + '');
     return new Array(slots + 1)
         .fill('')
-        .map((v, i) => Distance.transpose(range[0], Interval.fromSemitones(i)))
+        .map((v, i) => Distance.transpose(range[0], Interval.fromSemitones(i)) + '')
         .map(n => Note.simplify(n))
 }
 

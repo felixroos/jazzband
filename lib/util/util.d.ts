@@ -42,7 +42,8 @@ export declare function getRangeDirection(note: any, range: any, defaultDirectio
 export declare function getStep(step: step): string;
 export declare function getIntervalFromStep(step: step): string;
 export declare function getStepsFromDegree(degree: any): void;
-export declare function getStepInChord(note: any, chord: any, group?: any): any;
+export declare function getStepsInChord(notes: string[], chord: string, min?: boolean): any[];
+export declare function getStepInChord(note: any, chord: any, min?: boolean): any;
 export declare function getChordScales(chord: any, group?: string): string[];
 export declare function pickChordScale(chord: any, group?: string): string;
 export declare function findDegree(degreeOrStep: number | step, intervalsOrSteps: string[]): string;
@@ -53,7 +54,7 @@ export declare function getScalePattern(pattern: any, scale: any): any;
 export declare function renderIntervals(intervals: any, root: any): any;
 export declare function renderSteps(steps: any, root: any): any;
 export declare function permutateIntervals(intervals: any, pattern: any): any;
-export declare function getStepFromInterval(interval: any): any;
+export declare function getStepFromInterval(interval: any, min?: boolean): any;
 export declare function getDegreeFromInterval(interval?: string, simplify?: boolean): number;
 export declare function getDegreeFromStep(step: step): number;
 export declare function getDegreeInChord(degree: any, chord: any): any;

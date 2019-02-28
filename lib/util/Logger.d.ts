@@ -64,7 +64,7 @@ export declare class Logger {
             icon: string;
             description: string;
         };
-        fewCombinations: {
+        fewChoices: {
             icon: string;
             description: string;
         };
@@ -85,6 +85,6 @@ export declare class Logger {
     static logSheet(sheet: any): void;
     static logLabel(key: any): any;
     static logChoice(choice: any): void;
-    static logNotes(activeNotes: any, idleNotes: any, addedNotes: any, range: any): string[];
+    static logNotes(options: any): string[];
     static logVoicing({ chord, previousVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any): any;
 }

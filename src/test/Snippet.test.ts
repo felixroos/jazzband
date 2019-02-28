@@ -1,7 +1,6 @@
 import { Snippet } from "../sheet/Snippet";
 import { totalDiff } from '../util/util';
 import { Measure } from '../sheet/Measure';
-import * as Tone from 'tone';
 
 test('Snippet.parse2', () => {
     expect(Snippet.nest(`f . a c . e`)).toEqual(['f', ['a', 'c'], 'e']);

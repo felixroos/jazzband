@@ -44,8 +44,8 @@ The above snippet will setup the default Trio which is a Robot Rhythm Section pl
 If you want better sound, try the Sampler Instrument:
 
 ```ts
-import { piano } from 'jazzband/demo/samples/piano';
-import { drumset } from 'jazzband/demo/samples/drumset';
+import { piano } from 'jazzband/samples/piano';
+import { drumset } from 'jazzband/samples/drumset';
 // create keys from piano samples with correct offset
 const keys = new jazz.Sampler({ samples: piano, midiOffset: 24, gain: 1, context });
 // create drums from drum samples
@@ -87,7 +87,6 @@ A Range is an array with the lowest note and highest note that can be played.
 - ```isInRange(note,range)```: returns true if the note is inside the given range (array with min max)
 - ```transposeToRange(notes, range)```: will transpose the given notes inside the given range
 - ```getRangePosition(note, range)```: Depends on where the note is inside the given range. e.g. returns 0 for first note 0.5 for middle note and 1 for top note.
-
 
 ### Steps
 
