@@ -23,9 +23,9 @@ export default class Bassist extends Musician {
         }
         measures = measures
             .map(measure => {
-                if (Array.isArray(measure)) {
+                /* if (Array.isArray(measure)) {
                     return measure;
-                }
+                } */
                 return pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle))
             })
             .map((pattern, i) => resolveChords(pattern, measures, [i]));
@@ -55,7 +55,7 @@ export default class Bassist extends Musician {
         this.playedChords.push(chord);
         let note;
         /* const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])]; */
-        const steps = [1, 3, 5, randomElement([3, 1])];
+        const steps = [1, 5, 1, randomElement([3, 5])];
         const octave = 2;
         if (steps[path[1]] === 1) {
             note = Harmony.getBassNote(chord) + octave;

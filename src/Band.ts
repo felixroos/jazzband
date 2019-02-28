@@ -75,7 +75,10 @@ export default class Band {
             }
             measures = measures.map(m => m.chords ? m.chords : m);
             console.log('Band#play', settings);
-            const musicians = (settings.musicians || this.musicians);
+            let musicians = (settings.musicians || this.musicians);
+            if (settings.exact) {
+                musicians = this.musicians.slice(0, 2);
+            }
             musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });
