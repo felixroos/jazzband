@@ -1,4 +1,5 @@
 import { Measure, MeasureOrString } from './Measure';
+import { Harmony } from '../harmony/Harmony';
 
 export type Measures = Array<MeasureOrString>;
 
@@ -350,6 +351,21 @@ export class Sheet {
         const allowedJumps = Sheet.getAllowedJumps({ sheet, index });
         const timesJumped = jumps[index] || 0;
         return timesJumped < allowedJumps;
+    }
+
+    static transpose(sheet: Leadsheet, interval) {
+        if (sheet.chords) {
+            sheet = {
+                ...sheet,
+                chords: sheet.chords
+                    .map(measure => Measure.from(measure).chords
+                        .map(chord => Harmony.transposeChord(chord, interval)))
+            }
+        }
+        if (sheet.melody) {
+            console.log('TODO: tranpose melody');
+        }
+        return sheet;
     }
 }
 

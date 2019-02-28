@@ -321,7 +321,7 @@ export function getStepFromInterval(interval, min = false) {
 }
 
 export function getDegreeFromInterval(interval = '-1', simplify = false) {
-    const fixed = Harmony.fixInterval(interval, simplify) || '';
+    const fixed = Harmony.fixInterval(interval + '', simplify) || '';
     const match = fixed.match(/[-]?([1-9])+/);
     if (!match) {
         return 0;
@@ -331,7 +331,12 @@ export function getDegreeFromInterval(interval = '-1', simplify = false) {
 
 export function getDegreeFromStep(step: step) {
     step = getStep(step);
-    return parseInt(step.match(/([1-9])+/)[0], 10);
+    const match = step.match(/([1-9])+/);
+    if (!match || !match.length) {
+        console.log('no valid step', step);
+        return 0;
+    }
+    return parseInt(match[0], 10);
 }
 
 export function getDegreeInChord(degree, chord) {

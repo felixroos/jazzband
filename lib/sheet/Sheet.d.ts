@@ -89,4 +89,5 @@ export declare class Sheet {
     }): number;
     static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean;
     static shouldJump({ sheet, index, jumps }: SheetState): boolean;
+    static transpose(sheet: Leadsheet, interval: any): Leadsheet;
 }

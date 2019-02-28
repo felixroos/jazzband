@@ -496,3 +496,168 @@ https://www.youtube.com/watch?v=A6Ete9i5yyc
 - always play 3 and 7
 - always play highest note of chord symbol
 - e.g. C^13 => play E B and A
+
+## ireal voicings
+
+InApp:
+
+5
+2
+add9
++
+o
+ø
+sus
+△ ^
+- m
+△7 ^7
+-7 m7
+7
+7sus
+ø7
+o7
+△9 ^9
+△13 ^13
+6
+6/9 69
+^7#11
+
+^9#11
+^7#5
+m6
+m69
+-△7 m^7
+-△9 m^9
+-9 m9
+-11 m11
+-7b5 m7b5
+ø9
+-b6 mb6
+-#5 m#5
+9
+7b9
+7#9
+7#11
+7b5
+7#5
+9#11
+9b5
+
+9#5
+7b13
+7#9#5
+7#9b5
+7#9#11
+7b9#11
+7b9b5
+7b9#5
+7b9#9
+7b9b13
+7alt
+13
+13#11
+13b9
+13#9
+7b9sus
+7susadd3
+9sus
+13sus
+7b13sus
+
+11
+
+
+not used
+
+add9
+ø9
+7alt
+7susadd3
+
+used in 1350 standards:
+
+
+5
+2
++
+o
+ø (h)
+sus
+△ ^
+- m
+△7 ^7
+-7 m7
+7
+7sus
+ø7
+o7
+△9 ^9
+△13 ^13
+6
+6/9 69
+^7#11
+^9#11
+^7#5
+m6 -6
+m69
+-△7 m^7 -^7
+-△9 m^9 -^9
+-9 m9
+-11 m11
+-7b5 m7b5
+-b6 mb6
+-#5 m#5
+9
+7b9
+7#9
+7#11
+7b5
+7#5
+9#11
+9b5
+9#5
+7b13
+7#9#5
+7#9b5
+7#9#11
+7b9#11
+7b9b5
+7b9#5
+7b9#9
+7b9b13
+13
+13#11
+13b9
+13#9
+7b9sus
+9sus
+13sus
+7b13sus
+11
+
+
+sonderzeichen:
+
+"W" > keine note über x (z.B W/C)
+"r" > faulenzer
+
+
+## Test
+
+```
+|  C-^9     |  C2       |  Ch       |  C9b5     |
+|  C-#5     |  C7+      |  C        |  C^7      |
+|  C7       |  C-7      |  Ch7      |  C7#9     |
+|  C7b9     |  C^7#5    |  C^       |  C6       |
+|  C9       |  C-6      |  Co7      |  C-^7     |
+|  Co       |  C^9      |  C7#11    |  C7#5     |
+|  C-       |  C7sus    |  C7sus4   |  C69      |
+|  C7b13    |  C^       |  C+       |  C7b9b5   |
+|  C-9      |  C9sus    |  C7b9sus  |  C7b9#5   |
+|  C13      |  C^7#11   |  C-7b5    |  C^13     |
+|  C7#9b5   |  C-11     |  C11      |  C7b5     |
+|  C9#5     |  C13b9    |  C9#11    |  C13#11   |
+|  C-b6     |  C7#9#5   |  C-69     |  C13sus   |
+|  C^9#11   |  C7b9#9   |  Csus     |  C7#9#11  |
+|  C7b9b13  |  C7b9#11  |  C13#9    |
+```

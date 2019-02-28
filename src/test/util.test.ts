@@ -5,7 +5,7 @@ import {
     semitoneDifference,
     getAverageMidi,
 } from '../util/util';
-import { Scale } from 'tonal';
+import { Scale, Chord } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { Note } from 'tonal';
@@ -121,6 +121,11 @@ test('permutateIntervals', () => {
 test('getPatternInChord', () => {
     expect(util.getPatternInChord([1, 5, 3, 7], '7')).toEqual(['1P', '5P', '3M', '7m']);
     expect(util.getPatternInChord([1, 5, 3, 7], '-7')).toEqual(['1P', '5P', '3m', '7m']);
+
+    expect(Harmony.getTonalChord('-7')).toBe('m7');
+    expect(Chord.intervals('m7')).toEqual(['1P', '3m', '5P', '7m']);
+    expect(Chord.tokenize('m7')).toEqual(['', 'm7']);
+
     expect(util.getPatternInChord([1, 9, 3, 7], '-7')).toEqual(['1P', '2M', '3m', '7m']);
     expect(util.getPatternInChord([7, 9, 3, 5], '-7b5')).toEqual(['7m', '2m', '3m', '5d']);
     expect(util.getPatternInChord([7, 9, 3, 5], 'D-7b5')).toEqual(['C', 'Eb', 'F', 'Ab']);
@@ -358,12 +363,12 @@ test('getVoicing', () => {
 
 
 test('getDegreeFromInterval', () => {
-    expect(util.getDegreeFromInterval(Distance.interval('C', 'C'))).toBe(1);
-    expect(util.getDegreeFromInterval(Distance.interval('C', 'E'))).toBe(3);
-    expect(util.getDegreeFromInterval(Distance.interval('C', 'Eb'))).toBe(3);
-    expect(util.getDegreeFromInterval(Distance.interval('C', 'F'))).toBe(4);
-    expect(util.getDegreeFromInterval(Distance.interval('C', 'G'))).toBe(5);
-    expect(util.getDegreeFromInterval(Distance.interval('D', 'C'))).toBe(7);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'C') + '')).toBe(1);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'E') + '')).toBe(3);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'Eb') + '')).toBe(3);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'F') + '')).toBe(4);
+    expect(util.getDegreeFromInterval(Distance.interval('C', 'G') + '')).toBe(5);
+    expect(util.getDegreeFromInterval(Distance.interval('D', 'C') + '')).toBe(7);
     expect(util.getDegreeFromInterval('13M')).toBe(13);
     expect(util.getDegreeFromInterval('6M')).toBe(6);
 });

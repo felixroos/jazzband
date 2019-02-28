@@ -1,9 +1,10 @@
 import { Voicing } from '../harmony/Voicing';
 import { util } from '..';
-import { Chord } from 'tonal';
+import { Chord, Note } from 'tonal';
 import { Permutation } from '../util/Permutation';
 import { Harmony } from '../harmony/Harmony';
 import { Distance } from 'tonal';
+import { renderAbsoluteNotes, isInRange } from '../util/util';
 
 test('Voicing.getAllNoteSelections', () => {
     expect(Voicing.getAllNoteSelections('C', 1)).toEqual([['E']]);
@@ -25,14 +26,12 @@ test('Voicing.getAllNoteSelections', () => {
 });
 
 test('Voicing.getAllVoicePermutations', () => {
-
     expect(Voicing.getRequiredNotes('C')).toEqual(['E']);
     expect(Voicing.getAllNoteSelections('C', 1)).toEqual([['E']]);
 
     expect(Voicing.getAllVoicePermutations('C', 1)).toEqual([
         ['E'],
     ]);
-
     expect(Voicing.getAllNoteSelections('C7', 1)).toEqual([['E'], ['Bb']])
 
     expect(Voicing.getVoicePermutations(['E'])).toEqual([['E']]);
@@ -97,9 +96,48 @@ test('Voicing.getAllVoicePermutations', () => {
         ['G', 'Bb', 'C', 'E'],
         ['G', 'C', 'E', 'Bb']
     ]);
+
+    // left hand voicings
+    /* expect(Voicing.getAllVoicePermutations('D-9', 4, {
+        bottomDegrees: [3, 7]
+    })).toEqual([
+        ['F', 'A', 'C', 'E'],
+        ['C', 'E', 'F', 'A'],
+    ]);
+
+    expect(Voicing.getAllVoicePermutations('G13', 4, {
+        bottomDegrees: [3, 7],
+        maxDistance: 6
+    })).toEqual([
+        ['B', 'E', 'F', 'G'],
+        ['F', 'B', 'E', 'G'],
+        ['F', 'B', 'D', 'E'],
+        ['B', 'E', 'F', 'A'],
+        ['F', 'B', 'E', 'A'],
+        ['F', 'A', 'B', 'E'],
+    ]); */
 });
 
 test('Voicing.getAvailableTensions', () => {
+    expect(Chord.notes('C9b5')).toEqual(['C', 'E', 'Gb', 'Bb', 'D']);
+    let combinations = [
+        ['E', 'Bb', 'D', 'Gb'],
+        ['Bb', 'D', 'E', 'Gb'],
+        ['Gb', 'Bb', 'D', 'E'],
+        ['D', 'Gb', 'Bb', 'E'],
+    ];
+    const range = ['C3', 'C6'];
+    expect(Voicing.getAllVoicePermutations('C9b5', 4)).toEqual(combinations);
+    combinations = combinations.filter(combination => {
+        const firstNote = Harmony.getNearestNote(range[0], combination[0], 'up');
+        const pick = renderAbsoluteNotes(combination, Note.oct(firstNote));
+        return isInRange(pick[0], range) && isInRange(pick[pick.length - 1], range);
+    });
+    const firstPick = combinations[0];
+    const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
+    const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
+    expect(pick).toEqual(['E3', 'Bb3', 'D4', 'Gb4']);
+
     expect(Voicing.getAvailableTensions('C')).toEqual(['D', 'F#', 'A']);
     expect(Voicing.getAvailableTensions('C^7')).toEqual(['D', 'F#', 'A']);
     expect(Voicing.getAvailableTensions('C^13')).toEqual(['D', 'F#', 'A']);
@@ -126,12 +164,17 @@ test('Voicing.getRequiredNotes', () => {
     expect(Voicing.getRequiredNotes('C')).toEqual(['E']);
     expect(Voicing.getRequiredNotes('D-')).toEqual(['F']);
     expect(Voicing.getRequiredNotes('D-7')).toEqual(['F', 'C']);
-    expect(Voicing.getRequiredNotes('D-11')).toEqual(['F', 'C', 'G']);
+    expect(Voicing.getRequiredNotes('D-11', 2)).toEqual(['F', 'C']);
+    expect(Voicing.getRequiredNotes('D-11', 4)).toEqual(['F', 'C', 'G']);
     expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
-    expect(Voicing.getRequiredNotes('C13')).toEqual(['E', 'Bb', 'A']);
-    expect(Voicing.getRequiredNotes('C6')).toEqual(['E', 'A']);
-    expect(Voicing.getRequiredNotes('Ch7')).toEqual(['Eb', 'Bb', 'Gb']);
-    expect(Voicing.getRequiredNotes('Ebo')).toEqual(['Gb', 'Bbb']);
+    expect(Voicing.getRequiredNotes('C13', 2)).toEqual(['E', 'Bb']);
+    expect(Voicing.getRequiredNotes('C13', 4)).toEqual(['E', 'Bb', 'A']);
+    expect(Voicing.getRequiredNotes('C6', 2)).toEqual(['E']);
+    expect(Voicing.getRequiredNotes('C6', 4)).toEqual(['E', 'A']);
+    expect(Voicing.getRequiredNotes('Ch7', 2)).toEqual(['Eb', 'Bb']);
+    expect(Voicing.getRequiredNotes('Ch7', 4)).toEqual(['Eb', 'Bb', 'Gb']);
+    expect(Voicing.getRequiredNotes('Ebo', 2)).toEqual(['Gb']);
+    expect(Voicing.getRequiredNotes('Ebo', 4)).toEqual(['Gb', 'Bbb']);
     expect(Voicing.getRequiredNotes('G')).toEqual(['B']);
     expect(Harmony.getTonalChord('F69')).toBe('FM69');
     expect(Harmony.getTonalChord('FM69')).toBe('FM69');
@@ -140,7 +183,8 @@ test('Voicing.getRequiredNotes', () => {
     expect(Chord.tokenize('FM69')[0]).toEqual('F');
     expect(Distance.transpose('F', '3M')).toBe('A');
     expect(util.getDegreeInChord(3, 'FM69')).toBe('A');
-    expect(Voicing.getRequiredNotes('F69')).toEqual(['A', 'D', 'G']);
+    expect(Voicing.getRequiredNotes('F69', 2)).toEqual(['A']);
+    expect(Voicing.getRequiredNotes('F69', 4)).toEqual(['A', 'D', 'G']);
 });
 
 test('Voicing.getOptionalNotes', () => {
@@ -151,11 +195,15 @@ test('Voicing.getOptionalNotes', () => {
     expect(Voicing.getOptionalNotes('D-')).toEqual(['D', 'A']);
     expect(Voicing.getOptionalNotes('G-')).toEqual(['G', 'D']);
     expect(Voicing.getOptionalNotes('D-7')).toEqual(['D', 'A']);
-    expect(Voicing.getOptionalNotes('D-11')).toEqual(['D', 'A', 'E']);
+    expect(Voicing.getOptionalNotes('D-11', 2)).toEqual(['D', 'A', 'E', 'G']);
+    expect(Voicing.getOptionalNotes('D-11', 4)).toEqual(['D', 'A', 'E']);
     expect(Chord.notes('C13')).toEqual(['C', 'E', 'G', 'Bb', 'D', 'A']);
-    expect(Voicing.getOptionalNotes('C13')).toEqual(['C', 'G', 'D']);
-    expect(Voicing.getOptionalNotes('C6')).toEqual(['C', 'G']);
-    expect(Voicing.getOptionalNotes('Ch7')).toEqual(['C']);
+    expect(Voicing.getOptionalNotes('C13', 2)).toEqual(['C', 'G', 'D', 'A']);
+    expect(Voicing.getOptionalNotes('C13', 4)).toEqual(['C', 'G', 'D']);
+    expect(Voicing.getOptionalNotes('C6', 2)).toEqual(['C', 'G', 'A']);
+    expect(Voicing.getOptionalNotes('C6', 4)).toEqual(['C', 'G']);
+    expect(Voicing.getOptionalNotes('Ch7', 2)).toEqual(['C', 'Gb']);
+    expect(Voicing.getOptionalNotes('Ch7', 4)).toEqual(['C']);
 
     expect(Voicing.getOptionalNotes('G')).toEqual(['G', 'D']);
 });
@@ -196,14 +244,6 @@ test('Voicing.getOptionalNotes', () => {
 }); */
 
 
-test('voicingIntervals', () => {
-    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toEqual(['1P', '-1A', '1P']);
-    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'], false)).toEqual(['1P', '8d', '1P']);
-    expect(Voicing.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb3', 'G'])).toEqual(['1P', '-1A', '1P']);
-    expect(Voicing.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb2', 'G'])).toEqual(['1P', '-8A', '1P']);
-    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G', 'Bb'])).toEqual(['1P', '-1A', '1P']);
-    /* expect(Voicing.voicingIntervals(['C', 'E', 'G', 'B'], ['C', 'Eb', 'G'])).toEqual(['1P', '-2m', '1P', null]); */
-});
 test('Voicing.getVoicePermutations', () => {
 
     // this is just sugar for permutationComplexity with voicing validator
@@ -239,14 +279,79 @@ test('Voicing.getVoicePermutations', () => {
     );
 });
 
+test('getAllNoteSelections', () => {
+    expect(Voicing.getAllNoteSelections('E7b13', 4)).toEqual([['G#', 'D', 'C', 'E']]);
+    expect(Voicing.getRequiredNotes('C13', 2)).toEqual(['E', 'Bb']);
+    expect(Voicing.getRequiredNotes('C', 3)).toEqual(['E']);
+    expect(Voicing.getRequiredNotes('C', 4)).toEqual(['E', 'G']);
+    expect(Voicing.getAllNoteSelections('C', 4)).toEqual([['E', 'G', 'C']]);
+    expect(Voicing.getRequiredNotes('C')).toEqual(['E']);
+    expect(Voicing.getOptionalNotes('C')).toEqual(['C', 'G']);
+    expect(Voicing.getAllNoteSelections('C', 3))
+        //.toEqual([['E', 'G', 'C']]);
+        .toEqual([['E', 'C', 'G']]);
+    expect(Voicing.getAllNoteSelections('C', 2))
+        .toEqual([['E', 'C'], ['E', 'G']]);
+    expect(Voicing.getAllNoteSelections('C', 1))
+        .toEqual([['E']]);
+    expect(Voicing.getAllNoteSelections('C', 4))
+        .toEqual([['E', 'G', 'C']]);
+    expect(Voicing.getAllNoteSelections('C7', 1))
+        .toEqual([['E'], ['Bb']]);
+    expect(Voicing.getAllNoteSelections('C7', 2))
+        .toEqual([['E', 'Bb']]);
+    expect(Voicing.getAllNoteSelections('C7', 3))
+        .toEqual([['E', 'Bb', 'C'], ['E', 'Bb', 'G']]);
+    expect(Voicing.getAllNoteSelections('C7', 4))
+        .toEqual([['E', 'Bb', 'C', 'G']]);
+    expect(Voicing.getAllNoteSelections('C-9', 1))
+        .toEqual([['Eb'], ['Bb']]);
+    expect(Voicing.getAllNoteSelections('C-9', 2))
+        .toEqual([['Eb', 'Bb']]);
+    expect(Voicing.getAllNoteSelections('C-9', 3))
+        //.toEqual([['Eb', 'Bb', 'D']]);
+        .toEqual([['Eb', 'Bb', 'C'], ['Eb', 'Bb', 'G'], ['Eb', 'Bb', 'D']]);
+    expect(Voicing.getAllNoteSelections('C-9', 4))
+        //.toEqual([['Eb', 'Bb', 'D']]);
+        .toEqual([['Eb', 'Bb', 'D', 'C'], ['Eb', 'Bb', 'D', 'G'],]);
+});
+
+test('containsPitch', () => {
+    expect(Voicing.containsPitch('C', ['G', 'C', 'E'])).toBe(true);
+    expect(Voicing.containsPitch('C', ['G', 'B', 'D'])).toBe(false);
+    expect(Voicing.containsPitch('C', ['G#', 'B#', 'D#'])).toBe(true);
+    expect(Voicing.containsPitch('C', ['G#', 'B#', 'D#'], false)).toBe(false);
+});
 
 
-test('isRootless', () => {
+test('voicingIntervals', () => {
+    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toEqual(['1P', '-1A', '1P']);
+    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G'], false)).toEqual(['1P', '8d', '1P']);
+    expect(Voicing.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb3', 'G'])).toEqual(['1P', '-1A', '1P']);
+    expect(Voicing.voicingIntervals(['C', 'E3', 'G'], ['C', 'Eb2', 'G'])).toEqual(['1P', '-8A', '1P']);
+    expect(Voicing.voicingIntervals(['C', 'E', 'G'], ['C', 'Eb', 'G', 'Bb'])).toEqual(['1P', '-1A', '1P']);
+});
+
+test('hasTonic', () => {
     expect(Voicing.hasTonic(['E', 'G', 'Bb'], 'C7')).toBe(false);
     expect(Voicing.hasTonic(['C', 'E', 'Bb'], 'C7')).toBe(true);
     expect(Voicing.hasTonic(['D', 'F#', 'A'], 'D')).toBe(true);
     expect(Voicing.hasTonic(['D2', 'F#2', 'A2'], 'D7')).toBe(true);
     expect(Voicing.hasTonic(['D2', 'F#2', 'A2'], 'E7')).toBe(false);
+});
+
+
+test('getDesiredDirection', () => {
+    expect(Voicing.getDesiredDirection(['C3', 'E3', 'G3'], ['C3', 'C4'], [3, 3]))
+        .toEqual('up');
+    expect(Voicing.getDesiredDirection(['C3', 'E3', 'G3'], ['C2', 'C4'], [3, 3]))
+        .toEqual(undefined);
+    expect(Voicing.getDesiredDirection(['C3', 'E3', 'G3'], ['C2', 'C3'], [3, 3]))
+        .toEqual('down');
+    expect(Voicing.getDesiredDirection(['C3', 'E3', 'G3'], ['C3', 'C4'], [0, 3]))
+        .toEqual(undefined);
+    expect(Voicing.getDesiredDirection(['C3', 'E3', 'G3'], ['C3', 'C4'], [1, 3]))
+        .toEqual('up');
 });
 
 test('getNextVoicing', () => {
@@ -286,7 +391,7 @@ test('getNextVoicing', () => {
 }); */
 
 
-/* 
+/*
 test('voicingDifference', () => {
     expect(Voicing.voicingDifference(['C', 'E', 'G'], ['C', 'Eb', 'G'])).toBe(1);
     expect(Voicing.voicingDifference(['C', 'E', 'G'], ['D', 'F#', 'A'])).toBe(6);

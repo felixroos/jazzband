@@ -49,10 +49,11 @@ export default class Bassist extends Musician {
         }
         this.playedChords.push(chord);
         let note;
-        const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])];
+        /* const steps = [1, randomElement([3, 5]), 1, randomElement([3, 5])]; */
+        const steps = [1, 3, 5, randomElement([3, 1])];
         const octave = 2;
-        if (value.value === 1 && chord.split('/').length > 1) {
-            note = chord.split('/')[1] + octave;
+        if (steps[path[1]] === 1) {
+            note = Harmony.getBassNote(chord) + octave;
         } else {
             note = this.getStep(steps[path[1]], Harmony.getTonalChord(chord), octave);
         }

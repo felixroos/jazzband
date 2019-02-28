@@ -10,6 +10,7 @@ import link from '../songs/1350.json';
 /* import { harp } from './samples/harp'; */
 import { drumset } from '../src/samples/drumset';
 import { piano } from '../src/samples/piano';
+import { Sheet } from '../src/sheet/Sheet';
 var AudioContext = window.AudioContext // Default
     || window.webkitAudioContext // Safari and old versions of Chrome
     || false;
@@ -26,7 +27,7 @@ const keyboard = new Sampler({ samples: piano, midiOffset: 24, gain: 1, context 
 const bass = keyboard;
 // const harpInstrument = new Sampler({ samples: harp, midiOffset: 24, gain: 1, context });
 const drums = new Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
-const band = new Trio({ context, piano: keyboard, bass, drums, solo: false });
+const band = new Trio({ context, piano: keyboard, bass/* : false */, drums, solo: false });
 
 
 window.onload = function () {
@@ -34,6 +35,7 @@ window.onload = function () {
     const playJazz = document.getElementById('jazz');
     const playFunk = document.getElementById('funk');
     const playBossa = document.getElementById('bossa');
+    const playExact = document.getElementById('exact');
     const stopButton = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
@@ -41,6 +43,8 @@ window.onload = function () {
     const searchInput = document.getElementById('searchInput');
     const playChords = document.getElementById('playChords');
     const format = document.getElementById('format');
+    const transposeUp = document.getElementById('transposeUp');
+    const transposeDown = document.getElementById('transposeDown');
     const minify = document.getElementById('minify');
     const standardTitle = document.getElementById('standardTitle');
     const textarea = document.getElementById('chords');
@@ -55,7 +59,7 @@ window.onload = function () {
         } else {
             newStandard = util.randomElement(playlist.songs);
         }
-        
+
         if (newStandard) {
             newStandard.music.measures = RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
             return newStandard;
@@ -102,26 +106,32 @@ window.onload = function () {
         }
         const forms = 2;
         const time = 4;
-        const bpm = groove.tempo || 130;
+        const bpm = groove ? groove.tempo : 130;
         setTitle(sheet.composer + ' - ' + sheet.title);
         band.comp(sheet, {
             render: { forms },
             metronome: false,
-            exact: false,
+            exact: !groove,
             cycle: time,
             bpm,
             groove,
             voicings: {
-                range: ['C3', 'C5'], // allowed voice range
+                range: ['C3', 'C6'], // allowed voice range
                 maxVoices: 4, // maximum number of voices per chord
-                maxDistance: 7,  // general max distance between single voices
+                maxDistance: 10,  // general max distance between single voices
                 minDistance: 1,  // general max distance between single voices
                 minBottomDistance: 3, // min semitones between the two bottom notes
                 minTopDistance: 2, // min semitones between the two top notes
                 noTopDrop: true,
                 noTopAdd: true,
+                // bottomDegrees: [1],
+                // topDegrees: [3, 7],
+                // omitNotes: ['Bb'],
+                // topNotes: ['B', 'C', 'C#'],
+                rangeBorders: [2, 1],
                 noBottomDrop: false,
                 noBottomAdd: true,
+                idleChance: 1,
                 logging: true
             },
             onMeasure: (measure) => {
@@ -153,7 +163,7 @@ window.onload = function () {
     playJazz.addEventListener('click', () => play(sheet, swing));
     playFunk.addEventListener('click', () => play(sheet, funk));
     playBossa.addEventListener('click', () => play(sheet, bossa));
-
+    playExact.addEventListener('click', () => play(sheet, false));
 
     stopButton.addEventListener('click', () => {
         stop();
@@ -199,9 +209,18 @@ window.onload = function () {
     format.addEventListener('click', () => {
         textarea.value = Snippet.format(textarea.value);
         selectCell(n++);
-
     });
     minify.addEventListener('click', () => {
         textarea.value = Snippet.minify(textarea.value, true);
     });
+    /* function transpose(interval) {
+        const sheet = Snippet.parse2(textarea.value);
+        return Sheet.transpose(sheet, interval);
+    }
+    transposeUp.addEventListener('click', () => {
+        textarea.value = Snippet.minify(textarea.value, true);
+    });
+    transposeDown.addEventListener('click', () => {
+        textarea.value = Snippet.minify(textarea.value, true);
+    }); */
 }

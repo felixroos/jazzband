@@ -61,7 +61,8 @@ export const swing = {
         }
     },
     bass: () => randomElement([
-        [1, 1, 1, 1],
+        [1, 1, 1, 1]
+        /* [2, 0, 2, 0] */,
     ]),
     crash: ({ measures, index }) => {
         const fill = index !== 0 && index % measures.length === 0;

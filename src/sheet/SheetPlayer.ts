@@ -237,8 +237,8 @@ export class SheetPlayer {
             release = oldNotes;
             attack = newNotes;
         } else {
-            release = oldNotes.filter(note => !newNotes.find(n => Harmony.isSameNote(note, n)));
-            attack = newNotes.filter(note => !oldNotes.find(n => Harmony.isSameNote(note, n)));
+            release = oldNotes.filter(note => !newNotes.find(n => Harmony.hasSamePitch(note, n)));
+            attack = newNotes.filter(note => !oldNotes.find(n => Harmony.hasSamePitch(note, n)));
         }
         return { attack, release };
     }

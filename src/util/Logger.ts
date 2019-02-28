@@ -184,11 +184,11 @@ export class Logger {
         ];
         const allNotes = noteArray(span);
         const keyboard = allNotes.map((note, index) => {
-            const isActive = active.find(n => Harmony.isSameNote(note, n));
-            const isUsed = notes.find(n => Harmony.isSameNote(note, n));
+            const isActive = active.find(n => Harmony.hasSamePitch(note, n));
+            const isUsed = notes.find(n => Harmony.hasSamePitch(note, n));
             let i = notes.indexOf(isUsed);
-            const isIdle = idle.find(n => Harmony.isSameNote(note, n));
-            const isAdded = added.find(n => Harmony.isSameNote(note, n));
+            const isIdle = idle.find(n => Harmony.hasSamePitch(note, n));
+            const isAdded = added.find(n => Harmony.hasSamePitch(note, n));
             const isBlack = Harmony.isBlack(note);
             let css = '', sign = '_';
             if (isAdded && !isBlack) {
@@ -240,17 +240,16 @@ export class Logger {
         /* pick = pick.map(n => Note.simplify(n)); */
         pick = pick || [];
         previousVoicing = previousVoicing || [];
-        const idle = previousVoicing.filter(n => pick.find(p => Harmony.isSameNote(n, p)));
+        const idle = previousVoicing.filter(n => pick.find(p => Harmony.hasSamePitch(n, p)));
         const isIdle = choice && choice.oblique.length === choice.targets.length;
         if (isIdle) {
             return;
         }
-        const active = pick.filter(n => !previousVoicing.find(p => Harmony.isSameNote(n, p)))
+        const active = pick.filter(n => !previousVoicing.find(p => Harmony.hasSamePitch(n, p)))
         const added = choice ? choice.added : [];
         let degrees = getStepsInChord(pick, chord, true)
             .map(step => getDegreeFromStep(step))
             .map(step => step === 8 ? 1 : step);
-
         let konsole = Logger.logNotes({ notes: pick, active, idle, added, range, labels: degrees });
         const movement = choice ? choice.movement : 0;
         const difference = choice ? choice.difference : 0;

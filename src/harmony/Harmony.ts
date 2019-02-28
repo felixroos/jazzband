@@ -2,16 +2,86 @@ import { Note } from 'tonal';
 import { Chord } from 'tonal';
 import { Interval } from 'tonal';
 import { Distance } from 'tonal';
+import { isPitchClass } from '../util/util';
 
 export declare type intervalDirection = 'up' | 'down';
 export declare type step = string | number;
 
 export class Harmony {
+    // mapping for ireal chords to tonal symbols, see getTonalChord
+    static irealToTonal = {
+        "^7": "M7",
+        "7": "7",
+        "-7": "m7",
+        "h7": "m7b5",
+        "7#9": "7#9",
+        "7b9": "7b9",
+        "^7#5": "M7#5",
+        "": "",
+        "6": "6",
+        "9": "9",
+        "-6": "m6",
+        "o7": "o7",
+        "h": "m7b5",
+        "-^7": "mM7",
+        "o": "o",
+        "^9": "M9",
+        "7#11": "7#11",
+        "7#5": "7#5",
+        "-": "m",
+        "7sus": "7sus",
+        "69": "M69",
+        "7b13": "7b13",
+        "^": "M",
+        "+": "+",
+        "7b9b5": "7b5b9",
+        "-9": "m9",
+        "9sus": "9sus",
+        "7b9sus": "7b9sus",
+        "7b9#5": "7#5b9",
+        "13": "13",
+        "^7#11": "M7#11",
+        "-7b5": "m7b5",
+        "^13": "M13",
+        "7#9b5": "7b5#9",
+        "-11": "m11",
+        "11": "11",
+        "7b5": "7b5",
+        "9#5": "9#5",
+        "13b9": "13b9",
+        "9#11": "9#11",
+        "13#11": "13#11",
+        "-b6": "mb6",
+        "7#9#5": "7#5#9",
+        "-69": "m69",
+        "13sus": "13sus",
+        "^9#11": "M9#11",
+        "7b9#9": "7b9#9",
+        "sus": "sus",
+        "7#9#11": "7#9#11",
+        "7b9b13": "7b9b13",
+        "7b9#11": "7b9#11",
+        "13#9": "13#9",
+        "9b5": "9b5",
+        "-^9": "mM9",
+        "2": "Madd9",
+        "-#5": "m#5",
+        "7+": "7#5",
+        "7sus4": "7sus", // own addition
+        "M69": "M69", // own addition
+        // "5": "5",
+        // "7b13sus": "7b13sus",
+    };
+    static pitchRegex = /^([A-G^][b|#]?)/;
+
     static isBlack(note) {
         return Note.props(note)['acc'] !== '';
     }
 
-    static isSameNote(noteA, noteB) {
+    static hasSamePitch(noteA, noteB, ignoreOctave = false) {
+        if (ignoreOctave || isPitchClass(noteA) || isPitchClass(noteB)) {
+            return Note.props(noteA).chroma === Note.props(noteB).chroma;
+        }
         return Note.midi(noteA) === Note.midi(noteB);
     }
 
@@ -19,33 +89,43 @@ export class Harmony {
         if (!chord) {
             return null;
         }
-        chord = chord
-            .replace(/([A-G][b|#]?)(69)/, '$1M69')
-            .replace('-', 'm')
-            .replace('^', 'M')
-            .replace('h7', 'm7b5')
-            .replace('h', 'dim');
-        /**
-         * Chords that dont work:
-         * slash cords are ignored
-         * 7b9b5 does not work
-         * 
-         */
-        const tokens = Chord.tokenize(chord);
-        const s = tokens[1].split('/');
-        return tokens[0] + (s[0] || 'M');
+        const root = Harmony.getBassNote(chord, true) || '';
+        let symbol = chord.replace(root, '');
+        symbol = symbol.split('/')[0]; // ignore slash
+        // check if already a proper tonal chord
+        if (!!Object.keys(Harmony.irealToTonal).find(i => Harmony.irealToTonal[i] === symbol)) {
+            return root + symbol;
+        }
+        symbol = Harmony.irealToTonal[symbol];
+        if (symbol === undefined) {
+            return null;
+        }
+        return root + symbol;
     }
 
-    static getBassNote(chord: string) {
+    static getBassNote(chord: string, ignoreSlash = false) {
         if (!chord) {
             return null;
         }
-        if (chord.includes('/')) {
+        if (!ignoreSlash && chord.includes('/')) {
             return chord.split('/')[1];
         }
-        return chord.match((/[A-G][b|#]?/))[0];
+        const match = chord.match(/^([A-G][b|#]?)/);
+        if (!match || !match.length) {
+            return '';
+        }
+        return match[0];
     }
 
+    static transposeChord(chord, interval) {
+        if (!chord) {
+            return chord;
+        }
+        const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
+        let root = Distance.transpose(tokens[0], interval);
+        root = Note.simplify(root);
+        return root + tokens[1];
+    }
 
     static getMidi(note, offset = 0) {
         return Note.midi(note) - offset;
