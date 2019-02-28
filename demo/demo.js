@@ -184,9 +184,15 @@ window.onload = function () {
         sheet = {
             title: 'Custom Changes',
             composer: 'You',
-            chords: Snippet.parse(textarea.value),
+            chords: Snippet.parse2(textarea.value),
         }
         setTitle(sheet.composer + ' - ' + sheet.title);
+    });
+
+    textarea.addEventListener('blur', () => {
+        sheet = Object.assign(sheet,{
+            chords: Snippet.parse2(textarea.value),
+        });
     });
 
     playChords.addEventListener('click', () => {
@@ -194,7 +200,7 @@ window.onload = function () {
         sheet = {
             title: sheet.title,
             composer: sheet.composer,
-            chords: Snippet.parse(textarea.value),
+            chords: Snippet.parse2(textarea.value),
         }
         textarea.value = Snippet.format(textarea.value);
         play();

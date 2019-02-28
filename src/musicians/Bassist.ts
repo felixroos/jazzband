@@ -22,7 +22,12 @@ export default class Bassist extends Musician {
             return;
         }
         measures = measures
-            .map(measure => pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle)))
+            .map(measure => {
+                if (Array.isArray(measure)) {
+                    return measure;
+                }
+                return pattern({ measures, measure, settings, pulse }).slice(0, Math.floor(settings.cycle))
+            })
             .map((pattern, i) => resolveChords(pattern, measures, [i]));
         pulse.tickArray(measures, (tick) => {
             this.playBass(tick, measures, pulse);
@@ -60,6 +65,6 @@ export default class Bassist extends Musician {
         const duration = value.fraction * pulse.getMeasureLength();
 
         deadline += randomDelay(10);
-        this.instrument.playNotes([note], { deadline, interval, gain: this.getGain() * .7, duration, pulse });
+        // this.instrument.playNotes([note], { deadline, interval, gain: this.getGain() * .7, duration, pulse });
     }
 }

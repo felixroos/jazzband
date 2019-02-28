@@ -74,7 +74,7 @@ export default class Band {
                     (tick) => this.onMeasure(tick.value.measure, tick));
             }
             measures = measures.map(m => m.chords ? m.chords : m);
-            console.log('Band#play', settings);
+            console.log('Band#play', measures, settings);
             const musicians = (settings.musicians || this.musicians);
             musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
