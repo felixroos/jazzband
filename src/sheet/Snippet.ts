@@ -1,13 +1,62 @@
 import * as JsDiff from 'diff';
 import { Measure } from './Measure';
 import { Sheet } from './Sheet';
-import { noteArray } from '../util/util';
 
 export class Snippet {
+    static controlSigns = [
+        {
+            name: 'DC',
+            short: 'DC',
+            end: true
+        },
+        {
+            name: 'DS',
+            short: 'DS',
+            end: true
+        },
+        {
+            name: 'Segno',
+            short: 'S',
+        },
+        {
+            name: 'DS.Fine',
+            short: 'DS',
+            end: true
+        },
+        {
+            name: 'DS.Coda',
+            short: 'DS',
+            end: true
+        },
+        {
+            name: 'DC.Fine',
+            short: 'DC',
+            end: true
+        },
+        {
+            name: 'DC.Coda',
+            short: 'DC',
+            end: true
+        },
+        {
+            name: 'Fine',
+            short: 'F',
+            end: true
+        },
+        {
+            name: 'ToCoda',
+            short: '2Q',
+            end: true
+        },
+        {
+            name: 'Coda',
+            short: 'Q'
+        },
+    ]
 
     static render(snippet, options?) {
         const parsed = Snippet.parse(snippet);
-        return Sheet.render(parsed, options);
+        return Sheet.render(parsed, options, true);
     }
 
     static wrapPipes(string) {
@@ -134,7 +183,7 @@ export class Snippet {
                 .replace(/\s+/g, '_')
                 .replace(/:/g, 'R')
                 .replace(/\^/g, 'M')
-                .replace(/\#/g, 'S')
+                .replace(/\#/g, 'Y')
                 .replace(/\%/g, 'X')
         } else {
             // replaces url unfriendly chars
@@ -144,9 +193,17 @@ export class Snippet {
                 .replace(/R/g, ':')
                 .replace(/M/g, '^')
                 .replace(/X/g, 'x')
-                .replace(/S/g, '#')
+                .replace(/Y/g, '#')
         }
         return compact.slice(1, -1);
+    }
+
+    static getControlSigns(symbols = []) {
+        return symbols
+            .filter(s => typeof s === 'string') // control should not be nested!
+            .map(s => Snippet.controlSigns.find(c => [c.name, c.short]
+                .includes(s.replace('(', '').replace(')', ''))))
+            .filter(s => !!s);
     }
 
     static parse(snippet, simplify = true) {
@@ -180,8 +237,17 @@ export class Snippet {
                     measure.house = parseInt(house);
                 }
                 measure.symbols = measure.symbols.filter(s => !s.match(/^[1-9]$/))
-                // houses
+
+                let controlSigns = Snippet.getControlSigns(measure.symbols);
+                if (controlSigns.length) {
+                    measure.signs = measure.signs.concat(controlSigns.map(sign => sign.name));
+                    measure.symbols = measure.symbols
+                        .filter(s => !controlSigns
+                            .find(c => [c.name, c.short].includes(s.replace(')', '').replace('(', ''))));
+                }
+
                 measure.chords = [].concat(measure.symbols);
+
                 delete measure.symbols;
                 return measure;
             })
@@ -242,13 +308,20 @@ export class Snippet {
                     measure.signs.push('}');
                 }
                 measure.symbols = measure.symbols.replace(/:/g, '');
-
-                /* const house = measure.symbols[0].match(/^[1-9]$/);
+                const house = measure.symbols[0].match(/^[1-9]$/);
                 if (house) {
                     measure.house = parseInt(house);
                     measure.symbols = measure.symbols.slice(1);
-                } */
-                measure.chords = [].concat(Snippet.nest(measure.symbols));
+                }
+                measure.symbols = [].concat(Snippet.nest(measure.symbols));
+                let controlSigns = Snippet.getControlSigns(measure.symbols);
+                if (controlSigns.length) {
+                    measure.signs = measure.signs.concat(controlSigns.map(sign => sign.name));
+                    measure.symbols = measure.symbols
+                        .filter(s => !controlSigns
+                            .find(c => [c.name, c.short].includes(s.replace(')', '').replace('(', ''))));
+                }
+                measure.chords = measure.symbols;
                 delete measure.symbols;
                 return measure;
             })
@@ -288,9 +361,12 @@ export class Snippet {
         const snippet = sheet
             .map(m => Measure.from(m))
             .reduce((snippet, { signs, house, chords }) => {
+                const controlSigns = Snippet.getControlSigns(signs || []);
+                const start = controlSigns.filter(c => !c.end).map(c => '(' + c.short + ')').join(' ');
+                const end = controlSigns.filter(c => !!c.end).map(c => '(' + c.short + ')').join(' ');
                 const repeatStart = signs && signs.includes('{');
                 const repeatEnd = signs && signs.includes('}');
-                return snippet + `|${repeatStart ? ':' : ''}${house || ''} ${chords ? chords.join(' ') : ''}${repeatEnd ? ':' : ''}`;
+                return snippet + `|${repeatStart ? ':' : ''}${house || ''} ${start ? start + ' ' : ''}${chords ? chords.join(' ') : ''}${end ? ' ' + end : ''}${repeatEnd ? ':' : ''}`;
             }, '');
         if (format) {
             return Snippet.format(snippet);
@@ -299,17 +375,7 @@ export class Snippet {
     }
 
     static expand(snippet, options?) {
-        let rendered = Snippet.render(snippet, options);
-        rendered = rendered
-            .map(m => Measure.from(m))
-            .map(m => {
-                delete m.house;
-                delete m.signs;
-                return m;
-            });
-        const expanded = Snippet.from(rendered);
-        return expanded;
-        /* return from(Sheet.render(render(snippet))); */
+        return Snippet.from(Snippet.render(snippet, options));
     }
 
     static diff(snippetA, snippetB) {

@@ -37,7 +37,7 @@ export declare class Sheet {
     static jumpSigns: {
         [sign: string]: JumpSign;
     };
-    static render(sheet: any, options?: {}): Measures;
+    static render(sheet: any, options?: {}, clear?: boolean): Measures;
     static nextMeasure(state: any): SheetState;
     static nextIndex(state: any): SheetState;
     static newForm(state: any): SheetState;
@@ -87,7 +87,7 @@ export declare class Sheet {
         sheet: any;
         index: any;
     }): number;
-    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean;
-    static shouldJump({ sheet, index, jumps }: SheetState): boolean;
+    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState, move?: number): boolean;
+    static shouldJump({ sheet, index, jumps, lastTime }: SheetState): boolean;
     static transpose(sheet: Leadsheet, interval: any): Leadsheet;
 }

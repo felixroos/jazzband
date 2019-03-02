@@ -45,6 +45,20 @@ test('Snippet.parse2', () => {
             'D-7', 'G7', 'C7', 'G7']);
 });
 
+test('Snippet.parse2 control flow', () => {
+    expect(Snippet.parse2(`| A (DC) | B |`))
+        .toEqual([{ chords: ['A'], signs: ['DC'] }, 'B']);
+    expect(Snippet.parse2(`| A (Fine) | B (DC) |`))
+        .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
+    expect(Snippet.parse2(`| A (F) | B (DC) |`))
+        .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
+    expect(Snippet.parse2(`| A (ToCoda) | B (DC) | (Coda) C |`))
+        .toEqual([{ chords: ['A'], signs: ['ToCoda'] }, { chords: ['B'], signs: ['DC'] }, { chords: ['C'], signs: ['Coda'] }]);
+    expect(Snippet.parse2(`| A (2Q) | B (DC) | (Q) C |`))
+        .toEqual([{ chords: ['A'], signs: ['ToCoda'] }, { chords: ['B'], signs: ['DC'] }, { chords: ['C'], signs: ['Coda'] }]);
+})
+
+
 test('Snippet.parse', () => {
     expect(Snippet.parse('D-7')).toEqual(['D-7']);
     expect(Snippet.parse('D-7 G7 C^7')).toEqual([['D-7', 'G7', 'C^7']]);
@@ -93,8 +107,8 @@ test('Snippet.parse: houses', () => {
 test('Snippet.minify', () => {
     expect(Snippet.minify(`|C7|F7|`)).toEqual('C7|F7');
     expect(Snippet.minify(`   C7    |  F7`)).toEqual('C7|F7');
-    expect(Snippet.minify(`RCIFSM7IX`)).toEqual(':C|F#^7|x');
-    expect(Snippet.minify(':C|F#^7|%', true)).toEqual('RCIFSM7IX');
+    expect(Snippet.minify(`RCIFYM7IX`)).toEqual(':C|F#^7|x');
+    expect(Snippet.minify(':C|F#^7|%', true)).toEqual('RCIFYM7IX');
     expect(Snippet.minify(`C7
                                 F7`)).toEqual('C7|F7');
     expect(Snippet.minify(`C7|||||F7`)).toEqual('C7|F7');
@@ -109,12 +123,12 @@ test('Snippet.minify', () => {
     |  D- B7    | Bb7#11 A7 | D-     | x          |
     `, true);
 
-    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix`)
+    expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7Y11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7Y11_A7ID-Ix`)
     expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
 });
 
 test('Snippet.format', () => {
-    const urlsafe = 'RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7S11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7S11_A7ID-Ix';
+    const urlsafe = 'RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7Y11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7Y11_A7ID-Ix';
     const formatted = Snippet.format(urlsafe);
     expect("\n" + formatted).toBe(
         `
@@ -152,6 +166,10 @@ test('Snippet.format with offset', () => {
 |: C^7  |  D-7 G7  |  C^7  |1 G7  :|
                            |2 E7   |
 |  A-7  |  D7      |  D-7  |  G7   |`);
+
+    /* const lessThan4 = `|: A | 1 B :| 2 C |`;
+    expect(Snippet.format("\n" + lessThan4)).toBe(`
+|  A  |1 B  :|2 C  |`); */
 
     const withOneBarOffset = Snippet.format('RCM7I1_D-7_G7ICM7IG7RI2_B-7b5IE7IA7IA-7ID7ID-7IG7');
     expect("\n" + withOneBarOffset).toBe(`
@@ -208,10 +226,88 @@ test('Snippet.from', () => {
             'F7', 'F7', 'C7', 'A7',
             'D-7', 'G7', 'C7', 'G7'
         ])).toBe(Snippet.format(`
-|: C7   | F7 |1 C7 | C7 :|
-             |2 C7 | C7  |
-| F7    | F7 |  C7 | A7  |
-| D-7   | G7 |  C7 | G7  |`));
+|: C7   |  F7  |1 C7  |  C7  :|
+                   |2 C7  |  C7   |
+    |  F7   |  F7  |  C7  |  A7   |
+    |  D-7  |  G7  |  C7  |  G7   |`));
+
+
+
+expect(
+    Snippet.from([
+        'A',
+        { chords: ['B'], signs: ['Segno', 'Fine'] },
+        { chords: ['C'], signs: ['DS'] }
+    ])).toBe(Snippet.format(`| A | (S) B (F) | C (DS) |`));
+});
+
+test('Repeats', () => {
+    expect(Snippet.expand(`|: A | B :| `))
+        .toBe(Snippet.format(`| A | B | A | B | `))
+
+    expect(Snippet.expand(`| A | B :| `))
+        .toBe(Snippet.format(`| A | B | A | B | `))
+});
+
+test('Houses', () => {
+    // Inside repeat signs. Play one house at a time, step forward sequentially each repeat:
+    expect(Snippet.expand(`|: A | 1 B :| 2 C | `))
+        .toBe(Snippet.format(`| A | B | A | C | `))
+});
+
+test('getControlSigns', () => {
+    expect(Snippet.getControlSigns(['(DC)', 'C7', 'Q']).map(c => c.short)).toEqual(['DC', 'Q']);
+});
+
+test('DC = Da Capo', () => {
+    // Jump back to beginning:
+    expect(Snippet.expand(`| A (DC) | B | `))
+        .toBe(Snippet.format(`| A | A | B | `))
+});
+
+test('DC + Fine = Da Capo al Fine', () => {
+    // Finishes the piece, only when a DS/DC has been hit before.
+    expect(Snippet.expand(`| A (Fine) | B (DC) | `))
+        .toBe(Snippet.format(`| A | B | A | `));
+
+    expect(Snippet.expand(`| A (F) | B (DC) | `))
+        .toBe(Snippet.format(`| A | B | A | `))
+});
+
+test('DC + Coda = Da Capo al Coda', () => {
+    // Finishes the piece, only when a DS/DC has been hit before.
+    expect(Snippet.expand(`| A (ToCoda) | B (DC) | (Coda) C | `))
+        .toBe(Snippet.format(`| A | B | A | C | `))
+
+    expect(Snippet.expand(`| A (2Q) | B (DC) | (Q) C | `))
+        .toBe(Snippet.format(`| A | B | A | C | `))
+});
+
+test('DS = Dal Segno', () => {
+    // Jump back to Segno (S).
+    expect(Snippet.expand(`| A | (Segno) B (DS) | C | `))
+        .toBe(Snippet.format(`| A | B | B | C | `))
+
+    expect(Snippet.expand(`| A | (S) B (DS) | C | `))
+        .toBe(Snippet.format(`| A | B | B | C | `))
+});
+
+test('DS + Fine = Dal Segno al Fine', () => {
+    // Jump back to Segno. Stop playing when hitting Fine:
+    expect(Snippet.expand(`| A | (Segno) B (Fine) | C (DS) | `))
+        .toBe(Snippet.format(`| A | B | C | B | `))
+
+    expect(Snippet.expand(`| A | (S) B (F) | C (DS) | `))
+        .toBe(Snippet.format(`| A | B | C | B | `))
+});
+
+test('DS + Coda = Dal Segno al Coda', () => {
+    // Jump back to Segno. When hitting ToCoda sign, jump to the Bar with the Coda sign.
+    expect(Snippet.expand(`| A | (S) B (ToCoda) | C (DS) | (Coda) D | `))
+        .toBe(Snippet.format(`| A | B | C | B | D | `))
+
+    expect(Snippet.expand(`| A | (S) B (2Q) | C (DS) | (Q) D | `))
+        .toBe(Snippet.format(`| A | B | C | B | D | `))
 });
 
 test('Beautiful Love', () => {

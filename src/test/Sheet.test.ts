@@ -47,6 +47,38 @@ test('rule 6: DC al Coda', () => {
         { chords: ['B'], signs: ['DC.Coda'] },
         { chords: ['C'], signs: ['Coda'] },
     ]))).toEqual('A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'], signs: ['ToCoda'] },
+        { chords: ['B'], signs: ['DC'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ]))).toEqual('A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B A B C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'], signs: ['ToCoda'] },
+        { chords: ['B'], signs: ['DC'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B A C A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'], signs: ['ToCoda'] },
+        { chords: ['C'] },
+        { chords: ['D'], signs: ['Coda'] },
+    ], { forms: 1 }))).toEqual('A B D');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'], signs: ['ToCoda'] },
+        { chords: ['C'] },
+        { chords: ['D'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B C A B D');
 });
 
 

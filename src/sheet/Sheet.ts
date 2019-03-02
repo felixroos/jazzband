@@ -56,7 +56,7 @@ export class Sheet {
         }
     };
 
-    static render(sheet, options = {}): Measures {
+    static render(sheet, options = {}, clear = true): Measures {
         let state: SheetState = {
             sheet,
             measures: [],
@@ -76,7 +76,16 @@ export class Sheet {
             runs++;
             state = Sheet.nextMeasure(state);
         }
-        return state.measures/* .map(m => Measure.from(m)) */;
+        if (clear) {
+            return state.measures
+                .map(m => Measure.from(m))
+                .map(m => {
+                    delete m.house;
+                    delete m.signs;
+                    return m;
+                });
+        }
+        return state.measures;
     }
 
     static nextMeasure(state): SheetState {
@@ -97,8 +106,8 @@ export class Sheet {
     }
 
     static nextIndex(state): SheetState {
-        let { sheet, index, jumps, nested, fallbackToZero } = state;
-        if (!Sheet.shouldJump({ sheet, index, jumps })) {
+        let { sheet, index, jumps, nested, fallbackToZero, lastTime } = state;
+        if (!Sheet.shouldJump({ sheet, index, jumps, lastTime })) {
             return {
                 index: index + 1
             };
@@ -146,7 +155,7 @@ export class Sheet {
             }
         }
         // skip coda when not last time
-        if (Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state)) {
+        if (Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state, -1)) {
             return Sheet.nextForm(state, true);
         }
         if (!Measure.hasHouse(sheet[index], 1)) {
@@ -327,11 +336,11 @@ export class Sheet {
         return 1;
     }
 
-    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState): boolean {
+    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState, move = 1): boolean {
         const signs = Object.keys(Sheet.jumpSigns)
             .filter(s => s.includes('DC') || s.includes('DS'));
         const backJump = Sheet.findMatch(sheet, index,
-            (m) => signs.reduce((match, sign) => match || Measure.hasSign(sign, m), false)
+            (m) => signs.reduce((match, sign) => match || Measure.hasSign(sign, m), false), move
         );
         if (backJump === -1) {
             return lastTime; // last time
@@ -340,12 +349,12 @@ export class Sheet {
     }
 
 
-    static shouldJump({ sheet, index, jumps }: SheetState) {
+    static shouldJump({ sheet, index, jumps, lastTime }: SheetState) {
         if (!Measure.hasJumpSign(sheet[index])) {
             return false;
         }
         const sign = Measure.getJumpSign(sheet[index]);
-        if (sign.validator && !sign.validator({ sheet, index, jumps })) {
+        if (sign.validator && !sign.validator({ sheet, index, jumps, lastTime })) {
             return false;
         }
         const allowedJumps = Sheet.getAllowedJumps({ sheet, index });

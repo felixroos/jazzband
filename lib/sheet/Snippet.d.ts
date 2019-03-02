@@ -1,4 +1,13 @@
 export declare class Snippet {
+    static controlSigns: ({
+        name: string;
+        short: string;
+        end: boolean;
+    } | {
+        name: string;
+        short: string;
+        end?: undefined;
+    })[];
     static render(snippet: any, options?: any): import("./Measure").MeasureOrString[];
     static wrapPipes(string: any): string;
     static formatForDiff(snippet: any): string;
@@ -12,6 +21,15 @@ export declare class Snippet {
     static columnChars(snippet: any): void;
     static getCellBounds(index: any, snippet: any): any[];
     static minify(snippet: any, urlsafe?: boolean): string;
+    static getControlSigns(symbols?: any[]): ({
+        name: string;
+        short: string;
+        end: boolean;
+    } | {
+        name: string;
+        short: string;
+        end?: undefined;
+    })[];
     static parse(snippet: any, simplify?: boolean): any[];
     static nest(string: any): any;
     static parse2(snippet: any, simplify?: boolean): any[];
