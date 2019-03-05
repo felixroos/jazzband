@@ -236,13 +236,13 @@ export class Logger {
         return args;
     }
 
-    static logVoicing({ chord, previousVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any) {
+    static logVoicing({ chord, previousVoicing, logIdle, combinations, bestPick, pick, range, choice, direction, choices }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
         pick = pick || [];
         previousVoicing = previousVoicing || [];
         const idle = previousVoicing.filter(n => pick.find(p => Harmony.hasSamePitch(n, p)));
         const isIdle = choice && choice.oblique.length === choice.targets.length;
-        if (isIdle) {
+        if (isIdle && !logIdle) {
             return;
         }
         const active = pick.filter(n => !previousVoicing.find(p => Harmony.hasSamePitch(n, p)))

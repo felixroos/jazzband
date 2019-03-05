@@ -18,6 +18,7 @@ import {
     getDegreeFromInterval,
     isInRange,
     getDistancesToRangeEnds,
+    transposeNotes,
 } from '../util/util';
 
 import { Harmony, intervalDirection } from './Harmony';
@@ -48,10 +49,12 @@ export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
     maxVoices?: number;
     forceDirection?: intervalDirection;
+    forceBestPick?: boolean; // if true, the best pick will always be taken even if transposed an octave
     // the lower and upper distance to the range end that is tolerated before forcing a direction
     rangeBorders?: number[];
     logging?: boolean; // if true, all voice leading infos will be logged to the console
     idleChance?: number; // if true, next voicings cant use all the same notes again (difference !== 0)
+    logIdle?: boolean; // if false, nothing will be logged if the notes stayed the same
 }
 
 export class Voicing {
@@ -62,6 +65,7 @@ export class Voicing {
         let { maxVoices,
             range,
             forceDirection,
+            forceBestPick,
             rangeBorders,
             sortChoices,
             filterChoices,
@@ -70,12 +74,14 @@ export class Voicing {
             noBottomDrop,
             noBottomAdd,
             idleChance,
+            logIdle,
             logging
         }: VoiceLeadingOptions = {
             range: ['C3', 'C5'],
             rangeBorders: [3, 3],
             maxVoices: 4,
             forceDirection: null,
+            forceBestPick: false,
             maxDistance: 7,
             minBottomDistance: 3, // min semitones between the two bottom notes
             minTopDistance: 2, // min semitones between the two top notes
@@ -84,6 +90,7 @@ export class Voicing {
             noBottomDrop: false,
             noBottomAdd: false,
             idleChance: 1,
+            logIdle: false,
             logging: true,
             ...options
         };
@@ -98,7 +105,7 @@ export class Voicing {
         const exit = () => {
             const pick = [];
             if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick });
+                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, logIdle });
             }
             return pick;
         }
@@ -118,7 +125,7 @@ export class Voicing {
             const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
             const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
             if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick });
+                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, logIdle });
             }
             return pick;
         }
@@ -140,16 +147,22 @@ export class Voicing {
             return exit();
         }
         let bestPick = choices[0].targets, choice;
-        const direction = Voicing.getDesiredDirection(previousVoicing, range, rangeBorders) || forceDirection;
+        let direction = Voicing.getDesiredDirection(previousVoicing, range, rangeBorders) || forceDirection;
 
-        if (!direction) {
+        if (direction && forceBestPick && (!isInRange(bestPick[0], range) || isInRange(bestPick[bestPick.length - 1], range))) {
+            const octave = direction === 'up' ? '8P' : '-8P';
+            bestPick = transposeNotes(bestPick, octave);
+        }
+
+        if (!direction || forceBestPick) {
             const pick = bestPick;
             choice = choices[0];
             if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices });
+                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices, logIdle });
             }
             return pick;
         }
+
         // sort after movement instead of difference
         choice = choices.sort((a, b) => {
             return Math.abs(a.movement) - Math.abs(b.movement)
@@ -164,7 +177,7 @@ export class Voicing {
         }
         const pick = choice.targets;
         if (logging) {
-            Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices });
+            Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices, logIdle });
         }
         return pick;
     }

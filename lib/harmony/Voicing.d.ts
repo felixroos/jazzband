@@ -22,9 +22,11 @@ export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
     maxVoices?: number;
     forceDirection?: intervalDirection;
+    forceBestPick?: boolean;
     rangeBorders?: number[];
     logging?: boolean;
     idleChance?: number;
+    logIdle?: boolean;
 }
 export declare class Voicing {
     /** Returns the next voicing that should follow the previously played voicing.

@@ -834,3 +834,82 @@ test('Sheet.getNextHouseIndex', () => {
         sheet: ababac, index: 1, visits: { 1: 2 }
     })).toEqual(2);
 });
+
+/* test.only('Sheet.getPath', () => {
+    expect(Sheet.getPath(['C'])).toBe('C');
+    expect(Sheet.getPath([['C']], 0, true)).toBe('C');
+    expect(Sheet.getPath([['C']], 0)).toEqual(['C']);
+    expect(Sheet.getPath(['C', 'D', 'E'], 1)).toBe('D');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], 1)).toEqual(['D1', 'D2']);
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], 1, true)).toBe('D1');
+}); */
+
+test('Sheet.flatten', () => {
+    expect(Sheet.flatten(['C'])).toEqual(['C']);
+    expect(Sheet.flatten(['C'], true)).toEqual([{ value: 'C', path: [0] }]);
+    expect(Sheet.flatten(['C', ['D']])).toEqual(['C', 'D']);
+    expect(Sheet.flatten(['C', ['D', 'E'], 'F'])).toEqual(['C', 'D', 'E', 'F']);
+    expect(Sheet.flatten(['C', ['D', ['E', 'F']], 'G'])).toEqual(['C', 'D', 'E', 'F', 'G']);
+    expect(Sheet.flatten(['C', ['D']], true)).toEqual([{ value: 'C', path: [0] }, { value: 'D', path: [1, 0] }]);
+});
+
+test('Sheet.getPath', () => {
+    expect(Sheet.getPath(['C'], 0)).toBe('C');
+    expect(Sheet.getPath([['C']], 0)).toEqual('C');
+    expect(Sheet.getPath(['C', 'D', 'E'], 1)).toBe('D');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], 1)).toEqual('D1');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], [1, 1])).toEqual('D2');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], [1, 1, 0])).toEqual('D2');
+});
+
+test('Sheet.expand', () => {
+    expect(Sheet.expand([{ value: 'C', path: [0] }, { value: 'D', path: [1, 0] }]))
+        .toEqual(['C', ['D']]);
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+    ])).toEqual(['C', ['D', 'E']]);
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', 'E'], 'F']);
+
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', 'E'], 'F']);
+
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'D1', path: [1, 1, 0] },
+        { value: 'D2', path: [1, 1, 1] },
+        { value: 'E', path: [1, 2] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', ['D1', 'D2'], 'E'], 'F']);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [2, 0] }]))
+        .toEqual([undefined, 'C', ['D']]);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [3, 1] }]))
+        .toEqual([undefined, 'C', undefined, [undefined, 'D']]);
+});
+
+test('pathOf', () => {
+    expect(Sheet.pathOf('C', ['A', ['B', 'C']])).toEqual([1, 1]);
+    expect(Sheet.pathOf('D', ['A', ['B', 'C']])).toEqual(undefined);
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'A')).toEqual('B');
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'B')).toEqual('C');
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'C')).toEqual('A');
+    // expect(Sheet.nextValue(['A', ['B', 'C']], 'C', false)).toEqual(undefined);
+    expect(Sheet.nextPath(['A', ['B', 'C']])).toEqual([0]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [0])).toEqual([1, 0]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [1, 0])).toEqual([1, 1]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1])).toEqual([0]);
+    // expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1], false)).toEqual(undefined);
+})

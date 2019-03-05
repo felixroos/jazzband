@@ -50,7 +50,7 @@ test('Snippet.parse2 control flow', () => {
         .toEqual([{ chords: ['A'], signs: ['DC'] }, 'B']);
     expect(Snippet.parse2(`| A (Fine) | B (DC) |`))
         .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
-    expect(Snippet.parse2(`| A (F) | B (DC) |`))
+    expect(Snippet.parse2(`| A (Fi) | B (DC) |`))
         .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
     expect(Snippet.parse2(`| A (ToCoda) | B (DC) | (Coda) C |`))
         .toEqual([{ chords: ['A'], signs: ['ToCoda'] }, { chords: ['B'], signs: ['DC'] }, { chords: ['C'], signs: ['Coda'] }]);
@@ -231,14 +231,12 @@ test('Snippet.from', () => {
     |  F7   |  F7  |  C7  |  A7   |
     |  D-7  |  G7  |  C7  |  G7   |`));
 
-
-
-expect(
-    Snippet.from([
-        'A',
-        { chords: ['B'], signs: ['Segno', 'Fine'] },
-        { chords: ['C'], signs: ['DS'] }
-    ])).toBe(Snippet.format(`| A | (S) B (F) | C (DS) |`));
+    expect(
+        Snippet.from([
+            'A',
+            { chords: ['B'], signs: ['Segno', 'Fine'] },
+            { chords: ['C'], signs: ['DS'] }
+        ])).toBe(Snippet.format(`| A | (S) B (Fi) | C (DS) |`));
 });
 
 test('Repeats', () => {
@@ -270,7 +268,7 @@ test('DC + Fine = Da Capo al Fine', () => {
     expect(Snippet.expand(`| A (Fine) | B (DC) | `))
         .toBe(Snippet.format(`| A | B | A | `));
 
-    expect(Snippet.expand(`| A (F) | B (DC) | `))
+    expect(Snippet.expand(`| A (Fi) | B (DC) | `))
         .toBe(Snippet.format(`| A | B | A | `))
 });
 
@@ -297,7 +295,7 @@ test('DS + Fine = Dal Segno al Fine', () => {
     expect(Snippet.expand(`| A | (Segno) B (Fine) | C (DS) | `))
         .toBe(Snippet.format(`| A | B | C | B | `))
 
-    expect(Snippet.expand(`| A | (S) B (F) | C (DS) | `))
+    expect(Snippet.expand(`| A | (S) B (Fi) | C (DS) | `))
         .toBe(Snippet.format(`| A | B | C | B | `))
 });
 

@@ -1,5 +1,6 @@
 import { Measure, MeasureOrString } from './Measure';
 import { Harmony } from '../harmony/Harmony';
+import { randomElement } from '../util/util';
 
 export type Measures = Array<MeasureOrString>;
 
@@ -13,8 +14,8 @@ export type Leadsheet = {
     measures?: Measures,
     chords?: Measures,
     melody?: Measures,
+    position?: number[]
 }
-
 
 export type JumpSign = {
     pair?: string,
@@ -36,6 +37,10 @@ export type SheetState = {
     lastTime?: boolean; // flips to true when last chorus starts
 }
 
+export interface ItemWithPath {
+    path: number[],
+    value: string,
+}
 
 export class Sheet {
     static jumpSigns: { [sign: string]: JumpSign } = {
@@ -72,7 +77,7 @@ export class Sheet {
         };
 
         let runs = 0;
-        while (runs < 100 && state.index < sheet.length) {
+        while (runs < 1000 && state.index < sheet.length) {
             runs++;
             state = Sheet.nextMeasure(state);
         }
@@ -376,6 +381,109 @@ export class Sheet {
         }
         return sheet;
     }
+
+
+    /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
+     * If withPath is set to true, the values are turned to objects containing the nested path (ItemWithPath).
+     * You can then turn ItemWithPath[] back to the original nested array with Measure.expand. */
+    static flatten(tree: any[] | any, withPath = false, path: number[] = []): any[] | ItemWithPath[] {
+        if (!Array.isArray(tree)) { // is primitive value
+            if (withPath) {
+                return [{
+                    path: path,
+                    value: tree
+                }];
+            }
+            return [tree];
+        }
+        return tree.reduce(
+            (flat: (any | ItemWithPath)[], item: any[] | any, index: number): (any | ItemWithPath)[] =>
+                flat.concat(
+                    Sheet.flatten(item, withPath, path.concat([index]))
+                ), []);
+    }
+
+    /** Turns a flat ItemWithPath array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
+    static expand(items: ItemWithPath[]): any[] {
+        let lastSiblingIndex = -1;
+        return items.reduce((expanded, item, index) => {
+            if (item.path.length === 1) {
+                expanded[item.path[0]] = item.value;
+            } else if (item.path[0] > lastSiblingIndex) {
+                lastSiblingIndex = item.path[0];
+                const siblings = items
+                    .filter((i, j) => j >= index && i.path.length >= item.path.length)
+                    .map(i => ({ ...i, path: i.path.slice(1) }));
+                expanded[item.path[0]] = Sheet.expand(siblings)
+                /* expanded.push(Measure.expand(siblings)); */
+            }
+            return expanded;
+        }, []);
+    }
+
+    static pathOf(value, tree): number[] | undefined {
+        const flat = Sheet.flatten(tree, true);
+        const match = flat.find(v => v.value === value);
+        if (match) {
+            return match.path;
+        }
+    }
+
+    static getPath(tree, path, withPath = false, flat?: ItemWithPath[]): any | ItemWithPath {
+        if (typeof path === 'number') {
+            path = [path];
+        }
+        flat = flat || Sheet.flatten(tree, true);
+        const match = flat.find(v => {
+            const min = Math.min(path.length, v.path.length);
+            return v.path.slice(0, min).join(',') === path.slice(0, min).join(',')
+        });
+        if (withPath) {
+            return match;
+        }
+        return match ? match.value : undefined;
+    }
+
+    static nextItem(tree, path, move = 1, withPath = false, flat?: ItemWithPath[]): any | ItemWithPath {
+        flat = Sheet.flatten(tree, true);
+        const match = Sheet.getPath(tree, path, true, flat);
+        if (match) {
+            let index = (flat.indexOf(match) + move) % flat.length;
+            if (withPath) {
+                return flat[index];
+            }
+            return flat[index] ? flat[index].value : undefined;
+        }
+    }
+
+    static nextValue(tree, value, move = 1): any | undefined {
+        const flat = Sheet.flatten(tree, true);
+        const match = flat.find(v => v.value === value);
+        if (match) {
+            return Sheet.nextItem(tree, match.path, move, false, flat)
+        }
+    }
+
+    static nextPath(tree, path?, move = 1): any | undefined {
+        const flat = Sheet.flatten(tree, true);
+        if (!path) {
+            return flat[0] ? flat[0].path : undefined;
+        }
+        const match = Sheet.getPath(tree, path, true, flat);
+        if (match) {
+            const next = Sheet.nextItem(tree, match.path, move, true, flat);
+            return next ? next.path : undefined;
+        }
+    }
+
+    static randomItem(tree) {
+        const flat = Sheet.flatten(tree, true);
+        return randomElement(flat);
+    }
+
+    static stringify(measures: MeasureOrString[], property = 'chords'): string | any[] {
+        return measures.map(measure => (Measure.from(measure)[property]));
+    }
 }
 
 /*
@@ -398,3 +506,37 @@ test standards:
 - Blue in Green (coda)
 - Miles Ahead (coda)
 */
+
+
+/*
+
+
+
+    static getPath(measures: Measures, path: number[] | number = 0, tickleDown = false, traveled = []) {
+        if (typeof path === 'number') {
+            path = [path]; // fix syntax sugar
+        }
+        if (!path.length && !tickleDown) {
+            return measures; // path end
+        } else if (!path.length) {
+            path = [0];
+        }
+        const next = measures[path[0]];
+        if (Array.isArray(next)) {
+            traveled.push[path[0]];
+            path.shift();
+            return Sheet.getPath(next, path, tickleDown, traveled)
+        }
+        if (typeof next === 'string') {
+            if (path.length > 1) {
+                console.warn('path ended too early');
+            }
+            return next;
+        }
+        if (!next) {
+
+        }
+        return next;
+    }
+
+    */

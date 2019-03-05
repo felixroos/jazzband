@@ -86,5 +86,5 @@ export declare class Logger {
     static logLabel(key: any): any;
     static logChoice(choice: any): void;
     static logNotes(options: any): string[];
-    static logVoicing({ chord, previousVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any): any;
+    static logVoicing({ chord, previousVoicing, logIdle, combinations, bestPick, pick, range, choice, direction, choices }: any): any;
 }

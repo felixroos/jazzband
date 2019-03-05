@@ -57,7 +57,7 @@ export default class Band {
         if (settings.onMeasure) {
             this.onMeasure = settings.onMeasure;
         }
-        console.log('chords', sheet.chords);
+        console.log('sheet', sheet);
         let measures = Sheet.render(sheet.chords, settings.render);
         console.log(Snippet.from(measures));
         settings = Object.assign(this.defaults, settings, { context: this.context });

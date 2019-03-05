@@ -14,15 +14,15 @@ export interface Measure {
 };
 
 export class Measure implements Measure {
-    static from(measure: MeasureOrString): Measure {
+    static from(measure: MeasureOrString, property = 'chords'): Measure {
         if (typeof measure === 'string') {
             return {
-                chords: [measure]
+                [property]: [measure]
             }
         }
         if (Array.isArray(measure)) {
             return {
-                chords: [].concat(measure)
+                [property]: [].concat(measure)
             }
         }
         return Object.assign({}, measure);

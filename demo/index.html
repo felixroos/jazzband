@@ -53,31 +53,38 @@
     <section>
         <h1>jazzband demo</h1>
         <ul>
-            <li>One of 1350 Jazz Standards is loaded randomly
-            <li>Press play to hear the virtual band play the tune</li>
-            <li>...Or type your own chord changes</li>
-            <li>Change tempo, playing style and instruments</li>
-            <li><b>Open the dev console to see which keys are pressed + much more</b></li>
+            <li>🎹 One of 1350 Jazz Standards is loaded randomly or by searching
+            <li>🤖 Press play to hear the virtual band play the tune</li>
+            <li>🎸 You can also type your own chord changes</li>
+            <li>🎵 Change tempo, playing style and instruments</li>
+            <li>🏃 Step through the chord changes one by one</li>
+            <li>👂 Train your ears by filling the question marks</li>
+            <li><b>🔍 Open the dev console to see which keys are pressed + much more</b></li>
         </ul>
 
-        <input type="text" placeholder="type a tune.." id="searchInput">
+        <input type="text" placeholder="search a tune.." id="searchInput">
         <button id="next">.. or load a random standard</button>
         <h2 id="standardTitle"></h2>
         <button id="playChords">▶</button>
         <button id="stop">◼</button>
         <button id="slower">-</button>
+        <input id="tempoInput" type="number" />
         <button id="faster">+</button>
-        |
         <button id="jazz">Swing</button>
-        <button id="bossa">Bossa</button>
+        <button id="bossa">Latin</button>
         <button id="funk">Funk</button>
         <button id="exact">Exact</button>
-        |
-        <button id="cheapsynths">Use cheap Synths</button>
-        <button id="usePiano">Use Piano</button>
-        <textarea id="chords">
-</textarea><br />
-        <button id="format">Format</button>
+        <br /><button id="prevChord">&lt;</button>
+        <button id="playChordAgain">0</button>
+        <button id="nextChord">&gt;</button>
+        <button id="playBassOnly">bass</button>
+        <button id="randomChord">random</button>
+        <button id="startTraining">start ear training</button>
+        <br /><textarea id="chords"></textarea>
+        <br />Instruments: <button id="cheapsynths">Cheap Synths</button>
+        <button id="usePiano">Expensive Piano</button>
+        <!-- <button id="playChordAgain">play again</button> -->
+        <br />Edit: <button id="format">Format</button>
         <button id="minify">make urlsafe</button>
         <!-- <button id="transposeUp">transpose+</button>
         <button id="transposeDown">transpose-</button> -->

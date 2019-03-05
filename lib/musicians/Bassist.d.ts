@@ -33,11 +33,12 @@ export default class Bassist extends Musician {
         settings: any;
     }): void;
     getStep(step: any, chord: any, octave?: number): any;
-    playBass({ value, cycle, path, deadline, interval }: {
+    playBass({ value, cycle, path, deadline, interval, duration }: {
         value: any;
         cycle: any;
         path: any;
         deadline: any;
         interval: any;
+        duration: any;
     }, measures: any, pulse: any): void;
 }

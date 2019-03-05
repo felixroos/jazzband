@@ -40,7 +40,7 @@ export class Snippet {
         },
         {
             name: 'Fine',
-            short: 'F',
+            short: 'Fi',
             end: true
         },
         {
@@ -155,11 +155,10 @@ export class Snippet {
     }
 
     static getCellBounds(index, snippet) {
-        const { chars, cells, houses } = Snippet.parseBars(snippet);
-        if (houses.length && index > houses[0]) {
-            const offset = (houses.filter(h => h < index).reverse()[0]) % 4;
-            index += offset;
-        }
+        const { chars, cells } = Snippet.parseBars(snippet);
+        // get correct index with offset (dont count empty cells)
+        index = cells.map(((cell, index) => ({ cell, index })))
+            .filter(({ cell }) => cell !== '')[index].index;
         index = index % cells.length;
         const col = index % 4;
         const row = Math.floor(index / 4);

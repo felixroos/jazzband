@@ -40,7 +40,7 @@ export default class Bassist extends Musician {
         return Distance.transpose(tokens[0] + octave, interval);
     }
 
-    playBass({ value, cycle, path, deadline, interval }, measures, pulse) {
+    playBass({ value, cycle, path, deadline, interval, duration }, measures, pulse) {
         let chord = value.chord;
         if (chord === 'N.C.') {
             return;
@@ -62,7 +62,7 @@ export default class Bassist extends Musician {
         } else {
             note = this.getStep(steps[path[1]], Harmony.getTonalChord(chord), octave);
         }
-        const duration = value.fraction * pulse.getMeasureLength();
+        duration = duration || value.fraction * pulse.getMeasureLength();
 
         deadline += randomDelay(10);
         this.instrument.playNotes([note], { deadline, interval, gain: this.getGain() * .7, duration, pulse });

@@ -10,7 +10,8 @@ import link from '../songs/1350.json';
 /* import { harp } from './samples/harp'; */
 import { drumset } from '../src/samples/drumset';
 import { piano } from '../src/samples/piano';
-import { Sheet } from '../src/sheet/Sheet';
+import { Measure } from '../lib/sheet/Measure';
+import { Sheet } from '../lib/sheet/Sheet';
 var AudioContext = window.AudioContext // Default
     || window.webkitAudioContext // Safari and old versions of Chrome
     || false;
@@ -39,18 +40,27 @@ window.onload = function () {
     const stopButton = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
+    const tempoInput = document.getElementById('tempoInput');
     const next = document.getElementById('next');
     const searchInput = document.getElementById('searchInput');
     const playChords = document.getElementById('playChords');
     const format = document.getElementById('format');
     /* const transposeUp = document.getElementById('transposeUp');
     const transposeDown = document.getElementById('transposeDown'); */
+    const toggleTraining = document.getElementById('startTraining');
+    const nextChord = document.getElementById('nextChord');
+    const playChordAgain = document.getElementById('playChordAgain');
+    const playBassOnly = document.getElementById('playBassOnly');
+    const randomChord = document.getElementById('randomChord');
     const minify = document.getElementById('minify');
     const standardTitle = document.getElementById('standardTitle');
     const textarea = document.getElementById('chords');
     const cheapSynths = document.getElementById('cheapsynths');
     const usePiano = document.getElementById('usePiano');
-    let standard, sheet, groove = swing;
+    let standard, sheet, latestGroove = swing, latestPath, latestChord, duration = 800, trainMode = false, guess = '';
+
+    let bpm = latestGroove.tempo || 120;
+    tempoInput.value = bpm;
 
     function getStandard(playlist, query) {
         let newStandard;
@@ -62,6 +72,8 @@ window.onload = function () {
 
         if (newStandard) {
             newStandard.music.measures = RealParser.parseSheet(newStandard.music.raw); // TODO: add Song that can be passed to comp
+            setPath(null);
+            latestChord = null;
             return newStandard;
         }
     }
@@ -84,15 +96,37 @@ window.onload = function () {
         }
     }
 
+    function obfuscateChords(chords) {
+        const obfuscated = chords
+            /* .slice(0, 4) */
+            .map(m => Measure.from(m))
+            .map((m, i) => {
+                m.chords = m.chords.map((c, j) => {
+                    if (i === 0 && j === 0) {
+                        return c;
+                    }
+                    return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
+                })
+                return m;
+            });
+        return Snippet.from(obfuscated, true);
+    }
+
     function loadStandard(query) {
         standard = getStandard(playlist, query) || standard;
-        textarea.value = Snippet.from(standard.music.measures);
-        setTitle(standard.composer + ' - ' + standard.title);
         sheet = {
             composer: standard.composer,
             title: standard.title,
             chords: standard.music.measures
         };
+        guess = '';
+        if (trainMode) {
+            guess = obfuscateChords(sheet.chords);
+            textarea.value = guess;
+        } else {
+            textarea.value = Snippet.from(sheet.chords, true);
+        }
+        setTitle(standard.composer + ' - ' + standard.title);
         stop();
     }
 
@@ -100,14 +134,18 @@ window.onload = function () {
         standardTitle.innerHTML = title;
     }
 
-    function play(leadsheet = sheet, groove = swing) {
+    function play(leadsheet = sheet, groove = latestGroove, resetBpm = false) {
         if (band.pulse) {
             band.pulse.stop();
         }
+        latestGroove = groove;
         textarea.value = Snippet.format(textarea.value);
         const forms = 2;
         const time = 4;
-        const bpm = groove ? groove.tempo : 130;
+        if (resetBpm) {
+            setTempo(groove.tempo || 100);
+        }
+        bpm = bpm || groove.tempo;
         setTitle(sheet.composer + ' - ' + sheet.title);
         band.comp(sheet, {
             render: { forms },
@@ -136,8 +174,8 @@ window.onload = function () {
                 logging: true
             },
             onMeasure: (measure) => {
+                setPath([measure.index, 0]);
                 selectCell(measure.index);
-
             }
         });
     }
@@ -161,26 +199,39 @@ window.onload = function () {
         play()
     });
 
-    playJazz.addEventListener('click', () => play(sheet, swing));
-    playFunk.addEventListener('click', () => play(sheet, funk));
-    playBossa.addEventListener('click', () => play(sheet, bossa));
-    playExact.addEventListener('click', () => play(sheet, false));
+    playJazz.addEventListener('click', () => play(sheet, swing, true));
+    playFunk.addEventListener('click', () => play(sheet, funk, true));
+    playBossa.addEventListener('click', () => play(sheet, bossa, true));
+    playExact.addEventListener('click', () => play(sheet, false, true));
 
     stopButton.addEventListener('click', () => {
         stop();
     });
+    function setTempo(tempo = bpm) {
+        bpm = tempo;
+        bpm = Math.max(30, bpm);
+        bpm = Math.min(300, bpm);
+        if (band.pulse) {
+            band.pulse.changeTempo(bpm);
+        }
+        tempoInput.value = bpm;
+    }
+    tempoInput.addEventListener('blur', () => {
+        setTempo(tempoInput.value);
+    })
     slower.addEventListener('click', () => {
-        band.pulse.changeTempo(band.pulse.props.bpm - 10);
-        console.log('tempo', band.pulse.props.bpm);
+        setTempo(bpm - 10);
     });
     faster.addEventListener('click', () => {
-        band.pulse.changeTempo(band.pulse.props.bpm + 10);
-        console.log('tempo', band.pulse.props.bpm);
+        setTempo(bpm + 10);
     });
 
     textarea.addEventListener('click', () => {
         if (band.pulse) {
             band.pulse.stop();
+        }
+        if (trainMode) {
+            return;
         }
         sheet = {
             title: 'Custom Changes',
@@ -191,7 +242,11 @@ window.onload = function () {
     });
 
     textarea.addEventListener('blur', () => {
-        sheet = Object.assign(sheet,{
+        if (trainMode) {
+            guess = Snippet.format(textarea.value);
+            return;
+        }
+        sheet = Object.assign(sheet, {
             chords: Snippet.parse2(textarea.value),
         });
     });
@@ -201,7 +256,7 @@ window.onload = function () {
         sheet = {
             title: sheet.title,
             composer: sheet.composer,
-            chords: Snippet.parse2(textarea.value),
+            chords: trainMode ? sheet.chords : Snippet.parse2(textarea.value),
         }
         textarea.value = Snippet.format(textarea.value);
         play();
@@ -230,4 +285,86 @@ window.onload = function () {
     transposeDown.addEventListener('click', () => {
         textarea.value = Snippet.minify(textarea.value, true);
     }); */
+    /* function transpose(interval) {
+        const sheet = Snippet.parse2(textarea.value);
+        return Sheet.transpose(sheet, interval);
+    } */
+
+    function setPath(path) {
+        latestPath = path;
+        playChordAgain.innerHTML = (latestPath || [0, 0]).join('/');
+    }
+
+    function playChord(path = 0, bassOnly = false) {
+        if (!band.pianist) {
+            console.warn('no pianist');
+        }
+        const chords = Sheet.stringify(sheet.chords);
+        const chord = Sheet.getPath(chords, path);
+        selectCell(path[0]);
+        if (!chord) {
+            console.warn('no chord');
+            return;
+        }
+        latestChord = chord;
+        setPath(path);
+        if (!bassOnly) {
+            band.pianist.playChord(latestChord, {
+                duration, voicingOptions: {
+                    maxVoices: 4,
+                    forceBestPick: false,
+                    logIdle: true
+                }
+            });
+        }
+        band.bassist.playBass({ value: { chord: latestChord }, path: [0, 0], duration });
+    }
+
+    toggleTraining.addEventListener('click', () => {
+        trainMode = !trainMode;
+        toggleTraining.innerHTML = trainMode ? 'show solution' : 'hide solution';
+        // TODO parse guess for missing chords => blame click :)
+        stop();
+        const solution = Snippet.from(sheet.chords);
+        guess = !guess ? obfuscateChords(sheet.chords) : Snippet.format(guess, true);
+
+        if (guess === solution) {
+            alert('ALLES RICHTIG!!!!');
+            toggleTraining.innerHTML = 'start';
+        } else if (guess && !trainMode) {
+            console.warn('noch nicht alles richtig');
+        }
+        if (trainMode) {
+            textarea.value = guess;
+        } else {
+            textarea.value = solution;
+        }
+    });
+
+    nextChord.addEventListener('click', () => {
+        stop();
+        const chords = Sheet.stringify(sheet.chords);
+        playChord(Sheet.nextPath(chords, latestPath));
+    });
+
+    prevChord.addEventListener('click', () => {
+        stop();
+        const chords = Sheet.stringify(sheet.chords);
+        playChord(Sheet.nextPath(chords, latestPath, -1));
+    });
+
+    playChordAgain.addEventListener('click', () => {
+        stop();
+        playChord(latestPath || [0, 0]);
+    });
+    playBassOnly.addEventListener('click', () => {
+        stop();
+        playChord(latestPath || [0, 0], true);
+    });
+
+    randomChord.addEventListener('click', () => {
+        const chords = Sheet.stringify(sheet.chords);
+        const item = Sheet.randomItem(chords);
+        playChord(item.path);
+    });
 }

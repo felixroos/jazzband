@@ -10,6 +10,7 @@ export declare type Leadsheet = {
     measures?: Measures;
     chords?: Measures;
     melody?: Measures;
+    position?: number[];
 };
 export declare type JumpSign = {
     pair?: string;
@@ -33,6 +34,10 @@ export declare type SheetState = {
     firstTime?: boolean;
     lastTime?: boolean;
 };
+export interface ItemWithPath {
+    path: number[];
+    value: string;
+}
 export declare class Sheet {
     static jumpSigns: {
         [sign: string]: JumpSign;
@@ -90,4 +95,17 @@ export declare class Sheet {
     static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState, move?: number): boolean;
     static shouldJump({ sheet, index, jumps, lastTime }: SheetState): boolean;
     static transpose(sheet: Leadsheet, interval: any): Leadsheet;
+    /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
+     * If withPath is set to true, the values are turned to objects containing the nested path (ItemWithPath).
+     * You can then turn ItemWithPath[] back to the original nested array with Measure.expand. */
+    static flatten(tree: any[] | any, withPath?: boolean, path?: number[]): any[] | ItemWithPath[];
+    /** Turns a flat ItemWithPath array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
+    static expand(items: ItemWithPath[]): any[];
+    static pathOf(value: any, tree: any): number[] | undefined;
+    static getPath(tree: any, path: any, withPath?: boolean, flat?: ItemWithPath[]): any | ItemWithPath;
+    static nextItem(tree: any, path: any, move?: number, withPath?: boolean, flat?: ItemWithPath[]): any | ItemWithPath;
+    static nextValue(tree: any, value: any, move?: number): any | undefined;
+    static nextPath(tree: any, path?: any, move?: number): any | undefined;
+    static randomItem(tree: any): any;
+    static stringify(measures: MeasureOrString[], property?: string): string | any[];
 }
