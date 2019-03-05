@@ -448,7 +448,7 @@ export class Sheet {
         flat = Sheet.flatten(tree, true);
         const match = Sheet.getPath(tree, path, true, flat);
         if (match) {
-            let index = (flat.indexOf(match) + move) % flat.length;
+            let index = (flat.indexOf(match) + move + flat.length) % flat.length;
             if (withPath) {
                 return flat[index];
             }
@@ -484,6 +484,20 @@ export class Sheet {
     static stringify(measures: MeasureOrString[], property = 'chords'): string | any[] {
         return measures.map(measure => (Measure.from(measure)[property]));
     }
+
+    static obfuscate(measures: Measures, keepFirst = true): Measure[] {
+        return measures
+            .map(m => Measure.from(m))
+            .map((m, i) => {
+                m.chords = m.chords.map((c, j) => {
+                    if (keepFirst && i === 0 && j === 0) {
+                        return c;
+                    }
+                    return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
+                })
+                return m;
+            });
+    }
 }
 
 /*
@@ -506,37 +520,3 @@ test standards:
 - Blue in Green (coda)
 - Miles Ahead (coda)
 */
-
-
-/*
-
-
-
-    static getPath(measures: Measures, path: number[] | number = 0, tickleDown = false, traveled = []) {
-        if (typeof path === 'number') {
-            path = [path]; // fix syntax sugar
-        }
-        if (!path.length && !tickleDown) {
-            return measures; // path end
-        } else if (!path.length) {
-            path = [0];
-        }
-        const next = measures[path[0]];
-        if (Array.isArray(next)) {
-            traveled.push[path[0]];
-            path.shift();
-            return Sheet.getPath(next, path, tickleDown, traveled)
-        }
-        if (typeof next === 'string') {
-            if (path.length > 1) {
-                console.warn('path ended too early');
-            }
-            return next;
-        }
-        if (!next) {
-
-        }
-        return next;
-    }
-
-    */

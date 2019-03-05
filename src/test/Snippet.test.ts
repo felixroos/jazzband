@@ -376,3 +376,13 @@ test('Miller-Parish - Moonlight Serenade', () => {
 |  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7         |
 `));
 });
+
+test.only('Snippet.obfuscate', () => {
+    expect(Snippet.obfuscate('C')).toEqual('|  C  |');
+    expect(Snippet.obfuscate('C', false, false)).toEqual('?');
+    expect(Snippet.obfuscate('C', false, true)).toEqual('|  ?  |');
+    expect(Snippet.obfuscate('C Bb7')).toEqual('|  C ???  |');
+    expect(Snippet.obfuscate('C Bb7', false)).toEqual('|  ? ???  |');
+    expect(Snippet.obfuscate('C Bb7')).toEqual('|  C ???  |');
+    expect(Snippet.obfuscate('C Bb7', false)).toEqual('|  ? ???  |');
+});

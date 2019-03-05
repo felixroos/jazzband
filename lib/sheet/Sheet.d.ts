@@ -108,4 +108,5 @@ export declare class Sheet {
     static nextPath(tree: any, path?: any, move?: number): any | undefined;
     static randomItem(tree: any): any;
     static stringify(measures: MeasureOrString[], property?: string): string | any[];
+    static obfuscate(measures: Measures, keepFirst?: boolean): Measure[];
 }

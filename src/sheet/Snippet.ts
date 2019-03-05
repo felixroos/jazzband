@@ -383,4 +383,9 @@ export class Snippet {
             diffFormat[0], diffFormat[1]
         );
     }
+
+    static obfuscate(snippet, keepFirst = true, format = true) {
+        const chords = Snippet.parse(snippet);
+        return Snippet.from(Sheet.obfuscate(chords, keepFirst), format);
+    }
 }

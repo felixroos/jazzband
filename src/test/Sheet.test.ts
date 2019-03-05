@@ -912,4 +912,13 @@ test('pathOf', () => {
     expect(Sheet.nextPath(['A', ['B', 'C']], [1, 0])).toEqual([1, 1]);
     expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1])).toEqual([0]);
     // expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1], false)).toEqual(undefined);
-})
+});
+
+test.only('Sheet.obfuscate', () => {
+    expect(Sheet.obfuscate(['C'])).toEqual([{ chords: ['C'] }]);
+    expect(Sheet.obfuscate(['C'], false)).toEqual([{ chords: ['?'] }]);
+    expect(Sheet.obfuscate([['C', 'Bb7']])).toEqual([{ chords: ['C', '???'] }]);
+    expect(Sheet.obfuscate([['C', 'Bb7']], false)).toEqual([{ chords: ['?', '???'] }]);
+    expect(Sheet.obfuscate(['C', 'Bb7'])).toEqual([{ chords: ['C'] }, { chords: ['???'] }]);
+    expect(Sheet.obfuscate(['C', 'Bb7'], false)).toEqual([{ chords: ['?'] }, { chords: ['???'] }]);
+});

@@ -96,22 +96,6 @@ window.onload = function () {
         }
     }
 
-    function obfuscateChords(chords) {
-        const obfuscated = chords
-            /* .slice(0, 4) */
-            .map(m => Measure.from(m))
-            .map((m, i) => {
-                m.chords = m.chords.map((c, j) => {
-                    if (i === 0 && j === 0) {
-                        return c;
-                    }
-                    return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
-                })
-                return m;
-            });
-        return Snippet.from(obfuscated, true);
-    }
-
     function loadStandard(query) {
         standard = getStandard(playlist, query) || standard;
         sheet = {
@@ -121,7 +105,7 @@ window.onload = function () {
         };
         guess = '';
         if (trainMode) {
-            guess = obfuscateChords(sheet.chords);
+            guess = Snippet.from(Sheet.obfuscate(sheet.chords));
             textarea.value = guess;
         } else {
             textarea.value = Snippet.from(sheet.chords, true);
@@ -326,11 +310,11 @@ window.onload = function () {
         // TODO parse guess for missing chords => blame click :)
         stop();
         const solution = Snippet.from(sheet.chords);
-        guess = !guess ? obfuscateChords(sheet.chords) : Snippet.format(guess, true);
+        guess = !guess ? Snippet.from(Sheet.obfuscate(sheet.chords)) : Snippet.format(guess, true);
 
         if (guess === solution) {
             alert('ALLES RICHTIG!!!!');
-            toggleTraining.innerHTML = 'start';
+            toggleTraining.innerHTML = 'start ear training';
         } else if (guess && !trainMode) {
             console.warn('noch nicht alles richtig');
         }
