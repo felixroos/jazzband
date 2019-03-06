@@ -10,7 +10,6 @@ import link from '../songs/1350.json';
 /* import { harp } from './samples/harp'; */
 import { drumset } from '../src/samples/drumset';
 import { piano } from '../src/samples/piano';
-import { Measure } from '../lib/sheet/Measure';
 import { Sheet } from '../lib/sheet/Sheet';
 var AudioContext = window.AudioContext // Default
     || window.webkitAudioContext // Safari and old versions of Chrome
@@ -30,13 +29,9 @@ const bass = keyboard;
 const drums = new Sampler({ samples: drumset, context, gain: 0.5, duration: 6000 });
 const band = new Trio({ context, piano: keyboard, bass/* : false */, drums, solo: false });
 
+const grooves = [swing, bossa, funk];
 
 window.onload = function () {
-    // buttons
-    const playJazz = document.getElementById('jazz');
-    const playFunk = document.getElementById('funk');
-    const playBossa = document.getElementById('bossa');
-    const playExact = document.getElementById('exact');
     const stopButton = document.getElementById('stop');
     const slower = document.getElementById('slower');
     const faster = document.getElementById('faster');
@@ -49,15 +44,17 @@ window.onload = function () {
     const transposeDown = document.getElementById('transposeDown'); */
     const toggleTraining = document.getElementById('startTraining');
     const nextChord = document.getElementById('nextChord');
+    const playAgain = document.getElementById('playAgain');
     const playChordAgain = document.getElementById('playChordAgain');
     const playBassOnly = document.getElementById('playBassOnly');
+    const playArpeggio = document.getElementById('playArpeggio');
     const randomChord = document.getElementById('randomChord');
     const minify = document.getElementById('minify');
     const standardTitle = document.getElementById('standardTitle');
     const textarea = document.getElementById('chords');
     const cheapSynths = document.getElementById('cheapsynths');
     const usePiano = document.getElementById('usePiano');
-    let standard, sheet, latestGroove = swing, latestPath, latestChord, duration = 800, trainMode = false, guess = '';
+    let standard, sheet, latestGroove = swing, latestSettings, latestPath, latestChord, duration = 800, trainMode = false, guess = '';
 
     let bpm = latestGroove.tempo || 120;
     tempoInput.value = bpm;
@@ -116,13 +113,16 @@ window.onload = function () {
 
     function setTitle(title) {
         standardTitle.innerHTML = title;
+
+        document.getElementById('ytLink').href = `https://www.youtube.com/results?search_query=${title.replace(' ', '+')}`;
+        document.getElementById('ytLink').innerHTML = 'yt';
     }
 
     function play(leadsheet = sheet, groove = latestGroove, resetBpm = false) {
         if (band.pulse) {
             band.pulse.stop();
         }
-        latestGroove = groove;
+        setGroove(groove);
         textarea.value = Snippet.format(textarea.value);
         const forms = 2;
         const time = 4;
@@ -183,10 +183,11 @@ window.onload = function () {
         play()
     });
 
-    playJazz.addEventListener('click', () => play(sheet, swing, true));
-    playFunk.addEventListener('click', () => play(sheet, funk, true));
-    playBossa.addEventListener('click', () => play(sheet, bossa, true));
-    playExact.addEventListener('click', () => play(sheet, false, true));
+    grooveSelect.addEventListener('change', (e) => {
+        console.log('change groove to', e.target.value);
+        const groove = grooves.find(g => g.name === e.target.value);
+        play(sheet, groove || false, true);
+    });
 
     stopButton.addEventListener('click', () => {
         stop();
@@ -200,6 +201,12 @@ window.onload = function () {
         }
         tempoInput.value = bpm;
     }
+    function setGroove(groove = swing) {
+        latestGroove = groove;
+        const id = groove ? 'groove' + groove.name : 'grooveExact';
+        /* document.getElementById(id).className = 'active'; */
+    }
+
     tempoInput.addEventListener('blur', () => {
         setTempo(tempoInput.value);
     })
@@ -276,10 +283,10 @@ window.onload = function () {
 
     function setPath(path) {
         latestPath = path;
-        playChordAgain.innerHTML = (latestPath || [0, 0]).join('/');
+        playAgain.innerHTML = (latestPath || [0, 0]).join('/');
     }
 
-    function playChord(path = 0, bassOnly = false) {
+    function playChord(path = [0, 0], { bassOnly, interval } = { bassOnly: false, interval: 0 }) {
         if (!band.pianist) {
             console.warn('no pianist');
         }
@@ -298,7 +305,8 @@ window.onload = function () {
                     maxVoices: 4,
                     forceBestPick: false,
                     logIdle: true
-                }
+                },
+                interval
             });
         }
         band.bassist.playBass({ value: { chord: latestChord }, path: [0, 0], duration });
@@ -328,27 +336,48 @@ window.onload = function () {
     nextChord.addEventListener('click', () => {
         stop();
         const chords = Sheet.stringify(sheet.chords);
-        playChord(Sheet.nextPath(chords, latestPath));
+        playChord(Sheet.nextPath(chords, latestPath), latestSettings);
     });
 
     prevChord.addEventListener('click', () => {
         stop();
         const chords = Sheet.stringify(sheet.chords);
-        playChord(Sheet.nextPath(chords, latestPath, -1));
+        playChord(Sheet.nextPath(chords, latestPath, -1), latestSettings);
+    });
+    playAgain.addEventListener('click', () => {
+        stop();
+        playChord(latestPath || [0, 0], latestSettings);
     });
 
-    playChordAgain.addEventListener('click', () => {
+    /* playChordAgain.addEventListener('click', () => {
         stop();
-        playChord(latestPath || [0, 0]);
+        playChord(latestPath || [0, 0], false);
     });
+
     playBassOnly.addEventListener('click', () => {
         stop();
         playChord(latestPath || [0, 0], true);
     });
 
+    playArpeggio.addEventListener('click', () => {
+        stop();
+        playChord(latestPath || [0, 0], false, .5);
+    }); */
+
+    variantSelect.addEventListener('change', (e) => {
+        console.log('change variant to', e.target.value);
+        latestSettings = {
+            chord: { bassOnly: false, interval: 0 },
+            bass: { bassOnly: true, interval: 0 },
+            arpeggio: { bassOnly: false, interval: 0.5 },
+        }[e.target.value] || { bassOnly: false, interval: 0 };
+        stop();
+        playChord(latestPath || [0, 0], latestSettings);
+    });
+
     randomChord.addEventListener('click', () => {
         const chords = Sheet.stringify(sheet.chords);
         const item = Sheet.randomItem(chords);
-        playChord(item.path);
+        playChord(item.path, latestSettings);
     });
 }

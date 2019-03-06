@@ -98,7 +98,7 @@ export declare class Sheet {
     /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
      * If withPath is set to true, the values are turned to objects containing the nested path (ItemWithPath).
      * You can then turn ItemWithPath[] back to the original nested array with Measure.expand. */
-    static flatten(tree: any[] | any, withPath?: boolean, path?: number[]): any[] | ItemWithPath[];
+    static flatten(tree: any[] | any, withPath?: boolean, path?: number[], divisions?: number[]): any[] | ItemWithPath[];
     /** Turns a flat ItemWithPath array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
     static expand(items: ItemWithPath[]): any[];
     static pathOf(value: any, tree: any): number[] | undefined;

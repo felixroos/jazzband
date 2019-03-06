@@ -386,11 +386,14 @@ export class Sheet {
     /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
      * If withPath is set to true, the values are turned to objects containing the nested path (ItemWithPath).
      * You can then turn ItemWithPath[] back to the original nested array with Measure.expand. */
-    static flatten(tree: any[] | any, withPath = false, path: number[] = []): any[] | ItemWithPath[] {
+    static flatten(tree: any[] | any, withPath = false, path: number[] = [], divisions: number[] = []): any[] | ItemWithPath[] {
         if (!Array.isArray(tree)) { // is primitive value
             if (withPath) {
                 return [{
-                    path: path,
+                    path,
+                    divisions,
+                    fraction: divisions.reduce((f, d) => f / d, 1),
+                    position: divisions.reduce(({ f, p }, d, i) => ({ f: f / d, p: p + f / d * path[i] }), { f: 1, p: 0 }).p,
                     value: tree
                 }];
             }
@@ -399,7 +402,7 @@ export class Sheet {
         return tree.reduce(
             (flat: (any | ItemWithPath)[], item: any[] | any, index: number): (any | ItemWithPath)[] =>
                 flat.concat(
-                    Sheet.flatten(item, withPath, path.concat([index]))
+                    Sheet.flatten(item, withPath, path.concat([index]), divisions.concat([tree.length]))
                 ), []);
     }
 

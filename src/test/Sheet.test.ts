@@ -844,13 +844,36 @@ test('Sheet.getNextHouseIndex', () => {
     expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], 1, true)).toBe('D1');
 }); */
 
-test('Sheet.flatten', () => {
+test.only('Sheet.flatten', () => {
     expect(Sheet.flatten(['C'])).toEqual(['C']);
-    expect(Sheet.flatten(['C'], true)).toEqual([{ value: 'C', path: [0] }]);
+    expect(Sheet.flatten(['C'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [1], fraction: 1, position: 0 }
+    ]);
+    expect(Sheet.flatten(['C', 'D'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], fraction: 0.5, position: 0 },
+        { value: 'D', path: [1], divisions: [2], fraction: 0.5, position: 0.5 },
+    ]);
     expect(Sheet.flatten(['C', ['D']])).toEqual(['C', 'D']);
     expect(Sheet.flatten(['C', ['D', 'E'], 'F'])).toEqual(['C', 'D', 'E', 'F']);
     expect(Sheet.flatten(['C', ['D', ['E', 'F']], 'G'])).toEqual(['C', 'D', 'E', 'F', 'G']);
-    expect(Sheet.flatten(['C', ['D']], true)).toEqual([{ value: 'C', path: [0] }, { value: 'D', path: [1, 0] }]);
+    expect(Sheet.flatten(['C', ['D']], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], fraction: 0.5, position: 0 },
+        { value: 'D', path: [1, 0], divisions: [2, 1], fraction: 0.5, position: 0.5 },
+    ]);
+    expect(Sheet.flatten(['C', ['D', 0]], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], fraction: 0.5, position: 0 },
+        { value: 'D', path: [1, 0], divisions: [2, 2], fraction: 0.25, position: 0.5 },
+        { value: 0, path: [1, 1], divisions: [2, 2], fraction: 0.25, position: 0.75 }]);
+
+    expect(Sheet.flatten(['C', ['D', ['E', ['F', 'G']]], 'A', 'B'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [4], fraction: 0.25, position: 0 },
+        { value: 'D', path: [1, 0], divisions: [4, 2], fraction: 1 / 4 / 2, position: 0.25 },
+        { value: 'E', path: [1, 1, 0], divisions: [4, 2, 2], fraction: 1 / 4 / 2 / 2, position: 0.375 },
+        { value: 'F', path: [1, 1, 1, 0], divisions: [4, 2, 2, 2], fraction: 1 / 4 / 2 / 2 / 2, position: 0.4375 },
+        { value: 'G', path: [1, 1, 1, 1], divisions: [4, 2, 2, 2], fraction: 1 / 4 / 2 / 2 / 2, position: 0.46875 },
+        { value: 'A', path: [2], divisions: [4], fraction: 0.25, position: 0.5 },
+        { value: 'B', path: [3], divisions: [4], fraction: 0.25, position: 0.75 },
+    ]);
 });
 
 test('Sheet.getPath', () => {
@@ -895,6 +918,9 @@ test('Sheet.expand', () => {
 
     expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [2, 0] }]))
         .toEqual([undefined, 'C', ['D']]);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [3, 1] }]))
+        .toEqual([undefined, 'C', undefined, [undefined, 'D']]);
 
     expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [3, 1] }]))
         .toEqual([undefined, 'C', undefined, [undefined, 'D']]);

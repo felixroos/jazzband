@@ -36,6 +36,10 @@
             margin-bottom: 5px;
         }
 
+        button.active {
+            background: lightgray;
+        }
+
         textarea {
             font-family: monospace;
             font-size: 1.2em;
@@ -64,20 +68,30 @@
 
         <input type="text" placeholder="search a tune.." id="searchInput">
         <button id="next">.. or load a random standard</button>
-        <h2 id="standardTitle"></h2>
+        <h2><span id="standardTitle"></span> <sup><a target="_blank" id="ytLink"></a></sup></h2>
+
         <button id="playChords">▶</button>
         <button id="stop">◼</button>
         <button id="slower">-</button>
         <input id="tempoInput" type="number" />
         <button id="faster">+</button>
-        <button id="jazz">Swing</button>
-        <button id="bossa">Latin</button>
-        <button id="funk">Funk</button>
-        <button id="exact">Exact</button>
+        <select id="grooveSelect">
+            <option>Swing</option>
+            <option>Bossa</option>
+            <option>Funk</option>
+            <option>Exact</option>
+        </select>
         <br /><button id="prevChord">&lt;</button>
-        <button id="playChordAgain">0</button>
+        <button id="playAgain">0</button>
         <button id="nextChord">&gt;</button>
+        <select id="variantSelect">
+            <option>chord</option>
+            <option>bass</option>
+            <option>arpeggio</option>
+        </select>
+        <!-- <button id="playChordAgain" class="active">chord</button>
         <button id="playBassOnly">bass</button>
+        <button id="playArpeggio">arpeggio</button> -->
         <button id="randomChord">random</button>
         <button id="startTraining">start ear training</button>
         <br /><textarea id="chords"></textarea>
