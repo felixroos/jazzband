@@ -63,6 +63,21 @@ test('getTonalChord', () => {
     expect(Harmony.getTonalChord('M7')).toBe('M7');
     expect(Harmony.getTonalChord('m7')).toBe('m7');
 });
+
+test('isValidNote',()=>{
+    expect(Harmony.isValidNote('C')).toBe(true);
+    expect(Harmony.isValidNote('c')).toBe(true);
+    expect(Harmony.isValidNote('c#')).toBe(true);
+    expect(Harmony.isValidNote('cb')).toBe(true);
+    expect(Harmony.isValidNote('cbb')).toBe(true);
+    expect(Harmony.isValidNote('c##')).toBe(true);
+    expect(Harmony.isValidNote('c#b')).toBe(true);
+    expect(Harmony.isValidNote('c3')).toBe(true);
+    expect(Harmony.isValidNote('c#3')).toBe(true);
+    expect(Harmony.isValidNote('cb3')).toBe(true);
+    expect(Harmony.isValidNote('cb33')).toBe(false);
+    expect(Harmony.isValidNote('/')).toBe(false);
+})
 // 7b13 'C', 'E', 'Bb', 'Ab' <= ohne G
 // 7#11 'C', 'E', 'G', 'Bb', 'F#' <= mit G
 // 11 hat keine terz?!

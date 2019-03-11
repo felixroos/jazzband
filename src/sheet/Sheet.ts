@@ -1,6 +1,12 @@
-import { Measure, MeasureOrString } from './Measure';
+import { Measure, MeasureOrString, RenderedMeasure } from './Measure';
 import { Harmony } from '../harmony/Harmony';
-import { randomElement } from '../util/util';
+import { randomElement, maxArray, avgArray, humanize, isOffbeat } from '../util/util';
+import { Voicing, VoiceLeadingOptions } from '../harmony/Voicing';
+import { Distance } from 'tonal';
+import { Note } from 'tonal';
+import { Interval } from 'tonal';
+import { Logger } from '../util/Logger';
+import { SequenceOptions, SequenceEvent } from './Sequence';
 
 export type Measures = Array<MeasureOrString>;
 
@@ -14,7 +20,9 @@ export type Leadsheet = {
     measures?: Measures,
     chords?: Measures,
     melody?: Measures,
-    position?: number[]
+    renderedChords?: SequenceEvent[];
+    renderedMelody?: SequenceEvent[];
+    options?: SequenceOptions
 }
 
 export type JumpSign = {
@@ -25,7 +33,7 @@ export type JumpSign = {
 }
 
 export type SheetState = {
-    measures?: [],
+    measures?: RenderedMeasure[],
     index?: number,
     sheet?: Measures,
     jumps?: { [key: number]: number },
@@ -33,16 +41,26 @@ export type SheetState = {
     nested?: boolean,
     fallbackToZero?: boolean,
     forms?: number;
+    totalForms?: number; // the inital value of forms
     firstTime?: boolean; // flips to false after first chorus is complete
     lastTime?: boolean; // flips to true when last chorus starts
+    property?: string; // to which measure property name the sheet should be rendered
 }
 
-export interface ItemWithPath {
-    path: number[],
-    value: string,
-}
 
-export class Sheet {
+export class Sheet implements Leadsheet {
+    name?: string;
+    composer?: string;
+    style?: string;
+    bpm?: number;
+    repeats?: number;
+    key?: string;
+    measures?: Measures;
+    chords?: Measures;
+    melody?: Measures;
+    voicings?: VoiceLeadingOptions;
+    options?: SequenceOptions;
+
     static jumpSigns: { [sign: string]: JumpSign } = {
         '}': { pair: '{', move: -1 },
         'DC': {},
@@ -61,11 +79,58 @@ export class Sheet {
         }
     };
 
-    static render(sheet, options = {}, clear = true): Measures {
+    static sequenceSigns = {
+        rest: ['r', '0'],
+        prolong: ['/', '-', '_'],
+        repeat: ['%']
+    }
+
+    constructor(sheet: Leadsheet) {
+        Object.assign(this, Sheet.from(sheet));
+    }
+
+    static from(sheet: Leadsheet) {
+        sheet.options = sheet.options || {};
+        return {
+            ...sheet,
+            options: {
+                forms: 1,
+                arpeggio: false,
+                bell: false,
+                pedal: false,
+                real: true,
+                tightMelody: true,
+                bpm: 120,
+                swing: 0,
+                fermataLength: 4,
+                duckMeasures: 1,
+                ...sheet.options,
+                humanize: {
+                    velocity: 0.1,
+                    time: 0.002,
+                    duration: 0.002,
+                    ...(sheet.options.humanize || {})
+                },
+                voicings: {
+                    minBottomDistance: 3, // min semitones between the two bottom notes
+                    minTopDistance: 2, // min semitones between the two top notes
+                    logging: false,
+                    maxVoices: 4,
+                    range: ['C3', 'C6'],
+                    rangeBorder: [0, 0],
+                    maxDistance: 7,
+                    ...(sheet.options.voicings || {}),
+                },
+            },
+        }
+    }
+
+    static render(sheet: MeasureOrString[], options: SheetState = {}): RenderedMeasure[] {
         let state: SheetState = {
             sheet,
             measures: [],
             forms: 1,
+            property: 'chords',
             nested: true,
             fallbackToZero: true,
             firstTime: true,
@@ -73,6 +138,7 @@ export class Sheet {
         };
         state = {
             ...state,
+            totalForms: state.forms,
             ...Sheet.newForm(state)
         };
 
@@ -81,30 +147,18 @@ export class Sheet {
             runs++;
             state = Sheet.nextMeasure(state);
         }
-        if (clear) {
-            return state.measures
-                .map(m => Measure.from(m))
-                .map(m => {
-                    delete m.house;
-                    delete m.signs;
-                    return m;
-                });
-        }
         return state.measures;
     }
 
-    static nextMeasure(state): SheetState {
+    static nextMeasure(state: SheetState): SheetState {
         state = {
             ...state,
             ...Sheet.nextSection(state)
         } // moves to the right house (if any)
-        let { sheet, index, measures } = state;
+        let { sheet, index, measures, property } = state;
         state = {
             ...state,
-            measures: measures.concat([{
-                ...Measure.from(sheet[index]),
-                index: index // add index for mapping
-            }]),
+            measures: measures.concat([Measure.render(state)]),
             ...Sheet.nextIndex(state),
         }
         return Sheet.nextForm(state);
@@ -384,30 +438,28 @@ export class Sheet {
 
 
     /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
-     * If withPath is set to true, the values are turned to objects containing the nested path (ItemWithPath).
-     * You can then turn ItemWithPath[] back to the original nested array with Measure.expand. */
-    static flatten(tree: any[] | any, withPath = false, path: number[] = [], divisions: number[] = []): any[] | ItemWithPath[] {
+     * If withPath is set to true, the values are turned to objects containing the nested path (FlatEvent).
+     * You can then turn FlatEvent[] back to the original nested array with Measure.expand. */
+    static flatten(tree: any[] | any, withPath = false, path: number[] = [], divisions: number[] = []): SequenceEvent[] {
         if (!Array.isArray(tree)) { // is primitive value
             if (withPath) {
                 return [{
                     path,
                     divisions,
-                    fraction: divisions.reduce((f, d) => f / d, 1),
-                    position: divisions.reduce(({ f, p }, d, i) => ({ f: f / d, p: p + f / d * path[i] }), { f: 1, p: 0 }).p,
                     value: tree
                 }];
             }
             return [tree];
         }
         return tree.reduce(
-            (flat: (any | ItemWithPath)[], item: any[] | any, index: number): (any | ItemWithPath)[] =>
+            (flat: (any | SequenceEvent)[], item: any[] | any, index: number): (any | SequenceEvent)[] =>
                 flat.concat(
                     Sheet.flatten(item, withPath, path.concat([index]), divisions.concat([tree.length]))
                 ), []);
     }
 
-    /** Turns a flat ItemWithPath array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
-    static expand(items: ItemWithPath[]): any[] {
+    /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
+    static expand(items: SequenceEvent[]): any[] {
         let lastSiblingIndex = -1;
         return items.reduce((expanded, item, index) => {
             if (item.path.length === 1) {
@@ -432,7 +484,7 @@ export class Sheet {
         }
     }
 
-    static getPath(tree, path, withPath = false, flat?: ItemWithPath[]): any | ItemWithPath {
+    static getPath(tree, path, withPath = false, flat?: SequenceEvent[]): any | SequenceEvent {
         if (typeof path === 'number') {
             path = [path];
         }
@@ -447,7 +499,7 @@ export class Sheet {
         return match ? match.value : undefined;
     }
 
-    static nextItem(tree, path, move = 1, withPath = false, flat?: ItemWithPath[]): any | ItemWithPath {
+    static nextItem(tree, path, move = 1, withPath = false, flat?: SequenceEvent[]): any | SequenceEvent {
         flat = Sheet.flatten(tree, true);
         const match = Sheet.getPath(tree, path, true, flat);
         if (match) {
@@ -490,7 +542,7 @@ export class Sheet {
 
     static obfuscate(measures: Measures, keepFirst = true): Measure[] {
         return measures
-            .map(m => Measure.from(m))
+            .map(m => Measure.from(m, 'chords'))
             .map((m, i) => {
                 m.chords = m.chords.map((c, j) => {
                     if (keepFirst && i === 0 && j === 0) {
@@ -502,24 +554,3 @@ export class Sheet {
             });
     }
 }
-
-/*
-TODO:
-
-more typings
-special sections:
-IN: only play the first time
-CODA: only play last time
-
-test standards:
-- Alice in Wonderland (dc al 2nd ending)
-- All or Nothing at All (dc al coda)
-- Are you real (intro + coda)
-- Armageddon (intro)
-- The Bat (coda sign inside repeat): ireal plays coda directly first time..
-- Bennys Tune (intro+coda sign inside repeat): ireal plays coda directly first time..
-- Bess You Is My Woman (coda sign inside repeat): ireal plays coda directly first time..
-- Blessed Relief (nested repeats, with odd behaviour)
-- Blue in Green (coda)
-- Miles Ahead (coda)
-*/

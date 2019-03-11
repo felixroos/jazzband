@@ -1,5 +1,5 @@
 import * as JsDiff from 'diff';
-import { Measure } from './Measure';
+import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
 import { Sheet } from './Sheet';
 
 export class Snippet {
@@ -56,7 +56,7 @@ export class Snippet {
 
     static render(snippet, options?) {
         const parsed = Snippet.parse(snippet);
-        return Sheet.render(parsed, options, true);
+        return Sheet.render(parsed, { ...options });
     }
 
     static wrapPipes(string) {
@@ -352,13 +352,13 @@ export class Snippet {
             });
     }
 
-    static testFormat(sheet) {
-        return sheet.map(m => Measure.from(m)).map(m => m.chords).join(' ');
+    static testFormat(measures: RenderedMeasure[]) {
+        return measures.map(m => m.chords).join(' ');
     }
 
-    static from(sheet, format = true) {
-        const snippet = sheet
-            .map(m => Measure.from(m))
+    static from(measures: MeasureOrString[], format = true) {
+        const snippet = measures
+            .map(m => Measure.from(m, 'chords'))
             .reduce((snippet, { signs, house, chords }) => {
                 const controlSigns = Snippet.getControlSigns(signs || []);
                 const start = controlSigns.filter(c => !c.end).map(c => '(' + c.short + ')').join(' ');

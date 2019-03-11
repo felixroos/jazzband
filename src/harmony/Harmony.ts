@@ -78,7 +78,7 @@ export class Harmony {
         return Note.props(note)['acc'] !== '';
     }
 
-    static hasSamePitch(noteA, noteB, ignoreOctave = false) {
+    static hasSamePitch(noteA: string, noteB: string, ignoreOctave = false) {
         if (ignoreOctave || isPitchClass(noteA) || isPitchClass(noteB)) {
             return Note.props(noteA).chroma === Note.props(noteB).chroma;
         }
@@ -233,6 +233,10 @@ export class Harmony {
     static getNearestNote(from, to, direction?: intervalDirection) {
         let interval = Harmony.minInterval(Distance.interval(Note.pc(from), Note.pc(to)), direction);
         return Distance.transpose(from, interval) + '';
+    }
+
+    static isValidNote(note: string) {
+        return !!note.match(/^[A-Ga-g][b|#]*[0-9]?$/);
     }
 
     /** Returns the note with the least distance to "from". TODO: add range */

@@ -1,3 +1,4 @@
+import { RenderedMeasure, MeasureOrString } from './Measure';
 export declare class Snippet {
     static controlSigns: ({
         name: string;
@@ -8,7 +9,7 @@ export declare class Snippet {
         short: string;
         end?: undefined;
     })[];
-    static render(snippet: any, options?: any): import("./Measure").MeasureOrString[];
+    static render(snippet: any, options?: any): RenderedMeasure[];
     static wrapPipes(string: any): string;
     static formatForDiff(snippet: any): string;
     static format(snippet: any, linebreaks?: boolean): string;
@@ -33,8 +34,8 @@ export declare class Snippet {
     static parse(snippet: any, simplify?: boolean): any[];
     static nest(string: any): any;
     static parse2(snippet: any, simplify?: boolean): any[];
-    static testFormat(sheet: any): any;
-    static from(sheet: any, format?: boolean): string;
+    static testFormat(measures: RenderedMeasure[]): string;
+    static from(measures: MeasureOrString[], format?: boolean): string;
     static expand(snippet: any, options?: any): string;
     static diff(snippetA: any, snippetB: any): any;
     static obfuscate(snippet: any, keepFirst?: boolean, format?: boolean): string;

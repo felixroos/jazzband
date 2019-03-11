@@ -1,0 +1,87 @@
+export declare type intervalDirection = 'up' | 'down';
+export declare type step = string | number;
+export declare class Harmony {
+    static irealToTonal: {
+        "^7": string;
+        "7": string;
+        "-7": string;
+        "h7": string;
+        "7#9": string;
+        "7b9": string;
+        "^7#5": string;
+        "": string;
+        "6": string;
+        "9": string;
+        "-6": string;
+        "o7": string;
+        "h": string;
+        "-^7": string;
+        "o": string;
+        "^9": string;
+        "7#11": string;
+        "7#5": string;
+        "-": string;
+        "7sus": string;
+        "69": string;
+        "7b13": string;
+        "^": string;
+        "+": string;
+        "7b9b5": string;
+        "-9": string;
+        "9sus": string;
+        "7b9sus": string;
+        "7b9#5": string;
+        "13": string;
+        "^7#11": string;
+        "-7b5": string;
+        "^13": string;
+        "7#9b5": string;
+        "-11": string;
+        "11": string;
+        "7b5": string;
+        "9#5": string;
+        "13b9": string;
+        "9#11": string;
+        "13#11": string;
+        "-b6": string;
+        "7#9#5": string;
+        "-69": string;
+        "13sus": string;
+        "^9#11": string;
+        "7b9#9": string;
+        "sus": string;
+        "7#9#11": string;
+        "7b9b13": string;
+        "7b9#11": string;
+        "13#9": string;
+        "9b5": string;
+        "-^9": string;
+        "2": string;
+        "-#5": string;
+        "7+": string;
+        "7sus4": string;
+        "M69": string;
+    };
+    static pitchRegex: RegExp;
+    static isBlack(note: any): boolean;
+    static hasSamePitch(noteA: string, noteB: string, ignoreOctave?: boolean): boolean;
+    static getTonalChord(chord: string): string;
+    static getBassNote(chord: string, ignoreSlash?: boolean): string;
+    static transposeChord(chord: any, interval: any): any;
+    static getMidi(note: any, offset?: number): number;
+    static intervalComplement(interval: any): any;
+    static invertInterval(interval: any): string;
+    /** Transforms interval into one octave (octave+ get octaved down) */
+    static fixInterval(interval?: string, simplify?: boolean): string;
+    /** inverts the interval if it does not go to the desired direction */
+    static forceDirection(interval: any, direction: intervalDirection, noUnison?: boolean): any;
+    static minInterval(interval: any, direction?: intervalDirection, noUnison?: any): any;
+    static minIntervals(chordA: any, chordB: any): any;
+    static mapMinInterval(direction?: intervalDirection): (interval: any) => any;
+    static sortMinInterval(preferredDirection?: intervalDirection, accessor?: (i: any) => any): (a: any, b: any) => number;
+    /** Returns the note with the least distance to "from" */
+    static getNearestNote(from: any, to: any, direction?: intervalDirection): string;
+    /** Returns the note with the least distance to "from". TODO: add range */
+    static getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
+    static intervalMatrix(from: any, to: any): any;
+}

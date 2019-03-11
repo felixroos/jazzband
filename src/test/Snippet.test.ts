@@ -1,6 +1,9 @@
 import { Snippet } from "../sheet/Snippet";
 import { totalDiff } from '../util/util';
-import { Measure } from '../sheet/Measure';
+
+/* test.only('Snippet.testFormat', () => {
+    expect(Snippet.testFormat(['C', 'F', 'B'])).toBe('C F B');
+}) */
 
 test('Snippet.parse2', () => {
     expect(Snippet.nest(`f . a c . e`)).toEqual(['f', ['a', 'c'], 'e']);
@@ -208,7 +211,7 @@ test('Snippet.render', () => {
             |2 C7 | C7  |
 | F7   | F7 |  C7 | A7  |
 | D-7  | G7 |  C7 | G7  |`)
-        .map(m => Measure.from(m).chords))
+        .map(m => m.chords))
         .toEqual(
             [["C7"], ["F7"], ["C7"], ["G7"],
             ["C7"], ["F7"], ["C7"], ["C7"],
@@ -361,8 +364,8 @@ test('Miller-Parish - Moonlight Serenade', () => {
 |  B-7b5   |  E7b9     |  Ah7 D7b9     |  G-7 C7b9     |
 |  F^7     |  Abo7     |  G-7          |  C7 C7#5      |
 |  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6    |
-|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7          |
-`)).toEqual(Snippet.format(`
+|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7          |`))
+        .toEqual(Snippet.format(`
 |  F6      |  Abo7     |  G-7          |  C7 C7#5     |
 |  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6   |
 |  A-7 D7  |  Gh7 G-7  |  C7 C7b9#5    |  F^7 G-7 C7  |
@@ -373,11 +376,10 @@ test('Miller-Parish - Moonlight Serenade', () => {
 |  B-7b5   |  E7b9     |  Ah7 D7b9     |  G-7 C7b9    |
 |  F^7     |  Abo7     |  G-7          |  C7 C7#5     |
 |  F^7 F6  |  F^7 F6   |  F^7 F7       |  D7b9 Bb-6   |
-|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7         |
-`));
+|  A-7 D7  |  Gh7 G-7  |  C7 C7#5      |  F^7         |`));
 });
 
-test.only('Snippet.obfuscate', () => {
+test('Snippet.obfuscate', () => {
     expect(Snippet.obfuscate('C')).toEqual('|  C  |');
     expect(Snippet.obfuscate('C', false, false)).toEqual('?');
     expect(Snippet.obfuscate('C', false, true)).toEqual('|  ?  |');

@@ -68,7 +68,7 @@ export class Permutation {
     }
 
     // https://gist.github.com/axelpale/3118596
-    static binomial(set, k) {
+    static binomial(set, k): Array<any[]> {
         var i, j, combs, head, tailcombs;
 
         // There is no way to take e.g. sets of 5 elements from

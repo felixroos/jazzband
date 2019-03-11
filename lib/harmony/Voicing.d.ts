@@ -18,6 +18,30 @@ export declare type VoicingValidation = {
     noBottomAdd?: boolean;
     root?: string;
 };
+export declare type VoiceLeading = {
+    from: string[];
+    to: string[];
+    origin: string[];
+    targets: string[];
+    intervals: string[];
+    difference: number;
+    movement: number;
+    bottomInterval?: string;
+    topInterval?: string;
+    topNotes?: string[];
+    bottomNotes?: string[];
+    similar: boolean;
+    contrary: boolean;
+    parallel: boolean;
+    oblique: string[];
+    degrees: string[];
+    added: string[];
+    dropped: string[];
+    topDropped?: boolean;
+    bottomDropped?: boolean;
+    topAdded?: boolean;
+    bottomAdded?: boolean;
+};
 export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
     maxVoices?: number;
@@ -29,13 +53,31 @@ export declare interface VoiceLeadingOptions extends VoicingValidation {
     logIdle?: boolean;
 }
 export declare class Voicing {
+    static defaultOptions: {
+        range: string[];
+        rangeBorders: number[];
+        maxVoices: number;
+        forceDirection: any;
+        forceBestPick: boolean;
+        maxDistance: number;
+        minBottomDistance: number;
+        minTopDistance: number;
+        noTopDrop: boolean;
+        noTopAdd: boolean;
+        noBottomDrop: boolean;
+        noBottomAdd: boolean;
+        idleChance: number;
+        logIdle: boolean;
+        logging: boolean;
+    };
     /** Returns the next voicing that should follow the previously played voicing.
     */
     static getNextVoicing(chord: any, previousVoicing: any, options?: VoiceLeadingOptions): any;
+    static hasTopNotes(pick: string[], topNotes?: any[]): any;
     /** Computes all valid voice permutations for a given chord and voice number.
      * Runs getVoicePermutations for each possible selection of notes.
      */
-    static getAllVoicePermutations(chord: any, length: any, voicingOptions?: VoicingValidation): any;
+    static getAllVoicePermutations(chord: any, voicingOptions?: VoiceLeadingOptions): any[];
     /** Get all permutations of the given notes that would make a good voicing. */
     static getVoicePermutations(notes: any, options?: VoicingValidation): any;
     /** Configurable Validator that sorts out note combinations with untasty intervals.  */
@@ -48,7 +90,7 @@ export declare class Voicing {
     }) => boolean): (path: any, next: any, array: any) => boolean;
     /** Returns all possible combinations of required and optional notes for a given chord and desired length.
      * If the voices number is higher than the required notes of the chord, the rest number will be permutated from the optional notes */
-    static getAllNoteSelections(chord: any, voices?: number, omitNotes?: any[]): any;
+    static getAllNoteSelections(chord: any, options?: VoiceLeadingOptions | number): any[][];
     static withoutPitches(pitches: any[], voicing: string[]): string[];
     /** Get available tensions for a given chord. Omits tensions that kill the chord quality */
     static getAvailableTensions(chord: any): any;
@@ -61,32 +103,13 @@ export declare class Voicing {
     /** Returns all possible note choices for the given combinations.
      * Takes the bottom note of the previous voicing and computes the minimal intervals up and down to the next bottom note.
      */
-    static getAllChoices(combinations: any, previousVoicing: any, range?: any): any;
+    static getAllChoices(combinations: Array<string[]>, previousVoicing?: string[], options?: VoiceLeadingOptions): VoiceLeading[];
     /** Analyzes all possible voice movements for all possible transitions. Handles inequal lengths */
-    static voiceLeading(origin: any, targets: any): any;
+    static voiceLeading(targets: any, origin?: any[]): VoiceLeading[];
     /** Analyzed the voice leading for the movement from > to.
      * Origin and targets needs to be passed if the voice transition over unequal lengths
      */
-    static analyzeVoiceLeading(from: any, to: any, origin?: any, targets?: any): {
-        from: any;
-        to: any;
-        origin: any;
-        targets: any;
-        intervals: any;
-        difference: any;
-        movement: any;
-        bottomInterval: any;
-        topInterval: any;
-        topNotes: any[];
-        bottomNotes: any[];
-        similar: boolean;
-        contrary: boolean;
-        parallel: any;
-        oblique: any;
-        degrees: any;
-        added: any[];
-        dropped: any[];
-    };
+    static analyzeVoiceLeading(to: any, from?: any[], targets?: any, origin?: any[]): VoiceLeading;
     /** Returns true if the given note is contained in the given voicing. */
     static containsPitch(note: any, voicing: any, enharmonic?: boolean): any;
     /** Returns the intervals between the given chord voicings.

@@ -4,5 +4,5 @@ export declare class Permutation {
     static permutateArray(array: any): any;
     static combineValidators(...validators: ((path: any, next: any, array: any) => boolean)[]): (path: any, next: any, array: any) => boolean;
     static combinations(array: any): any[];
-    static binomial(set: any, k: any): any;
+    static binomial(set: any, k: any): Array<any[]>;
 }
