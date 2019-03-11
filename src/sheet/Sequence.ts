@@ -152,6 +152,7 @@ export class Sequence {
             const melody = events.filter(e => !e.chord && Harmony.isValidNote(e.value));
             const topNote = melody.find(n => Sequence.haveSamePath(n, event) && Harmony.isValidNote(n.value));
             const duckTime = Math.max(event.duration, 60 / options.bpm * options.duckMeasures * 4);
+            // TODO calculate active melody notes with time + duration
             const surroundingMelody = melody
                 .filter(n => Math.abs(event.time - n.time) <= duckTime)
                 .sort((a, b) => Note.midi(a.value) - Note.midi(b.value))
@@ -263,6 +264,39 @@ export class Sequence {
         return !melody;
     }
 
+    static render(sheet: Leadsheet) {
+        sheet = Sheet.from(sheet);
+        let sequence = [], melody = [];
+
+        if (sheet.chords) {
+            sequence = Sequence.renderEvents(sheet.chords, sheet.options).map(e => ({ ...e, chord: e.value }));
+        }
+        if (sheet.melody) {
+            melody = Sequence.renderEvents(sheet.melody, sheet.options, true);
+            sequence = sequence.map((e, i) => Sequence.duckChordEvent(sheet.options)(e, i, melody));
+            // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
+        }
+        sequence = sequence.reduce(Sequence.renderVoicings(sheet.options), []);
+
+        if (melody) {
+            sequence = sequence.concat(melody);
+            sequence = sequence.sort((a, b) => a.time - b.time);
+            sequence = sequence.filter(Sequence.removeDuplicates(sheet.options));
+        }
+
+        sequence = sequence.map((event, index, events) => {
+            // const pathEvents = events.filter(e => Sequence.haveSamePath(e, event));
+            event = Sequence.humanizeEvent(sheet.options)(event, index, sequence);
+            event = Sequence.addDynamicVelocity(sheet.options)(event, index, sequence);
+            return event;
+        });
+        sequence = sequence.reduce(Sequence.addSwing(sheet.options), []);
+
+        if (sheet.options.logging) {
+            Logger.logSequence(sequence);
+        }
+        return sequence;
+    }
 
     /** // pedal stuff (not working)
      if (sheet.options.pedal) {
@@ -299,40 +333,4 @@ export class Sequence {
                                duration = !sheet.options.bell ? chord.duration : chord.duration - index * chord.duration / voicing.length;
                            }
      */
-
-    static render(sheet: Leadsheet) {
-        sheet = Sheet.from(sheet);
-        let sequence = [], melody = [];
-
-        if (sheet.chords) {
-            sequence = Sequence.renderEvents(sheet.chords, sheet.options).map(e => ({ ...e, chord: e.value }));
-        }
-        if (sheet.melody) {
-            melody = Sequence.renderEvents(sheet.melody, sheet.options, true);
-            sequence = sequence.map((e, i) => Sequence.duckChordEvent(sheet.options)(e, i, melody));
-            // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
-        }
-        sequence = sequence.reduce(Sequence.renderVoicings(sheet.options), []);
-
-        if (melody) {
-            sequence = sequence.concat(melody);
-            sequence = sequence.sort((a, b) => a.time - b.time);
-            sequence = sequence.filter(Sequence.removeDuplicates(sheet.options));
-        }
-
-        sequence = sequence.map((event, index, events) => {
-            // const pathEvents = events.filter(e => Sequence.haveSamePath(e, event));
-            event = Sequence.humanizeEvent(sheet.options)(event, index, sequence);
-            event = Sequence.addDynamicVelocity(sheet.options)(event, index, sequence);
-            return event;
-        });
-        sequence = sequence.reduce(Sequence.addSwing(sheet.options), []);
-
-        console.log('seq', sequence);
-
-        if (sheet.options.logging) {
-            Logger.logSequence(sequence);
-        }
-        return sequence;
-    }
 }

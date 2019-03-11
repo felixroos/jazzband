@@ -64,39 +64,5 @@ export declare class Sequence {
     static addDynamicVelocity: EventMap;
     static addSwing: EventReduce;
     static removeDuplicates: EventFilter;
-    /** // pedal stuff (not working)
-     if (sheet.options.pedal) {
-                        // pedalNotes = latest.filter(note => voicing.find(n => Harmony.hasSamePitch(note, n)))
-                            // .concat(pedalNotes);
-                            pedalNotes = pedalNotes
-                            // select latest attacked notes from notes list
-                            .concat(attackedNotes
-                                // find notes that appear again in the current voicing
-                                .filter(n => voicing.find(note => Harmony.hasSamePitch(note, n.value)))
-                                // filter out the ones that are already on hold
-                                // .filter(n => !!pedalNotes.find(note => Harmony.hasSamePitch(note.value, n.value)))
-                                // remove notes that now have been released
-                            )
-                            //.filter((n) => !voicing.find(note => Harmony.hasSamePitch(note, n.value)));
-                        pedalNotes.forEach(note => {
-                            note.duration += chord.duration;
-                        });
-                        // const releasedNotes = latest.filter(note => !voicing.find(n => !Harmony.hasSamePitch(note, n)));
-                    }
-
-                    //attackedNotes = voicing
-                    //.filter(note => !pedalNotes.find(n => Harmony.hasSamePitch(note, n.value)))
-     */
-    /**
-     * arpeggio stuff
-     *
-                    if (arpeggio) {
-                       maxVoices = Math.floor(1 / chord.divisions[chord.divisions.length - 1] * voices);
-                   }
-                           if (sheet.options.arpeggio) {
-                               time = (chord.time + index * chord.duration / voicing.length);
-                               duration = !sheet.options.bell ? chord.duration : chord.duration - index * chord.duration / voicing.length;
-                           }
-     */
     static render(sheet: Leadsheet): any[];
 }

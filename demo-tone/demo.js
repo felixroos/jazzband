@@ -12,8 +12,8 @@ function getStandard(playlist) {
     let standard;
     // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Black Narcissus')));
     /* standard = util.randomElement(playlist.songs.filter(s => s.title.includes('All The Things'))); */
-    standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife')));
-    /* standard = util.randomElement(playlist.songs); */
+    /* standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Mack The Knife'))); */
+    standard = util.randomElement(playlist.songs);
     standard.music.measures = RealParser.parseSheet(standard.music.raw);
     // console.log('standard', standard);
     return standard;
@@ -181,7 +181,7 @@ function giantSteps() {
 function blueInGreen() {
     let melody = Snippet.parse2(`
     | e5 . / d5  | c5 . / bb4   | a4 - . / g4  | f4 d5 / / |
-    | e4 / . / d4 . c#4 d4 . f4 a4 | c5 . / a4  | g4 . / f4 | c5 . / g#4 |
+    | e4 / . / d4 . c#4 d4 . f4 a4 | c5 . / / / a4  | g4 . / f4 | c5 . / g#4 |
     | b4 . / a4  | f5 /  / c#5 (2Q) | (Q) e5 / / d5 | c5 . / bb4   |  a4 |`);
     /* 
     */
@@ -212,6 +212,8 @@ function blueInGreen() {
             },
             voicings: {
                 maxVoices: 4,
+                maxDistance: 8,
+                rangeBorders: [0, 0],
                 logging: false,
             }
         }
@@ -255,7 +257,7 @@ function allTheThings() {
             phantomMelody: false,
             logging: false,
             forms: 3,
-            real: true,
+            real: false,
             bpm: 160
         }
     });
