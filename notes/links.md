@@ -69,6 +69,8 @@
   - [React Native + Vexflow](https://github.com/panarch/react-native-vexflow-seed)
   - [Vexflow+node](https://github.com/panarch/standalone-vexflow-context)
 - [verovio](https://github.com/rism-ch/verovio)
+- [flat.io](https://flat.io) (closed source)
+- [musescore.org](htps://musescore.org) (did not find src yet)
 
 ### Spectograms
 

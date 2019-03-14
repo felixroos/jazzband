@@ -73,9 +73,9 @@ export declare class Sheet implements Leadsheet {
                 maxVoices: number;
                 forceDirection?: import("../harmony/Harmony").intervalDirection;
                 forceBestPick?: boolean;
-                rangeBorders?: number[];
+                rangeBorders: number[];
                 logging: boolean;
-                idleChance?: number;
+                idleChance: number;
                 logIdle?: boolean;
                 maxDistance: number;
                 minBottomDistance: number;
@@ -94,7 +94,6 @@ export declare class Sheet implements Leadsheet {
                 noBottomDrop?: boolean;
                 noBottomAdd?: boolean;
                 root?: string;
-                rangeBorder: number[];
             };
             arpeggio: boolean;
             bell: boolean;

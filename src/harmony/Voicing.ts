@@ -147,6 +147,7 @@ export class Voicing {
         }
 
         let choices = Voicing.getAllChoices(combinations, previousVoicing, options);
+        const originalChoices = [].concat(choices);
         choices = choices.filter(choice => {
             return (!noTopDrop || !choice.topDropped) &&
                 (!noTopAdd || !choice.topAdded) &&
@@ -162,7 +163,7 @@ export class Voicing {
         );
 
         if (!choices.length) {
-            console.warn('no choices');
+            console.warn('no choices', options, 'combinations', combinations, 'original choices', originalChoices);
             return exit();
         }
         let bestPick = choices[0].targets, choice;
@@ -581,7 +582,7 @@ export class Voicing {
         }
         let distances = getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
         if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
-            console.error('range is too small to fit the comfy zone (rangeBorders)');
+            console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds);
             return;
         }
         if (distances[0] < thresholds[0]) {
