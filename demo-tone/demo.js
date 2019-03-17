@@ -115,9 +115,10 @@ window.onload = function () {
                 voicings: {
                     /* minTopDistance: 5,
                     minBottomDistance: 5, */
+                    maxDistance: 8,
                     logging: true,
                     rangeBorders: [0, 0],
-                    range: ['G2', 'C6'],
+                    range: ['E2', 'C6'],
                 }/* ,
                 humanize: {
                     duration: 0,
@@ -205,10 +206,12 @@ function giantSteps() {
             real: true,
             logging: false,
             voicings: {
+                maxVoices: 4,
+                maxDistance: 7,
                 /* maxDistance: 9,
                 minTopDistance: 5,
                 minBottomDistance: 5, */
-                logging: false,
+                logging: true,
                 /* range: ['G2', 'C6'] */
             }
         }
@@ -235,7 +238,7 @@ function blueInGreen() {
             forms: 3,
             real: true,
             phantomMelody: false,
-            logging: false,
+            logging: true,
             bpm: 70,
             humanize: {
                 velocity: 0.1,
@@ -243,8 +246,8 @@ function blueInGreen() {
                 duration: 0.005,
             },
             voicings: {
-                maxVoices: 4,
-                maxDistance: 8,
+                maxVoices: 3,
+                maxDistance: 7,
                 rangeBorders: [0, 0],
                 logging: false,
             }

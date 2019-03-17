@@ -277,10 +277,9 @@ export class Voicing {
         };
         maxVoices = maxVoices || 3;
         let required = Voicing.getRequiredNotes(chord, maxVoices);
-        const extraNotes = topNotes.concat(bottomNotes);
+        const extraNotes = topNotes.concat(bottomNotes).map(n => Note.pc(n));
         if (extraNotes.length) {
-            required = extraNotes.map(n => Note.pc(n))
-                .concat(required)
+            required = extraNotes.concat(required)
                 .filter((n, i, a) => a.indexOf(n) === i);
             if (maxVoices === 1) {
                 return [extraNotes];
@@ -380,6 +379,31 @@ export class Voicing {
     static getAllChoices(combinations: Array<string[]>, previousVoicing: string[] = [], options: VoiceLeadingOptions = {}): VoiceLeading[] {
         let { range, topNotes } = options;
         range = range || Voicing.defaultOptions.range;
+
+        let choices = [];
+        if (topNotes && topNotes.length) {
+            const absoluteTopNotes = (topNotes || []).filter(n => !!Note.oct(n));
+            const choicesWithTopNotes = absoluteTopNotes.reduce((rendered, topNote) => {
+                const combinationsWithThatTopNote = combinations.filter(c => Harmony.hasSamePitch(c[c.length - 1], topNote));
+                combinationsWithThatTopNote.forEach(combination =>
+                    rendered.push(renderAbsoluteNotes(combination.reverse(), Note.oct(topNote), 'down').reverse())
+                );
+                // exclude the combination from further rendering
+                combinations = combinations.filter(c => !combinationsWithThatTopNote.includes(c));
+                return rendered;
+            }, []);
+            choices = choices.concat(choicesWithTopNotes, []);
+            if (!combinations.length) {
+                return choices.reduce((all, targets) => {
+                    const leads = Voicing.voiceLeading(targets, previousVoicing);
+                    return all.concat(leads);
+                }, [])
+            } else {
+                console.warn('not only top note choices', topNotes, choicesWithTopNotes, combinations);
+            }
+        }
+
+
         if (!previousVoicing || !previousVoicing.length) { // no previous chord
             // filter out combinations that are out of range
             combinations = combinations.filter(combination => {
