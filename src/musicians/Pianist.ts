@@ -88,7 +88,7 @@ export default class Pianist extends Musician {
         }
         this.playedChords.push(chord);
 
-        let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), this.voicingOptions);
+        let notes = Voicing.getNextVoicing(chord, this.getLastVoicing(), settings.voicingOptions || this.voicingOptions);
         notes = notes.map(note => Note.simplify(note));
 
         settings.deadline += 0.02 + randomDelay(5);

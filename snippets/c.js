@@ -20,3 +20,7 @@ export const cherryOnTop = {
         },
     }
 }
+/*
+|  C^7  |  D-7  |  Eb13 F#7b5  |  F^7  |
+|  Bb9  |  F^7  |  C#^7 F-7    |  C^7  |
+*/

@@ -71,7 +71,7 @@ export declare function totalDiff(diff: any): any;
 /** Reorders the given notes to contain the given step as close as possible */
 export declare function sortByDegree(notes: any, degree: any): any;
 /** Returns the given notes with octaves either moving bottom up or top down */
-export declare function renderAbsoluteNotes(notes: any, octave?: number, direction?: intervalDirection): any;
+export declare function renderAbsoluteNotes(notes: any, octave?: number, direction?: intervalDirection): string[];
 export declare function getIntervals(notes: any): any;
 export declare function isInterval(interval: any): boolean;
 export declare function smallestInterval(intervals: any): any;
@@ -86,6 +86,9 @@ export declare function analyzeVoicing(notes: any, root?: any): {
 export declare function semitoneDifference(intervals: any): any;
 export declare function semitoneMovement(intervals: any): any;
 export declare function longestChild(array: any[][]): any[];
+export declare function maxArray(array: any): any;
+export declare function avgArray(array: any): number;
+export declare function humanize(value: number, amount?: number, offset?: number): number;
 export declare function isPitchClass(note: any): boolean;
 export declare function mapTree(tree: any, modifier?: any, simplify?: boolean, path?: any[], siblings?: any[], position?: number): any;
 export declare function flattenTree(tree: any): any[];
@@ -95,7 +98,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
+export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

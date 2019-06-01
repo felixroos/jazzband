@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>jazzband demo</title>
+    <!-- <base href="./" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="demo-patterns.js"></script>
+    <link rel="stylesheet" type="text/css" href="../demo/style.css" />
+  </head>
+  <body>
+    <section>
+      <div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+      </div>
+      <input
+        type="text"
+        placeholder="type a scale, e.g. F major"
+        value="C major"
+        id="scaleInput"
+      />
+      <input
+        type="text"
+        value="1 4 7 3 6 2 5 1"
+        placeholder="First Pattern"
+        id="patternA"
+      />
+      <input
+        type="text"
+        value="8 7 5 3"
+        placeholder="type a pattern, e.g. 3 5 1"
+        id="patternB"
+      />
+      <!-- 12345678 + 1231 = clarke up
+      87654321 + 8678 = clarke down
+      12345678 + 1357 =  
+    
+    chromatic, 1 6 11 4 9 2 7 12 5 10 3 8 + 1 3 5 8 > digital
+    -->
+      <button id="screensaver">screensaver</button>
+      <button id="playPattern">Play pattern</button>
+      <button id="stopPattern">Stop pattern</button>
+      <button id="randomPattern">Random pattern</button>
+      <button id="flipPattern">Flip pattern</button>
+    </section>
+  </body>
+</html>

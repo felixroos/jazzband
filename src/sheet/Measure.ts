@@ -1,10 +1,21 @@
-import { JumpSign, Sheet } from './Sheet';
+import { JumpSign, Sheet, SheetState } from './Sheet';
 
 export type MeasureOrString = Measure | string[] | string;
 
+
+export interface RenderedMeasure {
+    chords: string[]; // the content of the measure (symbols to play like chords or notes or sounds)
+    index: number; // the corresponding index of the sheet measure (from where it was rendered)
+    measure?: Measure;
+    form?: number; // the number of the current form
+    totalForms?: number; // number of total forms
+    lastTime?: boolean; // if the current form is the last
+    firstTime?: boolean; // if the current form is the first
+}
+
 export interface Measure {
     chords?: string[],
-    //voices?: string[][],
+    body?: string[],
     signs?: string[],
     comments?: string[],
     house?: number | number[],
@@ -13,20 +24,36 @@ export interface Measure {
     idle?: true // bar is repeated
 };
 
+
 export class Measure implements Measure {
-    static from(measure: MeasureOrString): Measure {
+    static from(measure: MeasureOrString, property = 'chords'): Measure {
         if (typeof measure === 'string') {
             return {
-                chords: [measure]
+                [property]: [measure]
             }
         }
         if (Array.isArray(measure)) {
             return {
-                chords: [].concat(measure)
+                [property]: [].concat(measure)
             }
         }
         return Object.assign({}, measure);
         // return measure;
+    }
+
+    /* static render(sheet: MeasureOrString[], index: number, form?: number, property = 'chords'): RenderedMeasure { */
+    static render(state: SheetState): RenderedMeasure {
+        let { sheet, index, forms, firstTime, lastTime, totalForms, property } = state;
+        const measure = Measure.from(sheet[index], property);
+        return {
+            chords: measure[property],
+            form: totalForms - forms,
+            totalForms,
+            firstTime,
+            lastTime,
+            index/* ,
+            measure */
+        }
     }
 
     static hasSign(sign: string, measure: MeasureOrString): boolean {

@@ -18,6 +18,7 @@ import {
     getDegreeFromInterval,
     isInRange,
     getDistancesToRangeEnds,
+    transposeNotes,
 } from '../util/util';
 
 import { Harmony, intervalDirection } from './Harmony';
@@ -44,112 +45,144 @@ export declare type VoicingValidation = {
     root?: string; // validate relative to that root
 };
 
+export declare type VoiceLeading = {
+    from: string[]; // previously played notes
+    to: string[]; // target notes to play
+    origin: string[]; // selection of from to lead from
+    targets: string[]; // selection of to to lead to
+    intervals: string[]; // intervals between origin/targets
+    difference: number; // difference between origin/targets
+    movement: number; // movement between origin/targets
+    bottomInterval?: string;
+    topInterval?: string;
+    topNotes?: string[];
+    bottomNotes?: string[];
+    similar: boolean;
+    contrary: boolean;
+    parallel: boolean;
+    oblique: string[];
+    degrees: string[];
+    added: string[];
+    dropped: string[];
+    topDropped?: boolean;
+    bottomDropped?: boolean;
+    topAdded?: boolean;
+    bottomAdded?: boolean;
+}
+
 export declare interface VoiceLeadingOptions extends VoicingValidation {
     range?: string[];
     maxVoices?: number;
     forceDirection?: intervalDirection;
+    forceBestPick?: boolean; // if true, the best pick will always be taken even if transposed an octave
     // the lower and upper distance to the range end that is tolerated before forcing a direction
     rangeBorders?: number[];
     logging?: boolean; // if true, all voice leading infos will be logged to the console
     idleChance?: number; // if true, next voicings cant use all the same notes again (difference !== 0)
+    logIdle?: boolean; // if false, nothing will be logged if the notes stayed the same
 }
 
 export class Voicing {
 
+    static defaultOptions = {
+        range: ['C3', 'C5'],
+        rangeBorders: [3, 3],
+        maxVoices: 4,
+        forceDirection: null,
+        forceBestPick: false,
+        maxDistance: 7,
+        minBottomDistance: 3, // min semitones between the two bottom notes
+        minTopDistance: 2, // min semitones between the two top notes
+        noTopDrop: true,
+        noTopAdd: true,
+        noBottomDrop: false,
+        noBottomAdd: false,
+        idleChance: 1,
+        logIdle: false,
+        logging: true,
+    }
+
     /** Returns the next voicing that should follow the previously played voicing. 
     */
     static getNextVoicing(chord, previousVoicing, options: VoiceLeadingOptions = {}) {
-        let { maxVoices,
+        let {
             range,
             forceDirection,
+            forceBestPick,
             rangeBorders,
             sortChoices,
             filterChoices,
             noTopDrop,
             noTopAdd,
+            topNotes,
             noBottomDrop,
             noBottomAdd,
             idleChance,
+            logIdle,
             logging
         }: VoiceLeadingOptions = {
-            range: ['C3', 'C5'],
-            rangeBorders: [3, 3],
-            maxVoices: 4,
-            forceDirection: null,
-            maxDistance: 7,
-            minBottomDistance: 3, // min semitones between the two bottom notes
-            minTopDistance: 2, // min semitones between the two top notes
-            noTopDrop: true,
-            noTopAdd: true,
-            noBottomDrop: false,
-            noBottomAdd: false,
-            idleChance: 1,
-            logging: true,
+            ...Voicing.defaultOptions,
             ...options
         };
+
         // make sure tonal can read the chord
-        chord = Harmony.getTonalChord(chord);
-        if (chord === 'r') {
+        if (!chord || chord === 'r') {
             return null;
         }
-
-        let combinations = Voicing.getAllVoicePermutations(chord, maxVoices, options);
+        chord = Harmony.getTonalChord(chord);
 
         const exit = () => {
             const pick = [];
             if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick });
+                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, logIdle, options });
             }
             return pick;
         }
 
+        let combinations = Voicing.getAllVoicePermutations(chord, options);
+
         if (!combinations.length) {
+            console.warn(chord, 'no combinations', options);
             return exit();
         }
 
-        if (!previousVoicing || !previousVoicing.length) { // no previous chord
-            // filter out combinations that are out of range
-            combinations = combinations.filter(combination => {
-                const firstNote = Harmony.getNearestNote(range[0], combination[0], 'up');
-                const pick = renderAbsoluteNotes(combination, Note.oct(firstNote));
-                return isInRange(pick[0], range) && isInRange(pick[pick.length - 1], range);
-            });
-            const firstPick = combinations[0];
-            const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
-            const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
-            if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick });
-            }
-            return pick;
-        }
-        let choices = Voicing.getAllChoices(combinations, previousVoicing, range)
-            .filter(choice => { // apply flag filters + filerChoices if any
-                return (!noTopDrop || !choice.dropped.includes(choice.topNotes[0])) &&
-                    (!noTopAdd || !choice.added.includes(choice.topNotes[1])) &&
-                    (!noBottomDrop || !choice.dropped.includes(choice.bottomNotes[0])) &&
-                    (!noBottomAdd || !choice.added.includes(choice.bottomNotes[1])) &&
-                    (!filterChoices || filterChoices(choice)) &&
-                    (choice.difference > 0 || Math.random() < idleChance)
-            })
-            .sort(sortChoices ?
-                (a, b) => sortChoices(a, b) :
-                (a, b) => a.difference - b.difference
-            );
+        let choices = Voicing.getAllChoices(combinations, previousVoicing, options);
+        const originalChoices = [].concat(choices);
+        choices = choices.filter(choice => {
+            return (!noTopDrop || !choice.topDropped) &&
+                (!noTopAdd || !choice.topAdded) &&
+                (!noBottomDrop || !choice.bottomDropped) &&
+                (!noBottomAdd || !choice.bottomAdded);
+        }).filter(choice => { // apply flag filters + filerChoices if any
+            return (!filterChoices || filterChoices(choice))
+                && (choice.difference > 0 || Math.random() < idleChance)
+                && (!topNotes || Voicing.hasTopNotes(choice.targets, topNotes))
+        }).sort(sortChoices ?
+            (a, b) => sortChoices(a, b) :
+            (a, b) => a.difference - b.difference
+        );
 
         if (!choices.length) {
+            console.warn('no choices', options, 'combinations', combinations, 'original choices', originalChoices);
             return exit();
         }
         let bestPick = choices[0].targets, choice;
-        const direction = Voicing.getDesiredDirection(previousVoicing, range, rangeBorders) || forceDirection;
+        let direction = Voicing.getDesiredDirection(previousVoicing, range, rangeBorders) || forceDirection;
 
-        if (!direction) {
+        if (direction && forceBestPick && (!isInRange(bestPick[0], range) || isInRange(bestPick[bestPick.length - 1], range))) {
+            const octave = direction === 'up' ? '8P' : '-8P';
+            bestPick = transposeNotes(bestPick, octave);
+        }
+
+        if (!direction || forceBestPick) {
             const pick = bestPick;
             choice = choices[0];
             if (logging) {
-                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices });
+                Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices, logIdle, options });
             }
             return pick;
         }
+
         // sort after movement instead of difference
         choice = choices.sort((a, b) => {
             return Math.abs(a.movement) - Math.abs(b.movement)
@@ -164,18 +197,21 @@ export class Voicing {
         }
         const pick = choice.targets;
         if (logging) {
-            Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices });
+            Logger.logVoicing({ chord, previousVoicing, range, combinations, pick, direction, bestPick, choice, choices, logIdle, options });
         }
         return pick;
+    }
+
+    static hasTopNotes(pick: string[], topNotes = []) {
+        return topNotes.reduce((match, note) => match && Harmony.hasSamePitch(note, pick[pick.length - 1]), true);
     }
 
     /** Computes all valid voice permutations for a given chord and voice number.
      * Runs getVoicePermutations for each possible selection of notes.
      */
-    static getAllVoicePermutations(chord, length, voicingOptions: VoicingValidation = {}) {
+    static getAllVoicePermutations(chord, voicingOptions: VoiceLeadingOptions = {}) {
         const root = Harmony.getBassNote(chord, true);
-        const { omitNotes } = voicingOptions;
-        return Voicing.getAllNoteSelections(chord, length, omitNotes)
+        return Voicing.getAllNoteSelections(chord, voicingOptions)
             .reduce((combinations, combination) => {
                 return combinations.concat(
                     Voicing.getVoicePermutations(combination, { ...voicingOptions, root }))
@@ -230,26 +266,44 @@ export class Voicing {
 
     /** Returns all possible combinations of required and optional notes for a given chord and desired length. 
      * If the voices number is higher than the required notes of the chord, the rest number will be permutated from the optional notes */
-    static getAllNoteSelections(chord, voices = 2, omitNotes = []) {
-        let required = Voicing.getRequiredNotes(chord, voices);
+    static getAllNoteSelections(chord, options: VoiceLeadingOptions | number = {}) {
+        if (typeof options === 'number') {
+            options = { maxVoices: options };
+        }
+        let { omitNotes, topNotes, bottomNotes, maxVoices } = {
+            topNotes: [],
+            bottomNotes: [],
+            ...options
+        };
+        maxVoices = maxVoices || 3;
+        let required = Voicing.getRequiredNotes(chord, maxVoices);
+        const extraNotes = topNotes.concat(bottomNotes).map(n => Note.pc(n));
+        if (extraNotes.length) {
+            required = extraNotes.concat(required)
+                .filter((n, i, a) => a.indexOf(n) === i);
+            if (maxVoices === 1) {
+                return [extraNotes];
+            }
+        }
         required = Voicing.withoutPitches(omitNotes, required);
-        if (voices === 1) {
+        if (maxVoices === 1) {
             return required.map(note => [note]);
         }
-        const fill = voices - required.length;
+        const fill = maxVoices - required.length;
         if (fill === 0) {
             return [required];
         }
         if (fill < 0) { // required notes are enough
-            return Permutation.binomial(required, voices);
+            return Permutation.binomial(required, maxVoices);
         }
-        let optional = Voicing.getOptionalNotes(chord, voices, required);
+        let optional = Voicing.getOptionalNotes(chord, maxVoices, required);
         optional = Voicing.withoutPitches(omitNotes, optional);
 
         if (fill >= optional.length) {
             return [required.concat(optional)];
         }
-        return Permutation.binomial(optional, fill)
+
+        return Permutation.binomial(optional, Math.min(fill, optional.length))
             .map(selection => required.concat(selection))
     }
 
@@ -322,7 +376,53 @@ export class Voicing {
     /** Returns all possible note choices for the given combinations.
      * Takes the bottom note of the previous voicing and computes the minimal intervals up and down to the next bottom note.
      */
-    static getAllChoices(combinations, previousVoicing, range?) {
+    static getAllChoices(combinations: Array<string[]>, previousVoicing: string[] = [], options: VoiceLeadingOptions = {}): VoiceLeading[] {
+        let { range, topNotes } = options;
+        range = range || Voicing.defaultOptions.range;
+
+        let choices = [];
+        if (topNotes && topNotes.length) {
+            const absoluteTopNotes = (topNotes || []).filter(n => !!Note.oct(n));
+            const choicesWithTopNotes = absoluteTopNotes.reduce((rendered, topNote) => {
+                const combinationsWithThatTopNote = combinations.filter(c => Harmony.hasSamePitch(c[c.length - 1], topNote));
+                combinationsWithThatTopNote.forEach(combination =>
+                    rendered.push(renderAbsoluteNotes(combination.reverse(), Note.oct(topNote), 'down').reverse())
+                );
+                // exclude the combination from further rendering
+                combinations = combinations.filter(c => !combinationsWithThatTopNote.includes(c));
+                return rendered;
+            }, []);
+            choices = choices.concat(choicesWithTopNotes, []);
+            if (!combinations.length) {
+                return choices.reduce((all, targets) => {
+                    const leads = Voicing.voiceLeading(targets, previousVoicing);
+                    return all.concat(leads);
+                }, [])
+            } else {
+                console.warn('not only top note choices', topNotes, choicesWithTopNotes, combinations);
+            }
+        }
+
+
+        if (!previousVoicing || !previousVoicing.length) { // no previous chord
+            // filter out combinations that are out of range
+            combinations = combinations.filter(combination => {
+                const firstNote = Harmony.getNearestNote(range[0], combination[0], 'up');
+                const pick = renderAbsoluteNotes(combination, Note.oct(firstNote));
+                /* const highestNote = Harmony.getNearestNote(range[1], combination[combination.length - 1], 'down');
+                const pick = renderAbsoluteNotes(combination.reverse(), Note.oct(highestNote), 'down').reverse(); */
+                return isInRange(pick[0], range) && isInRange(pick[pick.length - 1], range);
+            });
+            const firstPick = combinations[0];
+            const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
+            const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
+
+            if (topNotes && topNotes.length) {
+                return Voicing.voiceLeading(pick.concat(topNotes));
+            }
+            return Voicing.voiceLeading(pick);
+        }
+
         const lastPitches = previousVoicing.map(note => Note.pc(note));
         return combinations
             .map((combination) => {
@@ -345,16 +445,16 @@ export class Voicing {
                     isInRange(targets[targets.length - 1], range)
             })
             .reduce((all, targets) => {
-                const leads = Voicing.voiceLeading(previousVoicing, targets);
+                const leads = Voicing.voiceLeading(targets, previousVoicing);
                 return all.concat(leads);
             }, [])
     }
 
     /** Analyzes all possible voice movements for all possible transitions. Handles inequal lengths */
-    static voiceLeading(origin, targets) {
+    static voiceLeading(targets, origin = []): VoiceLeading[] {
         // if same length > dont permutate
-        if (origin.length === targets.length) {
-            return Voicing.analyzeVoiceLeading(origin, targets);
+        if (!origin || !origin.length || origin.length === targets.length) {
+            return [Voicing.analyzeVoiceLeading(targets, origin)];
         }
         const [more, less] = [origin, targets].sort((a, b) => b.length - a.length);
         return Permutation.binomial(more, less.length)
@@ -365,15 +465,34 @@ export class Voicing {
                 } else {
                     [from, to] = [selection, targets];
                 }
-                return Voicing.analyzeVoiceLeading(from, to, origin, targets);
+                return Voicing.analyzeVoiceLeading(to, from, targets, origin);
             });
     }
 
     /** Analyzed the voice leading for the movement from > to. 
      * Origin and targets needs to be passed if the voice transition over unequal lengths
      */
-    static analyzeVoiceLeading(from, to, origin?, targets?) {
+    static analyzeVoiceLeading(to, from = [], targets = to, origin = from): VoiceLeading {
         [origin, targets] = [origin || from, targets || to];
+        if (!from || !from.length) {
+            return {
+                to, targets,
+                from, origin,
+                intervals: [],
+                degrees: [],
+                oblique: [],
+                difference: 0,
+                movement: 0,
+                similar: false,
+                parallel: false,
+                contrary: false,
+                topNotes: [0, to[to.length - 1]],
+                bottomNotes: [0, to[to[0]]],
+                dropped: [],
+                added: []
+            };
+        }
+        // console.log(to, from, targets, origin);
         let intervals = Voicing.voicingIntervals(from, to, false)
             .map(interval => Harmony.fixInterval(interval, false));
         /** Interval qualities */
@@ -396,6 +515,10 @@ export class Voicing {
         } else {
             dropped = origin.filter(n => !from.includes(n));
         }
+        const bottomInterval = intervals[0];
+        const topInterval = intervals[intervals.length - 1];
+        const bottomNotes = [origin[0], targets[0]];
+        const topNotes = [origin[origin.length - 1], targets[targets.length - 1]];
         return {
             from,
             to,
@@ -404,10 +527,10 @@ export class Voicing {
             intervals,
             difference,
             movement,
-            bottomInterval: intervals[0],
-            topInterval: intervals[intervals.length - 1],
-            topNotes: [origin[origin.length - 1], targets[targets.length - 1]],
-            bottomNotes: [origin[0], targets[0]],
+            bottomInterval,
+            topInterval,
+            topNotes,
+            bottomNotes,
             similar,
             contrary: !similar,
             parallel,
@@ -415,6 +538,10 @@ export class Voicing {
             degrees,
             added,
             dropped,
+            topDropped: dropped.includes(topNotes[0]),
+            topAdded: added.includes(topNotes[1]),
+            bottomDropped: dropped.includes(bottomNotes[0]),
+            bottomAdded: added.includes(bottomNotes[1])
         }
     }
 
@@ -474,9 +601,12 @@ export class Voicing {
      * Outputs a direction as soon as the semitone distance of one of the outer notes is below the given threshold
      */
     static getDesiredDirection(voicing, range, thresholds = [3, 3]) {
+        if (!voicing) {
+            return;
+        }
         let distances = getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
         if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
-            console.error('range is too small to fit the comfy zone');
+            console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds);
             return;
         }
         if (distances[0] < thresholds[0]) {

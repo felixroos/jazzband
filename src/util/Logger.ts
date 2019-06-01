@@ -3,6 +3,8 @@ import { Harmony } from '../harmony/Harmony';
 import { Voicing } from '../harmony/Voicing';
 import { Snippet } from '../sheet/Snippet';
 import { getRangePosition, getStepsInChord, noteArray, getDegreeFromStep } from './util';
+import { Sheet } from '../sheet/Sheet';
+import { Sequence } from '../sheet/Sequence';
 
 export class Logger {
     static emoji = {
@@ -100,6 +102,43 @@ export class Logger {
         }
     }
 
+    static logSequence(sequence) {
+        /* sequence.forEach(event => {
+            console.log({
+                ...event,
+                path: Sheet.simplePath(event.path),
+                divisions: Sheet.simplePath(event.divisions),
+                velocity: Math.round(event.velocity * 10) / 10
+            })
+        }); */
+        sequence.reduce((blocks, event) => {
+            const alreadyParsed = !!blocks.find(b => Sequence.haveSamePath(b, event));
+            if (alreadyParsed) {
+                return blocks
+            }
+            const sameTime = sequence.filter(e => Sequence.haveSamePath(e, event));
+            let degrees;
+            let chord = event.chord;
+            if (!chord) {
+                const latestChordBlock = [].concat(blocks).reverse().find(b => !!b.chord);
+                chord = (latestChordBlock || {}).chord;
+            }
+
+            degrees = getStepsInChord(sameTime.map(e => e.value), chord, true)
+                .map(step => getDegreeFromStep(step))
+                .map(step => step === 8 ? 1 : step);
+
+            blocks.push({ path: event.path, events: sameTime, degrees, chord });
+            return blocks;
+        }, []).forEach(block => {
+            const notes = block.events.map(e => e.value);
+            let konsole = Logger.logNotes({ notes, active: notes, idle: [], added: [], range: ['C3', 'C6'], labels: block.degrees || notes });
+            konsole.push(block.chord);
+            konsole.push(Sequence.simplePath(block.path));
+            Logger.logCustom(konsole, console.log);
+        });
+    }
+
     static logSheet(sheet) {
         sheet = {
             title: 'Untitled',
@@ -110,15 +149,19 @@ export class Logger {
             style: 'Swing',
             ...sheet
         }
-        const snippet = Snippet.from(sheet.chords);
+        const chords = Snippet.from(sheet.chords || []);
+        const melody = Snippet.from(sheet.melody || []);
         console.log(`${sheet.composer} - ${sheet.title}`);
         console.log(`${sheet.tempo}bpm, Style: ${sheet.style}`);
-        console.log(snippet);
+        console.log(chords);
+        console.log('---')
+        console.log(melody);
         if (console.groupCollapsed) {
             console.log('Sheet', sheet);
             /* console.log('Groove', sheet.groove); */
             console.groupCollapsed(`show ${sheet.forms} rendered forms`);
-            console.log("expanded view\n\n" + Snippet.expand(snippet, { forms: sheet.forms || 1 }));
+            console.log("expanded chords\n\n" + Snippet.expand(chords, { forms: sheet.forms || 1 }));
+            console.log("expanded melody\n\n" + Snippet.expand(melody, { forms: sheet.forms || 1 }));
             console.groupEnd();
         }
     }
@@ -193,22 +236,22 @@ export class Logger {
             let css = '', sign = '_';
             if (isAdded && !isBlack) {
                 css = 'background:green;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|';
             } else if (isAdded && isBlack) {
                 css = 'background:darkgreen;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|';
             } else if (isActive && isBlack) {
                 css = 'background:#a50909;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|';
             } else if (isActive && !isBlack) {
                 css = 'background:#e52929;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|';
             } else if (isIdle && !isBlack) {
                 css = 'background:gray;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|';
             } else if (isIdle && isBlack) {
                 css = 'background:darkgray;color:white;';
-                sign = labels[i] || '█';
+                sign = labels[i] || '|'; // █
             } else {
                 css = isBlack ? 'color:black;' : 'color:#eee;';
             }
@@ -236,13 +279,13 @@ export class Logger {
         return args;
     }
 
-    static logVoicing({ chord, previousVoicing, combinations, bestPick, pick, range, choice, direction, choices }: any) {
+    static logVoicing({ chord, previousVoicing, logIdle, combinations, bestPick, pick, range, choice, direction, choices, options }: any) {
         /* pick = pick.map(n => Note.simplify(n)); */
         pick = pick || [];
         previousVoicing = previousVoicing || [];
         const idle = previousVoicing.filter(n => pick.find(p => Harmony.hasSamePitch(n, p)));
         const isIdle = choice && choice.oblique.length === choice.targets.length;
-        if (isIdle) {
+        if (isIdle && !logIdle) {
             return;
         }
         const active = pick.filter(n => !previousVoicing.find(p => Harmony.hasSamePitch(n, p)))
@@ -325,6 +368,7 @@ export class Logger {
                 console.group('Choice:');
                 Logger.logChoice(choice);
                 console.groupEnd();
+                console.log('Options', options);
                 console.groupCollapsed('All Choices:');
                 choices.forEach(c => Logger.logChoice(c));
                 console.groupEnd();

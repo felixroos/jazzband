@@ -64,7 +64,7 @@ export declare class Harmony {
     };
     static pitchRegex: RegExp;
     static isBlack(note: any): boolean;
-    static hasSamePitch(noteA: any, noteB: any, ignoreOctave?: boolean): boolean;
+    static hasSamePitch(noteA: string, noteB: string, ignoreOctave?: boolean): boolean;
     static getTonalChord(chord: string): string;
     static getBassNote(chord: string, ignoreSlash?: boolean): string;
     static transposeChord(chord: any, interval: any): any;
@@ -81,6 +81,7 @@ export declare class Harmony {
     static sortMinInterval(preferredDirection?: intervalDirection, accessor?: (i: any) => any): (a: any, b: any) => number;
     /** Returns the note with the least distance to "from" */
     static getNearestNote(from: any, to: any, direction?: intervalDirection): string;
+    static isValidNote(note: string): boolean;
     /** Returns the note with the least distance to "from". TODO: add range */
     static getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
     static intervalMatrix(from: any, to: any): any;

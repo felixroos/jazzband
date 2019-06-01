@@ -3,6 +3,7 @@ import { Musician } from './musicians/Musician';
 import { Sheet, Leadsheet } from './sheet/Sheet';
 import { Metronome } from './Metronome';
 import { Logger } from './util/Logger';
+import { Snippet } from './sheet/Snippet';
 
 /** Band */
 export default class Band {
@@ -56,8 +57,9 @@ export default class Band {
         if (settings.onMeasure) {
             this.onMeasure = settings.onMeasure;
         }
+        console.log('sheet', sheet);
         let measures = Sheet.render(sheet.chords, settings.render);
-        measures = measures.concat(measures);
+        console.log(Snippet.from(measures));
         settings = Object.assign(this.defaults, settings, { context: this.context });
         this.play(measures, settings);
     }
@@ -75,7 +77,10 @@ export default class Band {
             }
             measures = measures.map(m => m.chords ? m.chords : m);
             console.log('Band#play', settings);
-            const musicians = (settings.musicians || this.musicians);
+            let musicians = (settings.musicians || this.musicians);
+            if (settings.exact) {
+                musicians = this.musicians.slice(0, 2);
+            }
             musicians.forEach(musician => musician.play({ pulse: this.pulse, measures, settings }));
             this.pulse.start();
         });

@@ -1,0 +1,56 @@
+body {
+  color: gray;
+  background-color: #101010;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+section {
+  max-width: 900px;
+  margin: auto;
+  padding: 10px;
+  height: 100vh;
+  overflow: auto;
+}
+
+h1,
+h2 {
+  color: #73a88e;
+}
+
+button,
+input {
+  background: white;
+  border: 1px solid #8ccdaa;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+button.active {
+  background: lightgray;
+}
+
+textarea {
+  font-family: monospace;
+  font-size: 1.2em;
+  width: 95%;
+  height: 200px;
+  margin: 0;
+  border: 0;
+  border: 1px solid #8ccdaa;
+  margin-top: 5px;
+}
+
+select {
+  height: 40px;
+  border: 1px solid #8ccdaa;
+  border-radius: 0px;
+}
+input,
+button,
+textarea,
+select {
+  background-color: #101010;
+  color: gray;
+  background-color: #101010;
+  color: gray;
+}

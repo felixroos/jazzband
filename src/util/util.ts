@@ -333,7 +333,6 @@ export function getDegreeFromStep(step: step) {
     step = getStep(step);
     const match = step.match(/([1-9])+/);
     if (!match || !match.length) {
-        console.log('no valid step', step);
         return 0;
     }
     return parseInt(match[0], 10);
@@ -450,7 +449,7 @@ export function sortByDegree(notes, degree) {
 }
 
 /** Returns the given notes with octaves either moving bottom up or top down */
-export function renderAbsoluteNotes(notes, octave = 3, direction: intervalDirection = 'up') {
+export function renderAbsoluteNotes(notes, octave = 3, direction: intervalDirection = 'up'): string[] {
     return notes.reduce((absolute, current, index, notes) => {
         if (index === 0) {
             return [current + octave];
@@ -523,6 +522,24 @@ export function semitoneMovement(intervals) {
 
 export function longestChild(array: any[][]) {
     return array.reduce((max, current) => (current.length > max.length ? current : max), array[0]);
+}
+
+export function maxArray(array) {
+    if (!array || !array.length) {
+        return;
+    }
+    return array.reduce((max, item) => Math.max(max, item), array[0]);
+}
+
+export function avgArray(array) {
+    if (!array || !array.length) {
+        return;
+    }
+    return array.reduce((sum, item) => sum + item, 0) / array.length;
+}
+
+export function humanize(value: number, amount = 0.01, offset = 0) {
+    return value + (Math.random() - 0.5) * 2 * amount + offset;
 }
 
 export function isPitchClass(note) {

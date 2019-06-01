@@ -47,6 +47,38 @@ test('rule 6: DC al Coda', () => {
         { chords: ['B'], signs: ['DC.Coda'] },
         { chords: ['C'], signs: ['Coda'] },
     ]))).toEqual('A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'], signs: ['ToCoda'] },
+        { chords: ['B'], signs: ['DC'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ]))).toEqual('A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B A B C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'], signs: ['ToCoda'] },
+        { chords: ['B'], signs: ['DC'] },
+        { chords: ['C'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B A C A B A C');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'], signs: ['ToCoda'] },
+        { chords: ['C'] },
+        { chords: ['D'], signs: ['Coda'] },
+    ], { forms: 1 }))).toEqual('A B D');
+
+    expect(Snippet.testFormat(Sheet.render([
+        { chords: ['A'] },
+        { chords: ['B'], signs: ['ToCoda'] },
+        { chords: ['C'] },
+        { chords: ['D'], signs: ['Coda'] },
+    ], { forms: 2 }))).toEqual('A B C A B D');
 });
 
 
@@ -575,16 +607,19 @@ test('Sheet.shouldJump', () => {
 
 
 test('Sheet.render: repeat signs', () => {
-    expect(Sheet.render(['A', 'B'])).toEqual([
+    expect(Sheet.render(['A', 'B'])
+        .map(({ chords, index }) => ({ chords, index }))
+    ).toEqual([
         { chords: ['A'], index: 0 },
-        { chords: ['B'], index: 1 }]);
+        { chords: ['B'], index: 1 }
+    ]);
 
-    expect(Sheet.render(['A'])).toEqual([{ chords: ['A'], index: 0 }]);
+    expect(Sheet.render(['A'])
+    .map(({ chords, index }) => ({ chords, index }))).toEqual([{ chords: ['A'], index: 0 }]);
 
     expect(Sheet.render([
         { signs: ['{', '}'], chords: ['A'] },
     ]).map(m => Measure.from(m).chords)).toEqual([['A'], ['A']]);
-
 
     expect(Sheet.render([
         { signs: ['{', '}'], chords: ['A'] },
@@ -668,11 +703,11 @@ test('Sheet.render: repeat n times', () => {
 
     expect(Snippet.testFormat(Sheet.render([
         'X',
-        { signs: ['{'], chords: 'O' },
+        { signs: ['{'], chords: ['O'] },
         'Y',
         { signs: ['{', '}'], times: 2, chords: ['A'] },
         'Y',
-        { signs: ['}'], times: 2, chords: 'O' },
+        { signs: ['}'], times: 2, chords: ['O'] },
         'X'
     ]))).toEqual('X O Y A A A Y O O Y A A A Y O O Y A A A Y O X');
 
@@ -802,3 +837,109 @@ test('Sheet.getNextHouseIndex', () => {
         sheet: ababac, index: 1, visits: { 1: 2 }
     })).toEqual(2);
 });
+
+test('Sheet.flatten', () => {
+    expect(Sheet.flatten(['C'])).toEqual(['C']);
+    expect(Sheet.flatten(['C'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [1], } //fraction: 1, position: 0
+    ]);
+    expect(Sheet.flatten(['C', 'D'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], }, //fraction: 0.5, position: 0 
+        { value: 'D', path: [1], divisions: [2], }, //fraction: 0.5, position: 0.5 
+    ]);
+    expect(Sheet.flatten(['C', ['D']])).toEqual(['C', 'D']);
+    expect(Sheet.flatten(['C', ['D', 'E'], 'F'])).toEqual(['C', 'D', 'E', 'F']);
+    expect(Sheet.flatten(['C', ['D', ['E', 'F']], 'G'])).toEqual(['C', 'D', 'E', 'F', 'G']);
+    expect(Sheet.flatten(['C', ['D']], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], }, //fraction: 0.5, position: 0 
+        { value: 'D', path: [1, 0], divisions: [2, 1], }, //fraction: 0.5, position: 0.5 
+    ]);
+    expect(Sheet.flatten(['C', ['D', 0]], true)).toEqual([
+        { value: 'C', path: [0], divisions: [2], }, //fraction: 0.5, position: 0 
+        { value: 'D', path: [1, 0], divisions: [2, 2], }, //fraction: 0.25, position: 0.5 
+        { value: 0, path: [1, 1], divisions: [2, 2] }]); //fraction: 0.25, position: 0.75 }]
+
+    expect(Sheet.flatten(['C', ['D', ['E', ['F', 'G']]], 'A', 'B'], true)).toEqual([
+        { value: 'C', path: [0], divisions: [4], }, //fraction: 0.25, position: 0 
+        { value: 'D', path: [1, 0], divisions: [4, 2], }, //fraction: 1 / 4 / 2, position: 0.25 
+        { value: 'E', path: [1, 1, 0], divisions: [4, 2, 2], }, //fraction: 1 / 4 / 2 / 2, position: 0.375 
+        { value: 'F', path: [1, 1, 1, 0], divisions: [4, 2, 2, 2], }, //fraction: 1 / 4 / 2 / 2 / 2, position: 0.4375 
+        { value: 'G', path: [1, 1, 1, 1], divisions: [4, 2, 2, 2], }, //fraction: 1 / 4 / 2 / 2 / 2, position: 0.46875 
+        { value: 'A', path: [2], divisions: [4], }, //fraction: 0.25, position: 0.5 
+        { value: 'B', path: [3], divisions: [4], }, //fraction: 0.25, position: 0.75 
+    ]);
+});
+
+test('Sheet.getPath', () => {
+    expect(Sheet.getPath(['C'], 0)).toBe('C');
+    expect(Sheet.getPath([['C']], 0)).toEqual('C');
+    expect(Sheet.getPath(['C', 'D', 'E'], 1)).toBe('D');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], 1)).toEqual('D1');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], [1, 1])).toEqual('D2');
+    expect(Sheet.getPath(['C', ['D1', 'D2'], 'E'], [1, 1, 0])).toEqual('D2');
+});
+
+test('Sheet.expand', () => {
+    expect(Sheet.expand([{ value: 'C', path: [0] }, { value: 'D', path: [1, 0] }]))
+        .toEqual(['C', ['D']]);
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+    ])).toEqual(['C', ['D', 'E']]);
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', 'E'], 'F']);
+
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'E', path: [1, 1] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', 'E'], 'F']);
+
+    expect(Sheet.expand([
+        { value: 'C', path: [0] },
+        { value: 'D', path: [1, 0] },
+        { value: 'D1', path: [1, 1, 0] },
+        { value: 'D2', path: [1, 1, 1] },
+        { value: 'E', path: [1, 2] },
+        { value: 'F', path: [2] },
+    ])).toEqual(['C', ['D', ['D1', 'D2'], 'E'], 'F']);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [2, 0] }]))
+        .toEqual([undefined, 'C', ['D']]);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [3, 1] }]))
+        .toEqual([undefined, 'C', undefined, [undefined, 'D']]);
+
+    expect(Sheet.expand([{ value: 'C', path: [1] }, { value: 'D', path: [3, 1] }]))
+        .toEqual([undefined, 'C', undefined, [undefined, 'D']]);
+});
+
+test('pathOf', () => {
+    expect(Sheet.pathOf('C', ['A', ['B', 'C']])).toEqual([1, 1]);
+    expect(Sheet.pathOf('D', ['A', ['B', 'C']])).toEqual(undefined);
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'A')).toEqual('B');
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'B')).toEqual('C');
+    expect(Sheet.nextValue(['A', ['B', 'C']], 'C')).toEqual('A');
+    // expect(Sheet.nextValue(['A', ['B', 'C']], 'C', false)).toEqual(undefined);
+    expect(Sheet.nextPath(['A', ['B', 'C']])).toEqual([0]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [0])).toEqual([1, 0]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [1, 0])).toEqual([1, 1]);
+    expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1])).toEqual([0]);
+    // expect(Sheet.nextPath(['A', ['B', 'C']], [1, 1], false)).toEqual(undefined);
+});
+
+test('Sheet.obfuscate', () => {
+    expect(Sheet.obfuscate(['C'])).toEqual([{ chords: ['C'] }]);
+    expect(Sheet.obfuscate(['C'], false)).toEqual([{ chords: ['?'] }]);
+    expect(Sheet.obfuscate([['C', 'Bb7']])).toEqual([{ chords: ['C', '???'] }]);
+    expect(Sheet.obfuscate([['C', 'Bb7']], false)).toEqual([{ chords: ['?', '???'] }]);
+    expect(Sheet.obfuscate(['C', 'Bb7'])).toEqual([{ chords: ['C'] }, { chords: ['???'] }]);
+    expect(Sheet.obfuscate(['C', 'Bb7'], false)).toEqual([{ chords: ['?'] }, { chords: ['???'] }]);
+});
+
