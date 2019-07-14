@@ -146,10 +146,10 @@ export class Sequence {
     return Sequence.getEvents(flat, multiplier)
       .map(event => {
         const measure = rendered[event.path[0]];
-        event = { ...event, measure, options: measure.options, chord: event.value };
+        event = { ...event, measure, options: measure.options };
         return {
           ...event,
-          options: Sequence.renderOptions(event, options)
+          options: Sequence.renderOptions(event, options) || {}
         }
       })
       .reduce(Sequence.prolongNotes(options), []);
@@ -326,15 +326,21 @@ export class Sequence {
       }
       return {
         ...event,
-        voicings: topNote
-          ? {
-            topNotes: options.tightMelody ? [topNote.value] : []
+        options: {
+          ...event.options,
+          voicings: {
+            ...(event.options.voicings || {}),
+            ...(topNote
+              ? {
+                topNotes: options.tightMelody ? [topNote.value] : []
+              }
+              : {
+                /* idleChance: .5,
+                          forceDirection: 'down', */
+                range
+              })
           }
-          : {
-            /* idleChance: .5,
-                      forceDirection: 'down', */
-            range
-          }
+        }
       };
     };
   };
@@ -449,8 +455,13 @@ export class Sequence {
       chords = [];
 
     if (sheet.chords) {
-      chords = Sequence.renderEvents(sheet.chords, sheet.options);
-      console.log('chords', chords, sheet.options);
+      chords = Sequence.renderEvents(sheet.chords, sheet.options).map(e => ({
+        ...e,
+        chord: e.value // to seperate melody from chord later
+      }));
+
+      const walk = Sequence.renderEvents(Array(sheet.chords.length).fill([1, 2, 3, 4]), sheet.options)
+        .map(event => event)
       bass = chords.reduce(Sequence.renderBass(sheet.options), []);
     }
     if (sheet.melody) {
@@ -460,7 +471,6 @@ export class Sequence {
       );
       // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
     }
-    console.log('renderv', sheet.options);
     const voicings = chords.reduce(Sequence.renderVoicings(sheet.options), []);
     sequence = sequence.concat(voicings);
 

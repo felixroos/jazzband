@@ -126,7 +126,6 @@ export class Sheet implements Leadsheet {
   }
 
   static render(sheet: MeasureOrString[], options: SheetState = {}): RenderedMeasure[] {
-    console.log('render sheet', options.forms);
     let state: SheetState = {
       sheet,
       measures: [],
