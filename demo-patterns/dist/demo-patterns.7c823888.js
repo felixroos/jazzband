@@ -1065,9 +1065,9 @@ var encodeIvl = encoder(_tonalInterval.props);
  *
  * This function can be partially applied.
  *
- * @param {String} note
- * @param {String} interval
- * @return {String} the transposed note
+ * @param {string} note
+ * @param {string} interval
+ * @return {string} the transposed note
  * @example
  * import { tranpose } from "tonal-distance"
  * transpose("d3", "3M") // => "F#3"
@@ -1100,9 +1100,9 @@ function transpose(note, interval) {
  * It can be partially applied.
  *
  * @function
- * @param {String} pitchClass - the pitch class
+ * @param {string} pitchClass - the pitch class
  * @param {Integer} fifhts - the number of fifths
- * @return {String} the transposed pitch class
+ * @return {string} the transposed pitch class
  *
  * @example
  * import { trFifths } from "tonal-transpose"
@@ -1132,8 +1132,8 @@ function trFifths(note, fifths) {
  *
  * Can be partially applied.
  *
- * @param {String} to - note or pitch class
- * @param {String} from - note or pitch class
+ * @param {string} to - note or pitch class
+ * @param {string} from - note or pitch class
  */
 
 
@@ -1158,9 +1158,9 @@ function fifths(from, to) {
  *
  * Can be partially applied.
  *
- * @param {String} note
- * @param {String} interval
- * @return {String} the transposed note
+ * @param {string} note
+ * @param {string} interval
+ * @return {string} the transposed note
  * @example
  * import { tranposeBy } from "tonal-distance"
  * transposeBy("3m", "5P") // => "7m"
@@ -1201,9 +1201,9 @@ function addIntervals(ivl1, ivl2, dir) {
  *
  * Can be partially applied.
  *
- * @param {String} interval1
- * @param {String} interval2
- * @return {String} the resulting interval
+ * @param {string} interval1
+ * @param {string} interval2
+ * @return {string} the resulting interval
  * @example
  * import { add } from "tonal-distance"
  * add("3m", "5P") // => "7m"
@@ -1224,9 +1224,9 @@ function add(ivl1, ivl2) {
  *
  * Can be partially applied
  *
- * @param {String} minuend
- * @param {String} subtrahend
- * @return {String} interval diference
+ * @param {string} minuend
+ * @param {string} subtrahend
+ * @return {string} interval diference
  */
 
 
@@ -1245,9 +1245,9 @@ function subtract(ivl1, ivl2) {
  *
  * Can be partially applied
  *
- * @param {String} from - distance from
- * @param {String} to - distance to
- * @return {String} the interval distance
+ * @param {string} from - distance from
+ * @param {string} to - distance to
+ * @return {string} the interval distance
  *
  * @example
  * import { interval } from "tonal-distance"
@@ -1590,7 +1590,7 @@ var clen = function (chroma) {
  * without modification.
  *
  * @param {Array|String} set - the pitch class set
- * @return {String} a binary representation of the pitch class set
+ * @return {string} a binary representation of the pitch class set
  * @example
  * PcSet.chroma(["C", "D", "E"]) // => "1010100000000"
  */
@@ -1656,7 +1656,7 @@ function modes(set, normalize) {
 var REGEX = /^[01]{12}$/;
 /**
  * Test if the given string is a pitch class set chroma.
- * @param {String} chroma - the pitch class set chroma
+ * @param {string} chroma - the pitch class set chroma
  * @return {Boolean} true if its a valid pcset chroma
  * @example
  * PcSet.isChroma("101010101010") // => true
@@ -1892,7 +1892,7 @@ var combine = function (a, b) {
  * returns an array of intervals
  *
  * @function
- * @param {String} name
+ * @param {string} name
  * @return {Array} intervals
  * @example
  * import { scale } from "tonal-dictionary"
@@ -1908,7 +1908,7 @@ var scale = dictionary(_scales.default);
  * returns an array of intervals
  *
  * @function
- * @param {String} type
+ * @param {string} type
  * @return {Array} intervals
  * @example
  * import { chord } from "tonal-dictionary"
@@ -2319,7 +2319,7 @@ var memo = function (fn, cache) {
  * - setnum: chord chroma number
  *
  * @function
- * @param {String} name - the chord name (without tonic)
+ * @param {string} name - the chord name (without tonic)
  * @return {Object} an object with the properties or a object with all properties
  * set to null if not valid chord name
  */
@@ -2330,7 +2330,7 @@ var props = memo(properties);
  * Get chord intervals. It always returns an array
  *
  * @function
- * @param {String} name - the chord name (optionally a tonic and type)
+ * @param {string} name - the chord name (optionally a tonic and type)
  * @return {Array<String>} a list of intervals or null if the type is not known
  */
 
@@ -2346,8 +2346,8 @@ var intervals = function (name) {
  * It always returns an array, even if the chord is not found.
  *
  * @function
- * @param {String} nameOrTonic - name of the chord or the tonic (if the second parameter is present)
- * @param {String} [name] - (Optional) name if the first parameter is the tonic
+ * @param {string} nameOrTonic - name of the chord or the tonic (if the second parameter is present)
+ * @param {string} [name] - (Optional) name if the first parameter is the tonic
  * @return {Array} an array of notes or an empty array
  *
  * @example
@@ -2372,7 +2372,7 @@ function notes(nameOrTonic, name) {
  * Check if a given name correspond to a chord in the dictionary
  *
  * @function
- * @param {String} name
+ * @param {string} name
  * @return {Boolean}
  * @example
  * Chord.exists("CMaj7") // => true
@@ -2389,7 +2389,7 @@ var exists = function (name) {
  * (has the same notes and at least one more)
  *
  * @function
- * @param {String} name
+ * @param {string} name
  * @return {Array} a list of chord names
  */
 
@@ -2411,7 +2411,7 @@ var supersets = function (name) {
  * (has less notes but all from the given chord)
  *
  * @function
- * @param {String} name
+ * @param {string} name
  * @return {Array} a list of chord names
  */
 
@@ -2437,7 +2437,7 @@ var NUM_TYPES = /^(6|64|7|9|11|13)$/;
  * to split the tonic and chord type.
  *
  * @function
- * @param {String} name - the chord name
+ * @param {string} name - the chord name
  * @return {Array} an array with [tonic, type]
  * @example
  * Chord.tokenize("Cmaj7") // => [ "C", "maj7" ]
@@ -16290,7 +16290,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65031" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57854" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

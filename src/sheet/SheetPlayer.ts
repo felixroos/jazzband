@@ -51,7 +51,7 @@ export class SheetPlayer {
 
         SheetPlayer.playParts([
             await SheetPlayer.playSheet(sheet),
-            await SheetPlayer.playBass(sheet),
+            /*await SheetPlayer.playBass(sheet), */
             /* await SheetPlayer.playChords(sheet),
             await SheetPlayer.playMelody(sheet), */
             // ...(await SheetPlayer.playDrums(sheet, options))

@@ -1,5 +1,28 @@
 # Music Hacking Resources
 
+## Tone.js
+
+- [edit notes while playing](https://github.com/Tonejs/Tone.js/issues/304)
+
+## React stuff
+
+- https://yogalayout.com/playground
+- https://www.react-spring.io/
+- https://popmotion.io/pose/
+- https://www.youtube.com/watch?v=YaZg8wg39QQ
+- https://nikgraf.github.io/react-hooks/
+- https://usehooks.com/
+- https://github.com/kenwheeler/hooks-drum-machine
+
+## New Stuff
+
+- [audio viz](https://github.com/vcync/modV)
+- [meyda](https://github.com/meyda/meyda) pitch detection
+- [React Hook useTone + Meyda !!](https://codesandbox.io/s/w7kvvqxnrw)
+  - [useInterval of react-hooks-collection](https://github.com/nestarz/react-hooks-collection/blob/master/useInterval/index.jsx)
+  - [useInterval of @rooks](https://react-hooks.org/?path=/story/useintervaldemo--basic-example)
+  - [useRaf](https://react-hooks.org/?path=/story/useraf--basic-example)
+
 ## General Links
 
 - [WAA Link Collection](https://github.com/alemangui/web-audio-resources)

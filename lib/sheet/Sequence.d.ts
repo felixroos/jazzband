@@ -10,6 +10,7 @@ export interface SequenceEvent {
     velocity?: number;
     time?: number;
     voicings?: VoiceLeadingOptions;
+    options?: Object;
 }
 export declare type EventModifier = (event: SequenceEvent, index: number, events: SequenceEvent[], options: SequenceOptions) => SequenceEvent;
 export declare type EventMap = (options: SequenceOptions) => (event: SequenceEvent, index?: number, events?: SequenceEvent[]) => SequenceEvent;
@@ -53,10 +54,78 @@ export declare class Sequence {
         divisions?: number[];
         fraction?: number;
         voicings?: VoiceLeadingOptions;
+        options?: Object;
     }[];
-    static renderEvents(measures: Measures, options: SequenceOptions, inOut?: boolean): SequenceEvent[];
+    static getOptions(options: SequenceOptions): {
+        bpm: number;
+        arpeggio?: boolean;
+        bell?: boolean;
+        pedal?: boolean;
+        tightMelody?: boolean;
+        real?: boolean;
+        fermataLength?: number;
+        duckMeasures?: number;
+        start?: number;
+        swing?: number;
+        swingSubdivision?: string;
+        dynamicVelocityRange?: number[];
+        dynamicVelocity?: EventModifier;
+        phantomMelody?: boolean;
+        humanize?: {
+            velocity?: number;
+            time?: number;
+            duration?: number;
+        };
+        voicings?: VoiceLeadingOptions;
+        range?: string[];
+        maxVoices?: number;
+        forceDirection?: import("../harmony/Harmony").intervalDirection;
+        forceBestPick?: boolean;
+        rangeBorders?: number[];
+        logging?: boolean;
+        idleChance?: number;
+        logIdle?: boolean;
+        maxDistance?: number;
+        minBottomDistance?: number;
+        minDistance?: number;
+        minTopDistance?: number;
+        topNotes?: string[];
+        topDegrees?: number[];
+        bottomNotes?: string[];
+        bottomDegrees?: number[];
+        omitNotes?: string[];
+        validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
+        sortChoices?: (choiceA: any, choiceB: any) => number;
+        filterChoices?: (choice: any) => boolean;
+        noTopDrop?: boolean;
+        noTopAdd?: boolean;
+        noBottomDrop?: boolean;
+        noBottomAdd?: boolean;
+        root?: string;
+        measures?: import("./Measure").RenderedMeasure[];
+        index?: number;
+        sheet?: import("./Measure").MeasureOrString[];
+        jumps?: {
+            [key: number]: number;
+        };
+        visits?: {
+            [key: number]: number;
+        };
+        nested?: boolean;
+        fallbackToZero?: boolean;
+        forms?: number;
+        totalForms?: number;
+        firstTime?: boolean;
+        lastTime?: boolean;
+        property?: string;
+    };
+    static renderEvents(measures: Measures, options?: SequenceOptions, inOut?: boolean): SequenceEvent[];
     static prolongNotes: EventReduce;
     static renderVoicings: EventReduce;
+    static renderGrid: (bars: any, feel: any) => {
+        return: any;
+    };
+    static renderBass: EventReduce;
     static duckChordEvent: EventMap;
     static humanizeEvent: EventMap;
     static velocityFromIndex: EventMap;

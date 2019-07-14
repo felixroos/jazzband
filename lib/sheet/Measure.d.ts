@@ -1,14 +1,5 @@
 import { JumpSign, SheetState } from './Sheet';
 export declare type MeasureOrString = Measure | string[] | string;
-export interface RenderedMeasure {
-    chords: string[];
-    index: number;
-    measure?: Measure;
-    form?: number;
-    totalForms?: number;
-    lastTime?: boolean;
-    firstTime?: boolean;
-}
 export interface Measure {
     chords?: string[];
     body?: string[];
@@ -18,6 +9,16 @@ export interface Measure {
     times?: number;
     section?: string;
     idle?: true;
+    options?: Object;
+}
+export interface RenderedMeasure extends Measure {
+    chords?: string[];
+    index: number;
+    measure?: Measure;
+    form?: number;
+    totalForms?: number;
+    lastTime?: boolean;
+    firstTime?: boolean;
 }
 export declare class Measure implements Measure {
     static from(measure: MeasureOrString, property?: string): Measure;

@@ -222,7 +222,7 @@ export class Logger {
             ...options
         };
         const span = [
-            Distance.transpose(range[0], Interval.fromSemitones(-7)),
+            Distance.transpose(range[0], Interval.fromSemitones(-12)),
             Distance.transpose(range[1], Interval.fromSemitones(12))
         ];
         const allNotes = noteArray(span);
