@@ -6,7 +6,7 @@ import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { avgArray, humanize, maxArray } from '../util/util';
 import { Logger } from '../util/Logger';
-import { Measure } from './Measure';
+import { Measure, RenderedMeasure } from './Measure';
 
 export interface SequenceEvent {
   path: number[];
@@ -19,7 +19,7 @@ export interface SequenceEvent {
   time?: number;
   // voicings?: VoiceLeadingOptions;
   options?: SequenceOptions;
-  measure?: Measure;
+  measure?: RenderedMeasure;
 }
 
 export type EventModifier = (
@@ -45,7 +45,7 @@ export type EventReduce = (
     originalEvents?: SequenceEvent[]
   ) => SequenceEvent[];
 export type EventFilter = (
-  options: SequenceOptions
+  options?: SequenceOptions
 ) => (
     event: SequenceEvent,
     index?: number,
@@ -126,20 +126,10 @@ export class Sequence {
 
   static renderEvents(
     measures: Measures,
-    options?: SequenceOptions,
-    inOut = false
+    options?: SequenceOptions
   ) {
     options = this.getOptions(options);
     let rendered = Sheet.render(measures, options);
-
-    if (inOut) {
-      rendered = rendered.map(e => {
-        if (!e.firstTime && !e.lastTime) {
-          e.chords = [];
-        }
-        return e;
-      });
-    }
     // seperate chords before flattening
     const chords = rendered.map((e) => e.chords);
     const flat = Sheet.flatten(chords, true);
@@ -422,6 +412,10 @@ export class Sequence {
       .concat([event]);
   };
 
+  static inOut: EventFilter = () => (event, idnex, events) => {
+    return event.measure.firstTime || event.measure.lastTime;
+  }
+
   static removeDuplicates: EventFilter = options => (event, index, events) => {
     if (!options.phantomMelody) {
       const duplicate = events.find(
@@ -467,13 +461,14 @@ export class Sequence {
 
           return event;
         });
-      console.log('walk', walk);
 
       bass = chords.reduce(Sequence.renderBass(sheet.options), []);
     }
     if (sheet.melody) {
-      console.log('mlody', sheet.melody);
-      melody = Sequence.renderEvents(sheet.melody, sheet.options, true);
+      melody = Sequence.renderEvents(sheet.melody, {
+        ...sheet.options,
+        filterEvents: Sequence.inOut() // play melody only first and last time
+      });
       chords = chords.map((e, i) =>
         Sequence.duckChordEvent(sheet.options)(e, i, melody)
       );
