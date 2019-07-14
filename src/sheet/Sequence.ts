@@ -75,7 +75,9 @@ export interface SequenceOptions extends SheetState {
   };
   voicings?: VoiceLeadingOptions;
   feel?: number;
-  dynamicOptions?: (event: SequenceEvent, options: SequenceOptions) => SequenceOptions;
+  // if set, the rendered events will be filtered with this function
+  filterEvents?: (event: SequenceEvent, index: number) => boolean;
+  mapEvents?: (event: SequenceEvent, index: number) => SequenceEvent;
 }
 
 export class Sequence {
@@ -129,6 +131,7 @@ export class Sequence {
   ) {
     options = this.getOptions(options);
     let rendered = Sheet.render(measures, options);
+
     if (inOut) {
       rendered = rendered.map(e => {
         if (!e.firstTime && !e.lastTime) {
@@ -139,19 +142,20 @@ export class Sequence {
     }
     // seperate chords before flattening
     const chords = rendered.map((e) => e.chords);
-
     const flat = Sheet.flatten(chords, true);
-
     const multiplier = (60 / options.bpm) * 4 * chords.length;
     return Sequence.getEvents(flat, multiplier)
       .map(event => {
         const measure = rendered[event.path[0]];
-        event = { ...event, measure, options: measure.options };
         return {
-          ...event,
-          options: Sequence.renderOptions(event, options) || {}
-        }
+          ...event, measure, options: {
+            ...options,
+            ...measure.options,
+          }
+        };
       })
+      .filter(options.filterEvents || (() => true))
+      .map(options.mapEvents || ((e) => e))
       .reduce(Sequence.prolongNotes(options), []);
   }
 
@@ -222,14 +226,6 @@ export class Sequence {
         const ofCurrent = accessor(current, index);
         return (ofCurrent === undefined ? latest : ofCurrent);
       }, undefined);
-  }
-
-  static renderOptions(event: SequenceEvent, options: SequenceOptions = {}) {
-    return {
-      ...options,
-      ...event.options,
-      ...(options.dynamicOptions ? options.dynamicOptions(event, options) : {})
-    };
   }
 
   static renderBass: EventReduce = options => {
@@ -460,11 +456,23 @@ export class Sequence {
         chord: e.value // to seperate melody from chord later
       }));
 
-      const walk = Sequence.renderEvents(Array(sheet.chords.length).fill([1, 2, 3, 4]), sheet.options)
-        .map(event => event)
+      const measures = sheet.chords.map(measure => ({
+        ...Measure.from(measure),
+        // TODO: respect measure.options.feel + make dynamic
+        chords: new Array(sheet.options.feel).fill('X')
+      }));
+
+      const walk = Sequence.renderEvents(measures, sheet.options)
+        .map(event => {
+
+          return event;
+        });
+      console.log('walk', walk);
+
       bass = chords.reduce(Sequence.renderBass(sheet.options), []);
     }
     if (sheet.melody) {
+      console.log('mlody', sheet.melody);
       melody = Sequence.renderEvents(sheet.melody, sheet.options, true);
       chords = chords.map((e, i) =>
         Sequence.duckChordEvent(sheet.options)(e, i, melody)

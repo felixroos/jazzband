@@ -12,7 +12,7 @@ function getStandard(playlist) {
   let standard;
   // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice')));
   standard = util.randomElement(
-    playlist.songs/* .filter(s => s.title.includes('Soultrane')) */
+    playlist.songs /* .filter(s => s.title.includes('Soultrane')) */
   );
   standard.music.measures = RealParser.parseSheet(standard.music.raw);
   return standard;
@@ -41,12 +41,16 @@ window.onload = function() {
       chords: standard.music.measures,
       options: {
         forms: 2,
-        dynamicOptions: (event, options) => {
+        mapEvents: (event, options) => {
           return {
-            feel: event.measure.section === 'A' ? 4 : 2,
-            voicings: {
-              ...options.voicings,
-              maxVoices: event.measure.lastTime ? 4 : 2
+            ...event,
+            options: {
+              ...event.options,
+              feel: event.measure.section === 'A' ? 4 : 2,
+              voicings: {
+                ...options.voicings,
+                maxVoices: event.measure.lastTime ? 4 : 2
+              }
             }
           };
         },
@@ -298,6 +302,7 @@ function allTheThings() {
       phantomMelody: false,
       logging: false,
       forms: 3,
+      feel: 4,
       real: true,
       bpm: 160,
       voicings: {

@@ -103,6 +103,7 @@ export class Sheet implements Leadsheet {
         swing: 0,
         fermataLength: 4,
         duckMeasures: 1,
+        feel: 4,
         ...sheet.options,
         humanize: {
           velocity: 0.1,
