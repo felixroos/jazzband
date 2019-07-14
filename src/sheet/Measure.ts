@@ -11,7 +11,7 @@ export interface Measure {
   times?: number;
   section?: string;
   idle?: true; // bar is repeated
-  options?: Object; // options to change stuff over time
+  options?: SheetState; // options to change stuff over time
 }
 
 export interface RenderedMeasure extends Measure {

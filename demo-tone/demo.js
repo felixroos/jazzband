@@ -11,7 +11,9 @@ const playlist = new iRealReader(decodeURI(link));
 function getStandard(playlist) {
   let standard;
   // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice')));
-  standard = util.randomElement(playlist.songs.filter(s=>s.title.includes('Soultrane')));
+  standard = util.randomElement(
+    playlist.songs/* .filter(s => s.title.includes('Soultrane')) */
+  );
   standard.music.measures = RealParser.parseSheet(standard.music.raw);
   return standard;
 }
@@ -36,18 +38,25 @@ window.onload = function() {
     return SheetPlayer.play({
       composer: standard.composer,
       title: standard.title,
-      forms: 2,
-      time: 4,
-      groove,
       chords: standard.music.measures,
       options: {
+        forms: 2,
+        dynamicOptions: (event, options) => {
+          return {
+            feel: event.measure.section === 'A' ? 4 : 2,
+            voicings: {
+              ...options.voicings,
+              maxVoices: event.measure.lastTime ? 4 : 2
+            }
+          };
+        },
         real: true,
         swing: 0,
         pedal: false,
         logging: true,
         voicings: {
           // forceDirection: 'down',
-          maxVoices: 4, // maximum number of voices per chord
+          maxVoices: 1, // maximum number of voices per chord
           maxDistance: 7, // general max distance between single voices
           minDistance: 1, // general max distance between single voices
           minBottomDistance: 3, // min semitones between the two bottom notes
@@ -320,12 +329,12 @@ function mack() {
     composer: ' ? ',
     chords,
     melody,
-    voicings: {
-      logging: false,
-      maxVoices: 4,
-      minTopDistance: 2
-    },
     options: {
+      voicings: {
+        logging: true,
+        maxVoices: 4,
+        minTopDistance: 2
+      },
       swing: 0.2,
       forms: 3,
       duckMeasures: 0.5,

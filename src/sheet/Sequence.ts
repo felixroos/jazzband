@@ -4,9 +4,8 @@ import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
-import { avgArray, humanize, maxArray, isBarStart } from '../util/util';
+import { avgArray, humanize, maxArray } from '../util/util';
 import { Logger } from '../util/Logger';
-import { Permutator, Permutation } from '..';
 import { Measure } from './Measure';
 
 export interface SequenceEvent {
@@ -18,8 +17,9 @@ export interface SequenceEvent {
   duration?: number;
   velocity?: number;
   time?: number;
-  voicings?: VoiceLeadingOptions;
-  options?: Object;
+  // voicings?: VoiceLeadingOptions;
+  options?: SequenceOptions;
+  measure?: Measure;
 }
 
 export type EventModifier = (
@@ -52,7 +52,8 @@ export type EventFilter = (
     events?: SequenceEvent[]
   ) => boolean;
 
-export interface SequenceOptions extends VoiceLeadingOptions, SheetState {
+export interface SequenceOptions extends SheetState {
+  logging?: boolean;
   arpeggio?: boolean; // if true, all chords will be played as arpeggios
   bell?: boolean; // if true, notes of arpeggiated chords will be held
   pedal?: boolean; // if true, notes that stay will not be retriggered
@@ -73,6 +74,8 @@ export interface SequenceOptions extends VoiceLeadingOptions, SheetState {
     duration?: number;
   };
   voicings?: VoiceLeadingOptions;
+  feel?: number;
+  dynamicOptions?: (event: SequenceEvent, options: SequenceOptions) => SequenceOptions;
 }
 
 export class Sequence {
@@ -136,18 +139,20 @@ export class Sequence {
     }
     // seperate chords before flattening
     const chords = rendered.map((e) => e.chords);
-    /* const chords = rendered.map(e =>
-      e.measure.chords.map(chord => ({ ...e, chord }))
-    ); */
 
-    const flat = Sheet.flatten(chords, true)
-      .map(c => ({ ...c, measure: rendered[c.path[0]] })); // add measure info
+    const flat = Sheet.flatten(chords, true);
 
     const multiplier = (60 / options.bpm) * 4 * chords.length;
-    return Sequence.getEvents(flat, multiplier).reduce(
-      Sequence.prolongNotes(options),
-      []
-    );
+    return Sequence.getEvents(flat, multiplier)
+      .map(event => {
+        const measure = rendered[event.path[0]];
+        event = { ...event, measure, options: measure.options, chord: event.value };
+        return {
+          ...event,
+          options: Sequence.renderOptions(event, options)
+        }
+      })
+      .reduce(Sequence.prolongNotes(options), []);
   }
 
   static prolongNotes: EventReduce = options => {
@@ -187,7 +192,7 @@ export class Sequence {
       }
       const voicingOptions: VoiceLeadingOptions = {
         ...options.voicings,
-        ...event.voicings
+        ...event.options.voicings
       };
       let voicing = Voicing.getNextVoicing(
         event.chord,
@@ -211,12 +216,21 @@ export class Sequence {
     };
   };
 
-  static renderGrid: (
-    bars,
-    feel
-  ) => {
-    return;
-  };
+  static getLastValue(events: SequenceEvent[], accessor: (event: SequenceEvent, index) => any) {
+    return events.reduce(
+      (latest, current, index) => {
+        const ofCurrent = accessor(current, index);
+        return (ofCurrent === undefined ? latest : ofCurrent);
+      }, undefined);
+  }
+
+  static renderOptions(event: SequenceEvent, options: SequenceOptions = {}) {
+    return {
+      ...options,
+      ...event.options,
+      ...(options.dynamicOptions ? options.dynamicOptions(event, options) : {})
+    };
+  }
 
   static renderBass: EventReduce = options => {
     const feel = 4;
@@ -225,14 +239,9 @@ export class Sequence {
       const bar = path[0];
       const beat = path[1];
 
-      /* const settings = chords.slice(0, index + 1).reduce(
-        (merged, current) => ({
-          ...merged,
-          ...(current.options || {})
-        }),
-        {}
-      );
-      if (beat !== 0) {
+      const { feel } = event.options;
+
+      /* if (beat !== 0) {
         return events;
       } */
       if (!event.chord) {
@@ -258,7 +267,7 @@ export class Sequence {
         },
         []
       );
-
+  
       placed.forEach((slot, i) => {
         const isFirst = slot !== false;
         if (!isFirst) {
@@ -273,7 +282,7 @@ export class Sequence {
         }
         let chord = chordsInBar[slot];
         const indexSinceLastRoot = i - placed.indexOf(slot);
-
+  
         const root = Harmony.getBassNote(event.chord) + '2';
         const fifth = Distance.transpose(root, '5P');
         const note = indexSinceLastRoot % 2 == 0 ? root : fifth;
@@ -440,14 +449,8 @@ export class Sequence {
       chords = [];
 
     if (sheet.chords) {
-      sheet.chords[0] = {
-        ...Measure.from(sheet.chords[0]),
-        options: { feel: 4 }
-      };
-      chords = Sequence.renderEvents(sheet.chords, sheet.options).map(e => ({
-        ...e,
-        chord: e.value // .chord // redundant but comfy
-      }));
+      chords = Sequence.renderEvents(sheet.chords, sheet.options);
+      console.log('chords', chords, sheet.options);
       bass = chords.reduce(Sequence.renderBass(sheet.options), []);
     }
     if (sheet.melody) {
@@ -457,6 +460,7 @@ export class Sequence {
       );
       // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
     }
+    console.log('renderv', sheet.options);
     const voicings = chords.reduce(Sequence.renderVoicings(sheet.options), []);
     sequence = sequence.concat(voicings);
 

@@ -8,6 +8,7 @@ import { piano as pianoSamples } from '../samples/piano/index.js';
 import { drumSamples } from '../samples/drumset';
 import { Snippet } from './Snippet';
 import { SequenceOptions, Sequence } from './Sequence';
+import { VoiceLeadingOptions } from '../harmony/Voicing';
 
 export declare type noteTrigger = (time, duration?) => any;
 
@@ -137,7 +138,7 @@ export class SheetPlayer {
     }
     sheet = Sheet.from(sheet);
     let { pedal, real }: SequenceOptions = sheet.options;
-    let { maxVoices }: SequenceOptions = sheet.options.voicings;
+    let { maxVoices }: VoiceLeadingOptions = sheet.options.voicings;
     if (melody) {
       maxVoices *= 2;
     }
@@ -161,7 +162,7 @@ export class SheetPlayer {
     }
     sheet = Sheet.from(sheet);
     let { pedal, real }: SequenceOptions = sheet.options;
-    let { maxVoices }: SequenceOptions = sheet.options.voicings;
+    let { maxVoices }: VoiceLeadingOptions = sheet.options.voicings;
 
     const piano = await SheetPlayer.getPiano(maxVoices, real);
     SheetPlayer.instruments.push(piano);
