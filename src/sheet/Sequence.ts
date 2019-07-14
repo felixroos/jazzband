@@ -59,7 +59,6 @@ export interface SequenceOptions extends SheetState {
   pedal?: boolean; // if true, notes that stay will not be retriggered
   tightMelody?: boolean; // if true, the top notes of the chords will play the melody
   real?: boolean; // if true, real instruments will be used
-  bpm?: number; // tempo
   fermataLength?: number; // length of the last note/chord relative to normal length
   duckMeasures?: number; // time till the voicing range resets after a melody note (in measures)
   start?: number; // when to start
@@ -75,6 +74,8 @@ export interface SequenceOptions extends SheetState {
   };
   voicings?: VoiceLeadingOptions;
   feel?: number;
+  pulses?: number; // how many pulses/beats per bar?
+  bpm?: number; // tempo
   // if set, the rendered events will be filtered with this function
   filterEvents?: (event: SequenceEvent, index: number) => boolean;
   mapEvents?: (event: SequenceEvent, index: number) => SequenceEvent;
@@ -106,47 +107,11 @@ export class Sequence {
     );
   }
 
-  static getEvents(events: SequenceEvent[], whole = 1) {
-    return events.map(event => {
-      return {
-        ...event,
-        velocity: 1,
-        duration: Sequence.fraction(event.divisions, whole),
-        time: Sequence.time(event.divisions, event.path, whole)
-      };
-    });
-  }
-
   static getOptions(options: SequenceOptions) {
     return {
+      bpm: 120,
       ...options,
-      bpm: 120
     };
-  }
-
-  static renderEvents(
-    measures: Measures,
-    options?: SequenceOptions
-  ) {
-    options = this.getOptions(options);
-    let rendered = Sheet.render(measures, options);
-    // seperate chords before flattening
-    const chords = rendered.map((e) => e.chords);
-    const flat = Sheet.flatten(chords, true);
-    const multiplier = (60 / options.bpm) * 4 * chords.length;
-    return Sequence.getEvents(flat, multiplier)
-      .map(event => {
-        const measure = rendered[event.path[0]];
-        return {
-          ...event, measure, options: {
-            ...options,
-            ...measure.options,
-          }
-        };
-      })
-      .filter(options.filterEvents || (() => true))
-      .map(options.mapEvents || ((e) => e))
-      .reduce(Sequence.prolongNotes(options), []);
   }
 
   static prolongNotes: EventReduce = options => {
@@ -219,29 +184,18 @@ export class Sequence {
   }
 
   static renderBass: EventReduce = options => {
-    const feel = 4;
     return (events, event, index, chords) => {
-      let { duration, path, divisions, time } = event;
-      const bar = path[0];
-      const beat = path[1];
+      let { duration } = event;
 
-      const { feel } = event.options;
-
-      /* if (beat !== 0) {
-        return events;
-      } */
       if (!event.chord) {
         return events.concat([event]);
       }
-
-      //
       const root = Harmony.getBassNote(event.chord) + '2';
       events.push({
         ...event,
         value: root,
         duration
       });
-      //
 
       /* const chordsInBar = chords.filter(e => e.path[0] === bar);
       // place events into feel grid e.g. [0, false, 1, false] for two chords in 4 feel
@@ -437,6 +391,65 @@ export class Sequence {
     return !melody;
   };
 
+  static renderGrid(
+    measures: Measures,
+    options?: SequenceOptions
+  ) {
+    options = this.getOptions(options);
+    let renderedMeasures = Sheet.render(measures, options);
+    const flat = Sheet.flatten(renderedMeasures, true)
+      .map(event => ({
+        ...event,
+        measure: renderedMeasures[event.path[0]]
+      }));
+    return this.renderEvents(flat, options);
+  }
+
+
+  static renderMeasures(
+    measures: Measures,
+    options?: SequenceOptions
+  ) {
+    options = this.getOptions(options);
+    let renderedMeasures = Sheet.render(measures, options);
+    // seperate chords before flattening // => "chords" also used for melody, need rename...
+    const chords = renderedMeasures.map((e) => e.chords);
+    const flat = Sheet.flatten(chords, true)
+      .map(event => ({
+        ...event,
+        measure: renderedMeasures[event.path[0]],
+        options: renderedMeasures[event.path[0]].options
+      }));
+    return this.renderEvents(flat, options);
+  }
+
+  static renderEvents(
+    events: SequenceEvent[],
+    options: SequenceOptions = {}
+  ) {
+    return events
+      .reduce((events, event) => {
+        const last = (events.length ? events[events.length - 1] : null);
+        const combinedOptions = {
+          ...options,
+          ...(last ? last.options : {}), // merge prev options
+          ...event.options
+        };
+        const pulses = (combinedOptions.pulses || 4);
+        const whole = (60 / options.bpm) * pulses * event.divisions[0];
+        return events.concat({
+          ...event,
+          options: combinedOptions,
+          velocity: 1,
+          duration: Sequence.fraction(event.divisions, whole),
+          time: last ? last.time + last.duration : 0,
+        });
+      }, [])
+      .filter(options.filterEvents || (() => true))
+      .map(options.mapEvents || ((e) => e))
+      .reduce(Sequence.prolongNotes(options), []);
+  }
+
   static render(sheet: Leadsheet) {
     sheet = Sheet.from(sheet);
     let sequence = [],
@@ -445,27 +458,23 @@ export class Sequence {
       chords = [];
 
     if (sheet.chords) {
-      chords = Sequence.renderEvents(sheet.chords, sheet.options).map(e => ({
+      chords = Sequence.renderMeasures(sheet.chords, sheet.options).map(e => ({
         ...e,
         chord: e.value // to seperate melody from chord later
       }));
+      console.log('chords', chords);
 
-      const measures = sheet.chords.map(measure => ({
-        ...Measure.from(measure),
-        // TODO: respect measure.options.feel + make dynamic
-        chords: new Array(sheet.options.feel).fill('X')
-      }));
+      /* const walk = Sequence.renderGrid(sheet.chords, sheet.options).map(measure => {
+        const feel = measure.options.feel === undefined ? 4 : measure.options.feel;
+        return Array(feel).fill('X')
+      }); */
 
-      const walk = Sequence.renderEvents(measures, sheet.options)
-        .map(event => {
-
-          return event;
-        });
+      /* console.log('grid', Sheet.flatten(walk, true)); */
 
       bass = chords.reduce(Sequence.renderBass(sheet.options), []);
     }
     if (sheet.melody) {
-      melody = Sequence.renderEvents(sheet.melody, {
+      melody = Sequence.renderMeasures(sheet.melody, {
         ...sheet.options,
         filterEvents: Sequence.inOut() // play melody only first and last time
       });

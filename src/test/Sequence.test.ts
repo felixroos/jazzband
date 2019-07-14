@@ -25,14 +25,11 @@ test('Sequence.getSequenceSignType', () => {
   ).toEqual(['0', '0.1', '1']);
 }); */
 
-test.only('Sequence.renderEvents', () => {
+test.only('Sequence.renderMeasures', () => {
   expect(
-    Sequence.renderEvents([['A', 'B'], ['C']]).map(e =>
+    Sequence.renderMeasures([['A', 'B'], ['C']]).map(e =>
       Sequence.simplePath(e.path)
     )
-  ).toEqual(['0', '0.1', '1']);
-  expect(
-    Sequence.renderEvents([{ chords: ['x'] }, { chords: ['y'] }])
   ).toEqual(['0', '0.1', '1']);
 });
 

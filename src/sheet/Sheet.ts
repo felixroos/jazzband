@@ -104,6 +104,7 @@ export class Sheet implements Leadsheet {
         fermataLength: 4,
         duckMeasures: 1,
         feel: 4,
+        pulses: 4,
         ...sheet.options,
         humanize: {
           velocity: 0.1,

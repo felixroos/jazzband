@@ -12,7 +12,7 @@ function getStandard(playlist) {
   let standard;
   // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice')));
   standard = util.randomElement(
-    playlist.songs /* .filter(s => s.title.includes('Soultrane')) */
+    playlist.songs/* .filter(s => s.title.includes('Footprints')) */
   );
   standard.music.measures = RealParser.parseSheet(standard.music.raw);
   return standard;
@@ -169,7 +169,7 @@ function bluesForAlice() {
     options: {
       forms: 3,
       real: true,
-      bpm: 160,
+      bpm: 80,
       swing: 0.2,
       voicings: {
         /* minTopDistance: 5,
@@ -293,6 +293,18 @@ function allTheThings() {
     |  Db^7  |  Db-^7   |  C-7   |  Bo7       |
     |  Bb-7  |  Eb7     |  Ab^7  |  Gh7 C7b9  |`);
 
+  /* chords = chords
+    .slice(0, 2)
+    .concat([{ chords: ['/'], options: { feel: 2 } }])
+    .concat(chords.slice(3, 10)); */
+
+  chords = chords
+    .slice(0, 2)
+    .concat([{ chords: ['Eb7'], options: { pulses: 2 } }])
+    .concat([{ chords: ['Ab^7'], options: { pulses: 6 } }])
+    .concat([{ chords: ['Db^7'], options: { pulses: 3 } }])
+    .concat(chords.slice(5, 10));
+
   SheetPlayer.play({
     title: 'All The Things you are',
     composer: ' ? ',
@@ -306,7 +318,7 @@ function allTheThings() {
       real: true,
       bpm: 160,
       voicings: {
-        logging: true,
+        logging: false,
         /* maxDistance: 12,
                 maxVoices: 2, */
         rangeBorders: [0, 0]

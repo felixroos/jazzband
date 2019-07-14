@@ -1,4 +1,5 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
+import { SequenceOptions } from './Sequence';
 
 export type MeasureOrString = Measure | string[] | string;
 
@@ -11,7 +12,7 @@ export interface Measure {
   times?: number;
   section?: string;
   idle?: true; // bar is repeated
-  options?: SheetState; // options to change stuff over time
+  options?: SequenceOptions; // options to change stuff over time
 }
 
 export interface RenderedMeasure extends Measure {
@@ -53,7 +54,9 @@ export class Measure implements Measure {
     } = state;
     const measure = Measure.from(sheet[index], property);
     return {
-      ...measure,
+      /* ...measure, */
+      options: measure.options || {},
+      [property]: measure[property],
       form: totalForms - forms,
       totalForms,
       firstTime,
