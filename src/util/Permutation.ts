@@ -168,7 +168,7 @@ export class Permutation {
     counts.push(divisor);
 
     var r = 0;
-    var build = function(level) {
+    var build = function (level) {
       r++;
       if (level > -1) {
         for (var i = 0; i < counts[level]; i++) {

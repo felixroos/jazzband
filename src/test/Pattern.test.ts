@@ -253,7 +253,7 @@ test('traverseNested', () => {
 
 /*
 
-  /* 
+  /*
   const penrose = ([min, max], step = 1) => (s, i) => {
     return ((s[i] + step) % (max - min + 1)) + min;
   };

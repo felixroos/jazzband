@@ -101,7 +101,7 @@ export class Numeric {
   static range(a: number, b: number, grain = 1) {
     const [min, max] = this.minMax(a, b);
     return this.api({
-      exitCase: (value,numbers) => {
+      exitCase: (value, numbers) => {
         return value > max || value < min;
       },
       initialValues: [a],

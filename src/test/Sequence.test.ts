@@ -1,6 +1,6 @@
 import { Sequence } from '../sheet/Sequence';
 
-test('Sequence.getSequence', () => {});
+test('Sequence.getSequence', () => { });
 
 test('Sequence.simplePath', () => {
   expect(Sequence.simplePath([1, 0])).toEqual('1');
