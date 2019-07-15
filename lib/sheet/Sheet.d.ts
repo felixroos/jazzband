@@ -1,5 +1,4 @@
 import { Measure, MeasureOrString, RenderedMeasure } from './Measure';
-import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { SequenceOptions, SequenceEvent } from './Sequence';
 export declare type Measures = Array<MeasureOrString>;
 export declare type Leadsheet = {
@@ -50,7 +49,6 @@ export declare class Sheet implements Leadsheet {
     measures?: Measures;
     chords?: Measures;
     melody?: Measures;
-    voicings?: VoiceLeadingOptions;
     options?: SequenceOptions;
     static jumpSigns: {
         [sign: string]: JumpSign;
@@ -95,12 +93,12 @@ export declare class Sheet implements Leadsheet {
                 noBottomAdd?: boolean;
                 root?: string;
             };
+            logging?: boolean;
             arpeggio: boolean;
             bell: boolean;
             pedal: boolean;
             tightMelody: boolean;
             real: boolean;
-            bpm: number;
             fermataLength: number;
             duckMeasures: number;
             start?: number;
@@ -109,31 +107,11 @@ export declare class Sheet implements Leadsheet {
             dynamicVelocityRange?: number[];
             dynamicVelocity?: import("./Sequence").EventModifier;
             phantomMelody?: boolean;
-            range?: string[];
-            maxVoices?: number;
-            forceDirection?: import("../harmony/Harmony").intervalDirection;
-            forceBestPick?: boolean;
-            rangeBorders?: number[];
-            logging?: boolean;
-            idleChance?: number;
-            logIdle?: boolean;
-            maxDistance?: number;
-            minBottomDistance?: number;
-            minDistance?: number;
-            minTopDistance?: number;
-            topNotes?: string[];
-            topDegrees?: number[];
-            bottomNotes?: string[];
-            bottomDegrees?: number[];
-            omitNotes?: string[];
-            validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
-            sortChoices?: (choiceA: any, choiceB: any) => number;
-            filterChoices?: (choice: any) => boolean;
-            noTopDrop?: boolean;
-            noTopAdd?: boolean;
-            noBottomDrop?: boolean;
-            noBottomAdd?: boolean;
-            root?: string;
+            feel: number;
+            pulses: number;
+            bpm: number;
+            filterEvents?: (event: SequenceEvent, index: number) => boolean;
+            mapEvents?: (event: SequenceEvent, index: number) => SequenceEvent;
             measures?: RenderedMeasure[];
             index?: number;
             sheet?: MeasureOrString[];

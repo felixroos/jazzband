@@ -3636,8 +3636,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var Sheet_1 = require("./Sheet");
 
-;
-
 var Measure =
 /** @class */
 function () {
@@ -3664,6 +3662,8 @@ function () {
 
 
   Measure.render = function (state) {
+    var _a;
+
     var sheet = state.sheet,
         index = state.index,
         forms = state.forms,
@@ -3672,17 +3672,10 @@ function () {
         totalForms = state.totalForms,
         property = state.property;
     var measure = Measure.from(sheet[index], property);
-    return {
-      chords: measure[property],
-      form: totalForms - forms,
-      totalForms: totalForms,
-      firstTime: firstTime,
-      lastTime: lastTime,
-      index: index
-      /* ,
-      measure */
-
-    };
+    return _a = {
+      /* ...measure, */
+      options: measure.options || {}
+    }, _a[property] = measure[property], _a.form = totalForms - forms, _a.totalForms = totalForms, _a.firstTime = firstTime, _a.lastTime = lastTime, _a.index = index, _a;
   };
 
   Measure.hasSign = function (sign, measure) {
@@ -5978,7 +5971,9 @@ function () {
         bpm: 120,
         swing: 0,
         fermataLength: 4,
-        duckMeasures: 1
+        duckMeasures: 1,
+        feel: 4,
+        pulses: 4
       }, sheet.options, {
         humanize: __assign({
           velocity: 0.1,
@@ -6901,6 +6896,57 @@ function () {
     }
 
     return combs;
+  };
+
+  Permutation.bjorklund = function (steps, pulses) {
+    steps = Math.round(steps);
+    pulses = Math.round(pulses);
+
+    if (pulses > steps || pulses == 0 || steps == 0) {
+      return new Array();
+    }
+
+    var pattern = [];
+    var counts = [];
+    var remainders = [];
+    var divisor = steps - pulses;
+    var level = 0;
+    remainders.push(pulses);
+
+    while (true) {
+      counts.push(Math.floor(divisor / remainders[level]));
+      remainders.push(divisor % remainders[level]);
+      divisor = remainders[level];
+      level += 1;
+
+      if (remainders[level] <= 1) {
+        break;
+      }
+    }
+
+    counts.push(divisor);
+    var r = 0;
+
+    var build = function build(level) {
+      r++;
+
+      if (level > -1) {
+        for (var i = 0; i < counts[level]; i++) {
+          build(level - 1);
+        }
+
+        if (remainders[level] != 0) {
+          build(level - 2);
+        }
+      } else if (level == -1) {
+        pattern.push(0);
+      } else if (level == -2) {
+        pattern.push(1);
+      }
+    };
+
+    build(level);
+    return pattern.reverse();
   };
 
   return Permutation;
@@ -10018,66 +10064,89 @@ function () {
     });
   };
 
-  Sequence.getEvents = function (events, whole) {
-    if (whole === void 0) {
-      whole = 1;
-    }
-
-    return events.map(function (event) {
-      return __assign({}, event, {
-        velocity: 1,
-        duration: Sequence.fraction(event.divisions, whole),
-        time: Sequence.time(event.divisions, event.path, whole)
-      });
-    });
+  Sequence.getOptions = function (options) {
+    return __assign({
+      bpm: 120
+    }, options);
   };
 
-  Sequence.renderEvents = function (measures, options, inOut) {
-    if (inOut === void 0) {
-      inOut = false;
-    }
-
-    var rendered = Sheet_1.Sheet.render(measures, options);
-
-    if (inOut) {
-      rendered = rendered.map(function (e) {
-        if (!e.firstTime && !e.lastTime) {
-          e.chords = [];
-        }
-
-        return e;
+  Sequence.renderGrid = function (measures, options) {
+    options = this.getOptions(options);
+    var renderedMeasures = Sheet_1.Sheet.render(measures, options);
+    var flat = Sheet_1.Sheet.flatten(renderedMeasures, true).map(function (event) {
+      return __assign({}, event, {
+        measure: renderedMeasures[event.path[0]]
       });
-    }
+    });
+    return this.renderEvents(flat, options);
+  };
 
-    var chords = rendered.map(function (e) {
+  Sequence.renderMeasures = function (measures, options) {
+    options = this.getOptions(options);
+    var renderedMeasures = Sheet_1.Sheet.render(measures, options); // seperate chords before flattening // => "chords" also used for melody, need rename...
+
+    var chords = renderedMeasures.map(function (e) {
       return e.chords;
     });
-    var flat = Sheet_1.Sheet.flatten(chords, true);
-    var multiplier = 60 / options.bpm * 4 * chords.length;
-    return Sequence.getEvents(flat, multiplier).reduce(Sequence.prolongNotes(options), []);
+    var flat = Sheet_1.Sheet.flatten(chords, true).map(function (event) {
+      return __assign({}, event, {
+        measure: renderedMeasures[event.path[0]],
+        options: renderedMeasures[event.path[0]].options
+      });
+    });
+    return this.renderEvents(flat, options);
+  };
+
+  Sequence.renderEvents = function (events, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return events.reduce(Sequence.addLatestOptions(options), []).reduce(Sequence.addTimeAndDuration(options), []).filter(options.filterEvents || function () {
+      return true;
+    }).map(options.mapEvents || function (e) {
+      return e;
+    }).reduce(Sequence.prolongNotes(options), []);
   };
 
   Sequence.render = function (sheet) {
     sheet = Sheet_1.Sheet.from(sheet);
     var sequence = [],
-        melody = [];
+        melody = [],
+        bass = [],
+        chords = [];
 
     if (sheet.chords) {
-      sequence = Sequence.renderEvents(sheet.chords, sheet.options).map(function (e) {
+      chords = Sequence.renderMeasures(sheet.chords, sheet.options).map(function (e) {
         return __assign({}, e, {
-          chord: e.value
+          chord: e.value // to seperate melody from chord later
+
         });
       });
+      console.log('chords', chords);
+      /* const walk = Sequence.renderGrid(sheet.chords, sheet.options).map(measure => {
+        const feel = measure.options.feel === undefined ? 4 : measure.options.feel;
+        return Array(feel).fill('X')
+      }); */
+
+      /* console.log('grid', Sheet.flatten(walk, true)); */
+
+      bass = chords.reduce(Sequence.renderBass(sheet.options), []).map(Sequence.addFermataToEnd(sheet.options));
     }
 
     if (sheet.melody) {
-      melody = Sequence.renderEvents(sheet.melody, sheet.options, true);
-      sequence = sequence.map(function (e, i) {
+      melody = Sequence.renderMeasures(sheet.melody, __assign({}, sheet.options, {
+        filterEvents: Sequence.inOut() // play melody only first and last time
+
+      }));
+      chords = chords.map(function (e, i) {
         return Sequence.duckChordEvent(sheet.options)(e, i, melody);
       }); // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
     }
 
-    sequence = sequence.reduce(Sequence.renderVoicings(sheet.options), []);
+    var voicings = chords.map(Sequence.addFermataToEnd(sheet.options)).reduce(Sequence.renderVoicings(sheet.options), []);
+    sequence = sequence.concat(voicings);
+    sequence = sequence.concat(bass);
 
     if (melody) {
       sequence = sequence.concat(melody);
@@ -10100,6 +10169,51 @@ function () {
     }
 
     return sequence;
+  };
+
+  Sequence.testEvents = function (props) {
+    return function (event) {
+      return props.reduce(function (reduced, prop) {
+        var _a;
+
+        return __assign({}, reduced, (_a = {}, _a[prop] = event[prop], _a));
+      }, {});
+    };
+  };
+
+  Sequence.addLatestOptions = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return function (events, event, index) {
+      var last = events.length ? events[events.length - 1] : null;
+
+      var combinedOptions = __assign({}, options, last ? last.options : {}, event.options, event.value.options || {});
+
+      return events.concat(__assign({}, event, {
+        options: combinedOptions
+      }));
+    };
+  };
+
+  Sequence.addTimeAndDuration = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return function (events, event, index) {
+      options = Sequence.getOptions(__assign({}, options, event.options || {}));
+      var pulses = options.pulses || 4;
+      var last = events.length ? events[events.length - 1] : null;
+      var whole = 60 / options.bpm * pulses * event.divisions[0];
+      return events.concat(__assign({}, event, {
+        options: options,
+        velocity: 1,
+        duration: Sequence.fraction(event.divisions, whole),
+        time: last ? last.time + last.duration : 0
+      }));
+    };
   };
 
   Sequence.prolongNotes = function (options) {
@@ -10127,6 +10241,10 @@ function () {
   };
 
   Sequence.renderVoicings = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
     return function (events, event, index) {
       if (!event.chord) {
         return events.concat([event]);
@@ -10144,24 +10262,80 @@ function () {
         });
       }
 
-      var voicingOptions = __assign({}, options.voicings, event.voicings);
+      var voicingOptions = __assign({}, options.voicings, event.options.voicings);
 
-      var voicing = Voicing_1.Voicing.getNextVoicing(event.value, previousVoicing, voicingOptions);
-      var time = event.time,
-          duration = event.duration;
+      var voicing = Voicing_1.Voicing.getNextVoicing(event.chord, previousVoicing, voicingOptions);
+      return events.concat(voicing.map(function (note, index) {
+        return __assign({}, event, {
+          value: note,
+          chord: event.chord
+        });
+      }));
+    };
+  };
+
+  Sequence.addFermataToEnd = function (options) {
+    return function (event, index, events) {
+      var duration = event.duration;
 
       if (index === events.length - 1 && options.fermataLength) {
         duration *= options.fermataLength;
       }
 
-      return events.concat(voicing.map(function (note, index) {
-        return __assign({}, event, {
-          value: note,
-          time: time,
-          duration: duration,
-          chord: event.value
-        });
+      return __assign({}, event, {
+        duration: duration
+      });
+    };
+  };
+
+  Sequence.renderBass = function (options) {
+    return function (events, event, index, chords) {
+      var duration = event.duration;
+
+      if (!event.chord) {
+        return events.concat([event]);
+      }
+
+      var root = Harmony_1.Harmony.getBassNote(event.chord) + '2';
+      events.push(__assign({}, event, {
+        value: root,
+        duration: duration
       }));
+      /* const chordsInBar = chords.filter(e => e.path[0] === bar);
+      // place events into feel grid e.g. [0, false, 1, false] for two chords in 4 feel
+      const placed = Permutation.bjorklund(feel, chordsInBar.length).reduce(
+        (chords, current) => {
+          const index = chords.filter(chord => chord !== false).length;
+          chords.push(current ? index : false);
+          return chords;
+        },
+        []
+      );
+                placed.forEach((slot, i) => {
+        const isFirst = slot !== false;
+        if (!isFirst) {
+          slot = placed
+            .slice(0, i)
+            .reverse()
+            .find(s => s !== false);
+          if (slot === undefined) {
+            console.log('no slot before', i);
+            return;
+          }
+        }
+        let chord = chordsInBar[slot];
+        const indexSinceLastRoot = i - placed.indexOf(slot);
+                  const root = Harmony.getBassNote(event.chord) + '2';
+        const fifth = Distance.transpose(root, '5P');
+        const note = indexSinceLastRoot % 2 == 0 ? root : fifth;
+        events.push({
+          ...event,
+          value: note,
+          duration
+        });
+      }); */
+
+      return events;
     };
   };
 
@@ -10192,13 +10366,15 @@ function () {
       }
 
       return __assign({}, event, {
-        voicings: topNote ? {
-          topNotes: options.tightMelody ? [topNote.value] : []
-        } : {
-          /* idleChance: .5,
-          forceDirection: 'down', */
-          range: range
-        }
+        options: __assign({}, event.options, {
+          voicings: __assign({}, event.options.voicings || {}, topNote ? {
+            topNotes: options.tightMelody ? [topNote.value] : []
+          } : {
+            /* idleChance: .5,
+                      forceDirection: 'down', */
+            range: range
+          })
+        })
       });
     };
   };
@@ -10281,6 +10457,12 @@ function () {
 
         return e;
       }).concat([event]);
+    };
+  };
+
+  Sequence.inOut = function () {
+    return function (event, idnex, events) {
+      return event.measure.firstTime || event.measure.lastTime;
     };
   };
 
@@ -10519,7 +10701,7 @@ function () {
         range = _a.range,
         labels = _a.labels;
 
-    var span = [tonal_1.Distance.transpose(range[0], tonal_1.Interval.fromSemitones(-7)), tonal_1.Distance.transpose(range[1], tonal_1.Interval.fromSemitones(12))];
+    var span = [tonal_1.Distance.transpose(range[0], tonal_1.Interval.fromSemitones(-12)), tonal_1.Distance.transpose(range[1], tonal_1.Interval.fromSemitones(12))];
     var allNotes = util_1.noteArray(span);
     var keyboard = allNotes.map(function (note, index) {
       var isActive = active.find(function (n) {
@@ -13548,6 +13730,10 @@ function () {
 
     parent = this.flat(parent).map(function (i) {
       return children[0].map(function (p) {
+        if (isNaN(p) || isNaN(i)) {
+          return p + ' ' + i;
+        }
+
         return p + i;
       });
     });
@@ -13654,7 +13840,6 @@ function () {
       return !!n;
     });
 
-    console.log('scale', scale);
     var firstTonic = scale.find(function (n) {
       return tonal_2.Note.pc(n) === scaleNotes[0];
     });
@@ -13671,7 +13856,6 @@ function () {
 
       return p;
     });
-    console.log('pattern', nested);
     return this.flat(nested).map(function (n) {
       return {
         note: tonal_2.Note.simplify(scale[n]),
@@ -16219,7 +16403,10 @@ window.onload = function () {
     return _Pattern.Pattern.flat(_Pattern.Pattern.nestIndices.apply(_Pattern.Pattern, _toConsumableArray(patterns)));
   }
 
-  function pattern() {
+  var frame;
+
+  function pattern(lines) {
+    console.log('lines', lines);
     var synth = new Tone.PolySynth(4, Tone.Synth, {
       volume: -18,
       envelope: {
@@ -16229,37 +16416,110 @@ window.onload = function () {
         partials: [1, 2, 3]
       }
     }).toMaster();
-    Tone.Transport.bpm.value = 200;
+    Tone.Transport.bpm.value = 180;
 
     if (seq) {
       seq.stop();
     }
 
-    var patterns = readPatterns();
-    var nestedPattern = nestPatterns(patterns);
+    var nestedPattern = lines.reduce(function (combined, line) {
+      return combined.concat(nestPatterns(line));
+    }, []);
     drawPattern(nestedPattern, 0);
+    var notes = lines.reduce(function (combined, line) {
+      var scale = 'C major';
+      line = _Pattern.Pattern.render(scale, line, ['G2', 'G5']);
+      return combined.concat(line);
+    }, []);
+    /*
+    const rendered = lines
+      .reduce((combined, line) => {
+        const nested = Pattern.flat(Pattern.nestIndices(...line));
+        return combined.concat(nested);
+      }, [])
+      .map(e => {
+        const tokens = e.split(' ');
+        const scale = tokens[0].replace('.', ' ');
+        const degree = parseInt(tokens[1]) - 1;
+        console.log('scale', scale, degree);
+         const line = Pattern.render(scale, [[degree]], ['G2', 'G5']);
+        console.log('line', line);
+         return line;
+      });
+    console.log('rendered', rendered);
+     */
+    // const patterns = readPatterns();
+    // const nestedPattern = nestPatterns(patterns);
+    // drawPattern(nestedPattern, 0);
 
-    var notes = _Pattern.Pattern.render(scaleInput.value || 'C major', patterns, ['G2', 'G5']);
+    /* const notes = Pattern.render(scaleInput.value || 'C major', patterns, [
+      'G2',
+      'G5'
+    ]); */
 
-    console.log('notes', notes);
+    var activeIndex;
     seq = new Tone.Sequence(function (time, event, index) {
       /* if (Math.random() > 0.9) {
         return;
       } */
       // /* offset + activeIndex */
-      var activeIndex = notes.indexOf(event);
-      drawPattern(nestedPattern, 0, activeIndex);
+      activeIndex = notes.indexOf(event);
+      Tone.Draw.schedule(function () {
+        drawPattern(nestedPattern, 0, activeIndex);
+      }, time);
       synth.triggerAttackRelease(event.note, '4n', time);
     }, notes, '4n');
     seq.start(0);
     Tone.Transport.start('+1');
+
+    function updatePlayhead() {
+      drawPattern(nestedPattern, 0, activeIndex);
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+      var x = seq.progress * canvas.width;
+      context.beginPath();
+      context.moveTo(x, 0); // End point (180,47)
+
+      context.lineTo(x, canvas.height); // Make the line visible
+
+      context.lineWidth = 2;
+      context.strokeStyle = '#fff';
+      context.stroke();
+      frame = requestAnimationFrame(updatePlayhead);
+    }
+
+    frame = requestAnimationFrame(updatePlayhead);
   }
 
+  function parsePatterns(text) {
+    var lines = text.split('\n').map(function (line) {
+      return line.split('>').map(function (p) {
+        return p.trim().split(' ').map(function (n) {
+          return isNaN(n) ? n : parseInt(n) - 1;
+        });
+      });
+    });
+    return lines;
+  }
+
+  var textarea = document.getElementById('textarea');
+  textarea.value = ['1 2 5 1 > 8 7 5 3', '1 6 2 5 > 1 2 3 5'].join('\n');
+  textarea.addEventListener('blur', function () {
+    console.log('blur', textarea.value);
+
+    if (seq) {
+      console.log('seq', seq);
+      seq.removeAll();
+    }
+  });
   playPattern.addEventListener('click', function () {
-    pattern();
+    var textarea = document.getElementById('textarea');
+    var lines = parsePatterns(textarea.value);
+    pattern(lines);
   });
   stopPattern.addEventListener('click', function () {
     /* seq.stop(); */
+    cancelAnimationFrame(frame);
     Tone.Transport.stop();
   });
 };
@@ -16290,7 +16550,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57854" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52001" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

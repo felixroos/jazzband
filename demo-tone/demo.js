@@ -1,10 +1,11 @@
 import iRealReader from 'ireal-reader';
-import * as util from '../src/util/util';
+import link from '../songs/1350.json';
 import { swing } from '../src/grooves/swing';
 import { RealParser } from '../src/sheet/RealParser';
-import { Snippet } from '../src/sheet/Snippet';
 import { SheetPlayer } from '../src/sheet/SheetPlayer';
-import link from '../songs/1350.json';
+import { Snippet } from '../src/sheet/Snippet';
+import * as util from '../src/util/util';
+import { drawPart } from './drawEvents';
 
 const playlist = new iRealReader(decodeURI(link));
 
@@ -12,11 +13,13 @@ function getStandard(playlist) {
   let standard;
   // standard = util.randomElement(playlist.songs.filter(s => s.title.includes('Beatrice')));
   standard = util.randomElement(
-    playlist.songs/* .filter(s => s.title.includes('Footprints')) */
+    playlist.songs /* .filter(s => s.title.includes('Footprints')) */
   );
   standard.music.measures = RealParser.parseSheet(standard.music.raw);
   return standard;
 }
+
+let frame;
 
 window.onload = function() {
   // buttons
@@ -57,7 +60,7 @@ window.onload = function() {
         real: true,
         swing: 0,
         pedal: false,
-        logging: true,
+        logging: false,
         voicings: {
           // forceDirection: 'down',
           maxVoices: 1, // maximum number of voices per chord
@@ -80,10 +83,15 @@ window.onload = function() {
                       // return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval))
                   } */
       }
-    });
+    }).then(parts =>
+      drawPart(parts[0], paint => {
+        frame = requestAnimationFrame(paint);
+      })
+    );
   }
   stop.addEventListener('click', () => {
     SheetPlayer.stop();
+    cancelAnimationFrame(frame);
   });
   steps.addEventListener('click', () => {
     giantSteps();
@@ -181,7 +189,11 @@ function bluesForAlice() {
         duration: 0
       }
     }
-  });
+  }).then(parts =>
+    drawPart(parts[0], paint => {
+      frame = requestAnimationFrame(paint);
+    })
+  );
 }
 
 function giantSteps() {
@@ -214,7 +226,7 @@ function giantSteps() {
     melody,
     options: {
       bpm: 220,
-      forms: 1,
+      forms: 3,
       real: true,
       logging: false,
       voicings: {
@@ -224,11 +236,15 @@ function giantSteps() {
            minTopDistance: 5,
            minBottomDistance: 5, 
         */
-        logging: true
+        logging: false
         /* range: ['G2', 'C6'] */
       }
     }
-  });
+  }).then(parts =>
+    drawPart(parts[0], paint => {
+      frame = requestAnimationFrame(paint);
+    })
+  );
 }
 
 function blueInGreen() {
@@ -266,7 +282,11 @@ function blueInGreen() {
         logging: false
       }
     }
-  });
+  }).then(parts =>
+    drawPart(parts[0], paint => {
+      frame = requestAnimationFrame(paint);
+    })
+  );
 }
 
 function allTheThings() {
@@ -298,12 +318,13 @@ function allTheThings() {
     .concat([{ chords: ['/'], options: { feel: 2 } }])
     .concat(chords.slice(3, 10)); */
 
-  chords = chords
+    // weirdness
+  /* chords = chords
     .slice(0, 2)
     .concat([{ chords: ['Eb7'], options: { pulses: 2 } }])
     .concat([{ chords: ['Ab^7'], options: { pulses: 6 } }])
     .concat([{ chords: ['Db^7'], options: { pulses: 3 } }])
-    .concat(chords.slice(5, 10));
+    .concat(chords.slice(5, 10)); */
 
   SheetPlayer.play({
     title: 'All The Things you are',
@@ -324,7 +345,11 @@ function allTheThings() {
         rangeBorders: [0, 0]
       }
     }
-  });
+  }).then(parts =>
+    drawPart(parts[0], paint => {
+      frame = requestAnimationFrame(paint);
+    })
+  );
 }
 
 function mack() {
@@ -361,5 +386,9 @@ function mack() {
         duration: 0.01
       }
     }
-  });
+  }).then(parts =>
+    drawPart(parts[0], paint => {
+      frame = requestAnimationFrame(paint);
+    })
+  );
 }

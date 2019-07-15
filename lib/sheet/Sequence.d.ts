@@ -1,5 +1,6 @@
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { SheetState, Leadsheet, Measures } from './Sheet';
+import { RenderedMeasure } from './Measure';
 export interface SequenceEvent {
     path: number[];
     value: any;
@@ -9,20 +10,20 @@ export interface SequenceEvent {
     duration?: number;
     velocity?: number;
     time?: number;
-    voicings?: VoiceLeadingOptions;
-    options?: Object;
+    options?: SequenceOptions;
+    measure?: RenderedMeasure;
 }
 export declare type EventModifier = (event: SequenceEvent, index: number, events: SequenceEvent[], options: SequenceOptions) => SequenceEvent;
 export declare type EventMap = (options: SequenceOptions) => (event: SequenceEvent, index?: number, events?: SequenceEvent[]) => SequenceEvent;
-export declare type EventReduce = (options: SequenceOptions) => (events: SequenceEvent[], event: SequenceEvent, index?: number, originalEvents?: SequenceEvent[]) => SequenceEvent[];
-export declare type EventFilter = (options: SequenceOptions) => (event: SequenceEvent, index?: number, events?: SequenceEvent[]) => boolean;
-export interface SequenceOptions extends VoiceLeadingOptions, SheetState {
+export declare type EventReduce = (options?: SequenceOptions) => (events: SequenceEvent[], event: SequenceEvent, index?: number, originalEvents?: SequenceEvent[]) => SequenceEvent[];
+export declare type EventFilter = (options?: SequenceOptions) => (event: SequenceEvent, index?: number, events?: SequenceEvent[]) => boolean;
+export interface SequenceOptions extends SheetState {
+    logging?: boolean;
     arpeggio?: boolean;
     bell?: boolean;
     pedal?: boolean;
     tightMelody?: boolean;
     real?: boolean;
-    bpm?: number;
     fermataLength?: number;
     duckMeasures?: number;
     start?: number;
@@ -37,6 +38,11 @@ export interface SequenceOptions extends VoiceLeadingOptions, SheetState {
         duration?: number;
     };
     voicings?: VoiceLeadingOptions;
+    feel?: number;
+    pulses?: number;
+    bpm?: number;
+    filterEvents?: (event: SequenceEvent, index: number) => boolean;
+    mapEvents?: (event: SequenceEvent, index: number) => SequenceEvent;
 }
 export declare class Sequence {
     static fraction(divisions: number[], whole?: number): number;
@@ -44,20 +50,8 @@ export declare class Sequence {
     static simplePath(path: any): any;
     static haveSamePath(a: SequenceEvent, b: SequenceEvent): boolean;
     static getSignType(symbol: string): string;
-    static getEvents(events: SequenceEvent[], whole?: number): {
-        velocity: number;
-        duration: number;
-        time: number;
-        path: number[];
-        value: any;
-        chord?: string;
-        divisions?: number[];
-        fraction?: number;
-        voicings?: VoiceLeadingOptions;
-        options?: Object;
-    }[];
     static getOptions(options: SequenceOptions): {
-        bpm: number;
+        logging?: boolean;
         arpeggio?: boolean;
         bell?: boolean;
         pedal?: boolean;
@@ -77,32 +71,12 @@ export declare class Sequence {
             duration?: number;
         };
         voicings?: VoiceLeadingOptions;
-        range?: string[];
-        maxVoices?: number;
-        forceDirection?: import("../harmony/Harmony").intervalDirection;
-        forceBestPick?: boolean;
-        rangeBorders?: number[];
-        logging?: boolean;
-        idleChance?: number;
-        logIdle?: boolean;
-        maxDistance?: number;
-        minBottomDistance?: number;
-        minDistance?: number;
-        minTopDistance?: number;
-        topNotes?: string[];
-        topDegrees?: number[];
-        bottomNotes?: string[];
-        bottomDegrees?: number[];
-        omitNotes?: string[];
-        validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
-        sortChoices?: (choiceA: any, choiceB: any) => number;
-        filterChoices?: (choice: any) => boolean;
-        noTopDrop?: boolean;
-        noTopAdd?: boolean;
-        noBottomDrop?: boolean;
-        noBottomAdd?: boolean;
-        root?: string;
-        measures?: import("./Measure").RenderedMeasure[];
+        feel?: number;
+        pulses?: number;
+        bpm: number;
+        filterEvents?: (event: SequenceEvent, index: number) => boolean;
+        mapEvents?: (event: SequenceEvent, index: number) => SequenceEvent;
+        measures?: RenderedMeasure[];
         index?: number;
         sheet?: import("./Measure").MeasureOrString[];
         jumps?: {
@@ -119,12 +93,12 @@ export declare class Sequence {
         lastTime?: boolean;
         property?: string;
     };
-    static renderEvents(measures: Measures, options?: SequenceOptions, inOut?: boolean): SequenceEvent[];
+    static testEvents: (props: string[]) => (event: any) => any;
+    static addLatestOptions: EventReduce;
+    static addTimeAndDuration: EventReduce;
     static prolongNotes: EventReduce;
     static renderVoicings: EventReduce;
-    static renderGrid: (bars: any, feel: any) => {
-        return: any;
-    };
+    static addFermataToEnd: EventMap;
     static renderBass: EventReduce;
     static duckChordEvent: EventMap;
     static humanizeEvent: EventMap;
@@ -132,6 +106,10 @@ export declare class Sequence {
     static velocityFromPitch: EventMap;
     static addDynamicVelocity: EventMap;
     static addSwing: EventReduce;
+    static inOut: EventFilter;
     static removeDuplicates: EventFilter;
+    static renderGrid(measures: Measures, options?: SequenceOptions): SequenceEvent[];
+    static renderMeasures(measures: Measures, options?: SequenceOptions): SequenceEvent[];
+    static renderEvents(events: SequenceEvent[], options?: SequenceOptions): SequenceEvent[];
     static render(sheet: Leadsheet): any[];
 }

@@ -11,9 +11,6 @@
   </head>
   <body>
     <section>
-      <div>
-        <canvas id="canvas" width="800" height="600"></canvas>
-      </div>
       <input
         type="text"
         placeholder="type a scale, e.g. F major"
@@ -32,6 +29,7 @@
         placeholder="type a pattern, e.g. 3 5 1"
         id="patternB"
       />
+      <textarea id="textarea"></textarea>
       <!-- 12345678 + 1231 = clarke up
       87654321 + 8678 = clarke down
       12345678 + 1357 =  
@@ -43,6 +41,9 @@
       <button id="stopPattern">Stop pattern</button>
       <button id="randomPattern">Random pattern</button>
       <button id="flipPattern">Flip pattern</button>
+      <div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+      </div>
     </section>
   </body>
 </html>

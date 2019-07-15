@@ -1,4 +1,5 @@
 import { JumpSign, SheetState } from './Sheet';
+import { SequenceOptions } from './Sequence';
 export declare type MeasureOrString = Measure | string[] | string;
 export interface Measure {
     chords?: string[];
@@ -9,7 +10,7 @@ export interface Measure {
     times?: number;
     section?: string;
     idle?: true;
-    options?: Object;
+    options?: SequenceOptions;
 }
 export interface RenderedMeasure extends Measure {
     chords?: string[];

@@ -47,7 +47,12 @@ export class Pattern {
     if (children.length === 0) {
       return parent;
     }
-    parent = this.flat(parent).map(i => children[0].map(p => p + i));
+    parent = this.flat(parent).map(i => children[0].map(p => {
+      if (isNaN(p) || isNaN(i)) {
+        return p + ' ' + i;
+      }
+      return p + i;
+    }));
     children.shift();
     return this.nestIndices(parent, ...children);
   }
@@ -113,7 +118,6 @@ export class Pattern {
         }
       })
       .filter(n => !!n);
-    console.log('scale', scale);
     const firstTonic = scale.find(n => Note.pc(n) === scaleNotes[0]);
     const start = scale.indexOf(firstTonic);
     patterns.unshift([start]);
@@ -124,7 +128,6 @@ export class Pattern {
       }
       return p;
     });
-    console.log('pattern', nested);
     return this.flat(nested).map(n => ({
       note: Note.simplify(scale[n]),
       index: n

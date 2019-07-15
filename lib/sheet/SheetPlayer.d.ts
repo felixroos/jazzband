@@ -15,8 +15,8 @@ export declare class SheetPlayer {
         path: number[];
         measure: import("./Measure").RenderedMeasure;
     }[][];
-    static play(sheet: any): Promise<void>;
-    static playParts(parts: any): void;
+    static play(sheet: any): Promise<any[]>;
+    static playParts(parts: any): any[];
     static stop(): void;
     static playMelody(sheet: any): Promise<Tone.Sequence>;
     static playDrums(sheet: any, options?: SequenceOptions): Promise<Tone.Sequence[]>;

@@ -37,7 +37,7 @@ export type EventMap = (
     events?: SequenceEvent[]
   ) => SequenceEvent;
 export type EventReduce = (
-  options: SequenceOptions
+  options?: SequenceOptions
 ) => (
     events: SequenceEvent[],
     event: SequenceEvent,
@@ -114,7 +114,41 @@ export class Sequence {
     };
   }
 
-  static prolongNotes: EventReduce = options => {
+  static testEvents = (props: string[]) => (event): any =>
+    props.reduce((reduced, prop) => ({ ...reduced, [prop]: event[prop] }), {});
+
+
+  static addLatestOptions: EventReduce = (options = {}) =>
+    (events, event, index) => {
+      const last = (events.length ? events[events.length - 1] : null);
+      const combinedOptions = {
+        ...options,
+        ...(last ? last.options : {}), // merge prev options
+        ...event.options,
+        ...(event.value.options || {})
+      };
+      return events.concat({
+        ...event,
+        options: combinedOptions
+      });
+    }
+
+  static addTimeAndDuration: EventReduce = (options = {}) => {
+    return (events, event, index) => {
+      options = Sequence.getOptions({ ...options, ...(event.options || {}) });
+      const pulses = options.pulses || 4;
+      const last = (events.length ? events[events.length - 1] : null);
+      const whole = (60 / options.bpm) * pulses * event.divisions[0];
+      return events.concat({
+        ...event,
+        options,
+        velocity: 1,
+        duration: Sequence.fraction(event.divisions, whole),
+        time: last ? last.time + last.duration : 0,
+      });
+    }
+  }
+  static prolongNotes: EventReduce = (options?) => {
     return (reduced, event, index, events) => {
       const type = Sequence.getSignType(event.value);
       if (type !== 'prolong') {
@@ -136,7 +170,7 @@ export class Sequence {
     };
   };
 
-  static renderVoicings: EventReduce = options => {
+  static renderVoicings: EventReduce = (options = {}) => {
     return (events, event, index) => {
       if (!event.chord) {
         return events.concat([event]);
@@ -158,16 +192,11 @@ export class Sequence {
         previousVoicing,
         voicingOptions
       );
-      let { duration } = event;
-      if (index === events.length - 1 && options.fermataLength) {
-        duration *= options.fermataLength;
-      }
       return events.concat(
         voicing.map((note, index) => {
           return {
             ...event,
             value: note,
-            duration,
             chord: event.chord
           };
         })
@@ -175,12 +204,17 @@ export class Sequence {
     };
   };
 
-  static getLastValue(events: SequenceEvent[], accessor: (event: SequenceEvent, index) => any) {
-    return events.reduce(
-      (latest, current, index) => {
-        const ofCurrent = accessor(current, index);
-        return (ofCurrent === undefined ? latest : ofCurrent);
-      }, undefined);
+  static addFermataToEnd: EventMap = (options?) => {
+    return (event, index, events) => {
+      let { duration } = event;
+      if (index === events.length - 1 && options.fermataLength) {
+        duration *= options.fermataLength;
+      }
+      return {
+        ...event,
+        duration,
+      };
+    }
   }
 
   static renderBass: EventReduce = options => {
@@ -207,7 +241,7 @@ export class Sequence {
         },
         []
       );
-  
+   
       placed.forEach((slot, i) => {
         const isFirst = slot !== false;
         if (!isFirst) {
@@ -222,7 +256,7 @@ export class Sequence {
         }
         let chord = chordsInBar[slot];
         const indexSinceLastRoot = i - placed.indexOf(slot);
-  
+   
         const root = Harmony.getBassNote(event.chord) + '2';
         const fifth = Distance.transpose(root, '5P');
         const note = indexSinceLastRoot % 2 == 0 ? root : fifth;
@@ -428,23 +462,8 @@ export class Sequence {
     options: SequenceOptions = {}
   ) {
     return events
-      .reduce((events, event) => {
-        const last = (events.length ? events[events.length - 1] : null);
-        const combinedOptions = {
-          ...options,
-          ...(last ? last.options : {}), // merge prev options
-          ...event.options
-        };
-        const pulses = (combinedOptions.pulses || 4);
-        const whole = (60 / options.bpm) * pulses * event.divisions[0];
-        return events.concat({
-          ...event,
-          options: combinedOptions,
-          velocity: 1,
-          duration: Sequence.fraction(event.divisions, whole),
-          time: last ? last.time + last.duration : 0,
-        });
-      }, [])
+      .reduce(Sequence.addLatestOptions(options), [])
+      .reduce(Sequence.addTimeAndDuration(options), [])
       .filter(options.filterEvents || (() => true))
       .map(options.mapEvents || ((e) => e))
       .reduce(Sequence.prolongNotes(options), []);
@@ -471,7 +490,8 @@ export class Sequence {
 
       /* console.log('grid', Sheet.flatten(walk, true)); */
 
-      bass = chords.reduce(Sequence.renderBass(sheet.options), []);
+      bass = chords.reduce(Sequence.renderBass(sheet.options), [])
+        .map(Sequence.addFermataToEnd(sheet.options));
     }
     if (sheet.melody) {
       melody = Sequence.renderMeasures(sheet.melody, {
@@ -483,7 +503,9 @@ export class Sequence {
       );
       // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
     }
-    const voicings = chords.reduce(Sequence.renderVoicings(sheet.options), []);
+    const voicings = chords
+      .map(Sequence.addFermataToEnd(sheet.options))
+      .reduce(Sequence.renderVoicings(sheet.options), [])
     sequence = sequence.concat(voicings);
 
     sequence = sequence.concat(bass);

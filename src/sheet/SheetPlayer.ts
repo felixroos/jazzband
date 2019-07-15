@@ -50,7 +50,7 @@ export class SheetPlayer {
     /* Tone.Transport.swing = swing;
     Tone.Transport.swingSubdivision = swingSubdivision; */
 
-    SheetPlayer.playParts([
+    const parts = SheetPlayer.playParts([
       await SheetPlayer.playSheet(sheet),
       /*await SheetPlayer.playBass(sheet), */
       /* await SheetPlayer.playChords(sheet),
@@ -59,11 +59,13 @@ export class SheetPlayer {
     ]);
 
     Tone.Transport.start('+1');
+    return parts;
   }
 
   static playParts(parts) {
     SheetPlayer.parts = parts.filter(p => !!p);
     SheetPlayer.parts.forEach(part => part.start(0));
+    return SheetPlayer.parts;
   }
 
   static stop(): void {

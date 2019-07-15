@@ -274,7 +274,10 @@ window.onload = function() {
     return Pattern.flat(Pattern.nestIndices(...patterns));
   }
 
-  function pattern() {
+  let frame;
+  function pattern(lines) {
+    console.log('lines', lines);
+
     const synth = new Tone.PolySynth(4, Tone.Synth, {
       volume: -18,
       envelope: {
@@ -285,29 +288,65 @@ window.onload = function() {
       }
     }).toMaster();
 
-    Tone.Transport.bpm.value = 200;
+    Tone.Transport.bpm.value = 180;
     if (seq) {
       seq.stop();
     }
 
-    const patterns = readPatterns();
-    const nestedPattern = nestPatterns(patterns);
+    const nestedPattern = lines.reduce((combined, line) => {
+      return combined.concat(nestPatterns(line));
+    }, []);
+
     drawPattern(nestedPattern, 0);
 
-    const notes = Pattern.render(scaleInput.value || 'C major', patterns, [
+    const notes = lines.reduce((combined, line) => {
+      let scale = 'C major';
+      line = Pattern.render(scale, line, ['G2', 'G5']);
+      return combined.concat(line);
+    }, []);
+
+    /*
+
+const rendered = lines
+      .reduce((combined, line) => {
+        const nested = Pattern.flat(Pattern.nestIndices(...line));
+        return combined.concat(nested);
+      }, [])
+      .map(e => {
+        const tokens = e.split(' ');
+        const scale = tokens[0].replace('.', ' ');
+        const degree = parseInt(tokens[1]) - 1;
+        console.log('scale', scale, degree);
+
+        const line = Pattern.render(scale, [[degree]], ['G2', 'G5']);
+        console.log('line', line);
+
+        return line;
+      });
+    console.log('rendered', rendered);
+
+    */
+
+    // const patterns = readPatterns();
+    // const nestedPattern = nestPatterns(patterns);
+    // drawPattern(nestedPattern, 0);
+
+    /* const notes = Pattern.render(scaleInput.value || 'C major', patterns, [
       'G2',
       'G5'
-    ]);
-    console.log('notes', notes);
+    ]); */
 
+    let activeIndex;
     seq = new Tone.Sequence(
       (time, event, index) => {
         /* if (Math.random() > 0.9) {
           return;
         } */
         // /* offset + activeIndex */
-        const activeIndex = notes.indexOf(event);
-        drawPattern(nestedPattern, 0, activeIndex);
+        activeIndex = notes.indexOf(event);
+        Tone.Draw.schedule(() => {
+          drawPattern(nestedPattern, 0, activeIndex);
+        }, time);
         synth.triggerAttackRelease(event.note, '4n', time);
       },
       notes,
@@ -315,13 +354,56 @@ window.onload = function() {
     );
     seq.start(0);
     Tone.Transport.start('+1');
+
+    function updatePlayhead() {
+      drawPattern(nestedPattern, 0, activeIndex);
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+      const x = seq.progress * canvas.width;
+      context.beginPath();
+      context.moveTo(x, 0);
+      // End point (180,47)
+      context.lineTo(x, canvas.height);
+      // Make the line visible
+      context.lineWidth = 2;
+      context.strokeStyle = '#fff';
+      context.stroke();
+      frame = requestAnimationFrame(updatePlayhead);
+    }
+    frame = requestAnimationFrame(updatePlayhead);
   }
 
+  function parsePatterns(text) {
+    const lines = text.split('\n').map(line =>
+      line.split('>').map(p =>
+        p
+          .trim()
+          .split(' ')
+          .map(n => (isNaN(n) ? n : parseInt(n) - 1))
+      )
+    );
+    return lines;
+  }
+
+  const textarea = document.getElementById('textarea');
+  textarea.value = ['1 2 5 1 > 8 7 5 3', '1 6 2 5 > 1 2 3 5'].join('\n');
+  textarea.addEventListener('blur', () => {
+    console.log('blur', textarea.value);
+    if (seq) {
+      console.log('seq', seq);
+      seq.removeAll();
+    }
+  });
+
   playPattern.addEventListener('click', () => {
-    pattern();
+    const textarea = document.getElementById('textarea');
+    const lines = parsePatterns(textarea.value);
+
+    pattern(lines);
   });
   stopPattern.addEventListener('click', () => {
     /* seq.stop(); */
+    cancelAnimationFrame(frame);
     Tone.Transport.stop();
   });
 };
