@@ -1,6 +1,16 @@
 import { JumpSign, SheetState } from './Sheet';
 import { SequenceOptions } from './Sequence';
-export declare type MeasureOrString = Measure | string[] | string;
+export declare type MeasureOrString = Measure | string[] | string | number[] | number;
+export interface Bar<T> {
+    body?: T[];
+    signs?: string[];
+    comments?: string[];
+    house?: number | number[];
+    times?: number;
+    section?: string;
+    idle?: true;
+    options?: SequenceOptions;
+}
 export interface Measure {
     chords?: string[];
     body?: string[];

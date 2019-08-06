@@ -1,13 +1,22 @@
 import iRealReader from 'ireal-reader';
 import link from '../songs/1350.json';
-import { swing } from '../src/grooves/swing';
+import stevie from '../songs/steviewonder.json';
+import beatles from '../songs/beatles.json';
 import { RealParser } from '../src/sheet/RealParser';
 import { SheetPlayer } from '../src/sheet/SheetPlayer';
 import { Snippet } from '../src/sheet/Snippet';
+import { Sequence } from '../src/sheet/Sequence';
 import * as util from '../src/util/util';
 import { drawPart } from './drawEvents';
-
+import { Pattern } from '../src/util/Pattern';
+import { Harmony } from '../src/harmony/Harmony';
+import * as Tone from 'tone';
+import { Note, Scale } from 'tonal';
+import { maidens, green, swing, bossa } from './grooves';
+import { getOriginalNode } from 'typescript';
 const playlist = new iRealReader(decodeURI(link));
+//const playlist = new iRealReader(decodeURI(beatles));
+// const playlist = new iRealReader(decodeURI(stevie));
 
 function getStandard(playlist) {
   let standard;
@@ -16,10 +25,13 @@ function getStandard(playlist) {
     playlist.songs /* .filter(s => s.title.includes('Footprints')) */
   );
   standard.music.measures = RealParser.parseSheet(standard.music.raw);
+
+  // drawPart()
   return standard;
 }
 
-let frame;
+let frame,
+  flip = true;
 
 window.onload = function() {
   // buttons
@@ -30,63 +42,76 @@ window.onload = function() {
   const things = document.getElementById('things');
   const alice = document.getElementById('alice');
   const next = document.getElementById('next');
-  let standard;
+  let standard = getStandard(playlist);
+  let standardSheet = {
+    composer: standard.composer,
+    title: standard.title,
+    chords: standard.music.measures,
+    options: {
+      bpm: 120,
+      forms: 2,
+      mapEvents: (event, options) => {
+        return {
+          ...event,
+          options: {
+            ...event.options,
+            feel: event.measure.section === 'A' ? 4 : 2
+            /* voicings: {
+              ...event.options.voicings,
+              maxVoices: event.measure.lastTime ? 5 : 4,
+              range: event.measure.section === 'B' ? ['G3', 'C6'] : ['C3', 'G5']
+            } */
+          }
+        };
+      },
+      groove: swing,
+      swing: 0.2,
+      real: true,
+      pedal: false,
+      logging: false,
+      voicings: {
+        // forceDirection: 'down',
+        idleChance: 0,
+        /* topDegrees: [1, 9, 5, 6, 4], */
+        maxVoices: 4, // maximum number of voices per chord
+        maxDistance: 7, // general max distance between single voices
+        minDistance: 1, // general max distance between single voices
+        minBottomDistance: 3, // min semitones between the two bottom notes
+        minTopDistance: 3, // min semitones between the two top notes
+        noTopDrop: true,
+        noTopAdd: true,
+        noBottomDrop: false,
+        noBottomAdd: false,
+        range: ['F3', 'C5']
+      }
+      /* filterChoices: (choice) => {
+                    return true;
+                },
+                sortChoices: (a, b) => {
+                    return a.difference - b.difference;
+                    // return Math.abs(a.movement) - Math.abs(b.movement)
+                    // return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval))
+                } */
+    }
+  };
+  SheetPlayer.renderSheetPart(standardSheet).then(standardPart => {
+    drawPart(standardPart, false, flip)();
+  });
 
   next.addEventListener('click', () => {
-    standard = getStandard(playlist);
     setTimeout(() => play(), 500);
   });
 
-  function play(groove = swing) {
-    return SheetPlayer.play({
-      composer: standard.composer,
-      title: standard.title,
-      chords: standard.music.measures,
-      options: {
-        forms: 2,
-        mapEvents: (event, options) => {
-          return {
-            ...event,
-            options: {
-              ...event.options,
-              feel: event.measure.section === 'A' ? 4 : 2,
-              voicings: {
-                ...options.voicings,
-                maxVoices: event.measure.lastTime ? 4 : 2
-              }
-            }
-          };
+  function play() {
+    /* Tone.Transport.latencyHint = 'balanced'; */
+    return SheetPlayer.play(standardSheet).then(parts =>
+      drawPart(
+        parts[0],
+        paint => {
+          frame = requestAnimationFrame(paint);
         },
-        real: true,
-        swing: 0,
-        pedal: false,
-        logging: false,
-        voicings: {
-          // forceDirection: 'down',
-          maxVoices: 1, // maximum number of voices per chord
-          maxDistance: 7, // general max distance between single voices
-          minDistance: 1, // general max distance between single voices
-          minBottomDistance: 3, // min semitones between the two bottom notes
-          minTopDistance: 3, // min semitones between the two top notes
-          noTopDrop: true,
-          noTopAdd: false,
-          noBottomDrop: false,
-          noBottomAdd: false,
-          range: ['C3', 'C6']
-        }
-        /* filterChoices: (choice) => {
-                      return true;
-                  },
-                  sortChoices: (a, b) => {
-                      return a.difference - b.difference;
-                      // return Math.abs(a.movement) - Math.abs(b.movement)
-                      // return Math.abs(Interval.semitones(a.topInterval)) - Math.abs(Interval.semitones(b.topInterval))
-                  } */
-      }
-    }).then(parts =>
-      drawPart(parts[0], paint => {
-        frame = requestAnimationFrame(paint);
-      })
+        flip
+      )
     );
   }
   stop.addEventListener('click', () => {
@@ -134,8 +159,6 @@ window.onload = function() {
         bpm: 100,
         swing: 0.2,
         voicings: {
-          /* minTopDistance: 5,
-                    minBottomDistance: 5, */
           maxDistance: 8,
           logging: true,
           rangeBorders: [0, 0],
@@ -146,8 +169,104 @@ window.onload = function() {
                     velocity: 0.2
                 } */
       }
-    });
+    }).then(parts =>
+      drawPart(
+        parts[0],
+        paint => {
+          frame = requestAnimationFrame(paint);
+        },
+        flip
+      )
+    );
   });
+
+  /**
+   *
+   * Pattern Stuff
+   *
+   */
+  function parsePatterns(snippet) {
+    const lines = snippet.split('\n').map(line =>
+      line.split('>').map(p =>
+        p
+          .trim()
+          .split(' ')
+          .map(n => (isNaN(n) ? n : parseInt(n) - 1))
+      )
+    );
+    return lines;
+  }
+  const textarea = document.getElementById('textarea');
+  textarea.value = ['1 2 5 1 > 8 7 5 3', '1 6 2 5 > 1 2 3 5'].join('\n');
+
+  function playPattern() {
+    const textarea = document.getElementById('textarea');
+    const lines = parsePatterns(textarea.value);
+
+    /* const pattern = lines.reduce((combined, line) => {
+      return combined.concat(Pattern.flat(Pattern.nestIndices(...line)));
+    }, []); */
+
+    function group(array, count) {
+      return array.reduce((groups, note) => {
+        if (!groups.length || groups[groups.length - 1].length >= count) {
+          groups.push([note]);
+        } else {
+          groups[groups.length - 1].push(note);
+        }
+        return groups;
+      }, []);
+    }
+
+    let notes = lines.reduce((combined, line) => {
+      let scale = 'C major';
+      line = Pattern.render(scale, line, ['G2', 'G5']);
+      return combined.concat(line);
+    }, []);
+
+    notes = group(notes, 4);
+
+    const events = Pattern.renderEvents(notes);
+
+    SheetPlayer.getPiano(6, true).then(piano => {
+      const part = new Tone.Part((time, event) => {
+        piano.triggerAttackRelease(
+          event.note,
+          event.duration,
+          time,
+          event.velocity
+        );
+      }, events.map(e => ({ ...e, note: Note.simplify(e.value.note) })));
+
+      part.start(0);
+
+      SheetPlayer.playParts([part]);
+      drawPart(
+        part,
+        paint => {
+          frame = requestAnimationFrame(paint);
+        },
+        flip
+      );
+    });
+  }
+
+  document.getElementById('playPattern').addEventListener('click', () => {
+    playPattern();
+
+    /* pattern(lines); */
+  });
+  document.getElementById('stopPattern').addEventListener('click', () => {
+    /* seq.stop(); */
+    /* cancelAnimationFrame(frame); */
+    /* Tone.Transport.stop(); */
+  });
+
+  /**
+   *
+   * Pattern stuff end
+   *
+   */
 };
 
 function bluesForAlice() {
@@ -176,12 +295,10 @@ function bluesForAlice() {
     melody,
     options: {
       forms: 3,
-      real: true,
-      bpm: 80,
+      real: false,
+      bpm: 180,
       swing: 0.2,
       voicings: {
-        /* minTopDistance: 5,
-                minBottomDistance: 5, */
         logging: false,
         range: ['C3', 'C6']
       },
@@ -190,9 +307,13 @@ function bluesForAlice() {
       }
     }
   }).then(parts =>
-    drawPart(parts[0], paint => {
-      frame = requestAnimationFrame(paint);
-    })
+    drawPart(
+      parts[0],
+      paint => {
+        frame = requestAnimationFrame(paint);
+      },
+      flip
+    )
   );
 }
 
@@ -225,6 +346,7 @@ function giantSteps() {
     chords,
     melody,
     options: {
+      groove: green,
       bpm: 220,
       forms: 3,
       real: true,
@@ -232,18 +354,17 @@ function giantSteps() {
       voicings: {
         maxVoices: 4,
         maxDistance: 7,
-        /* maxDistance: 9,
-           minTopDistance: 5,
-           minBottomDistance: 5, 
-        */
         logging: false
-        /* range: ['G2', 'C6'] */
       }
     }
   }).then(parts =>
-    drawPart(parts[0], paint => {
-      frame = requestAnimationFrame(paint);
-    })
+    drawPart(
+      parts[0],
+      paint => {
+        frame = requestAnimationFrame(paint);
+      },
+      flip
+    )
   );
 }
 
@@ -255,7 +376,7 @@ function blueInGreen() {
 
   let chords = Snippet.parse2(`
     |  Bb^7#11  |  A7   |  D-9 Db7  |  C-7 F7b9 / /  |
-    |  Bb^7     |  A7b13  |  D-9      |  E7      |
+    |  Bb^7   |  A7b13  |  D-9      |  E7      |
     |  A-9      |   D-7 (2Q) |  (Q) Bb^7#11  |  A7    |
     |  D-6      |`);
 
@@ -265,10 +386,12 @@ function blueInGreen() {
     chords,
     melody,
     options: {
+      groove: maidens,
       forms: 3,
       real: true,
       phantomMelody: false,
-      logging: true,
+      tightMelody: false,
+      logging: false,
       bpm: 70,
       humanize: {
         velocity: 0.1,
@@ -278,14 +401,22 @@ function blueInGreen() {
       voicings: {
         maxVoices: 3,
         maxDistance: 7,
+        // bottomDegrees: [1],
+        /* minTopDistance: 2, */
+        /* minBottomDistance: 4, */
         rangeBorders: [0, 0],
-        logging: false
+        logging: false,
+        range: ['C3', 'C7']
       }
     }
   }).then(parts =>
-    drawPart(parts[0], paint => {
-      frame = requestAnimationFrame(paint);
-    })
+    drawPart(
+      parts[0],
+      paint => {
+        frame = requestAnimationFrame(paint);
+      },
+      flip
+    )
   );
 }
 
@@ -318,7 +449,7 @@ function allTheThings() {
     .concat([{ chords: ['/'], options: { feel: 2 } }])
     .concat(chords.slice(3, 10)); */
 
-    // weirdness
+  // weirdness
   /* chords = chords
     .slice(0, 2)
     .concat([{ chords: ['Eb7'], options: { pulses: 2 } }])
@@ -332,23 +463,30 @@ function allTheThings() {
     chords,
     melody,
     options: {
+      groove: swing,
       phantomMelody: false,
+      tightMelody: false,
       logging: false,
       forms: 3,
-      feel: 4,
+      /* feel: 4, */
       real: true,
       bpm: 160,
       voicings: {
+        maxDistance: 7,
+        maxVoices: 3,
         logging: false,
-        /* maxDistance: 12,
-                maxVoices: 2, */
-        rangeBorders: [0, 0]
+        rangeBorders: [0, 0],
+        range: ['C3', 'C7']
       }
     }
   }).then(parts =>
-    drawPart(parts[0], paint => {
-      frame = requestAnimationFrame(paint);
-    })
+    drawPart(
+      parts[0],
+      paint => {
+        frame = requestAnimationFrame(paint);
+      },
+      flip
+    )
   );
 }
 
@@ -373,7 +511,7 @@ function mack() {
     melody,
     options: {
       voicings: {
-        logging: true,
+        logging: false,
         maxVoices: 4,
         minTopDistance: 2
       },
@@ -387,8 +525,12 @@ function mack() {
       }
     }
   }).then(parts =>
-    drawPart(parts[0], paint => {
-      frame = requestAnimationFrame(paint);
-    })
+    drawPart(
+      parts[0],
+      paint => {
+        frame = requestAnimationFrame(paint);
+      },
+      flip
+    )
   );
 }

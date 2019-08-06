@@ -1,6 +1,5 @@
 import { Sequence } from '../sheet/Sequence';
 import { Sheet } from '../sheet/Sheet';
-import { Measure } from '../sheet/Measure';
 
 test('Sequence.fraction', () => {
   expect(Sequence.fraction([2, 2])).toEqual(0.25)
@@ -70,7 +69,7 @@ test('Sequence.renderVoicings', () => {
   const events = Sheet.flatten([['C', 'F']], true);
   expect(
     events
-      .map(e => ({ ...e, chord: e.value }))
+      .map(e => ({ ...e, type: 'chord' }))
       .reduce(Sequence.addLatestOptions(), [])
       .reduce(Sequence.addTimeAndDuration(), [])
       .reduce(Sequence.renderVoicings({ voicings: { range: ['C3', 'C5'] } }), [])
@@ -123,6 +122,59 @@ test('Sequence.renderMeasures', () => {
   ).toEqual(['0', '0.1', '1']);
 });
 
+
+test('Sequence.isOverlapping', () => {
+  const abcd = { time: 0, duration: 4, path: [], value: '' };
+  const a = { time: 0, duration: 1, path: [], value: '' };
+  const b = { time: 1, duration: 1, path: [], value: '' };
+  const d = { time: 3, duration: 1, path: [], value: '' };
+  const ab = { time: 0, duration: 2, path: [], value: '' };
+  const bd = { time: 1, duration: 3, path: [], value: '' };
+  const bc = { time: 1, duration: 2, path: [], value: '' };
+  const cd = { time: 2, duration: 2, path: [], value: '' };
+
+  expect(Sequence.isBefore(a, b)).toBe(true);
+  expect(Sequence.isBefore(b, a)).toBe(false);
+  expect(Sequence.isAfter(b, a)).toBe(true);
+  expect(Sequence.isAfter(a, b)).toBe(false);
+
+  expect(Sequence.isOverlapping(ab, bc)).toBe(true);
+  expect(Sequence.isOverlapping(a, d)).toBe(false);
+  expect(Sequence.isOverlapping(ab, cd)).toBe(false);
+  expect(Sequence.isOverlapping(cd, bc)).toBe(true);
+  expect(Sequence.isOverlapping(abcd, bc)).toBe(true);
+
+  expect(Sequence.isInside(bd, abcd)).toBe(true);
+  expect(Sequence.isInside(a, cd)).toBe(false);
+  expect(Sequence.isInside(cd, bc)).toBe(false);
+
+
+});
+
+test('addPaths', () => {
+  expect(Sequence.addPaths([1, 0], [0, 1])).toEqual([1, 1]);
+  expect(Sequence.addPaths([1, 1], [0, 1])).toEqual([1, 2]);
+  expect(Sequence.addPaths([0, 0], [0, 1])).toEqual([0, 1]);
+  expect(Sequence.addPaths([0], [0, 1])).toEqual([0, 1]);
+  expect(Sequence.addPaths([0, 1], [1])).toEqual([1, 1]);
+  expect(Sequence.addPaths([1], [1, 1])).toEqual([2, 1]);
+})
+
+test('insertGroove', () => {
+  const events = Sequence.renderMeasures([['A'], ['B', 'C']]);
+  const oneTwo = Sequence.insertGroove([[1, 2]], events, (e, src) => {
+    return {
+      ...e,
+      value: src.value + '-' + e.value
+    }
+  });
+  expect(
+    oneTwo.map(Sequence.testEvents(['value'])).map(e => e.value)
+  ).toEqual(['A-1', 'A-2', 'B-1', 'C-1']);
+  expect(
+    oneTwo.map(Sequence.testEvents(['path'])).map(e => Sequence.simplePath(e.path))
+  ).toEqual(['0', '0.1', '1', '1.1']);
+})
 /* test.only('Sequence.isPathBefore', () => {
   expect(Sequence.isPathBefore([1], [1, 0, 1])).toBe(true);
   expect(Sequence.isPathBefore([1, 0, 1], [1])).toBe(false);

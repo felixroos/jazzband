@@ -7,7 +7,7 @@ import { Harmony } from '../harmony/Harmony';
 import { piano as pianoSamples } from '../samples/piano/index.js';
 import { drumSamples } from '../samples/drumset';
 import { Snippet } from './Snippet';
-import { SequenceOptions, Sequence } from './Sequence';
+import { SequenceOptions, Sequence, SequenceEvent } from './Sequence';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
 
 export declare type noteTrigger = (time, duration?) => any;
@@ -57,14 +57,13 @@ export class SheetPlayer {
       await SheetPlayer.playMelody(sheet), */
       // ...(await SheetPlayer.playDrums(sheet, options))
     ]);
-
-    Tone.Transport.start('+1');
     return parts;
   }
 
   static playParts(parts) {
     SheetPlayer.parts = parts.filter(p => !!p);
     SheetPlayer.parts.forEach(part => part.start(0));
+    Tone.Transport.start('+1');
     return SheetPlayer.parts;
   }
 
@@ -132,9 +131,8 @@ export class SheetPlayer {
     });
   }
 
-  static async playSheet(sheet: Leadsheet): Promise<Tone.Part> {
+  static async renderSheetPart(sheet: Leadsheet): Promise<Tone.Part> {
     let { chords, melody } = sheet;
-
     if (!chords && !melody) {
       return;
     }
@@ -151,11 +149,24 @@ export class SheetPlayer {
     const sequence = Sequence.render(sheet).map(event => ({
       ...event,
       note: Note.simplify(event.value),
-    })).filter(e => !!e.note);
+    }))/* .filter(e => !!e.note) */;
     const part = new Tone.Part((time, event) => {
+      if (!event.note || event.type === 'chord') {
+        return; // chord events are just for displaying..
+      }
       piano.triggerAttackRelease(event.note, event.duration, time, event.velocity);
-    }, sequence).start(0);
+    }, sequence);
     return part;
+  }
+
+  static async getPart(events: SequenceEvent[], callback: (time: number, event: SequenceEvent) => void): Tone.Part {
+
+    const part = new Tone.Part(callback, events);
+    return part;
+  }
+
+  static async playSheet(sheet: Leadsheet): Promise<Tone.Part> {
+    return (await this.renderSheetPart(sheet)).start(0);
   }
 
   static async playChords(sheet): Promise<Tone.Sequence> {
@@ -331,7 +342,7 @@ export class SheetPlayer {
       return SheetPlayer.getRealPiano();
     }
     return Promise.resolve(
-      new Tone.PolySynth(voices, Tone.Synth, {
+      new Tone.PolySynth(voices * 2, Tone.Synth, {
         "volume": -18,
         "envelope": {
           "attack": 0.02

@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>jazzband demo</title>
-    <base href="./">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <base href="./" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <script src="demo.js"></script>
-</head>
+    <style>
+      canvas {
+        width: 800px;
+        height: 600px;
+      }
+    </style>
+  </head>
 
-<body>
-
+  <body>
     <button id="next">Play a Jazz Standard</button>
     <!-- <button id="instruments">Random Instruments</button>
 <button id="jazz">Play Jazz</button>
@@ -26,9 +30,11 @@
     <button id="knife">Mack the Knife</button>
     <button id="beatrice">Beatrice</button>
 
-    <canvas id="canvas" width="800" height="500"></canvas>
-    <!-- <piano-roll id="piano-roll"></piano-roll> -->
-
-</body>
-
+    <canvas id="canvas" width="1600" height="1200"></canvas>
+    <section>
+      <button id="playPattern">Play pattern</button>
+      <button id="stopPattern">Stop pattern</button><br />
+      <textarea id="textarea" cols="120" rows="14"></textarea>
+    </section>
+  </body>
 </html>

@@ -44,6 +44,11 @@ export function randomNumber(n) {
   return Math.floor(Math.random() * n)
 }
 
+export function randomNumberInRange(a: number, b: number) {
+  [a, b] = [Math.min(a, b), Math.max(a, b)];
+  return Math.floor(Math.random() * (Math.round(b) - Math.round(a) + 1)) + a
+}
+
 export function arraySum(array) {
   return array.reduce((s, i) => s + i, 0);
 }
@@ -246,12 +251,12 @@ export function getStepInChord(note, chord, min = false) {
   );
 }
 
-export function getChordScales(chord, group = 'Diatonic') {
+export function getChordScales(chord, group = 'Diatonic', filter?: (name: string) => boolean) {
   const tokens = Chord.tokenize(Harmony.getTonalChord(chord));
   /* const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1])); */
   return scaleNames(group).filter(name =>
     /* isSuperset(Scale.intervals(name)) */
-    PcSet.isSupersetOf(Chord.intervals(tokens[1]), Scale.intervals(name))
+    (!filter || filter(name)) && PcSet.isSupersetOf(Chord.intervals(tokens[1]), Scale.intervals(name))
   );
 }
 

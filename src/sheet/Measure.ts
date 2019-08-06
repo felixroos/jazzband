@@ -1,7 +1,20 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
 import { SequenceOptions } from './Sequence';
 
-export type MeasureOrString = Measure | string[] | string;
+export type MeasureOrString = Measure | string[] | string | number[] | number;
+
+
+export interface Bar<T> {
+  body?: T[];
+  signs?: string[];
+  comments?: string[];
+  house?: number | number[];
+  times?: number;
+  section?: string;
+  idle?: true; // bar is repeated
+  options?: SequenceOptions; // options to change stuff over time
+}
+
 
 export interface Measure {
   chords?: string[];
@@ -27,7 +40,7 @@ export interface RenderedMeasure extends Measure {
 
 export class Measure implements Measure {
   static from(measure: MeasureOrString, property = 'chords'): Measure {
-    if (typeof measure === 'string') {
+    if (!Array.isArray(measure) && typeof measure !== 'object') {
       return {
         [property]: [measure]
       };
@@ -37,7 +50,11 @@ export class Measure implements Measure {
         [property]: [].concat(measure)
       };
     }
-    return Object.assign({}, measure);
+    return {
+      ...measure,
+      [property]: measure[property] || measure.chords
+    }
+    // return Object.assign({}, measure);
     // return measure;
   }
 
@@ -54,8 +71,7 @@ export class Measure implements Measure {
     } = state;
     const measure = Measure.from(sheet[index], property);
     return {
-      /* ...measure, */
-      options: measure.options || {},
+      options: { ...measure, ...(measure.options || {}) },
       [property]: measure[property],
       form: totalForms - forms,
       totalForms,

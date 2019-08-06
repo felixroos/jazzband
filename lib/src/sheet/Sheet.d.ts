@@ -44,7 +44,6 @@ export interface ItemWithPath {
 }
 export interface SequencOptions extends VoiceLeadingOptions {
     arpeggio?: boolean;
-    bell?: boolean;
     pedal?: boolean;
 }
 export declare class Sheet {

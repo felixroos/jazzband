@@ -1,3 +1,4 @@
+import { SequenceEvent } from '../sheet/Sequence';
 export declare class Pattern {
     static traverse(size: any, step: any, offset?: number): any[];
     static traverseArray(array: any, move: any, start?: number): any[];
@@ -10,4 +11,5 @@ export declare class Pattern {
     static testFormat(nestedNotes: string[][]): string;
     static scale(scaleName: any, pattern?: number[], range?: any): any[];
     static render(scaleName: any, patterns: any, range?: string[]): any;
+    static renderEvents(lines: any, options?: any): SequenceEvent[];
 }

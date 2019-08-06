@@ -39,6 +39,7 @@
     "@types/jest": "^24.0.6",
     "babel-core": "^6.26.3",
     "babel-jest": "^24.1.0",
+    "babel-polyfill": "^6.26.0",
     "gh-pages": "^2.0.1",
     "jest": "^24.1.0",
     "parcel": "^1.11.0",

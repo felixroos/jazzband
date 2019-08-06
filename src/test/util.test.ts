@@ -53,6 +53,9 @@ test('getChordScales', () => {
   expect(util.getChordScales('D7#11', 'Diatonic')).toEqual(
     ["lydian dominant"]
   );
+  expect(util.getChordScales('C6', 'Diatonic')).toEqual(
+    ["major", "lydian", "mixolydian", "lydian dominant"]
+  );
 });
 
 test('getDegreeFromStep', () => {

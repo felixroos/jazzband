@@ -1,4 +1,4 @@
-import { Measure, MeasureOrString, RenderedMeasure } from './Measure';
+import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
 import { Harmony } from '../harmony/Harmony';
 import { randomElement, maxArray, avgArray, humanize, isOffbeat } from '../util/util';
 import { Voicing, VoiceLeadingOptions } from '../harmony/Voicing';
@@ -94,15 +94,12 @@ export class Sheet implements Leadsheet {
       ...sheet,
       options: {
         forms: 1,
-        arpeggio: false,
-        bell: false,
         pedal: false,
         real: true,
         tightMelody: true,
         bpm: 120,
         swing: 0,
         fermataLength: 4,
-        duckMeasures: 1,
         feel: 4,
         pulses: 4,
         ...sheet.options,

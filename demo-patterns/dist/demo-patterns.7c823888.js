@@ -3630,6 +3630,22 @@ exports.Pulse = Pulse;
 },{"waaclock":"../node_modules/waaclock/index.js"}],"../lib/sheet/Measure.js":[function(require,module,exports) {
 "use strict";
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -3673,8 +3689,7 @@ function () {
         property = state.property;
     var measure = Measure.from(sheet[index], property);
     return _a = {
-      /* ...measure, */
-      options: measure.options || {}
+      options: __assign({}, measure, measure.options || {})
     }, _a[property] = measure[property], _a.form = totalForms - forms, _a.totalForms = totalForms, _a.firstTime = firstTime, _a.lastTime = lastTime, _a.index = index, _a;
   };
 
@@ -7066,7 +7081,7 @@ function () {
     });
 
     if (!choices.length) {
-      console.warn('no choices', options, 'combinations', combinations, 'original choices', originalChoices);
+      console.warn(chord, 'no choices', options, 'combinations', combinations, 'original choices', originalChoices);
       return exit();
     }
 
@@ -7259,7 +7274,7 @@ function () {
     if (extraNotes.length) {
       required = extraNotes.concat(required).filter(function (n, i, a) {
         return a.indexOf(n) === i;
-      });
+      }).concat(required);
 
       if (maxVoices === 1) {
         return [extraNotes];
@@ -7744,7 +7759,7 @@ function () {
     var distances = util_1.getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
 
     if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
-      console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds);
+      console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds, range);
       return;
     }
 
@@ -10070,6 +10085,14 @@ function () {
     }, options);
   };
 
+  Sequence.isOverlapping = function (a, b) {
+    return a.time <= b.time + b.duration && a.time + a.duration >= b.time;
+  };
+
+  Sequence.isInside = function (a, b) {
+    return a.time <= b.time + b.duration && a.time >= b.time;
+  };
+
   Sequence.renderGrid = function (measures, options) {
     options = this.getOptions(options);
     var renderedMeasures = Sheet_1.Sheet.render(measures, options);
@@ -10102,7 +10125,8 @@ function () {
       options = {};
     }
 
-    return events.reduce(Sequence.addLatestOptions(options), []).reduce(Sequence.addTimeAndDuration(options), []).filter(options.filterEvents || function () {
+    return events // .reduce(Sequence.addLatestOptions(options), [])
+    .reduce(Sequence.addTimeAndDuration(options), []).filter(options.filterEvents || function () {
       return true;
     }).map(options.mapEvents || function (e) {
       return e;
@@ -10123,7 +10147,6 @@ function () {
 
         });
       });
-      console.log('chords', chords);
       /* const walk = Sequence.renderGrid(sheet.chords, sheet.options).map(measure => {
         const feel = measure.options.feel === undefined ? 4 : measure.options.feel;
         return Array(feel).fill('X')
@@ -10144,7 +10167,7 @@ function () {
       }); // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
     }
 
-    var voicings = chords.map(Sequence.addFermataToEnd(sheet.options)).reduce(Sequence.renderVoicings(sheet.options), []);
+    var voicings = chords.map(Sequence.addFermataToEnd(sheet.options)).reduce(Sequence.renderVoicings(sheet.options), []).reduce(Sequence.pedalNotes(sheet.options), []);
     sequence = sequence.concat(voicings);
     sequence = sequence.concat(bass);
 
@@ -10213,6 +10236,30 @@ function () {
         duration: Sequence.fraction(event.divisions, whole),
         time: last ? last.time + last.duration : 0
       }));
+    };
+  };
+
+  Sequence.pedalNotes = function (options) {
+    return function (reduced, event, index, events) {
+      if (!options.pedal) {
+        return reduced.concat([event]);
+      }
+
+      var latestEvent;
+      var latest = [].concat(reduced).reverse();
+      latestEvent = latest.find(function (_a) {
+        var time = _a.time,
+            duration = _a.duration,
+            value = _a.value;
+        return value === event.value && time + duration === event.time;
+      });
+
+      if (!!latestEvent) {
+        latestEvent.duration += event.duration;
+        return reduced;
+      } else {
+        return reduced.concat([event]);
+      }
     };
   };
 
@@ -10350,28 +10397,29 @@ function () {
       });
       var topNote = melody.find(function (n) {
         return Sequence.haveSamePath(n, event) && Harmony_1.Harmony.isValidNote(n.value);
-      });
-      var duckTime = Math.max(event.duration, 60 / options.bpm * options.duckMeasures * 4); // TODO calculate active melody notes with time + duration
+      } // n => Sequence.isInside(n, event) && Harmony.isValidNote(n.value)
+      ); // TODO: allow contained melody notes to be optional topNotes..
 
-      var surroundingMelody = melody.filter(function (n) {
-        return Math.abs(event.time - n.time) <= duckTime;
+      var surroundingMelody = melody //.filter(n => Math.abs(event.time - n.time) <= duckTime)
+      .filter(function (m) {
+        return Sequence.isOverlapping(event, m);
       }).sort(function (a, b) {
         return tonal_1.Note.midi(a.value) - tonal_1.Note.midi(b.value);
       });
       var range = options.voicings.range;
 
       if (surroundingMelody.length) {
-        var below = tonal_2.Distance.transpose(surroundingMelody[0].value, tonal_3.Interval.fromSemitones(options.voicings.minTopDistance));
+        var below = tonal_2.Distance.transpose(surroundingMelody[0].value, tonal_3.Interval.fromSemitones(-options.voicings.minTopDistance));
         range = [range[0], below];
+      } else {
+        range = [range[0], range[1]];
       }
 
       return __assign({}, event, {
         options: __assign({}, event.options, {
-          voicings: __assign({}, event.options.voicings || {}, topNote ? {
-            topNotes: options.tightMelody ? [topNote.value] : []
-          } : {
-            /* idleChance: .5,
-                      forceDirection: 'down', */
+          voicings: __assign({}, event.options.voicings || {}, options.tightMelody && topNote ? {
+            topNotes: [topNote.value]
+          } : {}, {
             range: range
           })
         })
@@ -12973,6 +13021,7 @@ function () {
       });
 
       if (sectionStart) {
+        console.log('sectionstart', sectionStart);
         signs = signs.filter(function (s) {
           return s !== sectionStart;
         });
@@ -16550,7 +16599,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52001" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59503" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

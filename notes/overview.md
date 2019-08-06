@@ -169,4 +169,7 @@ Sophisticated logging methods mainly used for voicings and sequences
 ## Next Steps
 
 - Finish Sequence / Sheetplayer APIs to be able to play different styles
-- Add Visualization to Sequencer
+- [X] Add Visualization to Sequencer
+  - Maybe use svg
+- check out node for max
+- update tonal

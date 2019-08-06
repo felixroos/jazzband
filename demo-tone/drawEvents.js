@@ -5,12 +5,15 @@ function portion(v, [a, b], max) {
   return Math.ceil(((v - a) / (b - a)) * max);
 }
 
+function useCanvas(canvas, scale = 2) {
+  return [canvas.width, canvas.height, canvas.getContext('2d')];
+}
+
 export function getRect(value, timeRange, midiRange, flip = false) {
   const canvas = document.getElementById('canvas');
-  const width = canvas.width;
-  const height = canvas.height;
+  const [width, height] = useCanvas(canvas);
 
-  const { time, note, duration } = value;
+  const { time, note, duration, span } = value;
 
   const maxMidi = midiRange[1] - midiRange[0];
   const maxTime = timeRange[1] - timeRange[0];
@@ -24,7 +27,7 @@ export function getRect(value, timeRange, midiRange, flip = false) {
       ...point,
       x: portion(Note.midi(note), midiRange, width),
       y: height - portion(time, timeRange, height) - h,
-      width: portion(1, [0, maxMidi], width),
+      width: portion(span || 1, [0, maxMidi], width),
       height: h
     };
   } else {
@@ -33,73 +36,143 @@ export function getRect(value, timeRange, midiRange, flip = false) {
       x: portion(time, timeRange, width),
       y: height - portion(Note.midi(note), midiRange, height),
       width: portion(duration, [0, maxTime], width),
-      height: portion(1, [0, maxMidi], height)
+      height: span || portion(span || 1, [0, maxMidi], height)
     };
   }
   return point;
 }
 
+function drawText(text, a, b = 0, flip) {
+  const canvas = document.getElementById('canvas');
+  const [width, height, context] = useCanvas(canvas);
+  if (flip) {
+    context.fillText(text, b, height - 5 - a);
+  } else {
+    context.fillText(text, a + 5, height - 5 - b);
+  }
+}
+
 export function drawEvents(events, range, midiRange, flip = false) {
   const canvas = document.getElementById('canvas');
-  const context = canvas.getContext('2d');
+  const [width, height, context] = useCanvas(canvas);
 
-  const width = canvas.width;
-  const height = canvas.height;
   midiRange = midiRange || [0, 100];
-
-  const points = events.map(({ value }) =>
-    getRect(value, range, midiRange, flip)
-  );
-
+  // clear rect
   context.fillStyle = '#fff';
   context.fillRect(0, 0, width, height);
+  const visibleEvents = events.filter(
+    ({ value }) =>
+      range[0] <= value.time + value.duration && value.time <= range[1]
+  );
 
-  let activeIndex;
-  /* if (active !== undefined) {
-    activeIndex = (active + points.length) % points.length;
-  } */
+  const scrollSide = flip ? height : width;
+  const pianoSide = !flip ? height : width;
 
-  const gradient = (from, to, progress) => {
-    return to.map((channel, i) => from[i] + progress * (channel - from[i]));
-  };
+  // bars starters
+  visibleEvents
+    .filter(({ value }) => value.path[1] === 0 && value.path.length === 2)
+    .forEach(({ value }, i, starters) => {
+      const last = i ? starters[i - 1].value : null;
+      const options = value.options || {};
+      const section =
+        !last || !last.options || last.options.section !== options.section
+          ? options.section
+          : '';
+      if (value.type === 'chord') {
+        let barColor;
+        if (value.path[0] === 0 || section) {
+          barColor = '#000';
+        } else if (value.path[0] % 4 === 0) {
+          barColor = '#aaa';
+        } else {
+          barColor = '#efefef';
+        }
+        drawLine(value.time, range, flip, barColor);
+      }
+      // barline
+      // drawLine(value.time, range, flip, '#efefef');
 
-  points.forEach(({ x, y, width, height, note }, i) => {
-    const rgbString = rgb => {
-      return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
-    };
-    const hslString = hsl => {
-      return `hsl(${hsl[0]},${hsl[1]}%,${hsl[2]}%)`;
-    };
-    let color, border;
-    if (i === activeIndex) {
-      context.fillStyle = rgbString([255, 0, 0]);
-    } else {
-      // color = gradient(grad[0], grad[1], progress * strength);
-      color = hslString([
-        Math.floor(((Note.props(note).chroma) / 12) * 360),
-        50,
-        50
-      ]);
-      border = hslString([
-        Math.floor((Note.props(note).chroma / 12) * 360),
-        50,
-        20
-      ]);
+      const pos = portion(value.time, range, scrollSide);
+      const first = portion(range[0] + 1, range, scrollSide);
+      // sections
+      if (value.measure) {
+        // console.log('measure', value.options);
+      }
+      if (section) {
+        context.font = '60px monospace';
+        context.fillStyle = '#121212';
+        drawText(section, Math.max(pos, first), pianoSide - 60, flip);
+      }
+    });
+
+  visibleEvents.forEach(({ value }) => {
+    if (value.chord) {
+      const [width, height] = useCanvas(canvas);
+      const pos = portion(value.time, range, flip ? height : width);
+      context.font = '40px monospace';
+      context.fillStyle = '#121212';
+      if (value.type === 'chord') {
+        drawText(value.chord, pos, pianoSide - 95, flip);
+        return;
+      }
     }
+    // fill range rects
 
-    context.fillStyle = color;
-    context.strokeStyle = border;
+    /* 
+    const options = value.options;
+    if (options.voicings && options.voicings.range) {
+      const v = options.voicings.range.map(n => Note.midi(n));
+      const span = v[1] - v[0];
+      const { x, y, width, height } = getRect(
+        {
+          time: value.time,
+          duration: value.duration,
+          note: options.voicings.range[0],
+          span
+        },
+        range,
+        midiRange,
+        flip
+      );
+      context.fillStyle = 'rgba(100,100,200,0.2)';
+      context.fillRect(x, y, width, height);
+    } */
 
+    // fill note rects
+    const rect = getRect(value, range, midiRange, flip);
+    const { x, y, width, height, note } = rect;
+
+    context.fillStyle = value.color || noteColor(note, 50, 50);
+    context.strokeStyle = noteColor(note, 50, 20);
     // context.fillRect(x, y, width, height);
     roundRect(context, x, y, width, height, 3, true, true);
   });
 }
 
-export function drawPiano({ time, duration }, timeWindow, midiWindow, flip) {
+export function noteColor(note, sat, lit) {
+  const hslString = hsl => {
+    return `hsl(${hsl[0]},${hsl[1]}%,${hsl[2]}%)`;
+  };
+  /* const rgbString = rgb => {
+    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+  }; */
+  return hslString([
+    Math.floor((Note.props(note).chroma / 12) * 360),
+    sat,
+    lit
+  ]);
+}
+
+export function drawPiano(
+  { time, duration, active },
+  timeWindow,
+  midiWindow,
+  flip
+) {
   const canvas = document.getElementById('canvas');
   const context = canvas.getContext('2d');
 
-  for (let i = midiWindow[0]; i < midiWindow[1]; ++i) {
+  for (let i = midiWindow[0]; i <= midiWindow[1]; ++i) {
     const note = Note.fromMidi(i);
     const isBlack = Note.props(note).acc !== '';
     const thickness = duration; // - (isBlack ? duration / 3 : 0);
@@ -113,8 +186,17 @@ export function drawPiano({ time, duration }, timeWindow, midiWindow, flip) {
       midiWindow,
       flip
     );
-    context.fillStyle = isBlack ? '#000' : '#fff';
-    context.strokeStyle = isBlack ? '#aaa' : '#c0c0c0';
+    let color, border;
+
+    if (!active.find(n => Note.midi(n) === i)) {
+      color = isBlack ? '#000' : '#fff';
+      border = isBlack ? '#aaa' : '#c0c0c0';
+    } else {
+      color = noteColor(note, 50, 50);
+      border = noteColor(note, 50, 20);
+    }
+    context.fillStyle = color;
+    context.strokeStyle = border;
     roundRect(
       context,
       x,
@@ -125,58 +207,57 @@ export function drawPiano({ time, duration }, timeWindow, midiWindow, flip) {
       true,
       true
     );
-    // context.fillRect(x, y, width, height);
+    if (Note.pc(note) === 'C') {
+      drawLine(flip ? i : i - 1, midiWindow, !flip, '#ccc');
+    }
   }
 }
 
-export function drawPlayhead({ time, duration }, timeWindow, midiWindow, flip) {
+export function drawLine(number, window, flip, stroke = '#000') {
   const canvas = document.getElementById('canvas');
-  const context = canvas.getContext('2d');
-
-  const value = portion(time, timeWindow, flip ? canvas.height : canvas.width);
-
+  const [width, height, context] = useCanvas(canvas);
   context.beginPath();
+
+  const value = portion(number, window, flip ? height : width);
   if (flip) {
-    const y = canvas.height - value;
+    const y = height - value;
     context.moveTo(0, y);
-    context.lineTo(canvas.width, y);
+    context.lineTo(width, y);
   } else {
     context.moveTo(value, 0);
-    context.lineTo(value, canvas.height);
+    context.lineTo(value, height);
   }
   context.lineWidth = 1;
-  context.strokeStyle = '#000';
+  context.strokeStyle = stroke;
   context.stroke();
 }
 
-export function drawPart(part, callback) {
-  const canvas = document.getElementById('canvas');
+export function drawPart(part, callback, flip = true) {
+  const events = part._events;
   const paint = () => {
-    const events = part._events;
     const seconds = Tone.Transport.seconds;
     const lastEvent = events[events.length - 1];
     // const end = lastEvent.value.time + lastEvent.value.duration;
-    const flip = false;
     const thickness = 1;
-    const timeWindow = [seconds - thickness, seconds + 20];
-    const midiWindow = [25, 90];
+    const timeWindow = [seconds - thickness, seconds + 10];
+    const midiWindow = [25, 88];
     drawEvents(events, timeWindow, midiWindow, flip);
-    /* drawPlayhead(
-      { time: seconds || 0, duration: thickness },
-      timeWindow,
-      midiWindow,
-      flip
-    ); */
+    const active = events
+      .filter(
+        ({ value }) =>
+          seconds >= value.time && seconds <= value.time + value.duration
+      )
+      .map(({ value }) => value.note);
+
     drawPiano(
-      { time: seconds || 0, duration: thickness },
+      { time: seconds || 0, duration: thickness, active },
       timeWindow,
       midiWindow,
       flip
     );
-
-    callback(paint);
+    callback && callback(paint);
   };
-  callback(paint);
+  callback && callback(paint);
   return paint;
 }
 

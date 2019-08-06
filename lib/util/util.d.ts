@@ -1,6 +1,7 @@
 import { Synthesizer } from '../instruments/Synthesizer';
 import { step, intervalDirection } from '../harmony/Harmony';
 export declare function randomNumber(n: any): number;
+export declare function randomNumberInRange(a: number, b: number): number;
 export declare function arraySum(array: any): any;
 export declare function randomElement(array: any, weighted?: any): any;
 export declare function shuffleArray(a: any): any;
@@ -44,7 +45,7 @@ export declare function getIntervalFromStep(step: step): string;
 export declare function getStepsFromDegree(degree: any): void;
 export declare function getStepsInChord(notes: string[], chord: string, min?: boolean): any[];
 export declare function getStepInChord(note: any, chord: any, min?: boolean): any;
-export declare function getChordScales(chord: any, group?: string): string[];
+export declare function getChordScales(chord: any, group?: string, filter?: (name: string) => boolean): string[];
 export declare function pickChordScale(chord: any, group?: string): string;
 export declare function findDegree(degreeOrStep: number | step, intervalsOrSteps: string[]): string;
 export declare function hasDegree(degree: any, intervals: any): boolean;
@@ -98,7 +99,7 @@ export declare function isDominantChord(chord: any): any;
 export declare function isMajorChord(chord: any): any;
 export declare function isMinorChord(chord: any): any;
 export declare function isMinorTonic(chord: any): any;
-export declare function getChordType(chord: any): "minor" | "major" | "dominant" | "minor-tonic";
+export declare function getChordType(chord: any): "major" | "dominant" | "minor-tonic" | "minor";
 export declare function getChordNotes(chord: any, validate?: any): any;
 export declare function validateWithoutRoot(note: any, { degree }: {
     degree: any;

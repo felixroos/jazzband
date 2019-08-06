@@ -120,7 +120,7 @@ export class Logger {
       let degrees;
       let chord = event.chord;
       if (!chord) {
-        const latestChordBlock = [].concat(blocks).reverse().find(b => !!b.chord);
+        const latestChordBlock = [].concat(blocks).reverse().find(b => b.type === 'chord');
         chord = (latestChordBlock || {}).chord;
       }
 
@@ -133,7 +133,7 @@ export class Logger {
     }, []).forEach(block => {
       const notes = block.events.map(e => e.value);
       let konsole = Logger.logNotes({ notes, active: notes, idle: [], added: [], range: ['C3', 'C6'], labels: block.degrees || notes });
-      konsole.push(block.chord);
+      konsole.push(block.value);
       konsole.push(Sequence.simplePath(block.path));
       Logger.logCustom(konsole, console.log);
     });

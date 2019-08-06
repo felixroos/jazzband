@@ -1,6 +1,6 @@
 import { Leadsheet } from './Sheet';
 import * as Tone from 'tone';
-import { SequenceOptions } from './Sequence';
+import { SequenceOptions, SequenceEvent } from './Sequence';
 export declare type noteTrigger = (time: any, duration?: any) => any;
 declare interface Tone {
     [key: string]: any;
@@ -20,6 +20,8 @@ export declare class SheetPlayer {
     static stop(): void;
     static playMelody(sheet: any): Promise<Tone.Sequence>;
     static playDrums(sheet: any, options?: SequenceOptions): Promise<Tone.Sequence[]>;
+    static renderSheetPart(sheet: Leadsheet): Promise<Tone.Part>;
+    static getPart(events: SequenceEvent[], callback: (time: number, event: SequenceEvent) => void): Tone.Part;
     static playSheet(sheet: Leadsheet): Promise<Tone.Part>;
     static playChords(sheet: any): Promise<Tone.Sequence>;
     static playBass(sheet: any): Promise<Tone.Sequence>;

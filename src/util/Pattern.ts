@@ -2,6 +2,8 @@ import { Scale } from 'tonal';
 import { util } from '..';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
+import { SequenceEvent, Sequence } from '../sheet/Sequence';
+import { Sheet } from '../sheet/Sheet';
 
 export class Pattern {
   static traverse(size, step, offset = 0) {
@@ -132,5 +134,12 @@ export class Pattern {
       note: Note.simplify(scale[n]),
       index: n
     }));
+  }
+
+  static renderEvents(lines, options?): SequenceEvent[] {
+    const flat = Sheet.flatten(lines, true);
+    const events = Sequence.renderEvents(flat, options)
+      .map(e => ({ ...e, note: Note.simplify(e.value.note) }));
+    return events;
   }
 }

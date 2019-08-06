@@ -6,6 +6,7 @@
 
 ## React stuff
 
+- https://overreacted.io/a-complete-guide-to-useeffect/
 - https://yogalayout.com/playground
 - https://www.react-spring.io/
 - https://popmotion.io/pose/
@@ -16,12 +17,16 @@
 
 ## New Stuff
 
+- S Expressions for Rhythm Notation?
+- [https://webassembly.studio/](https://webassembly.studio/)
 - [audio viz](https://github.com/vcync/modV)
 - [meyda](https://github.com/meyda/meyda) pitch detection
 - [React Hook useTone + Meyda !!](https://codesandbox.io/s/w7kvvqxnrw)
   - [useInterval of react-hooks-collection](https://github.com/nestarz/react-hooks-collection/blob/master/useInterval/index.jsx)
   - [useInterval of @rooks](https://react-hooks.org/?path=/story/useintervaldemo--basic-example)
   - [useRaf](https://react-hooks.org/?path=/story/useraf--basic-example)
+  - [node for max!](https://github.com/Cycling74/n4m-examples)
+    - [tonal chord builder](https://github.com/Cycling74/n4m-examples/tree/master/tonal-chord-builder)
 
 ## General Links
 
@@ -29,6 +34,7 @@
 
 ## Notation
 
+- [jison](http://zaa.ch/jison/)
 - [abc](http://abcnotation.com/)
   - [ABCjs](https://abcjs.net/#what)
   - [abc2xml](http://abc2xml.appspot.com)
@@ -232,6 +238,11 @@ Coltrane Circle
   - [Video](https://vimeo.com/187702511)
   - [genish.js](http://www.charlie-roberts.com/genish/tutorial/index.html)
 - [Link Collection](https://github.com/toplap/awesome-livecoding/blob/master/README.md)
+- JS
+  - [Lissajous](https://github.com/kylestetz/lissajous)
+  - https://www.youtube.com/watch?v=xBQef0fs-_Q
+  - [vivace](https://github.com/automata/vivace)
+
 
 ### One Line Music
 

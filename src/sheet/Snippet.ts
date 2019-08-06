@@ -109,7 +109,9 @@ export class Snippet {
     cells = cells.reduce((cells, bar, index) => {
       if (bar[0].match(/[2-9]/)) {
         const offset = houses.filter(h => h < index).reverse()[0];
-        cells = cells.concat(new Array(offset % 4).fill(''));
+        if (offset > 0) {
+          cells = cells.concat(new Array(offset % 4).fill(''));
+        }
       }
       cells.push(bar);
       return cells;

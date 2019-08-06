@@ -4,7 +4,6 @@ import * as Tone from 'tone';
 import { Numeric } from '../lib/util/Numeric';
 import { Pattern } from '../lib/util/Pattern';
 import { randomItem, randomScale } from '../src/symbols';
-import { getPatternInChord } from '../src/util/util';
 
 const random255 = () => Math.floor(Math.random() * 255);
 

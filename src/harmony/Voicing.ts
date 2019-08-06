@@ -155,15 +155,16 @@ export class Voicing {
         (!noBottomAdd || !choice.bottomAdded);
     }).filter(choice => { // apply flag filters + filerChoices if any
       return (!filterChoices || filterChoices(choice))
-        && (choice.difference > 0 || Math.random() < idleChance)
         && (!topNotes || Voicing.hasTopNotes(choice.targets, topNotes))
+    }).filter((choice, index, filtered) => {
+      return (choice.difference > 0 || (filtered.length === 1 || Math.random() < idleChance))
     }).sort(sortChoices ?
       (a, b) => sortChoices(a, b) :
       (a, b) => a.difference - b.difference
     );
 
     if (!choices.length) {
-      console.warn('no choices', options, 'combinations', combinations, 'original choices', originalChoices);
+      console.warn(chord, 'no choices', options, 'combinations', combinations, 'original choices', originalChoices);
       return exit();
     }
     let bestPick = choices[0].targets, choice;
@@ -242,10 +243,11 @@ export class Voicing {
       ...options,
     }
     return (path, next, array) => {
+      const lastPosition = path.length + array.length - 1;
       return Permutation.combineValidators(
-        Voicing.notesAtPositionValidator(options.topNotes, path.length + array.length - 1),
+        Voicing.notesAtPositionValidator(options.topNotes, lastPosition),
         Voicing.notesAtPositionValidator(options.bottomNotes, 0),
-        Voicing.degreesAtPositionValidator(options.topDegrees, path.length + array.length - 1, options.root),
+        Voicing.degreesAtPositionValidator(options.topDegrees, lastPosition, options.root),
         Voicing.degreesAtPositionValidator(options.bottomDegrees, 0, options.root),
         Voicing.validateInterval(interval => Interval.semitones(interval) <= options.maxDistance),
         Voicing.validateInterval((interval, { path, array }) => array.length === 1 || path.length === 1 || Interval.semitones(interval) >= options.minDistance),
@@ -280,7 +282,7 @@ export class Voicing {
     const extraNotes = topNotes.concat(bottomNotes).map(n => Note.pc(n));
     if (extraNotes.length) {
       required = extraNotes.concat(required)
-        .filter((n, i, a) => a.indexOf(n) === i);
+      /* .filter((n, i, a) => a.indexOf(n) === i).concat(required); */
       if (maxVoices === 1) {
         return [extraNotes];
       }
@@ -403,7 +405,6 @@ export class Voicing {
       }
     }
 
-
     if (!previousVoicing || !previousVoicing.length) { // no previous chord
       // filter out combinations that are out of range
       combinations = combinations.filter(combination => {
@@ -413,6 +414,10 @@ export class Voicing {
         const pick = renderAbsoluteNotes(combination.reverse(), Note.oct(highestNote), 'down').reverse(); */
         return isInRange(pick[0], range) && isInRange(pick[pick.length - 1], range);
       });
+      if (!combinations.length) {
+        return [];
+      }
+
       const firstPick = combinations[0];
       const firstNoteInRange = Harmony.getNearestNote(range[0], firstPick[0], 'up');
       const pick = renderAbsoluteNotes(firstPick, Note.oct(firstNoteInRange));
@@ -606,7 +611,7 @@ export class Voicing {
     }
     let distances = getDistancesToRangeEnds([voicing[0], voicing[voicing.length - 1]], range);
     if (distances[0] < thresholds[0] && distances[1] < thresholds[1]) {
-      console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds);
+      console.error('range is too small to fit the comfy zone (rangeBorders)', thresholds, range);
       return;
     }
     if (distances[0] < thresholds[0]) {
