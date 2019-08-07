@@ -1,4 +1,4 @@
-import { Sequence } from '../src/sheet/Sequence';
+import { Sequence } from '../src/player/Sequence';
 import { randomElement, randomNumberInRange } from '../src/util/util';
 import { compingCombos, walkingFour } from './swing';
 
@@ -48,7 +48,7 @@ export const bossa = {
     ),
   chord: (sequence, options) => {
     return Sequence.fillGrooves(
-      [[1, 1, [0, 1], [0, 1]], [0, [0, 1], [0, 1], 0]],
+      [[1, 1, [0, 1], [0, 1]], [0, [0, 1], [0, 2], 0]],
       sequence.filter(e => e.type === 'chord'),
       Sequence.chordGroove(),
       { ...options, offsPlayNext: true }

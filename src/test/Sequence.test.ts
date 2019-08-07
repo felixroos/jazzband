@@ -1,4 +1,4 @@
-import { Sequence } from '../sheet/Sequence';
+import { Sequence } from '../player/Sequence';
 import { Sheet } from '../sheet/Sheet';
 
 test('Sequence.fraction', () => {
@@ -38,7 +38,7 @@ test('Sequence.getOptions', () => {
 });
 
 test('Sequence.prolongNotes', () => {
-  const events = Sheet.flatten([['C', '/'], ['F', '/', '/', 'Bb']], true);
+  const events = Sheet.flatEvents([['C', '/'], ['F', '/', '/', 'Bb']]);
   const withTime = events.reduce(Sequence.addTimeAndDuration(), []);
   expect(withTime
     .map(Sequence.testEvents(['duration', 'time', 'value']))
@@ -66,7 +66,7 @@ test('Sequence.prolongNotes', () => {
 });
 
 test('Sequence.renderVoicings', () => {
-  const events = Sheet.flatten([['C', 'F']], true);
+  const events = Sheet.flatEvents([['C', 'F']]);
   expect(
     events
       .map(e => ({ ...e, type: 'chord' }))
@@ -85,26 +85,26 @@ test('Sequence.renderVoicings', () => {
 });
 
 test('Sequence.addFermataToEnd', () => {
-  const events = Sheet.flatten([['C', 'F']], true);
+  const events = Sheet.flatEvents(['C', 'F']);
   expect(
     events
       .map(e => ({ ...e, chord: e.value }))
       .reduce(Sequence.addTimeAndDuration(), [])
-      .map(Sequence.addFermataToEnd({ fermataLength: 4 }))
+      .map(Sequence.addFermataToEnd({ fermataLength: 2 }))
       .map(Sequence.testEvents(['duration']))
   ).toEqual([
-    { duration: 1 },
+    { duration: 2 },
     { duration: 4 },
   ])
 });
 
 test('Sequence.addLatestOptions', () => {
-  const events = Sheet.flatten([
+  const events = Sheet.flatEvents([
     { chords: ['C-'], options: { pulses: 4 } }, // needs to be set to be not undefined..
     'F',
     { chords: ['Bb'], options: { pulses: 3 } },
     'Bb7'
-  ], true);
+  ]);
   expect(
     events
       .reduce(Sequence.addTimeAndDuration(), [])
@@ -162,10 +162,10 @@ test('addPaths', () => {
 
 test('insertGroove', () => {
   const events = Sequence.renderMeasures([['A'], ['B', 'C']]);
-  const oneTwo = Sequence.insertGroove([[1, 2]], events, (e, src) => {
+  const oneTwo = Sequence.insertGrooves([[1, 2]], events, ({ target, source }) => {
     return {
-      ...e,
-      value: src.value + '-' + e.value
+      ...target,
+      value: source.value + '-' + target.value
     }
   });
   expect(

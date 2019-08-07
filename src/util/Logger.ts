@@ -4,7 +4,7 @@ import { Voicing } from '../harmony/Voicing';
 import { Snippet } from '../sheet/Snippet';
 import { getRangePosition, getStepsInChord, noteArray, getDegreeFromStep } from './util';
 import { Sheet } from '../sheet/Sheet';
-import { Sequence } from '../sheet/Sequence';
+import { Sequence } from '../player/Sequence';
 
 export class Logger {
   static emoji = {

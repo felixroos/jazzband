@@ -1,6 +1,5 @@
 import iRealReader from 'ireal-reader';
 import { Trio, Sampler, util } from '../lib';
-/* import { SheetPlayer } from '../lib/sheet/SheetPlayer'; */
 import { bossa } from '../src/grooves/bossa';
 // import { disco } from '../src/grooves/disco';
 import { funk } from '../src/grooves/funk';
@@ -305,7 +304,7 @@ window.onload = function() {
   });
   /* function transpose(interval) {
         const sheet = Snippet.parse2(textarea.value);
-        return Sheet.transpose(sheet, interval);
+        return Harmony.transposeSheet(sheet, interval);
     }
     transposeUp.addEventListener('click', () => {
         textarea.value = Snippet.minify(textarea.value, true);
@@ -315,7 +314,7 @@ window.onload = function() {
     }); */
   /* function transpose(interval) {
         const sheet = Snippet.parse2(textarea.value);
-        return Sheet.transpose(sheet, interval);
+        return Harmony.transposeSheet(sheet, interval);
     } */
 
   function setPath(path) {

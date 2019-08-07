@@ -1,6 +1,21 @@
-import { Sheet } from '../sheet/Sheet';
-import { Measure } from '../sheet/Measure';
-import { Snippet } from '../sheet/Snippet';
+import { Sheet } from '../Sheet';
+import { Measure } from '../Measure';
+import { Snippet } from '../Snippet';
+
+// rules as described in paper "formal semantics for music notation control flow"
+test.only('playground', () => {
+  expect(
+    Snippet.testFormat(
+      Sheet.render(['A', 'B', 'C'])
+    )
+  ).toEqual('A B C');
+
+  expect(
+    Snippet.testFormat(
+      Sheet.render(['A', 'B', 'C'])
+    )
+  ).toEqual('A B C');
+});
 
 // rules as described in paper "formal semantics for music notation control flow"
 test('rule 1: repeat end without start', () => {
@@ -1064,7 +1079,7 @@ test('Sheet.getNextHouseIndex', () => {
   ).toEqual(2);
 });
 
-test.only('Sheet.flatten', () => {
+test('Sheet.flatten', () => {
   expect(Sheet.flatten(['C'])).toEqual(['C']);
   expect(
     Sheet.flatten([{ chords: ['C'], section: 'A' }, { chords: ['F'] }])

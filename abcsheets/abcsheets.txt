@@ -1,0 +1,2380 @@
+taken from http://normanschmidt.net/mehegan/music.php
+
+X:2
+T:Bewitched, Bothered & Bewildered
+C:Rodgers-Hart
+L:1/8
+M:C
+I:linebreak $
+K:C
+"Db7" z2 G2 S|:"C" EB"C#o" c4 E2 |"Dm" FB"D#o" c4 ^F2 |"Em" (3G2 B2 c2"E+" (3^G2 B2 c2 |$
+"F" AB"Fo" c4 B2 |"Am" c4"Ebo" BAG^F Ox/||1"Dm" G2"Dbo" D4 E2 |"Dm" F8 |
+"Db7" G6 G2 :|2$"Dm" G2"G7" D4"Gm" x4"C7" E2 |"F" A8 "F6" x4|"Em" z8 "Eb7" x4||"Dm" BA"DmM" F4 BA |
+"Dm" F4"Db7" F4 |$"C" BA"Db7" E4 BA |"C" E8 "Am" x4|"Dm" cB"Em" G4 cB |$"F" G2"Fo" G3 ABc |
+"Em" d4"Ebo" c4 |"Dm" F4"Db7""_D.S. al Coda" G4 ||O"Dm" G2"Db7" d4 G2 |"C6" c8 |]
+
+
+X:2
+T:Young At Heart
+C:Johnny Richards
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+(3z =E F S||"Bb" d2- (3d=EF"Bb6" c2- (3c=EF |"Bb" (3B=EF A2-"Bbo" A2 (3z G ^F |$
+"Cm" G2 BG-"F7" G4- |"Dø" G4-"G7" G2 (3z D E |"Cm" c2- (3cDE"F7" B2- (3BDE |$
+"Cm" (3ADE G2"F7" z2 (3z F =E |"Bb" F2 AF-"Bb6" F4- |"Bb" F4"Bb6" z2 (3z ^C D ||$
+"Dø" _A2- (3A^CD"G7" G2- (3G^CD |"Dø" (3_A^CD G2-"G7" G2 (3z ^F G Ox/||
+"C7" d2- (3d^FG c2- (3c^FG |$"C7" (3d^FG c4 B2 |"F7" AA^G^G"Cm" AA^G^G |"F7" A2 cG-"Cm" G3 ^F |$
+"Bb" GG^F^F"Bo" GG^F^F |"Cm" G2 BF-"F7" F2 (3z =E "_D.S. al Coda" F ||$
+Ox/"C7" d2- (3d^FG c2- (3c^FG |"Eb" (3d=Bc"Ab7" e2- e2 z ^c |"Bb" (3dFd c"Bb6"B- B4 |$
+"Cm" (3cEc B"F7"A- A4 |"Bb" BB"Bb7"GG"Eb" BB"Eo"GG |"Cm" B2"F7" GB-"Bb" B2 z2 |]
+
+X:1
+T:All The Things You Are
+C:Kern & Hammerstein
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"Fm" A4 |"Bbm" d3 A |"Eb7" G G G G |"Ab" G c2 G |"Db" F F F F ||[K:C]"G7" F B2 F |"C" E4 |
+"C6" z4 ||$[K:Eb]"Cm" E4 |"Fm" A3 E |"Bb7" D D D D |"Eb" D G2 D |"Ab" C C C C ||
+[K:G]"D7" C D/_E/ D C |"G" B,4 |$"G6" z D G d |"Am" d c c2 |"D4" z ^D E c |"G" B4 |"G6" z D G B ||$
+[K:E]"F#m" B A A2 |"F7" z ^A, B, A |"E" G4 |"E6" z4 ||$[K:Ab]"Fm" A4 |"Bbm" d3 A |"Eb7" G G G G |
+"Ab" G c2 G |"Db" F4 |"Dbm" e3 d |$"Cm" (3E E E (3E E E |"Bo" G3 F |"Bbm" D D F A |
+"Eb4" f2"A7" G2 |"Ab6" A4 | z4 |]
+
+X:3
+T:Alone Together
+C:Arthur Schwartz
+L:1/4
+M:C
+I:linebreak $
+K:F
+D |:"Dm" F2- F D |"Eø" E E-"A7" E2 |"Dm" z D E3/2 F/ |"Eø" A4 "A7" x4|"Dm" z D"Em" E3/2 F/ |
+"Aø" A4 "D7" x4|"Gm" z z/ G/ A3/2 B/ | d2- d d ||$"Bm" e2-"E7" e d |"Gm" c2-"C7" c B |
+"F" A3/2 G/"F7" A3/2 G/ |"Eø" A2- A"A7" G ||1"D" ^F ^F2- F |"Eø" z2"A7" z D :|2"D" ^F4 |
+z2 z D |$"Aø" c4 |"D7" (3z A B (3c _e d |"Gm" B4 | z2 z D |"Gø" B4 |"C7" (3z G A (3B _d c |
+"F" A2-"F7" A F |"Eø" G2-"A7" G D ||$"Dm" F2- F D |"Eø" E E-"A7" E2 |"Dm" z D E3/2 F/ |
+"Eø" A2"A7" z2 |"Dm" z z/ A/ =B3/2 d/ |"Bb7" f2-"A+" f ^c |"Dm6" d d2- d |]
+
+X:=2
+T:Anthropology
+C:Gillespie - Parker
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Bb" BdcB"G7" e^cdf |"Cm" z2 z e"F7" z f e2 |"Dm" z ded"Gm" cABd |"Cm" cGBA"F7" z2 z B |$
+"Bb7" z2 GB _dB z =e |"Eb7" z _e2 _G"Ab7" z Bcd ||1"Dm" f2 z =B"G7" z _a2 _g |
+"Cm" ge B2"F7" df z F :|2$"Dm" (3efe df"G7" z ded |"Cm" cGBc"F7" z2 z ^f ||"D7" z2 g^g a^f=ga |
+^fd z2 z2 z =e |$"G7" f=ed^c ed=BA | z2 z a2 a2 a |"C7" z g=ed d3 G | (3c/d/c/GBc z2 z e |$
+"F7" z2 dc =BdcG |"Cm" c2 BA"F7" z2 z"_D.C. al 3rd end." F ||3"Dm" (3efe df"G7" z ded |
+"C7" cBAB"Bb6" z4 |]
+
+X:=3
+T:At Long Last Love
+C:Cole Porter
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Db7" z E F G ||"C6" A2 A2 |"Bø" z G (3A G F |"Am" E4 |$Ox/"G6" z E F G ||"F" A A A A |
+"Em" A G"Eb7" (3A G E |"Dm" D4 |$"Dm/C" z F G A |"Dm6" B2 B2 |"Dbø" z A (3B A G |"Dm/C" F4 |$
+"Bø" z ^C (3D F A |"Dm" c3 A |"G4" c3 A |"C6""_D.C. al Coda" c4 ||$Ox/"C7" (3A G A"Gm" ^A c |
+"D#o" d d"Eø" d d |"F6" d4 |"F" z A B c |$"Gbø" e2 e2 |"Fm6" z d (3B d c |"Em" G4 |
+"Eb7" z E (3E F G |$"Dm" A4 |"Db7" e4 |"C6" c4 |]
+
+X:3
+T:Autumn In Rome
+L:1/8
+M:3/4
+I:linebreak $
+K:Eb
+"Cm" C2 D3 E |"Ab" G6 |"Cm" C2 D3 E |"Ab" d2 c4 |$"Fm" c2 de"Bb7" dc |"Eb" G6 |"Db" F2 GA GF |
+"Fm6""G" D6 |$"Cm" C2 D3 E |"Ab" G6 |"Cm" C2 D3 E |"Ab" d2 c4 |$"Cm" c2 d"D+"e dc |"Eb" G6 |
+"Fm6" F2 GA"Gm" GE |"Cm" C6 ||$"C7" CD =EF GA | Bc _d3 e |"Fm" c6- | c4 z2 |$"Bb7" B,C DE FG |
+AB _c3 _d |"Eb" B4"Fm6" AB |"G" G6 |$"Cm" C2 D3 E |"Ab" G6 |"Cm" C2 D3 E |"Ab" d2 c4 |$
+"Fm" c2 de"Bb7" dc |"Eb" G6 |"Fm6" F2 GA"G+" GF |"Cm" E6 |$"Fm" F2 G2 A2 |"G7" e2 =B3 d |
+"Cm" c6- | c4 z2 |]
+
+X:3
+T:Ballin' The Jack
+C:Chris Smith
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"G7" d2 =B2 GA z G |"Dm" d2 =B2"G7" G4 |"C7" G2 A2 B2 c2 |"Gm" B2 AG"C7" z4 Ox/||$
+"F7" F2 G2 A2 GF |"Cm" c2 AF"F7" z2 d^c |"Bb" d^c d2"D7" =c=B c2 |
+"Gm" BA B2"D7""_D.C. al Coda" A4 ||$Ox/"Gb7" _dB z _d B2 _dB |"Bb7" d2"A7" c2"Ab7" B4 "G7" x4|
+"Eb6" c2"G7" d2"Cm" e2 c^c |"F7" d_dcB"Bb6" z4 |]
+
+X:=3
+T:Baubles, Bangles & Beads
+C:Wright & Forrest
+L:1/8
+M:3/4
+I:linebreak $
+K:Ab
+"Bbm" F2 B4 |"Eb7" F2 B4 |"Ab" G2 c3 E |"Fm" A2 GA G_G |"Bbm" F2 B4 |$"Eb7" F2 B3 F |"Ab" c6 |
+"Fm" z6 ||[K:C]"Dm" A2 d4 |"G7" A2 d4 |"Em" B2 e3 G |"Am" c2 Bc B_B |$"Dm" A2 d4 |"G7" A2 d3 A |
+"C" e6 |"A7" ^c6 ||[K:E]"F#m" c6 |"B7" d2 c2 d2 |"E" B6 |"C#m" G6 |$"A" c6 ||
+[K:Ab]"Bbm" e2 d2"Eb7" e2 |"Ab" c6 |"F7" z2 E2 =E2 ||"Bbm" F2 B4 |"Eb7" F2 B4 |"Cm" G2 c3 E |
+"Fm" e2 de dc |$"Bbm" F2 c4 |"Eb7" F2 c3 F |"Cm" c6 |"F7" z2 d2 c2 |"Bbm" F2 c4 |"Eb7" F2 f3 G |
+"Ab" A6 | z8 |]
+
+X:3
+T:Bernie's Tune
+C:Bernie Miller
+L:1/8
+M:C
+I:linebreak $
+K:F
+"Dm6" z A2 ^G A3 A |"Dm" z ^G A2 A,DFA |"Fm" _A8 |"E7" E8 |$"Eø" z G2 ^F G3 G |
+"A7" z ^F G2 A,^CEG ||1"Dm6" F8 "Bø" x4|"Bb7" D8 "A7" x4:|2$"Dm6" F8 "F7" x4|"Bb7" D8 "A7" x4||
+[K:Bb]"Bb" B,4"Gm" G F2 D |"Cm" C4"F7" D4 |"Bb" B,4"Gm" G F2 D |"Cm" C4"F7" D4 |$
+"Bb" B,4"Gm" G F2 D |"Cm" C4"F7" D4 |"Bb" B4"Gm" F G3 ||[K:F]"Eø" A8"Eb7""_D.C. al 3rd end." x4 ||3
+"Dm6" F8 | z8 |]
+
+X:3
+T:Between The Devil & The Deep Blue Sea
+C:Harold Arlen
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F6" z A"Dm" z G |"Gm" A2"C7" c2 |"F6" z A/^G/"Dm" A C |"Gm" A2"C7" c2 |$"Cm" z d"F7" d F |
+"Bb6" c B"Bbm6" f ^c |"Am" c/f/"Ab7"c/=B/"Gm" B"C7" A Ox///||1"F6" F2"Gm" z"C7" z :|2$
+"F6" F2"E7" z2 ||[K:A]"A" z e"F#m" c/B/A/F/ |"Bm" A F"E7" F2 |"A" z A"Ao" A/B/A/F/ |$
+"Bm" A c"E7" e2 ||[K:C]"C" e2"Am" d/c/A/c/ |"Fm" _e _e"Bb7" d3/2 d/ |"Ebm" _e c"Ab7" _B3/2 _A/ ||
+[K:F]"Gm" G2"C7""_D.C. al Coda" z2 O||"F6" F4 |]
+
+X:=3
+T:Birth Of The Blues
+C:Ray Henderson
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Dm" z G"Db7" ^F =F ||"C" E2"C#o" A G |"Dm" F2"D#o" B A |"Em" G2"E+" c B |$"F" A2"F#o" d c |
+"G7" B"F" z"Em" B"Ebm" z |"Dm" z B/"Db7" B c/ d |"C" c2"C6""_Fine" z2 :|$"F7" z2 B/c/d/^d/ |
+"E7" e2"Bø" d/B/ d |"E7" B2"Bø" d/B/ d |"E7" B2"Bø" B2 |$"E7" z2"A7" B/^c/d/^d/ |
+"Em" e2"A7" ^c/A/ ^c |"Em" A2"A7" ^c/A/ ^c |"Am" A2"D7""_D.C. al Fine" A2 ||
+
+X:3
+T:Blue Bossa
+C:Kenny Dorham
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Cm" g3 f e d3 | c4 z2 B2 |"Fm" A4 g4 | f8 |$"Dø" f3 e d c3 |"G7" =B4 z2 A2 |"Cm" G4 f4 | e8 ||$
+[K:Db]"Ebm" e3 d c B3 |"Ab7" A4 z2 G2 |"Db" G F3 B3 F | A8 ||$[K:Eb]"Dø" A G3 B2 A2 |
+"G7" A G3 B2 A2 |"Cm" G8 | z8 |]
+
+X:2
+T:Blue Moon
+C:Richard Rodgers
+L:1/8
+M:C
+I:linebreak $
+K:E
+"F7" B2 |:S"E" B4"C#m" z4 |"F#m" z ABc"F7" B B2 A |"E" B4"C#m" z4 |"F#m" z FGA"F#ø" G G2 F |$
+"G#m" G4"C#m" z4 |"F#m" z EFG"B4" E E2 E ||1"E6" E4"Go" z4 |"F#m" z4"F7" B4 :|2$"E6" E4"F" z4 |
+"E" z4"C#m" z EEE |"F#m" FFFF"F7" G2 G2 |"E6" E2 E2"C#m" z EEE |$"F#m" FFFF"F7" G2 G2 |
+"E6" E4"C#m" z EEE ||[K:G]"Am" EEEE"Ab7" F2 F2 |"G" D2 D2"Em" z DDD ||$
+[K:E]"D#m" DD"G#7"DD"C#m" F2"F#7" F2 |"F#m" B4"F7" z2"_D.S. al 3rd end." B2 ||3"E6" E8 |]
+
+X:3
+T:Bluesette
+C:Toots Thielemans
+L:1/4
+M:3/4
+I:linebreak $
+K:Bb
+"Bb" F G A | B c d |"Aø" e2 G |"D7" ^F3 |$"Gm" d2 F |"C7" =E3 |"Fm" c2 E |"Bb7" D3 |$"Eb" B2 D |
+E F _G/_A/ ||[K:Db]"Ebm" B2 g |"Ab7" f2 e |$"Db" A2 f | e2 d ||[K:B]"C#m" G2 e |"F#7" d2 c |$
+"B" F G A | B c d ||[K:Bb]"Cm" f2 e |"F7" d2 c |$"Dm" F3 |"Db7" z3 |"Cm" z3 |"F7" z3 |]
+
+X:3
+T:Bouncin' With Bud
+C:Bud Powell
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Bb" dcBA"Gm" cBAG |"Cm" FDE_G"F7" z2 F/_G/F/E/ |"Dm" DCF=B,"G7" z4 |"Cm" G2 EC"D7" A2 ^FD |$
+"Gm" BG z2 z2 z A |"Dbo" BG z2 z2 z A |"Cm" BGAB"F7" GEDC ||1"Bb" F4"B7" z2 z e :|2$
+"Bb" F B,3"Ab7" FB,^FG ||"Gm" z G2 A2 B2 d |"Eø" z B2 A2 G3 |"Aø" d6 (3BGE |
+"D7" (3fef z2 z2 z e |$"G7" _d6 (3=e_dG |"Go" (3e_de z2 z2 z _d |"Cm" =d4 BGEG |
+"F7" _dc z2 z2 z"_D.C. al 3rd end." e ||3"Bb" FB, z2 z4 |]
+
+X:2
+T:But Not For Me
+C:George Gershwin
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Cm" z F G F S||"F7" G F/E/- E2 |"Bb7" z F G F |"Eb" G4 |$"Cm" z F G F |"F7" G F/E/- E2 |
+"Fm" z F"Bb7" G F |"Eb7" G4 |$"Bbm" z G"Eb7" A B |"Ab" =B c/e/- e2 |"Db7" z F G A Ox/||
+"Gm" =A B/e/- e2 |$"Cm" z E F G |"Fm" G A/e/-"FmM" e2 |"Fm" z e c A |"B7" F4 |
+"Bb7" z F G"_D.S. al Coda" F ||$Ox/"Gm" =A B/f/- f2 |"Gb7" z e c A |"F7b5" G4 |"Bb7" G4 |"Eb" E4 |]
+
+X:2
+T:Bye Bye Blackbird
+C:Ray Henderson
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" B B"G6" B3/2 B/ |"Am" c B"Em" B2 |"Dbø" B A"Co" A2 |"Bm" A G"Em" G2 |$"Em" G4 |
+"Bbo" A4 |"Am" G4 |"D7" F"C" z"Bm" z"Bb7" z |$"Am" c c"AmM" c3/2 c/ |"Am" d c"F#ø" c2 |
+"F7" c B"E7" B2 |"Eb7" B A"D7" A2 |$"Am" A4 |"D7" B4 |"Bm" A2"Em" G2 |"Am" z2"D7" z2 ||$
+"Dm" G d"G7" d d |"Dm" d c"G7" B A |"Bø" A4 |"Bb7" ^G4 |$"Am" E c"AmM" c c |"Am" c B"Bm" A G |
+"Cm" G4 |"D7" F4 ||$"G" B B"G6" B B |"Am" c B"Em" B2 |"Dbø" B A"Co" A2 |
+"Bø" A ^G"Bb7" ^G2 |$"Am" A2"AmM" c2 |"Am" c2"Ab7" F2 |"G6" G4 | z4 |]
+
+X:2
+T:Call Me
+C:Tony Hatch
+L:1/8
+M:C
+I:linebreak $
+K:E
+"E" B3 c d2 e2 | f2 e2 d2 c2 ||[K:D]"Em" z2 Bc d3 e |"A7" f2 e2 d2 c2 |"D" A3 B c2 d2 |
+e2 d2 c2 B2 ||$[K:C]"Dm" z2 AB c3 d |"G7" e2 d2 c2 d2 |"C" d4 G4 |"Dm" (3d2 e2 d2"G7" (3c2 B2 c2 |
+"C" d4 G4 |"Dm" (3d2 e2 d2"G7" (3c2 B2 c2 |$"C" d4 G4 |"Am" (3d2 e2 d2 (3c2 d2 c2 Ox///||1
+[K:E]"Abm" B4"G7" z4 |"Gbm" z4"F7" z4 :|2[K:E]"Abm" B4"Gbm" z4 |"E" z4"Dbm" z BBB ||$
+"Gbm" f4"B7" gBBB |"Gbm" f4"B7" g4 |"E" z2 ee"Gbm" ddcc |"Abm" B4"G7" z BBB |"Bbø" f4 gBBB |$
+"Ao" f4 g4 |"Abm" z2 ee"Go" ddBB |"Gbm" f4"B7""_D.C. al Coda" z4 ||O"E" B4"D" z4 |
+"E" z4"D" z4 |"E" z4"D" z4 |"E" z8 |]
+
+X:3
+T:Chameleon
+C:Herbie Hancock
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+z G,A,=A, |: B,2 AB z CD=D | E2 Bd z G,A,=A, :|:$ B,2 AB z CD=D | E2 Bd z G,A,=A, :|:$
+"Bbm" BB AA BB d2 |"Eb7" B4 z BAF |"Bbm" AB z2 z4 |"Eb7" de z2 z4 :|:$"Bbm" BB AA BB d2 |
+"Eb7" B4 z BAF |"Bbm" AB z2 z4 |"Eb7" de z2 z4 :|:$"Bbm" z f e2 ed de |"Eb7" dBFDB, BAF |
+"Bbm" AB z2 z4 |"Eb7" de z2 z4 :|:$"Bbm" z f e2 ed de |"Eb7" dBFDB, BAF |"Bbm" AB z2 z4 |
+"Eb7" de z2 z4 :|$"Bbm" z f e2 ed de | dBFD B,4 | z8 |]
+
+X:3
+T:Chelsea Bridge
+C:Billy Strayhorn
+L:1/8
+M:C
+I:linebreak $
+K:Db
+"Db" z2 B,C DE (3FGA S||"Eb7" =A6 B2 |"Db7" =G6 _A2 |"Eb7" =A2 B2"Db7" =G2 _A2 |"Bb7" =D8 |$
+"Ebm" FD- D6 |"Ab7" FA- A6 |"Db" FD- D2-"_Fine" D4 :|"Ebø" z8 "Ab7" x4||
+[K:E]"F#m" (3B2 B2 B2"B7" B4 |$"E" z2 D/E/G/B/"C#m" d/f/c z2 |"F#m" (3B2 g2 e2"B7" (3c2 =c2 B2 |
+"Bm" =d4"E7" z2 EF ||[K:G]"A" ^G3 A"Am" e2"D7" dc |$"G" Bd- d2-"C" d2 cB ||
+[K:Db]"Gm" (3B2 =G2 B2 (3=d2 B2 =d2 |"E7" =g2 =B,C =D=E"_D.S. al Fine" (3F=GA ||
+
+X:2
+T:Chicago
+C:Fred Fisher
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+a2 S||"Ab" g4"Bbm" f2 a2 |"Cm" g4"Fm" f2 c2 |"Bbm" dcBe"Eb7" z2 z B |
+"Bbm" dcBe"Eb7" z2 d2 Ox///||$"Dø" c4 B2 d2 |"Dbo" c4 B2 G2 |"Fm" AGFF"Bo" z4 |
+"Bbm" z4"A7" z4 |"Ab6" ABcd"Bbm" ef-fe |"Cm" g2 ef-"F7" fe f2 |$"Bb7" c4 B2 f2 | c4 B2 c2 |
+"Bbm" (3d2 e2 d2"Eb7" c2 B2 |"Bbm" (3d2 e2 d2"Dbo" c2 B2 |"Cm" e4"B7" z4 |
+"Bbm" z4"A7" z2"_D.S. al Coda" a2 ||$Ox/"Gø" c4 B2 d2 |"Gb7" c2 c2 B2 B2 |"Fm" A4"E7" z4 |
+"Ebm" z4"D7" z4 |"Db" cB-Bc"Db6" B2 cB- |"Dbm6" BcBB-"Gb7" B4 |$"Ab6" fe-ef"Bbm" e2 fe- |
+"Cm" efee-"Bo" e2 aa |"Bbm" g4 f2 a2 |"Eb7" g2 g2 f2 g2 |"Ab6" a8 |]
+
+
+X:2
+T:Come Rain Or Come Shine
+C:Harold Arlen & Johnny Mercer
+L:1/8
+M:C
+I:linebreak $
+K:Gb
+"Gb" B2 BB"B" B B2 B |"Fm" BB B2"Bb7" B B2 B |"Ebm" BG G2"EbmM" G4 |"Ebm" z4"Ebm6" z4 |$
+"Ebm" B2 BB"Ab7" B B2 B |"Abm" dB B2"Db7" B B2 B |"Dbm" BG G2"Gb7" G4 |"Dbm" z4"Gb7" z4 |$
+"Bm" c6"E7" =Ac |"Gbm" d G3"B7" G2 G2 |"Bm" c6"Am" =Ac |"Abm" d4"Db7" z4 |$"Cø" e6"F7" de |
+"Bbø" =e4"Eb7" d2 _e2 |"D7" =ed"Db7" _e2"C7" d2"B7" cA |"Bb7" B2"A7" A2"Ab7" z2"G7" z2 |$
+"Gb" B2 BB"B" B B2 B |"Fm" BB B2"Bb7" B B2 B |"Ebm" BG G2"EbmM" G4 |"Ebm" z4"Ebm6" z4 |$
+"Ab7" =c2 =c=c =c =c2 =c |"Gm" =c=c =c2"C7" =c =c2 =c |"Fm" =dB B2"Bb7" B4 |"Fm" z4"Bb7" z4 |$
+"Eb7" e2 ee"Bbm" e e2 e |"Gbo" e2 E2"Eb7" E4 |"Ab7" e2 ee"Ebm" e e2 e |"Bo" e2 E2"Ab7" G4 |$
+"Ebm" B2 Bc"Ab7" =c e3 |"B7" f2 fe"Bb4" fe f2 |"Eb7" e8 | z8 |]
+
+X:2
+T:Confirmation
+C:Charlie Parker
+L:1/8
+M:C
+I:linebreak $
+K:F
+"F" A c2 A"Bb" BA (3EF^F |"Eø" GdBG"A7" A ^C2 G |"Dm" z F3"G7" z2 z A |"Cm" GBAG"F7" z F2 B |$
+"Bb7" =B_B_AF B A3 |"Eb7" z cBG"D7" ^FAD=B |"G7" z edA z2 z _e/d/ |"Gb7" ^c^FGE z ^c3 ||$
+"F" A2 z F"Bb" (3BA_A G=A |"Eø" F/G/^DE z"A7" z ^C2 G |"Dm" z F2 z"G7" z2 z A |
+"Cm" GBAG"F7" F2 FF |$"Bb7" z _ABF _AB z2 |"Eb7" z _EGB"D7" A/G/^F z2 |
+"Gm" GB (3A/B/A/G"Gb7" c^GAF |"F" z4"F6" z2 z d ||$[K:Bb]"Cm" c2 z E/C/"CmM" =B G2 G |
+"Cm" (3BA_A GE"F7" =A _G2 F |"Bb" AGAG"Bb6" z2 z G |"Bb" z4"Bb6" z2 z B ||$
+[K:Db]"Ebm" (3dB=E c/B/G"Ebm6" z AF_F |"D7" EAA z A A2 G/=E/ |"Db" F/A/e z =d"Db6" _d/B/ z z2 ||$
+[K:F]"Gm" z GDF"Gb7" _AE_DC ||"F" z c3"Bb" BA (3EF^F |"Eø" GdBG"A7" A^C z G |
+"Dm" z F z2"G7" z2 z A |"Cm" GBAG"F7" z F2 B |$"Bb7" =B_B _A/B/_A/F/ B A3 |"Eb7" z cB^G"D7" A^CDF |
+"Gm" z DF^G"Gb7" A F2 F- |"F" F4"F6" z4 |]
+
+X:2
+T:Dancing On The Ceiling
+C:Richard Rodgers
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" z C"Gm" D E |"Dm" F G"A+" A2 |"Bb6" G F"E7" E D |"Am" c c"Abm" =B2 Ox/||$
+"Gm" B2"Go" z c |"Am" A2"Ab7" z2 |"Gm" G2"Gb7" z A |"F" F2"F6" z2 :|$"Gm" z G"Am" G G |
+"Bb6" G/G/ G/A/"Eb7" F G |"F" A2"Gm" c2 |"Am" c2"Bb" z2 |$"Bø" z G G G |
+"Bb6" G/G/ G/A/"Bbm6" F G |"Am" A2"Ab7" c2 |"Gm" c2"Gb7""_D.C. al Coda" z2 ||$Ox/"Gm" B2"GmM" d2 |
+"Gm" z2"Gb7" E2 |"F6" F4 | z4 |]
+
+X:2
+T:Desafinado
+C:Antonio Carlos Jobim
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" z C/D/ E/ F3/2 | E D ^C D |"G7b5" F ^C ^C2 | z4 |$"Gm" z D/E/ F/ G3/2 |
+"C7" F E ^D E Ox/||"Aø" c ^D ^D2 |"D7" z4 ||1$"Gm" z/ D/ c/B/"Gm/F" A G |
+"Eø" B A"A7" ^D E ||[K:D]"D" F A F D |"D7" ^D4 ||$[K:F]"Dø" z _A/G/ F D |"G7" _A G F D |
+"F#" F ^C ^C2 | z4 :|2$"Gm" c/B/"Am" A G |"Bbm" B A"Eb7" G F |"Am" G F"Dm" G F ||
+[K:A]"Bø" A2"E7" z2 |$"A" E F E F |"A6" E D C D |"Bm" E B, E2 |"E7" z2 z C |$"C#m" E F E F |
+"D" E D C D |"Bm" E B, E2 |"E7" z4 |$"A" E F G A |"A6" B A C D |"Bm" E/F/E/F/ E2 |"E7" z2 E ||$
+[K:F]"Em" G A G A |"Eb7" G F E F |"Dm" G D G2 |"G7" z2 z/ D/ G/A/ |$"Gm" B A B A |"Ab7" c B A B |
+"G7" G4 |"Gb7""_D.C. al Coda" z4 ||$Ox/"Aø" d _d c =B |"D7" B d A ^G/A/ |"Gm" c _c"Am" B A |
+"Bbm" B A"Eb7" G F |$"Am" A2"Dm" z F |"G7" G2 D E |"Bø" F/F/F/F/ F F |"Bbm" F2 D E |
+"A+" F/F/F/F/ F c |$"Ab7" B2 D E |"G7" F/F/F/F/ F F |"Gb" F E ^D E |"F" G F F2 | z4 |]
+
+
+X:2
+T:Dolphin Dance
+C:Herbie Hancock
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" z2 (3G A B |"Eb74" F4 |"Eb" z2 (3G A B |"D7" F2"Db7" z2 |$"Cm" z2"Cm/Bb" (3E F G |
+"Ab7b5" D2"D7" D2 |"Cm" z2"Cm/Bb" (3E F G ||[K:G]"Am" D2"Ab7" C2 |$"G" B, F3 ||
+[K:Eb]"Abm" _G _G"Abm/Gb" (3A _G A |"Fm" B4 |"Bb7" z2"Fo" z B |$"Eb" G B3 |
+"Cm" B B"Cm/Bb" (3c B c ||[K:G]"Am" d4 |"Ab7" z4 |$"G" z2 (3B c d |"G74" A4 |"G7b5" z2 (3G A B |
+"G74" =F2"G7" z2 |$"F74" z2 (3_E =F G |"F7b5" D4 |"F74" z2 (3_E =F G |"Em" A2"A7" z2 |$
+"Eb7" A/_B/A/G/ A A |"D7" d B z2 |"Bm" B/^c/B/A/ B B |"E7" e2"Dø" =f2 |$"Dbm" f2 (3e B ^G |
+"F#7" ^d2 F2 |"E74" B4 |"Em6" z4 |"E74" z4 |"Em6" z4 |]
+
+X:1
+T:Don't Explain
+C:Billie Holiday
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Fm6" F2 A2"Dø" z2 cF |"Gø" G4"C7" z4 |"Fm6" F2 A2"Dø" z2 GA |"Gø" G4"C7" z4 |$
+"Gb7" e2 d2"F+" z4 |"E7" d2 c2"Eb7sus" z2 cF ||1"Ab" G8- |"Gø" G4"C7" z2 C2 :|2
+"Ab" A4"Dø" z4 |"Gø" z4"C7" z4 ||$"F7" ccec"Bbm" d d3 |"Eb7" BBdB"Ab" c4 |
+"Db" AAcA"Gø" B B3 |"Db7" GABB"C7" BA G2 |$"F7" ccec"Bbm" d d3 |"Eb7" BBdB"Ab" c4 |
+"Db" AAcA"Gø" B B3 |"Db7" GABA"C7" G4 ||$"Fm6" F2 A2"Dø" z2 cF |"Gø" G4"C7" z4 |
+"Fm6" F2 A2"Dø" z2 GA |"Gø" G4"C7" z4 |$"Gb7" e2 d2"F+" z4 |"E7" d2 c2"Eb7sus" z2 cF |
+"Ab" A8- | A2 z2 z4 |]
+
+X:4
+T:Donna Lee
+C:Charlie Parker
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Ab6" z4 (3gag f=e |"F7" _edcB =ACEF |"Bb7" (3_GAG FE =DFAc | GF z2 z2 =E=D |"Bbm" E2 z D FAce |
+"Eb7" dFAc =BG=ED |$"Ab" CEGB A2 EF |"Ebm" _GBdf"D7" =ec z2 |"Db" e4- edcB |"Dbm" ed z2 _g_fed |
+"Ab" ccd=d e_dcB |"F7" =Acef (3_gag fe |$"Bb7" =dc=B=A _B_A z =D/F/ | (3G_GF =E2 z4 |
+"Bbm" edFA cBAF |"Eb7" GBde (3_f_g_f ed ||"Ab" c2 z2"G7" (3gag f=e |"F7" _edcB =ACEF |$
+"Bb7" (3_GAG FE =DFAc | GF z2 z2 GF |"Bbm" =EFGA BAGF |"Gø" (3ded cB"C7" (3ABA G=E |
+"Fm6" F2 z2 z4 |"C7" z4 z2 z G |"Fm6" c=Bc^c =dcd^d |$"C7" =e^ded =d_dcB |"Fm6" (3ABA GA BAGF |
+"Bo" =B,=DFA =Bgf=e |"Cm" _edcB"F7" =A_GFE |"Bbm" DFAc"Eb7" BAGE |"Ab6" A4 z4 | z8 |]
+
+X:2
+T:Early Autumn
+C:Ralph Burns & Woody Herman
+L:1/8
+M:C
+I:linebreak $
+K:D treble
+"D" z4"Eb7" A^AB^B S|:"D" cAFD c4 ||[K:C]"Abø" z ded"Db7" _d2 c2 |"C" BGEC B4 ||$
+[K:Bb]"Gbø" z cdc"B7" =B2 _B2 |"Bb" AFDB, A4 ||[K:D]"Eø" z _B=c_B"Eb7" A2 =F2 Ox/||1$
+"F#m" E2 E2-"G" E4- |"Em" E4"Eb7" A^AB^B :|2"D" E2 E2-"Em" E4 |"F#m" E4"G" z A,B,C ||$
+"Em" D3 B,"Go" F F3 |"Bm" z CED"Fo" c c3 |"Em" B2 AG"Eb7" FEFA |"Do" E4"D" z A,B,C ||$
+[K:C]"Dm" D3 C"G7" E2 ^CD |"C" ^D2 E2 G2 B2 |"F7" dd- d4 c2 ||[K:E]"E" d4"D7" "_D.S. al Coda" e4 ||$
+[K:D]Ox/"D" E2 E2-"Em" E4 |"C7" _B2 _B2-"B7" B2 A2 |"D" D8 |]
+
+X:2
+T:Easy To Love
+C:Cole Porter
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"Bbm" z"Bbm6" F3 |"Cø" B,3"B7" C |"Bbm" D2 C D |"A7" G3 F |$"Ab" E2 =D E |"Bbm" B =A _A G |
+"Cm" F2 =E F Ox/||"B7" e4 |$"Bbm" e4 |"Eb4" F2 G2 |"Ab" c c c2 |"Ao" z4 |$
+"Bbø" z e E E |"Dbø" (3=E =E =E (3F F F |"Cm" G G G2 |"Bo""_D.C. al Coda" z4 ||$
+Ox/"F7" f3 c |"Bbm" e2"Cm" B2 |"Dbm" d2"Gb7" A2 |"Cm" c2 G A |$"Bo" B =A _A G |"Bbm" F4 |
+"A7" c2 (3c =B B |"Ab6" A4 | z4 |]
+
+X:3
+T:End Of A Love Affair
+C:Edward Redding
+L:1/4
+M:C
+I:linebreak $
+K:F
+F/G/ S|:"Gm" A3/2 A/"C7" (3A G F |"Fo" E3 D/C/ "F" x4||[K:Eb]"Fm" G3/2 G/"Bb7" (3G F E |$
+"Ebo" D3 C/B,/ "Eb" x4||[K:Db]"Ebm" (3F F F"Ab7" F A/B/ |"Db" (3F F F"Bbm" F E/D/ ||$
+[K:F]"Gm" (3C C C"Gb7" C C ||1"F" C3 F/G/ "Dm" x4:|2"F" C3 F/G/ "Eb7" x4||[K:C]"Dm" (3F D F (3A F D ||$
+"DmM" F F2 D/E/ |"Dm" (3F D F (3A F D |"G7" F3 E/F/ |"C" (3G E G"G+" B A/G/ |$"C" A"Am" B2 c ||
+[K:F]"Gm" d4- |"C7" d3 "_D.S. al 3rd end." F/G/ ||3"Aø" z F/G/"D7" A3/2 A/ |
+"Gm" (3A G F"Am" E2 |$"Bbm" B3 A/A/ "Eb7" x4|"Am" (3E E E E D |"Abo" G3 F/E/ |
+"Gm" D D/C/"Gbo" D D/C/ |"Gm" (3D F B"C7" d E |"F" F4 |]
+
+X:2
+T:Fly Me To The Moon
+C:Bart Howard
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Am" c3/2 B/ A G |"Dm" F3/2 G/ A c |"G7" B3/2 A/ G F |"C" E4 |$"F" A3/2 G/ F E |
+"Bø" D3/2 E/ F A |"E7" ^G3/2 F/ E D |"Am" C2 ^C2 |$"Dm" D A A2 |"G7" z2 c B Ox/||
+"C" G4 "F" x4|"Em" z2"A7" z ^C |$"Dm" D F F2 |"G7" z2 A G |"C" E4 |"Bø" z4"E7""_D.C. al Coda" x4 ||$
+Ox/"Em" e4 |"A7" z2 z ^C |"Dm" D F F2 |"G7" z2 E E |"C" C4 | z4 |]
+
+X:1
+T:For All We Know
+C:Fred Coots
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" E2"Cm" z B, |"F7b5" G2"F7" z F/E/ |"Fm" D/E/F/G/"Bb7" F2 |"Fm" z2"E7" z B, |$"Eb" G2"Fm" z E |
+"Gø" B2"Gb7" z A/G/ |"Fm" F/G/A/B/"FmM" A2 |"Fm" z2"F#o" =A2Ox///||$"Gm" B2 B B |"Gbo" d2 c2 |
+"Fm" B2"Fm/Eb" A B |"Dm" G2"Db7" F B, |$"Cm" E2"CmM" E E |"Cm" C2"Co" D E |"Fm" A C E G |
+"Bb4" F3"_D.C. al Coda" B, ||$Ox/"Gm" B2"Cm" B B |"Am" d2"D7" z c |"G7" (3=B c d"G7b5" G G |
+"C4" G2 z G |$"Fm" (3A B c"F7b5" F F |"Bb4" F F"Bb7" E D |"Eb6" E4 | z4 |]
+
+X:2
+T:Four Brothers
+C:Jimmy Giuffre
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Bb7" c=BcB cAF=D |"Bbm" DFAc"Eb7" =BGED |"Ab" CEGB"Db7" z A z E |$"Cm" G F3"F7" z2 z G |
+"Bbm" AFDB,"Bo" AF=D=B, |"Cm" G2 B,=A,-"F7" A,2 z =E ||1$"Bbm" FDCB, E=B,CE- |
+"Ab" E2 z2"Ao" z2 z =B :|2"Bbm" FDCB,"Eb7" E=B,CA,- |"Ab" A,2 z2"Fm" z2 z G ||$
+[K:B]"C#m" GECB,"F#7" A,CEG |"B" FDEF- F2 z2 ||$[K:D]"Em" FDCB,"A7" AFGA- |"D" A4"D6" z2 z F ||
+[K:C]"Dm" FEDC"G7" B,DFA |$"C" GFED"A7" ^C_BAE |"Dm" GF z C"G7" E2 DC ||
+[K:Ab]"Cm" z F3"F7" z2 z "_D.C. al 3rd end." =B ||3$"Bbm" FDCB,"B7" E=B,CA,- |"Ab6" A,4 z4 |]
+
+X:2
+T:Free Again
+C:Armand Canfora & Joseph Baselli
+L:1/8
+M:C
+I:linebreak $
+K:C
+"Am6" BA A6 |"AmM" z2 BA dc- c2 |"Am" BA A6 |"Gbø" z2 BA ed- d2 |"Bø" c3 B B4- Ox/||$
+"F7" BBcB d2 c2 |"E7" cB-BB cBdc | cB- "_D.C. al Coda" B6 ||$Ox/"B7" (BB)cB g2 f2 ||
+[K:A]"E7" =fe-ee fe=gf | fe e6 ||$"A" d3 c c4- |"D" c2 dc edcd |"G#ø" c3 B B4- |
+"C#7" B2 cB dc G2 |$"F#m" B3 A"C#7" B4- |"F#m" B2 cB"C#7" d2 B2 |"F#m" B3 A A4- |
+"D#ø" A2 BA G2 A2 |$"B7" c2 B4 F2 ||"Bm" c2"E7" B6 :|[K:Ab]"Ab" d3 c c4- |"Db" c2 dc edcd |$
+"Gø" c3 B B4- |"C7" B2 cB dc G2 |"Fm" B3 A"C7" B4- |"Fm" B2 cB"C7" d2 B2 |$"Fm" B3 A A4- |
+"Dø" A2 BA G2 A2 |"Bb7" c2 B4 F2 |"Bbm" c2"A7" d6 |"Ab" B3 A A4- | A8 |]
+
+X:2
+T:Georgia On My Mind
+C:Hoagy Carmichael
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" B/ d3/2 z2 |"F#ø" B/ A3/2"B7" z2 |"Em" z B"Em/D" e B |"Dbø" A2"Cm" z"F7" G/A/ ||1$
+"G" B/ d3/2"E7" f e |"Am" c/ d3/2"D7" B A |"Bm" d2"Em" z2 |"Am" e/e/e/e/"D7" ^A2 :|2$
+"Bm" B/ d3/2"E7" f e |"Am" c E"D7" B B |"G" G4 | "_Fine" z4 |]$"Em" z/ E/ G"F#ø" A B |
+"G6" G E"F#ø" G2 |"Em" z/ E/ G"F#ø" A B |"G6" d B"F#m" ^c2 |$"Em" z/ E/ G"Ebo" A B |
+"Em/D" d e"Dbø" f"F#7" e |"Bm" d3/2 B/"E7" d B |"Am" A2"D7" "_D.C. al 2nd end." ^A2 ||
+
+X:2
+T:Girl Talk
+C:Neal Hefti
+L:1/8
+M:C
+I:linebreak $
+K:G
+"G" z B BB"C#7" BBBB |"C" BBEE"Am" GG"D7" A2 |$"B7" z B BB"E7" BBBB |"Am" cc"Bm"BB"C" GG"D7" E2 |$
+"Gm" z _B BB"Cm" BBBB |"Aø" _BB_EE"D7" GG A2 |$"B7" z B BB"E7" BBBB |
+"Bø" ddcc"E7" BB (3BEG- |$"Am" G4-"Em" GB (3BEG |"C" G4"C#ø" x4"D7" z2 (3GAG |"Bm" d4"Em" B4 |
+"Am" G4"D7" E4 :|"G" G8- | G4 z4 |]
+
+X:3
+T:Goodbye, Yellow Brick Road
+L:1/8
+M:C
+I:linebreak $
+K:F
+"Gm" G G2 G BB d2 |"C" e8 |"F" A A2 A c2 c2 |"Bb" d6 F2 |$"Eb" G2 G2 BB B2 |"C7" c4 B2 G2 |
+"F" FF F2 AF f2- | f4 z2 c2 |$"Gm" bb b2 bd d2 |"C7" d2 e4 G2 |"F" AA A2 cc d2- |"Bb" d6 F2 |$
+"Eb" G2 G2 BBBB |"C7" c2 d2 cG E2 |"F" F2 F2 FG E2 | F2 A4 c2 ||$[K:Ab]"Db" d4 F4 |"Eb" G8 |
+"Ab" c3 B A2 G2 |"Db" F8 |"Bbm" d4 F4 |"C7" G6 c2 ||$[K:F]"F" f2 ff fc A2 |"A7" e6 ^cc |
+"Bb" d2 d^c dB F2 |"F" A6 c2 |$"D7" a2 a2 ab a2 |"Gm" g2 d4 d2 |"C7" e2 e2 ef g2 |"F" f8 |$
+"Dm" a2 aa fc A2 |"A" e2 ee e4 |"Bb" ff f2 dB F2 |"Db" _A8 |$ z4 _A2 G2 |"F" F2 FF AA c2 |
+"Dm" df f4 d2 |"Bb" f3 f"C7" fg e2 ||$[K:Ab]"Db" d4 F4 |"Eb" G6 z2 |"Ab" c3 B A2 G2 |"Db" F8 |
+"Bbm" d4 F4 |"C7" G8 ||1"F" A8 | z8 :|2"F" A8 |]
+
+X:3
+T:Groovin' High
+C:Dizzy Gillespie
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Fm" z4"E7" z2 _c=A |:"Eb" BG z2 z4 | BG z2 z4 |"Am" z =E =Ac"D7" =BA^G=E |$
+"Am" GF^Fd-"D7" d2 c=A |"Eb" BG z2 z4 | BG z2 z4 |$"Gm" z D GB"C7" =AG^FD |"Gm" F^D=Ec-"C7" c2 BA |
+"F7" =AF z2 z4 |$"F7" (3=AB=A F2 z4 ||1"Fm" z C FA"Bb7" GF=EC |"Fm" E^CDB-"Bb7" B2 A^F |$
+"Eb" GB df-"Gm" f2 dB |"F#m" =e^c z2 z4 |"Fm" FA ce- e2 cA |$"E7" d=B z2 z2 B/^c/B/=A/ :|2
+"Fm" z CFA"Bb7" GF=EC |"Fm" E^CDB-"Bb7" B2 A=E |$"Fm" F2 FG AG F2 |"Abm" A2 AB"Db7" _cB A2 |
+"Eb6" e4 z4 |]
+
+X:2
+T:Have You Met Miss Jones
+C:Richard Rodgers & Lorenz Hart
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" A D C D |"F#o" C4 |"Gm" D E F G |"Go" A B c2 |$"Am" d G"Dm" F G |"G7b5" F2 A2 ||1"Gm" B4 |
+"Gb7" z4 :|2$"Gm" c2"C7" z2 ||[K:Bb]"Cm" z d"B7" d d |"Bb" c B"Bb6" F G ||
+[K:Gb]"Abm" A A"G7" A A |$"Gb" A G"Gb6" D E ||[K:D]"Em" E E"Eb7" E E |"D" E D"D6" F A ||
+[K:Gb]"Abm" d2"G7" z d |$"Gb" B4 ||[K:F]"Gm" z4 "Gb7" x4|"F" A D C D |"F#o" C4 |"Gm" D E F G |$
+"C7" A B c d |"Bø" e4 "Abo" x4|"Gm" z d"Gb7" A A |"F6" F4 | z4 |]
+
+X:2
+T:Here's That Rainy Day
+C:Jimmy Van Heusen
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" D"F#7" D2 D ||[K:Bb]"Bb7" D F"E7" B d |"Eb" d3 c/=B/ |"Cm" c4 ||$[K:G]"Am" D"Bm" D2 D |
+"C" D F"D7" A c |"G" B4- "Em" x4|"Dm" B2"G7" z G ||1$[K:Bb]"Cm" e2"CmM" z e |"Cm" e G"F7" ^G A |
+"Bb" d2 F ^F |"Eb" G4 ||$[K:G]"Am" c2"AmM" z c |"Am" c E"D7" ^E F |"F7" B4- "E7" x4|"Eb7" B4 "D7" x4:|2$
+"C" e e2 e |"F#ø" e A"Co" B c |"Bm" d2"Em" F G |"A7" A3 G |$"Am" D"Bm" D2 D |
+"C" D F"D7" A B |"G6" G4- | G4 |]
+
+X:2
+T:How About You
+C:Burton Lane
+L:1/4
+M:C
+I:linebreak $
+K:C
+"C6" C2"Dm" D B, |"Em" C D"Ebo" B,2 |"Dm" A, A, A, E |"G7" z4 Ox/||$"C6" C2"Dm" D B, |
+"Em" C D"Ebo" B,2 |"Eø" _B, _B, _B, F |"A7" z4 |$"Dm" z E D C |"G7" D E C2 |
+"Em" D E"Am" C C ||[K:E]"F#ø" =C2"B7" z2 ||$"G#m" B, B,/B,/"C#m" B, B,/B,/ |
+"F#m" B, B,/B,/"B7" B, B,/B,/ |"E7" G G"A7" z2 ||[K:C]"D7" z4"G7" "_D.C. al Coda" x4 ||$Ox/"Gm" G2 A F |
+"C7" G A F2 |"F" E E E D |"Bb7" z2 E F |$"Em" G C/C/C/C/ C |"Ebo" ^G C/C/C/C/ C |"F" z A G F |
+"Bb7" E3 D |$"Em" C2"Ebo" D B, |"Dm" C A"G7" B,2 |"C6" C4 | z4 |]
+
+X:2
+T:How Insensitive
+C:Antonio Carlos Jobim
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"Bm6" f4- | f2 g2 |"Bbo" f4- | f2 g2 |"Ao" f3 ^e/f/ | a _a g f |$"Abø" f2 e2- | e4 |
+"G6" e4- | e2 f2 |"C" e4- | e2 f2 |$"C#ø" e3 ^d/e/ |"F#7b5" g f =f e |"Bm" e2 d2- |"Bm6" d4 |$
+"Am" d4- |"D7" d2 e2 |"Abø" d4- | d2 (3e d e |"G" f3/2 d/ B2- |"F#7" B2 c2 |$"Bm" d4- |"E7" d4 |
+"Am" d4- |"D7" d2 e2 |"G#m" c4- |"C#7" c2 d2 |$"C#ø" c3 ^B/c/ |"F#7" e _e d c |"Bm6" c2 B2 |
+"Bm6" B4 |]
+
+X:2
+T:How My Heart Sings
+C:Earl Zinders
+L:1/8
+M:3/4
+I:linebreak $
+K:C
+^fa |:"Em" g4 B2 |"Am" c4 de |"Dm" f4 A2 |"G7" B4 cd |"C" e4 c2 |$"F" A2- ABce |"Bø" d4 B2 |
+"E7" ^G6 |"Am" z A B2 c2 |$"Abo" d2 B2- B^G |"Am" A2- ABcA ||1[K:E]"F#ø" e6 |"E" B2- Bc e2 |$
+"Go" f2- fd =c2 |"F#m" c2- ce c2 |"B7" g4 fg ||[K:A][M:C]"D" a6 f2 |"A" e6 c2 |$"D" a6 f2 |
+"A" e8 ||[K:G]"C" g6 e2 |"G" d6 B2 |"C" G4- GEGB |"B7" d4- dfga :|2$
+[K:C][M:3/4]"D7" e2- e"D#o"B c2 |"Em" g6 |"Am" c2- cd e2 |"Dm" f6 |"G7" B6 |"C" c6- | c6- | c6 |]
+
+X:2
+T:I Could Write A Book
+C:Richard Rodgers & Lorenz Hart
+L:1/4
+M:C
+I:linebreak $
+K:Db
+"Ab7" z2"D7" F G ||"Db" A2"Bbm" c2 |"Ebm" B A"Ebo" F E |"Fm" F2"E7" z2 |$"Ebm" z A"D7" F E |
+"Db" F A"Ebm" F E |"Fm" F d"Eo" z F |"Ebm" A4 |$"Ab7" z2"Eo" B c |"Bbm" d2"Eo" d2 |
+"Ebm" d e"Ab7" z c ||1$"Gø" B2"Gb7" B2 |"Fm" A2"Fo" F =G |"Fm" A2"Fo" A2 |
+"Bbm" A B"Eb7" z =G |"Ebm" A4 :|2$"Abm" =B2"G7" =B2 |"Gb" B2"Gbm" A G |"Fm" F2"E7" F2 |
+"Ebm" E d"D7" z c |"Db6" d4 |]
+
+X:2
+T:I Got It Bad
+C:Duke Ellington
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" ^C D"Am" e d |"Bm" F G"Em" A G |"A7" z B"Em" G A |"Co" B4 "C#ø" x4|"C" z B"Bm" G A |$
+"Am" B d"Ab7" G B ||1"G6" G4 "G#o" x4|"Am" z4 "Ab7" x4:|2"G6" G2"Em" z2 "Ebm" x4|"Dm" z2 z G "Db7" x4||$
+"C6" A B d c | B A2 G |"Cm6" A B d c |"F7" A3 B |"G" F G"Am" B d |$"Bm" f"Bb7" e2 B |"Am" d c2 E |
+"D7" B "_D.C. al 3rd end." A3 ||3"G6" G4- | G4 |]
+
+X:2
+T:I Gotta Right To Sing The Blues
+C:Harold Arlen
+L:1/8
+M:C
+I:linebreak $
+K:Db
+"Bbm" fed |:"Eb7" ffed"Bbm" f4- |"Gbo" f4-"Gø" ffff |"Ebm" (3a2 a2 a2"Ab7" _f4- |$
+"A7" f6"Ab7" _ff |"Abm" eeee"AbmM" e4- |"Abm" e4"Db7" afdc |"Fø" _c8 |"Bb7" B4- Bfed ||1$
+"Eb7" ffed"Bbm" f4- |"Gbo" f4-"Gø" ffff |"Ebm" aaaa"Ab7" _f4- |$"Ebm" f6 AB "Ab7" x4|
+"Db6" d4"Ebm" e4 |"Eo" =e4"Bbm" f4 |"Ebm" g4"Eo" =g4 |"Db6" a4-"Bbm" afed :|2$
+"Eb7" f2 d2"Bbm" f4- |"Gbo" f4-"Gø" ffff |"GbmM" f2 d2"B7" f4- |$"GbmM" f4-"B7" ffed |
+"Db" ffed"G7" f3 =A |"Gb" Bd"Fm"ef"Ebm" g2"Ab7b5" f2 |"Db" d8 |]
+
+X:2
+T:I Hear A Rhapsody
+C:George Frajos
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"G7" z G =A =B S|:"Cm" d3/2 c/"Gb7" e2- |"Fm" e2"Bb7" d2 |$"Eb7" (3B E F"D7" B2 |
+"Db7" z G"C7" (3G A B |"Fm" B3/2 A/"Abm" _c2- |$"Bm" c D"E7" D D ||1"Eb" F3/2 E/"Ab" E2- |
+"D7" E G"G7" =A =B :|2$"Eb" F3/2 E/ E2- ||[K:Bb]"A7" E4 "D7" x4||"Gm" z D D D |"Eb7" E3 C "D7" x4|$
+"Gm" E3/2 D/ D2- |"Cm" D4 "F7" x4|"Bb" z F F F ||[K:Eb]"Fm" A3 F |$"D7" c3/2 =B/ B2- |
+"G7" B G =A "_D.S. al 3rd end." =B ||3[K:Eb]"Eb" F3/2 E/ E2 |]
+
+X:2
+T:I Love You
+C:Cole Porter
+L:1/4
+M:C
+I:linebreak $
+K:F
+"Dm" c ||"Gø" c2 _D2- |"Gb7" D2 B A |"F" ^G A A2- |"F#o" A2 z A |"Gm" A2 B,2- |$
+"C7" B,2 (3G F E |"F" D4- |"Dm" D3 c |"Gø" c2 _D2- |"Gb7" D3/2 B/ B3/2 A/ |$"F" ^G3/2 A/ A2- |
+"Bm" A2"E7" ^G A ||[K:A]"C#m" B3/2 c/"F#7" c2 |"Bm" d3 e "E7" x4|$"A" e4- |"F#m" e2 z e ||
+[K:F]"Gm" f3/2 f/ f2- |"C7" f e (3e d c |"F" e3/2 e/ e2- |$"Bb" e z c d |"Aø" _e3/2 e/ e2- |
+"D7" e d (3c B A |"Gm" G4- |"C7" G2 z c |"Gø" c2 _D2- |$"C7" D2 B A |"A7" ^G3/2 A/ A2- |
+"D7" A2 B c |"G7" ^c3/2 d/ d D |"Gm" A2"C7" A2 |"F" F4 |]
+
+X:2
+T:I Only Have Eyes For You
+C:Harry Warren & Al Dubin
+L:1/4
+M:C
+I:linebreak $
+K:C
+"C#o" D E S|:"Dm" G2"D#7" (3z F E |"Dm" D2"G7" (3z D E |"Em" (3G A G"Eb7" (3F G F |$
+"Dm" D2"Db7" (3z G A |"C" (3B d c"Dm6" B2 Ox/||1"Em" z2"Fm" c2 |"Em" B4 "A7" x4|$
+"Ebm" _B2"Ab7" z _A :|2"Em" z2"A#7" c2 |"A7" ^c4 |"Em" z4 "Eb7" x4||$"Dm" z d c A |
+"Dø" G F"Db7" E D |"C" G2"Dm" G2 |"Em" z4 "Am" x4|$"Gbø" z d c _A |"Fm" G F"Bb7" E D |
+"Em" G4 "A7" x4|"Ebm" _B2"Ab7" z "_D.S. al Coda" _A ||$Ox/"Em" z2"Fm" c2 |"Bm" e4 "E7" x4|
+"Eø" z2"Eb7" f e |"Dm" (3d e d c2 |"Db7" z2 d2 |"C6" c4 |]
+
+X:2
+T:I Should Care
+C:Stordahl, Weston & Cahn
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Gbø" c3 B "B7" x4|"E7" B4 "A7" x4|"D7" (3z A B"G7" (3c B A |"Co" B"C" B3 |"E7" _B3 E |"A7" A4 |$
+"Dm" (3z E F"Em" (3G D E |"Fm" F"Bb7" F3 |"C" (3E F E F E |"Bb7" G"E7" F2 E ||1$
+"Gm" (3E F E"C7" G F |"F" E4 |"Bb7" (3D E D"E7" F E |"Am" D"Am" C3 |"Am" (3D E C"D7" D3/2 D/ |
+"Dm" (3A B G"G7" A B :|2$"Am" B ^G2 A |"Gbø" d3 _d "Ebo" x4|"Dm" c3 A |"G7" B3 c/d/ |"C" c4- |
+c4 |]
+
+X:2
+T:I'll Remember April
+C:Gene De Paul
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" z B c d | c B A G |"C7" A3 G |"G" F E3 |"Gm" z A _B c | _B/A/ G2 =F |$"Eø" G/A/ G3- |
+"A7" G3 G |"Am" A3/2 A/ A2- |"D7" A A"Co" B c |"Bø" d2 d2- |"Bb7" d2 e d |$"Am" B c d c- ||1
+"Ab7" c2 B ^A |"G" B4- |"Em" B3 G ||[K:Bb]"Cm" G3/2 G/ G2- |"F7" G A B c ||$"Bb" d2-"Ebo" d c |
+"Dm" A G-"Db7" G F |"Cm" G3/2 G/ G2- |"F7" G A B c |"Bb" d3/2 d/ d2- |"Eb" d3 d ||$
+[K:G]"Am" d d d d |"D7" e c d B |"G" A2 B2- |"C" B B d c ||[K:E]"F#m" B2 B2- |$"F7" B2 (3B A G |
+"E" B2-"C#m" B2- ||[K:G]"Am" B4 "D7" x4:|2"Ab7" c2 B B |"G" G4- | G4 |]
+
+X:2
+T:I'm A Fool To Want You
+C:Wolf, Herron, Sinatra
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"D7" z ^C/D/ B3/2 ^F/ S|:"Gm6" A/G/- G3 |"Dø" z ^F/G/"G7" e3/2 =B/ |"Cm" d/c/- c3 |
+"Aø" z c d e |$"Cm" e d"Co" A B |"Aø" c G"Bbo" A B Ox/||1"Cm" d A"Eb7" c B |
+"D7" A ^C/D/ B3/2 ^F/ :|2$"Cm" d A"D7" c B |"Gm6" G4 ||"Cm" g/g/ g3- |"F7" g g g g |"Dm" g2 g2 |$
+"G7" f4 |"Cm" e/e/ e3- |"F7" e e e d |"Bb" d4- |"Eb" d4 ||"Aø" c/c/ c3- |$"D7" c c c c |
+"Gm6" c2 B2- | B4 |"Eø" B/B/ B3- |"Eb7" B B B A |"D7" A4- |$
+"D7" A ^C/D/ B3/2 "_D.S. al Coda" ^F/ ||O"Cm" f e d c |"Aø" d ^C/D/"Ab7" B3/2 ^F/ |"Gm6" A G3- |
+G z z2 |]
+
+X:2
+T:I'm Beginning To See The Light
+C:Duke Ellington
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+z =E S|:"Bbm" F/A/ F"Eb7" A B |"Ab" (3c F F"Fm" z =E |"Bbm" F/A/ F"Eb7" A B |
+"E7" (3=B =E =E"Eb7" z =E |$"Bbm" F/A/ F"Eb7" A B |"Ab" (3c"Gb7" e"F7" e (3z e d |
+"Bbm" c/A/ F"Eb7" A A |"Ab" "_Fine" A4 :|$[K:C]"C7" z/ c G/ c G | E/ G3/2 c2 ||
+[K:B]"B7" z/ B F/ B F | D/ F3/2 B2 ||[K:Bb]"Bb7" z/ B F/ B F |$ D/ F3/2 B B/B/ ||
+[K:Ab]"E7" =B/=B/ =B =B A |"Eb4" B2"Eb7" "_D.S. al Fine" =E2 ||
+
+X:2
+T:Ill Wind
+C:Arlen-Koehler
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Bb6" B4 |"Aø" d c"Ab7b5" _A _A |"G7" G4 |"Ebm" _d c"Ab7" B _G |$"Dm" F2-"Gm" F d |
+"Cø" f/e/ _G-"B7" G _A Ox/||"Bb6" F2"Db7" (3_A _A _A ||1"Cm" F4 "B7" x4:|2
+"Cm" F3"B7" z/ ^c/ ||$"D7" d/ D ^c/"Am" d/ D c/ |"Fo" d/ D ^c/"D7" d D |"Dm" (3d d d"G7" d =e |
+"Dm" d2-"G7" d e |$"D7" d/ D e/"Am" d/ D e/ |"Fo" d/ D e/"D7" d D |"Dm" (3d G G"G7" G3/2 G/ |
+"Cø" e _G"B7" "_D.C. al Coda" F2 ||$Ox/"Bb6" B2"B6" (3_A _A _A |"Bb6" F2-"B" F c |"Bb" B4 | z4 |]
+
+X:2
+T:Invitation
+C:Kaper & Webster
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Dm" (3E F e B2 |"DmM" (3z A c (3B A D |"Dm" E4 |"G7" z2 (3E D A |$"Dm" E2 (3E D A |"G7" E2 z D |
+"Gm" A4 |"C7" z4 ||$[K:Eb]"Fm" (3G A g d2 |"FmM" (3z c e (3d c F |"Fm" G4 Ox/||
+"Bb7" z2 (3G F c |$"Fm" G2 (3G F c |"Bb7" G2 z F |"Bbm" c4 |"Eb7" z4 ||$[K:Db]"Ebm" (3B d e f2 |
+"Ab7" (3z B f (3=e =A =e ||[K:B]"C#m" d4 |"C#m6" z4 |$"C#m" (3G B c d2 |"F#7" (3z G d (3=d =G =d ||
+[K:A]"Bm" c4 |"Bm6" z4 |$"Bm" (3F A B c2 |"E7" (3z F c (3=c =F =c ||[K:C]"Am" B4 |
+"Gbø" z2 (3A B c |$"F7b5" B4 | (3z d B (3d B A |"E+" ^G4 | "_D.C. al Coda" z4 ||$
+Ox/"Bb7" z2 (3F G F |"Db7b5" _B2 (3_A B A |"C+" c2 (3c _e _d |"Fm6" g4 | z4 |]
+
+X:2
+T:Jeepers Creepers
+C:Mercer & Warren
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Eø" d2"Ebo" c2 |"Dm" c2"Dbo" B2 |"Cm" z/ c c/"B7" B A |"Bb6" G2"Gm" F2 |$
+"Eø" d2"Ebo" c2 Ox/||"Dm" c2"Dbo" B2 |"Cm" z/ c c/"B7" B A |"Bb6" B2"Fo" z2 :|$
+[K:Eb]"Fm" B2"Fo" G2 |"Gm" B2"Gb7" z2 |"Fm" z/ B A/"E7" G F |"Eb" D E"Cm" C2 ||$
+[K:F]"Gm" c2"Go" A2 |"Am" c2"Ab7" z2 |"Gm" z/ c B/"Gb7" A G |"F4" G A"F7" "_D.C. al Coda" F2 ||$
+Ox/"Dø" c2"Db7" =B2 |"Cm" z/ c c/"Co" B A |"Gm" B2"Db7" _d2 |"Cm" z/ c c/"B7" B A |"Bb6" B4 |]
+
+X:2
+T:Just The Way You Are
+C:Billy Joel
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"D" z2 d f |"Bm" B B3 |"G" z2 B d |"D7" B A3 |"G" z2 G A |"Gm" =F D D A, |"F#m" F4 |"Am" z4 "D7" x4|$
+"G" z2 F E |"Gm" E D3 |"F#m" D F A |"Bm" c d3 ||1"E7" z2 B c | d e c B |"A7" A4 | z4 :|2$
+"E7" z2 B c |"A7" d f B c |"D" d4 | z4 | z4 | "_Fine" z4 |]$"G" z2 B d |"A7" c B A G |"F#m" A3 c |
+"B7" B4 |"Em" z2 G B |"A7" A G F E |"D" F4 | z4 ||$[K:F]"Gm" z2 d f |"C7" e d c B |"Am" c3 e |
+"D7" d4 |"Gm" z2 B d |"C7" c B A G ||[K:D]"A" A4 |"A7" "_D.C. al 2nd end." z4 ||
+
+X:1
+T:Let It Snow
+C:Jule Styne
+L:1/8
+M:C
+I:linebreak $
+K:D treble
+"Em" AA G2"A7" F2 E2 |"D" D2 A,2"D6" z2 E2 |"F#m" E3 D"Bm" E3 D |"Em" C2 A,2"A7" z2 B,2 |$
+"Em" BB A2"Ebo" G2 F2 |"Em" E4"Fo" z2 cB |"Em" AA G2"A7" FF E2 |"D" D4"_Fine" z4 :|[K:A]$
+"A" EF E2"Bm" C2 A2 |"C#m" E4"F#m" z2 EE |"Bm" D2 DC"E7" B,A, B,2 |"A" C4"A6" z2 CD |$
+"A" EF E2"Bm" C2 A2 |"C#m" E4"F#m" z4 |"Bm" AG F2"E7" GF G2 ||
+[K:D]"Em" A4"A7" z2"_D.C. al Fine" A,A, |]
+
+X:2
+T:Liza
+C:George & Ira Gershwin
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Eb" B4"Bb7" B4 |"F#o" c4"C7" c4 |"Ab6" e4"Ao" e4 |"Bbm" f8 "Eb7" x4|$"Ab" z2 e2"Ab6" c2 A2 |
+"Gm" d2 B2"Gb7" G4 |"Fm" z2 cA"E7" FEDF ||1"Eb6" "_Fine" E8 :|2$"Eb6" E8 "Db7" x4||"Cm6" e8 "Aø" x4|
+z"Dø" f ed"Db7" e2 d2 |"Cm" c4"Bo" G4 |$"Bbm" B4"A7" =B4 |"Ab" c8 "Ab6" x4|
+"Gø" z _d c=B"Gb7" c2 _B2 |"Fm" A4"Fm/Eb" E4 |"B7" ^F4"Bb7" "_D.C. al Fine" G4 ||
+
+X:2
+T:Ma Preference
+C:Julien Clerc
+L:1/8
+M:C
+I:linebreak $
+K:C
+"C" E2 G G4 A |"Gm" _BA GF"A7" ED ^C2 |"Dm" D2 F F4 G |$"G7" _AG F_E DC B,2 ||
+[K:Eb]"Cm" C2 E E4 z |"F7" F2 G G4 z |"Fm" ec ec z2 G2 |$"Bb7" B8 ||[K:Gb]"Gb" (3B2 d2 d2 z2 d2 |
+"Abm" ed cB"Db7" (3c2 B2 A2 |"Ebm" (3G2 B2 B2 z2 B2 |"Fø" cB AG"Bb7" A4 |$
+"Gb" (3B2 d2 d2 z2 d2 |"Abm" ed cB"Db7" (3c2 B2 A2 |"Ebm" (3G2 B2 B2 z2 B2 |
+"Fø" cB AG"Bb7" B4 :|[K:Eb]"Eb" G2 B B4 c |$"Bbm" _dc BA"C7" (3G2 F2 =E2 |
+"Fm" (3F2 A2 A2 z2 B2 |"Bb7" _cB A_G (3F2 E2 D2 ||$[K:Gb]"Ebm" E2 G G4 z |"Ab7" A2 B B4 z |
+"Abm" ge ge z2 B2 |"Db7" d8 |"Abm" ge ge z2 c2 |"Db7" z8 |]
+
+X:2
+T:Mercy Mercy Mercy
+C:Josef Zawinul
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Bb" z2 G F3 DB, |"Eb" CB,B,G, B,2 C2 |"Bb" z2 G F3 DB, |"Eb" CB,B,G, B,2 C2 |$"Bb" z2 G F3 DB, |
+"Eb" CB,B,G, B,2 C2 |"Bb" z2 G F3 DB, |"Eb" CB,B,G, B,2 C2 |$"Bb" F2 F2"Bb4" G G3 |
+"Bb7" _A2 _A2"Bb4" G G3 |"Bb" F2 F2"Bb4" G G3 |"Bb7" _A2 _A2"Bb4" G G3 |$"Bb" F2 B,B, DDEE |
+"F" F4"F4" z4 |"Bb" D2 B,B, DDEE |"F7" F4 z F GB |$"Cm" c3 c3 Bc |"Dm" d3 d3 df |
+"Gm" g3"F" f"Gm" g3"F" f |"Gm" g8 |]
+
+
+X:1
+T:Misty
+C:Erroll Garner & Johnny Burke
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"Eb7b5" (3z A F S|:"D" C2"Bm" z A,/B,/ |"Am" =C/B/B/B/"D7" B/A/F/D/ |
+"G" B,2"G6" (3z/ F,/G,/ (3B,/D/F/ |"Gm" A/A/ A/G/"C7" A3/2 G/ ||1$
+"F#m" F (3z/ G/A/"Bm" D (3z/ E/F/ |"Em" (3G B, B,"A7" (3C D E |"C7" F4 "B7" x4|
+"E7" z2"Eb7b5" (3z A F :|2$"F#m" F (3z/ G/A/"Bm" D (3z/ E/F/ |"Em" (3G B, B,"A7" (3C D E |
+"D6" D4 "D#" x4|"D6" (3z D E"Bm" (3F A B ||$"Am" (3=c =c =c"AmM" =c2 |"Am" (3z =c d"Ab7" (3_e d =c |
+"G" (3B B B"Am" B2 |"Bm" (3z D E"Em" (3G A B |$"Abm" c/c/c/B/"C#7" c2 |
+"Abm" z/ c/c/B/"G7" (3e c B |"F#m" A4 "F7" x4|"Em" z2"Eb7b5" (3z A "_D.S. al 3rd end." F ||3$
+"F#m" (3F G A"Bm" (3D E F |"Em" (3G B, B,"A7" (3C D E |"Bb" D4 "C" x4|"D6" z4 |]
+
+X:2
+T:Moonglow
+C:Hudson-Delange-Mills
+L:1/4
+M:C
+I:linebreak $
+K:A
+"D" z F"D6" A/F/ A |"Dm" c c"G7" z2 |"C#m" z F"F#m" A/F/ A |"B7b5" c2"B7" z2 |$
+"Bm" z F"BmM" A/F/ A |"Bm" c c"Bb7" z2 |"A6" z A"Ao" A A |"Bm/A" A"Ao" A/"A6"A/ "_Fine" z2 :|$
+[K:Ab]"A" e4 |"A7" z e/e/"Ab7" =d/=d/"G7" d/d/ |"F#7" c4 |"C#m" z4 "F#7" x4||$[K:A]"F#m" c/c/ c c2 |
+"B7" z2 F/G/A/B/ |"Bm" c2"E7" B2 |"Em" B2"A7" "_D.C. al Fine" A2 ||
+
+X:1
+T:Morning
+C:Clare Fischer
+L:1/8
+M:C
+I:linebreak $
+K:Db
+z FcdS |:"Cø" ef z2"F7" z4 |"Bbm" z4"Eb7" z Fcd |"Cø" ef z2"F7" a2 g2 |$
+"Bbm" f4"Eb7" z Fcf |"Ebm" ef z2"Ab7" z2 FA |"Db" cedB"Gb" z2 cd |"Cø" e4"F7" d4 ||1$
+"Bbm" B4"Eb7" z Fcd :|2"Bbm""_Fine" B8 |]"Ebm" B2 B2 z B3 | B3 c fedc |$"Db6" B2 B2 z B3 |
+B3 c fedc |"Ebm" B2 B2 z B3 |$ B3 c defg |"F+" f4 z2 e2 | d4 z Fc"_D.S. al 2nd end."d ||
+
+
+X:1
+T:Nice Work If You Can Get It
+C:George & Ira Gershwin
+L:1/4
+M:C
+I:linebreak $
+K:G
+"B7" B c"Bb7" c B |"A7" A B"Ab7" z2 |"G6" G A"C7" A G |"A7" F2"A#o" z2 |$
+"Bm" D2"Em" E/D/ E/G/ |"Am" A/ B3/2"Bm" z/ D/ E/G/Ox///||"Am" A/ B3/2"D7" G G |"G6" G2 z2 :|$
+"Em" z/ B G/"Em6" B G |"Gm" ^A2"C7" G2 |"Em" B/B/B,/B,/"EmM" E G |"Em" F2"Eb7" z2 |$
+"Dm6" z/ A F/"Bø" A F |"Em" A2"A7" A A/B/ |"Am" d d"Bm" d/e/ B |
+"Cm" ^A2"D+""_D.C. al Coda" z2 ||$Ox/"F7" A/B/ z"E7" z2 |"Am" d B"D7" G E |"G6" G4 | z4 |]
+
+X:1
+T:One Note Samba
+C:Antonio Carlos Jobim
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Dm" F2 F F3 F2 |"Db7" F2 F4FF |"Cm" F2 F F3 F2 |"B7" F6FF |$"Dm" F2 F F3 F2 |"Db7" F2 F4FF |
+"Cm" F2 F F3 F2 |"B7" F6BBOx///||$"Fm" B2 B B3 B2 |"E7" B2 B4BB |"Eb" B2 B B3 B2 |"Ab7" B6FF |$
+"Dm" F2 F F3 F2 |"Db7" F2 F4FF |"Cm" F2 F"B7" F3 F2 |"Bb6" B8 ||[K:Db]"Ebm"Bcde dcBA |$
+"Ab7" GFED CDEF |"Db" C3 B, z CDF | C2 B,6 ||[K:B]"C#m" GABc BAGF |$"F#7" EDCB, A,"E7"B,CD |
+"B" A,3 G, z A,B,D ||[K:Bb]"Cø" _G3 F3"F7""_D.C. al Coda" FF ||$Ox/"Fm" B2 B B3 B2 | B2 B4BB |
+"Eb" B2 B B3 B2 |"Ab7" (3:2:1B6BB |$"Db" B2 B B3 B2 |"C7" B2 B4 BB |"B" B2 B B3 B2 |"Bb6" B8 |]
+
+X:2
+T:Over The Rainbow (Somewhere)
+C:Harold Arlen
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Eb6" E4"Cm" e4 |"Gm" d2 Bc"Cm" d2 e2 |"Ab" E4"Ao" c4 |"Gm" B4"C7" z4 |$"Fm" C4"Db7" A4 |
+"Gm" G2 EF"C7" G2 A2 |"Fm" F2 DE"Bb7" F2 G2 |"Eb6" E4"Bb7" z4 :|$"Eb6" GBGB GBGB |
+"Fm" ABAB"Bb7" ABAB |"Gm" c4"C7" c4 |"Fm" z4"Bb7" z4 |$"Eb6" GBGB GBGB |"Aø" =Ac=Ac"D7" =AcBc |
+"Gm" d4"F#o" c2 de |"Fm" f4"Bb7" B4 ||$"Aø" E4"D7" e4 |"Gm" d2 Bc"Cm" d2 e2 |
+"Ab" E4"Ao" c4 |"Gm" B4"C7" z4 |$"Fm" C4"Db7" A4 |"Gm" G2 EF"C7" G2 A2 |"Fm" F2 DE"Bb7" F2 G2 |
+"Eb6" E8 |]
+
+X:1
+T:Quiet Nights Of Quiet Stars
+C:Antonio Carlos Jobim
+L:1/8
+M:C
+I:linebreak $
+K:C
+"D7" z E2 D E D3 | E D3 E4 |"Db7" z E2 D E D3 | E D3 E4 |$"Gm" z D2 C D C3 |"C4" D C3 F2 E2 |
+"F" E4 D4 | z8Ox///||$"Fm" z G2 F G F3 |"Bb7" G F3 G4 |"E+" z F2 E F E3 |"A7" F E3 F4 |$
+"Am" z E2 D E2 D2 |"D7" E2 D2 E2 D2 |"Dm" F2 E2"Dm/C" F2 E2 |
+"Bø" F2 E2"Bb7" D2"_D.C. al Coda" C2 ||$Ox/"Fm" z2 c2 _B_AGF |"Bb7" E4 D4 |"Em" z2 B2 AGFE |
+"Am" D4 C4 |$"Dm" z2 A2 GFED |"G4" C B,3 C D3 |"Eø" G8 |"Eb7" z8 |$"Dm" z2 A2 GFED |
+"Db7" C B,3 C D3 |"C" C8 |"C6" z8 |]
+
+X:2
+T:Satin Doll
+C:Duke Ellington
+L:1/8
+M:C
+I:linebreak $
+K:C
+"Dm" AG A2"G7" G A3 |"Dm" z2 A2"G7" G A3 ||[K:D]"Em" BA B2"A7" A B3 |"Em" z2 B2"A7" A B3 ||$
+[K:G]"Am" z2 d2"D7" c d3 ||[K:Gb]"Abm" z2 B2"Db7" A B3 ||[K:C]"C6" G8 || "_Fine" z8 :|$
+[K:F]"Gm" cB A"C7" G2 A B2 |"Gm" cB A G2"C7" A B2 |"F" c8 | z8 ||$[K:G]"Am" dc B"D7" A2 B c2 |
+"Am" dc B A2"D7" B c2 |"G" d8 ||[K:C]"Dm" z8"G7" "_D.C. al Fine" x4 ||
+
+X:1
+T:Someday My Prince Will Come
+C:Frank Churchill
+L:1/4
+M:3/4
+I:linebreak $
+K:Bb
+"Bb" F3 |"D7" B2 ^F |"Eb" A2 G |"G7" G3 |$"Cm" G3 |"G7" e2 =B |"C7" d2 c |"F7" c d eOx///||$
+"Dm" f f f |"Dbo" a a a |"Cm" f3 |"F7" z d e |$"Dm" f f f |"Dbo" a a a |"Cm" f3 |
+"F7""_D.C. al Coda" z3 ||$Ox/"Fm" f =e f |"Bb7" c'2 b |"Eb" c =B c |"Eo" a2 g |$"Dm" f2"G7" e |
+"Cm" d2"F7" c |"Bb" B3 | z3 |]
+
+X:1
+T:Someday My Prince Will Come
+C:Frank Churchill
+L:1/4
+M:3/4
+I:linebreak $
+K:Bb
+"Bb" F3 |"D7" B2 ^F |"Eb" A2 G |"G7" G3 |$"Cm" G3 |"G7" e2 =B |"C7" d2 c |"F7" c d eOx///||$
+"Dm" f f f |"Dbo" a a a |"Cm" f3 |"F7" z d e |$"Dm" f f f |"Dbo" a a a |"Cm" f3 |
+"F7""_D.C. al Coda" z3 ||$Ox/"Fm" f =e f |"Bb7" c'2 b |"Eb" c =B c |"Eo" a2 g |$"Dm" f2"G7" e |
+"Cm" d2"F7" c |"Bb" B3 | z3 |]
+
+X:1
+T:Somewhere
+C:Leonard Bernstein
+L:1/4
+M:C
+I:linebreak $
+K:F
+"C7" C2 B2 |"F" A3/2 F/"Bb" D2 |"Gm" z d"C7" c B |"F" A3/2 F/"Bb" D2 |$"C7" E3/2 F/"C/Bb" (3G A B |
+"Am" c3/2 A/"Dm" F2 ||[K:Bb]"Bb" d3/2 B/"Eb" (3G A B |"Cm" e3/2 c/"Fm" _A2 ||$[K:Db]"Db" e/f/ f3 |
+"Bbm" e/f/ f3 ||[K:Eb]"Fm" (3g f e"Bb7" (3d e f |"Eb" f B"Eb6" z2 ||$
+[K:Ab]"Db" (3e d c"Gø" (3B c d |"Cm" e A"Fm" z2 ||[K:F]"G7" d G z2 | z4 |]
+
+X:1
+T:Spring Is Here
+C:Lorenz Hart & Richard Rodgers
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"E7" G2 z A |"Fm/Eb" F4 |"Dø" G G/G/"Db7" G A |"Cm" F2"Fm" F2 |$"Ebm" E2"Ab7" z F |
+"Dbm" D2"Gb7" z2 |"Cø" E E/E/"B7" E F |"Bbm" D2"A7" D2 |$"Ab" C D"Bbm" E F |"Cm" G A"Fm" B cOx///||
+"Bbm" F2"Bbm/Ab" z2 |"G+" G2"Gb7" A2 |$"Fm" C =D"FmM" =E F |"Fm" G A"Fm/Eb" B c |"Bm" =d2"E7" z2 |
+"Bbm" e2"Eb7""_D.C. al Coda" z2 ||$Ox/"Bm" =d2"E7" z2 |"Bbm" e2"Bbo" z2 |"Cm" e2"Fm" A2 |
+"Bbm" c2"A7" B2 |"Ab6" A4 | z4 |]
+
+
+X:1
+T:Stella By Starlight
+C:Victor Young
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Gm/F" B2 ||"Eø" A4 |"A7" z G A B |"Cm" F4 |$"F7" z2 z F |"Fm" G4 |"E7" z F F G |"Eb" B,4 |$
+"Ab7" z2 z C |"Bb" E D"Bb6" C B, |"Eø" D2"A7" z =E |"Dm" G F F2 |$"Gø" z2 z G |
+"Dm/C" B A G F |"Bbo" G2 A B |"Aø" d c c2 |$"D7" z2 z d |"G+" e4 |"G#7" z e e d |"Cm" f4 |$
+"Dm" z e (3d c B |"EbmM" d4 |"Ab7" z c B A |"Dm" c4 |$"Gm" z2"Gm/F" z B |"Eø" A4 |
+"A7" z G A B |"Dø" F4 |$"G7" z F F E |"Cø" _G4 |"B7" z _G _G F |"Bb6" F4 |]
+
+X:2
+T:Sunny
+C:Bobby Hebb
+L:1/4
+M:C
+I:linebreak $
+K:G
+"Em" B B z2 |"Dm" z2"G7" g/e/d/B/ |"C" A G G/ A3/2 |"B7" B4 |$"Em" B B z2 |"Dm" z2"G7" g/e/d/B/ |
+"C" A G G/ A3/2 |"B7" B2 B A |$"Em" B/G/ A G A/G/ |"Dm" B/G/ A"G7" G A |"C" B A G A |
+"F7" B A G A |$"B7" B/ B3/2 B B | A2 G A |"Em" G/ E3/2 z2 |"A7" z4 |"Em" z4 |"A7" z4 :|$"Em" z4 |
+"A7" z4 |"Em" z4 | z4 |]
+
+X:2
+T:Sweet Lorraine
+C:Parrish & Burwell
+L:1/8
+M:C
+I:linebreak $
+K:G
+"G6" B2 B2"E7" B4 |"A7" z2 AB"D7" cd BA |"Em" G2 G2"G7" G4 |"C7" z2 FG"B7" AB GF |$
+"E7" E2 E2"Eo" E4 |"Am" z2 DE"D7" FG AB ||1"G6" d8 "E7" x4|"A7" z4"Eb7" _B4 "D7" x4:|2$"G6" G8 "Am/G" x4|
+"G6" e4"Go" x4"Dm" e2"G7" d2 ||"C6" cd e=f"E7" e2 d2 |"Am" c2"Ab7" c2"Gm" c4 "Gb7" x4|$
+"F" cd e=f"E7" e2 d2 |"Am" c4"Ab7" x4"Gm" z4 "Gb7" x4|"F7" AB cd"E7" c2 B2 |"Eb7" A2 A2"D7" A4 |$
+"F7" AB cd"E7" c2 B2 |"Eb7" A4"D7" "_D.C. al 3rd end." _B4 ||3"G6" G8 | z8 |]
+
+
+X:1
+T:Take The A Train
+C:Ellington-Strayhorrn
+L:1/4
+M:C
+I:linebreak $
+K:C
+"C" G4 | z e G c |"D7b5" e _A3 | z4 |$"Dm" A4 | A/_B/=B/e/ G/_G/F/d/ |"C" c E3 ||1
+"Dm" z2"G7" z2 :|2"C" z4 ||$"F" A c z2 | e F A c |"F6" e A z2 | z4 |$"D7" A c z2 | e ^F A c |
+"Dm" e A z2 |"G7" A2"_D.C. al 3rd end." _A2 ||3"C" c4 |]
+
+X:2
+T:Tears In Heaven
+C:Eric Clapton
+L:1/8
+M:C
+I:linebreak $
+K:A
+"A" z2 cA"E7" e2 e2 |"F#m" c4"A" z4 |"D" z2 dd"A" cBAc |"E7" B8 |$"A" z2 cA"E7" e2 e2 |
+"F#m" c8 "A" x4|"D" z2 dd"A" cBAc |"E7" B8 ||$[K:E]"F#m" z2 AA"B7" B2 F2 |"E" G8 ||
+[K:D]"Em" z2 GG"A7" A2 E2 |"D" F4"C#m" B2"F#7" c2 ||$[K:A]"Bm" z2 dd cB Ac |O"E7" B8"^To Coda" :|
+[K:C]"C" z2 ee"G7" d2 d2 |"Am" c2 cA"D7" d2 d2 |$"G" B8 | z8 |"C" z2 ee"G7" d2 d2 |
+"Am" c2 cA"D7" d2 d2 |$"G" B4 z Bde- ||[K:A]"E7" "_D.C. al Coda" e8 ||"A" A8 | z8 |]
+
+X:1
+T:The Frim Fram Sauce
+C:Joe Ricardel
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+z ^CDFS |:"Bb6" B2 G^C D F3 | B2 G^C D F3 ||[K:C]"C7" z EG_B"Gm" d2 c2 |$
+"C7" G2"C#7" z2"C7" z _B_BG ||[K:Bb]"Eb6" B2 B2"Eo" B2 BG |"Gm/F" BA _A"G7" G2 G B2 |
+"C7" d B3"F7" B2 c2 ||1$"Bb6""_Fine" B4 z ^CDF :|2"Bb6" B4 z2 BB ||[K:Eb]"Fm" A2 B2"Bb7" B2 B2 ||
+"Eb" G2 B2"Eb6" z2 BB |$"Fm" A2 B2"Bb+" d2 c2 |"Eb6" G8 ||[K:F]"Gm" B2 c2"C7" c2 c2 |
+"F6" A2 c2"F#o" z AB=B |$"Gm" c_c B2"C7" A2 A2 ||[K:Bb]"F7" F4 z ^CD"_D.S. al Fine"F ||
+
+X:2
+T:The Man I Love
+C:George & Ira Gershwin
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Eb" z B cB cB _d2 |"Ebm" z B cB _d4 | z"Gø" B cB cB _d2 |"Gb7" z A BA c4 |$
+z"Fø" A BA BA =B2 |"E7" z G AG B2 A2 ||1"Gm" G8 "Gb7" x4|"Fm" z8 "E7" x4:|2$"Eb6" E8 "E" x4|
+"Eb6" z8 "Db7" x4||"Cm6" EF G^F"Aø" G2 ef |"D7" e2 d2"Db7" B2 =B2 |$"Cm" d2 c2"Aø" G2"D7" =A2 |
+"G7" =B8 "Db7" x4|"Cm6" EF G^F"Aø" G2 ef |"D7" e2 d2"G7" B2 =B2 |$"Gm" d2 c2"Gb7" B2 A2 |
+"Fm" G2 FA"E7" G2 "_D.C. al 3rd end." F2 ||3"Eb6" E8 "Db7" x4|"Eb6" z8 |]
+
+X:1
+T:The Shadow Of Your Smile
+C:Johnny Mandel
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+z2 z G, CDEG |"Dm" =A,4 z2 D2 |"G7" =B,4 z2 A,2 |"Cm" G,4"CmM" z4 |$"Cm" z2 z G,"F7" CDEG |
+"Fm" C4 z2 F2 |"Bb7" D4 z2 B,2 |"Eb" G8 |$"Ab" z4 AGFE |"Dø" F4 z2 A,2 |"G7" G,4 z2 F2 |
+"Cm" E4"CmM" z4 |$"Cm" z4"Cm/Bb" GFED |"Aø" E4 z2 G,2 |"D7" ^F,4"Ab7" z2 E2 |"G7" D8 ||$
+z2 z G, CDEG |"Dm" =A,4 z2 D2 |"G7" =B,4 z2 A,2 |"Cm" G,4"CmM" z4 |$"Cm" z2 z G,"F7" CDEG |
+"Fm" C4 z2 A2 |"Bb4" F4"Fo" z2 D2 |"Gø" B8 |$"C7" z4 cBAG |"Fm" A3"F#m" C"Gm" A4 |
+"Abm" z4"Db7" BAGF |"Gm" G3 B,"Gø" G4 |$"C4" z4"Gb7" AGF=E |"F7" F3 =A, F4 |
+"Fm" z2 z A,"Bb4" GFED |"Eb6" E8 |]
+
+X:2
+T:These Foolish Things
+C:Strachey & Link
+L:1/4
+M:C
+I:linebreak $
+K:E
+"E6" z/ E/F/G/"C#m" F/E/C/E/ |"F#m" G G"F7" G/ F3/2 |"E" z/ E/F/G/"C#m" F/E/C/E/ |
+"F#m" c c"B7" c/ B3/2 |$"Bm" z/ B/c/B/"Bb7" e e |"A" e2"G#o" (3G A B ||1"F#7" c3/2 C/ (3C E G |
+"F7" F4 :|2$"F#m" c C"F7" (3D E F |"E6" E4 "D#7" x4||"G#m6" z B"Fø" G2 |"Bbø" z c"D#7" ^A2 |$
+"G#m" z B"G#m/F#" c d |"Fø" d4 "Em" x4|"D#m" z d"G#m" c B |"C#m" (3c d c"F#7" z F |$
+"G#m" B B"G7" B ^A |"F#m" (3A B A"F7" "_D.C. al 3rd end." F2 ||3"F#m" c C"F7" (3D E F |"E6" E4 |]
+
+X:1
+T:Tune-Up
+C:Miles Davis
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"Em" A2 z G |"A7b5" ^D2 E2 |"D" F4 |"D6" z4 ||$[K:C]"Dm" G2 z F |"G7b5" ^C2 D2 |"C" E4 |
+"C6" z2 z E ||$[K:Bb]"Cm" E4 |"F7" z F G A |"Bb" d4 |"Gm" z2 d c ||[K:D]"Em" A2 A2 ||1$
+"F" (3z G A (3c A G |"Bb" A4 |"A7" z2 =c _B :|2$"Eb7" z2 A =c |"D" A4 |"D6" z4 |]
+
+X:1
+T:Waltz For Debby
+C:Bill Evans & Gene Lees
+L:1/4
+M:6/4
+I:linebreak $
+K:F
+"F" c3"Dm" F3 |"Gm" B3"C7" E3 |"A/G" A3"D7" z3 |"G/F" z G F"C7" E F G |$"F/Eb" A2 G"Gm" F G A |
+"Gø" B2 A"C7" G A"Bb" B |"Am" c3"D7" A, B, C |"Bb" D E F"Eø" G A B |$"F" c3"Dm" F3 |
+"Gm" B3"C7" E3 |"A/G" A3"D7" z3 |"G/F" z G F"C7" E F G |$"A+" A2 G"Dm" F G A ||
+[K:A]"Bm" B2 A"E7" G A B |"C#m" c3"Bm" z3 |"A" z3"A/G" z3 ||$[K:F]"Gm" d3"C7" z2 c |
+"Am" d3"D7" z2 c |"Gm" d c B"A+" A3 |"Dm" G2 F"Cm" d c B |$"Bb" A2 B"A7" A2 E |
+"Dm" F A c"G7" e f d ||[K:Ab]"Ab" c3"Db" A, B, C ||[K:F]"Gm" D E F"C7" G A B |$"F" c3"Dm" F3 |
+"Gm" B3"C7" E3 |"A/G" A3"D7" z3 |"G/F" z G F"C7" E F G |$"F/Eb" A2 G"Gm" F G A |
+"Gø" B A G"Dm/C" A B"C/Bb" c |"Am" d3"D7" z3 |"Bm" z e d"E7" e d e |$"F6" c2"C7" z"F7" z3 |
+"Bb" z c B"A+" c B c |"Dm" A3 z3 |"Db7" z G F G F G |$"Am" F G F"Abo" G F G |"Gm" d3"C7" E3 |
+"F" F3 z3 | z3 z3 |]
+
+X:2
+T:What A Wonderful World
+C:Weiss & Thiele
+L:1/8
+M:C
+I:linebreak $
+K:F
+C2 E2 S|:"F" F3 A"Am" c4 |"Bb" z ddd"Am" c4 |"Gm" z BBB"F" A4 | z"Eø" GGG"Dm" F2 F |$
+"Db7" (3F2 F2 F2 F4 |"Gm" (3z2 F2 F2"C7" (3E2 F2 G2 ||1"Am" A8 "Ab7" x4|"Gm" z4"Gb7" C2 E2 :|2$
+"F" F8 "Bb" x4|"F" z8 ||"Gm" GGGG"C7" G2 CC |"F" BAA^G"F6" A2 F2 |$"Gm" GGGG"C7" G2 CG |
+"F" BAA^G"F6" A2 Ac |"Dm" (3d2 d2 d2"Am" c2 Ac |"Dm" (3d2 d2 d2"Am" c4 |$"Dm" z ddd"Am" c3 c |
+"Bb" B2 A2"C7" "_D.S. al 3rd end." G4 ||3"F6" F8 |]
+
+X:1
+T:White Christmas
+C:Irving Berlin
+L:1/4
+M:C
+I:linebreak $
+K:A
+"A" C4 |"Bm" D"A" C"Ao" =C"Bbo" C |"Bm" D4 |"Co" ^D"C#m" E3 |$"D" F2 G A |"G#ø" B A G F |
+"C#m" E2"F#m" z2 |"Bm" z2"E7" A, B, |$"A" C2 C2 |"A7" C F2 EOx///||"D" A,2 A,2 |"G7" A, E2 D |$
+"C#m" C2"F#m" z2 |"Bm" D C"C#m" B, A, |"D6" B,4 |"E7""_D.C. al Coda" z4 ||$Ox/"D" A4 |"G7" z2 A, B, |
+"C#m" C2"F#m" C2 |"Bm" F G,"E7" G, G, |"A" A,4 | z4 |]
+
+X:2
+T:You Took Advantage Of Me
+C:Rodgers & Hart
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" B/B/ E/D/"Eo" ^C c |"Fm" c B"Bb7" B2 |"Gm" B/B/ c/B/"Gbo" =A e |"Fm" e d/d/"Bb7" z f |$
+"Bbm" f e/e/"Eb7" z B |"Ab" B A/A/"Db7" z/ E/ F |"G7" G"C7" G"F7" F/E/"Bb7" F ||1"Eb" E2"E" z2 :|2
+"Eb" E2"Db7" z2 ||$"Cm6" e (3e/f/e/"Aø" d/d/ c |"G7" =B _d/c/"C7" z _B |"F7" =A _c/B/"Bb7" z F |
+"Eb6" G2"Db7" z d |$"Cm6" e (3e/f/e/"Aø" d/d/ c |"G7" =B _d/c/"C7" z _B |
+"F7" =A _c/B/"Bb7" z F |"Gm" B"Gb7" z"Fm" z"E7" "_D.C. al 3rd end." z ||3"Eb6" E4 |]
+
+X:2
+T:All Or Nothing At All
+C:Arthur Altman
+L:1/4
+M:C
+I:linebreak $
+K:F
+"Dm" A4 |"DmM" z A (3A B F |"Dm" A4 |"Dm6" z4 |"Dm" A2"DmM" A2 |$"Dm" A2"Dm6" (3A c F ||
+[K:Eb]"Eb" G3/2 G/"Eb7" G2 |"Eb6" z2"Eb+" z2 |"Cm" G2 G2 |"Aø" G2"D7" (3=A ^F G Ox///||$
+[K:F]"Gm" d3/2 d/ d2 |"Abo" z2 e d |"Gm" c c2 c |"Gb7" c c2 c |"F" c4 ||1"Eø" z G"A7" F E :|2$
+[K:Db]"Ebm" z2"Ab7" z A ||"Db" f2 f f |"Ebm" f f (3f g d |"Db" f4 |"Ebo" z2 z A |$"Db" f f f f |
+"Db+" g f e d |"Ebm" e4 |"Ab7" z2 z G |"Ebm" e3/2 e/ e2 |$"Ebm/Db" z e (3e f c |"Cø" e4 |
+"F7" z2 d c |"Bbm" d2 d d ||$[K:F]"Gø" _d c"Gb7" z B |"F" c2"Bb" z2 |
+"Eø" z G"Eb7" F"_D.C. al Coda" E ||$Ox/"Gm" d2"Gm/F" z2 |"Eø" e2"A7" z2 |"Dm" f4 |
+"Gø" z f"Gb" (3f f f |"F6" f4 | z4 |]
+
+X:2
+T:All The Way
+C:Jimmy Van Heusen
+L:1/8
+M:C
+I:linebreak $
+K:B
+"B" deed"E" dFGB |"A#ø" deed"D#7" d=G z2 |"D#m" a4"G#7" z2 g2 |"G#m" d4"C#7" z4 |$
+"F#7" fggf"C#m" fcde |"Ao" fggf"F#7" fc z2 |"B" c4"G#m" z2 B2 |"F#m" f4"B7" z4 |$
+"E" gg z2"E/D#" z2 =g^g |"C#m" a2 g2"C#m/B" f2 e2 |"A#m" d4"A7" z edc Ox///||
+"G#m" B2"G7" z2"F#m" z2"F7" z2 |$"E" gg z2"E/D#" z2 =g^g |"C#m" a2 g2"C#m/B" f2 e2 |
+"A#m" dc"A7"BA"G#m" B2"G7" cd |"C#ø" e2 =G2"C7""_D.C. al Coda" z4 ||O"G#m" B4"A#o" z4 ||$
+"B" deed"E" dFGB |"Eb7" deed"G#7" df z2 |"Fø" g4"E7" z2 A2 |"D#ø" f4"D7" z4 |
+"C#ø" e4"C7" z2 A2 |"B6" B8 |]
+
+X:=3
+T:Angel Eyes
+C:Mat Dennis
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Gm" z2 Gd"A7" _d3 c |"Gm" B2 BG"Eb7" B4 |"Gm6" z GBd"Eø" (3a2 _a2 g2 |"Aø" d4"Ab7" z4 |$
+"Gm" z2 Gd"A7" _d3 c |"Gm" B2 BG"Eb7" B3 G |"Gm6" BGBG"Eb7" B2 B2 Ox///||1
+"Gm" G4"Ab7" z4 :|2$"Gm" G4"Gb7" z2 G2 ||[K:Eb]"Fm" g4"Bb7" z2 fg |"Eb" BB z2"Cm" z4 |$
+"Fm" gfgf"Bb7" g2 f2 |"Eb" B4"Cm" z2 g2 ||[K:D]"Em" f4"A7" z2 ef |$"D" AA z2"Bm" z2 B2 |
+"G#m" (3c2 c2 c2"G7" c2 c2 ||[K:Bb]"Aø" d4"Ab7""_D.C. al Coda" z4 ||$Ox/"Gm" G4"Eb7" z4 |
+"Aø" dc z G/E/"Ab7" f2 z d/c/ |"Gm6" d8 | z8 |]
+
+X:3
+T:April In Paris
+C:Vernon Duke
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Dø" z2"Db7" (3F F F |"C" ^D E"C6" z2 |"Dø" z2"Db7" (3F F F |"C" ^D E"C6" z2 |$
+"C" z2"Dm" (3D D D |"D#o" B, C"Em" (3E G B |"Gm" d4 |"C7" z4 |$"F" z2 (3d d d |"Bb7" B c z2 |
+"Em" z2 (3d d d |"Am" B c z2 |$"Gbø" z2 (3c c c |"B7" A B z c |"E+" e4 |"E7" z4 |$
+"Gbø" e2"Fo" (3d ^A B |"Em" d c"Ebo" c2 |"Dm" (3c ^A B"Db7" d c |"C" c2"C6" z2 |$
+"Bø" e2"E7" (3d ^A B |"Am" d c"Am/G" c2 |"F#ø" (3c ^G A"B7" c B |"E7" ^G2"Dm" G"G7" z |$
+"Dø" z2"G7" (3F F F |"C" ^D E"C6" z2 |"Eø" z2"A7" (3^A ^A ^A |"Dm" ^G A"A7" z2 |$
+"D7" z2 (3d d d |"Dm" B c"G7" z d |"C" c4 | z4 |]
+
+X:3
+T:Autumn In New York
+C:Vernon Duke
+L:1/8
+M:C
+I:linebreak $
+K:F
+"Gm" AGFD"Am" C4 |"Bb" z DFB"C4" d d2 c |"F6" d4"Gm" A4 |"Am" z4"Abm" z4 |$"Gm" AGFD"Am" C4 |
+"Bb" z DFB"C7" d d2 c |"Am" d4"D7" A4 |"Aø" z4"Ab7" z4 |$"Gm" c c2 A"Am" G3 F ||
+[K:Ab]"Bbm" A A2 F"A7" E3 D |"Ab" (3E2 =B,2 C2"Bbm" E4 |"Cm" z4"Dø" F4 |$
+"Eb+" (3G2 =D2 E2"Aø" G4 ||[K:C]"Dm" z4"Db7" B4 |"C" G4"Bø" z4 |"Am" z4"Ab7" ^G4 ||$
+[K:F]"Gm" AGFD"Am" C4 |"Bb" z DFB"C4" d d2 c |"F6" d4"Gm" A4 |"Am" z4"Bb" z4 |$
+"Cm" dcBG"Dm" F4 ||[K:Db]"Ebm" z GBc"F+" d e2 c |"Bbm" d4"Bbm/Ab" z4 |"Gø" z4"Gb7" z4 |$
+"Fm6" c A2 c"C+" e3 e |"Fm" c2"Em" z2"Ebm" B2"D7" z2 |"Db" A F2 A"D7" c3 c |
+"Db" A2"Cø" z2"Bbm" A2"Abm" z2 ||$[K:F]"Gm" AGFD"Am" C4 |"Bbm" z B,_DF"C+" _A B2 G |"Fm6" F8 |
+z8 |]
+
+
+X:3
+T:Autumn Leaves
+C:Joseph Kosma
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Gm" z G A B ||"Cm" e4 |"F7" z F G A |"Bb" d2 d2 |$"Eb" z E F G |"Aø" c4 ||1"D7" z D =E ^F |
+"Gm" B4 :|2$"D7" z A c B |"Gm" G4 || z2 ^F G |"Aø" A D A2 |$"D7" z A G A |"Gm" B4 |
+"C7" z B A B |"Cm" c2 z F |$"F7" f2 z e |"Bb" d4 |"Eb" z2 ^c d |"Aø" e e c c |$"D7" A2 z e |
+"Gm" d2"Gb7" d2 |"Fm" z2"E7" z G |"Eb" c2 z B |$"D7" A2 B D |"Gm" G4 |]
+
+X:=3
+T:Basin Street
+C:Spencer Williams
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+FF |:"Bb" DD"Cm" E2"C#o" =EF"D6" z2 |"Bb" DD"Cm" E2"C#o" =EF"D6" z2 |
+"D6" BB"Dbo" _AG"Cm" FG"F7" z2 |"D6" BB"Dbo" _AG"Cm" FG"F7" z2 |$"Bb7" F B2 F"D6" B2 FF |
+"Eb7" B B2 c"Eo" z4 |"Bb7" B2 _AG FD E_F ||1"F7" F D2 B,"Bb7" z2"F+" (3F=E_E :|2$
+"F7" FB (3_dcB"Bb7" B2 F2 ||"Bb" D2 DD- D4 |"D7" D2 DD- D4 |"G7" D2 AD D3 D |$
+"Dm" A A2 G"G7" G2 D2 |"C7" D D2 D- D4 |"F7" D F2 D- D2 F2 |"Bb" ccBB"Bbo" AAGG |$
+"Cm" BBAA"F7" GG F2 |"Bb" D D2 D- D4 |"D7" A A2 ^F- F2 D2 |"G7" D A2 G- G4 |$
+"Ab7" E E2 D"G7" z2 D2 |"C7" D A2 G G4 |"F7" z2 D2 FDCB, |"Bb" z8 |]
+
+
+
+X:=3
+T:Bemsha Swing
+C:Thelonius Monk
+L:1/8
+M:C
+I:linebreak $
+K:C
+G2 ||"C" c2 z2"Am" z4 |"Ab" Gc_B_A"Db7" GG F2 |"C" EE B,2"Eb6" C2 z2 |$"D7" z4"Db7" z2 G2 |
+"C" c2 z2"Am" z4 |"Ab" Gc_B_A"Db7" GG F2 |"C" EE B,2"Am" C2 z2 |$"Gm" z4"Gb7" z2 c2 |
+"F" f2 z2"Dm" z4 |"Db" cf_e_d"Gb7" cc _B2 |$"F" AA E2"Ab" F2 z2 |"G7" z4"Db7" z2 G2 |
+"C" c2 z2"Am" z4 |$"Ab" Gc_B_A"Db7" GG F2 |"C" EE B,2"Eb6" C2 z2 |"D7" z4"Db7" z4 |"C6" z8 |]
+
+
+X:2
+T:Better Luck Next Time
+C:Irving Berlin
+L:1/4
+M:C
+I:linebreak $
+K:B
+"B" z F"G#m" B c ||"C#m" (3d e G c B |"F#7" A F"Eo" d c |"D#m" F2"C#m" z2 |$"B" z F"G#m" B c |
+"C#m" (3d e G c B ||1"F#7" A F"Eo" d c |"D#m" f2"C#m" z2 :|2$"F#7" A F d d |"B" B2"C" z2 ||
+"B" z2"E" d d |"A#m" d2 c A |$"D#7" =G d d d |"D#m" ^e4 |"G#7" z2 d e |"D#m" f c/A/"G#7" F F |$
+"G#m" d B/G/"C#7" ^E ^E |"C#m" G4 ||"F#7" z F B c |"C#m" (3d e G c B |$"F#7" A F"Eo" d c |
+"D#m" g2 g2 |"D7" z f e d |"C#m" f/f/ e"D#m" d e |"E" d B"F#7" z c |"B" B4 |]
+
+X:2
+T:Better Luck Next Time
+C:Irving Berlin
+L:1/4
+M:C
+I:linebreak $
+K:B
+"B" z F"G#m" B c ||"C#m" (3d e G c B |"F#7" A F"Eo" d c |"D#m" F2"C#m" z2 |$"B" z F"G#m" B c |
+"C#m" (3d e G c B ||1"F#7" A F"Eo" d c |"D#m" f2"C#m" z2 :|2$"F#7" A F d d |"B" B2"C" z2 ||
+"B" z2"E" d d |"A#m" d2 c A |$"D#7" =G d d d |"D#m" ^e4 |"G#7" z2 d e |"D#m" f c/A/"G#7" F F |$
+"G#m" d B/G/"C#7" ^E ^E |"C#m" G4 ||"F#7" z F B c |"C#m" (3d e G c B |$"F#7" A F"Eo" d c |
+"D#m" g2 g2 |"D7" z f e d |"C#m" f/f/ e"D#m" d e |"E" d B"F#7" z c |"B" B4 |]
+
+X:2
+T:Bewitched, Bothered & Bewildered
+C:Rodgers-Hart
+L:1/8
+M:C
+I:linebreak $
+K:C
+"Db7" z2 G2 S|:"C" EB"C#o" c4 E2 |"Dm" FB"D#o" c4 ^F2 |"Em" (3G2 B2 c2"E+" (3^G2 B2 c2 |$
+"F" AB"Fo" c4 B2 |"Am" c4"Ebo" BAG^F Ox/||1"Dm" G2"Dbo" D4 E2 |"Dm" F8 |
+"Db7" G6 G2 :|2$"Dm" G2"G7" D4"Gm" x4"C7" E2 |"F" A8 "F6" x4|"Em" z8 "Eb7" x4||"Dm" BA"DmM" F4 BA |
+"Dm" F4"Db7" F4 |$"C" BA"Db7" E4 BA |"C" E8 "Am" x4|"Dm" cB"Em" G4 cB |$"F" G2"Fo" G3 ABc |
+"Em" d4"Ebo" c4 |"Dm" F4"Db7""_D.S. al Coda" G4 ||O"Dm" G2"Db7" d4 G2 |"C6" c8 |]
+
+
+X:1
+T:Black Coffee
+C:Sonny Burke
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Bb7" BB (3BF_A"B7" z2 z F |"Bb7" BB (3BF_A"B7" z2 z |$"Bb7" BBBF"B7" _A_A_AF |
+"Bb7" Bcde"Fm" f2"E7" B2 |"Eb7" _dG z2 z4 |"Ebm" z2 _fe"Ab7" _dB_GF |$"Dm" z8 "Eb" x4|
+"Dm" z6 z d "Db7" x4|"Cm" edef"Gm" (3edB z2 |"Eb" edef"F7" eB d2 ||1$"Bb6" B8 "G7" x4|"C7" z6"F7" z F :|2
+"Bb" B8 "Cm" x4|"C#o" z6 z B "Gm" x4||[K:Db]"Cø" eded"F7" e2 f2 |$"Bbm" dB z2"Eb7" z2 z B |
+"Ebm" efga"D7" =a=b=a=b |"Db" _a6 z _a ||[K:B]"C#m" ffff"C7" =a=a=g=a |$"B" (3fff z2"G#m" z2 z f |
+"C#m" ffff"F#7" F3 f ||[K:Bb]"Cm" ffff"F7" F3"_D.C. al 3rd end." F ||3"Bb" B8 | z8 |]
+
+X:3
+T:Blue In Green
+C:Miles Davis & Bill Evans
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Gm" e3 d |"A7" c3 _B |"Dm" A3"Db7" G |"Cm" F"F7" d3 |$"Bb" E3/2 D/ ^C/D/F/A/ |"A7" c3 A |
+"Dm" G3 F |"E+" c3 ^G |$"Am" B3 A |"Dm" f3 ^c :|"Gm" e3 d |"A7" c3 _B |"Dm" A4 | z4 |]
+
+X:2
+T:Blue Skies
+C:Irving Berlin
+L:1/4
+M:C
+I:linebreak $
+K:F
+"Dm" D2 A2 |"DmM" z2 (3G F G |"Dm" A4 |"Bø" z2"Bbo" (3G F G |$"Am" A2"Ab7" C2 |
+"Gm" z2"Gb7" C D ||1"F6" F2"Bb" z2 |"Em" z2"A7" E2 :|2"F6" F2"Gm" z2 |"G#ø" z2"Dm" z2 ||$
+"F6" F/G/A/B/"F7" c2 |"Gø" (3_d c B"Dm" c2 |"Gø" (3B A G"Am" A2 |$"Gm" (3G F E"F6" F2 ||
+"F6" F/G/A/B/"F7" c2 |"Gø" (3_d c B"Dm" c2 |$"Gø" (3B A G"Am" A2 |
+"Gm" (3G F E"Eb7" F"_D.C. al 3rd end." E ||3"F6" F4 | z4 |]
+
+X:2
+T:Body & Soul
+C:John Green
+L:1/4
+M:C
+I:linebreak $
+K:Db
+"Ebm" z/ E/F/E/"EbmM" F E |"Ebm" B2"D7" B2 |"Db" z/ A/B/A/"Ebm" B A |"Fm" e d"Eo" c B |$
+"Ebm" z d"Ebm/Db" (3B G B, |"Cø" F2"B7" E2 |"Bbm" (3D E F"Ebm" (3A B"D7" =E ||1
+"Db" D2"Do" z2 :|2$"Db6" D2"Em" z"A7" z ||[K:D]"D6" z/ D/E/F/"Em" A/ A A/ |
+"Bm" d/ d F/"Gm" A/ A G/ |"F#m" F"Bm" F/D/"Em" E"Eo" C |$"F#m" A"F7" z"Em" z"Eb7" z ||
+[K:C]"Dm" z/ D/E/F/"G7" A/ A G/ |"C" e/ e B/"Ebo" d/ d A/ |"Dm" c/ c A/"C#7" B/ B G/ |$
+"C7" E"B7" _E"Bb7" D/"_D.C. al 3rd end." _B3/2 ||3[K:Db]"Db6" D4 |]
+
+X:3
+T:Bright Size Life
+C:Pat Metheny
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+F/c/B/f/ e/b/a/d/ ||"G" e4 | B A/G/ F F |"Bb" E4 |$ z2 (3G F E |"D" E F D2 |"D/C" z4 ||1
+"Bb" D E =F2 :|2$"Bm" c3/2 B/"G" A3/2 G/ |"D""_Fine" F4 ||[K:G]"G" z D G B | e3/2 d/ ^c2 |$
+"F" e d/c/ B d | A4 ||[K:D]"A7" z B E G | c B A G |"D" F A e"_D.C. al 2nd end." d ||
+
+X:2
+T:By Myself
+C:Martin & Blane
+L:1/4
+M:C
+I:linebreak $
+K:B
+"A#ø" c c (3c B c |"D#7" d c/A/- A2 |"A#ø" (3c c c (3c B c |"D#7" d2"A#m" x4"F#o" z2 "D#7" x4|$
+"F#m" d d"B7" (3d c d |"E" f d"A7" c B |$"C#m" e c"F#7" (3B c d ||1"B" f4 "E" x4:|2"B" f4 ||$
+"Fø" g g (3g f g |"A#7" a4 |"D#ø" (3f f f (3f e f |"G#7" g4 |$"C#ø" e e"F#7" (3e d e |
+"D#m" f d"G#m" c B |"C#7" g d"F#7" c c |"B" B4 |]
+
+X:3
+T:Cabin In The Sky
+C:Vernon Duke
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" ^C D"G#ø" F E |"Am" ^D E"Bbo" G F |"Bø" A4 |"Bb7" ^G e2 d |$
+"Am" c B/c/"AmM" A B Ox///||"Am" c B/c/"Ao" A B ||1"Bm" G"Bb7" d3 |"Am" d2"Ab7" E F :|2$
+"G" G2"G#" z2 |"G6" z2"C" G A ||"F#m" B2"F7" d c |"Em6" B2"Dbø" G A ||$[K:E]"F#m" B B"F7" d c |
+"E" B2 E F ||[K:G]"Em" G2"EmM" B A |"Em" G2"A7" A2 |$"D7" D2"C" e B |
+"Bm" d/d/A/A/"Am" B"_D.C. al Coda" D ||O"Am" e G"Ab7" G A |"G6" G4 | z4 |]
+
+X:3
+T:Caravan
+C:Duke Ellington
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Gø" c8 |"C7" z dcG Bc=eG |"Gø" B8 |"C7" z cdc dc=BG |$"Gø" B8 |"C7" z c=B_B =A_AG_G |
+"Fm" F8 |"_Fine" z8 :|$[K:F]"F7" f4 d2 c2 | G4 z FEF |"Bb7" c4 G2 F2 | C8 ||$[K:Eb]"Eb7" e4 c2 B2 |
+F4 G2 E2 ||[K:Ab]"Ab" c2 A4 BA |"C7" G2"_D.C. al Fine" G6 ||
+
+X:2
+T:Cheek To Cheek
+C:Irving Berlin
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Bb" G"Gm" F3 |"Cm" z2"F7" D E |"Bb" G"Gm" F3 |"Cm" z2"F7" D E |$"Bb" G F"Cm" A G |
+"C#o" B A"Dm" c B |"Aø" d2"D7" z2 |"G7" z2"C7" c B |$"F7" A c"Eb" B G |"Dm" F A"Cm" G E |
+"Aø" D4 |"D7" z2 E F |$"Cm" G G E E |"F7" C C B, A, |"Bb" B,2"Bb6" z2 ||1"Cm" z2"F7" z2 :|2$
+"Dm" z2"Db7" z F/=E/ |:"Cm" E F"F7" A c |"Bb" B B"Gm" z F/=E/ |"Cm" E F"F7" A c |$
+"Bb" B2"Gm" z F/=E/ |"Cm" E F"F7" A c |"Bb" B B"Gm" F ^F |"Cm" G G"F7" E A, |"Bb" B,2"Bb6" F =E :|
+
+X:3
+T:Cherokee
+C:Ray Noble
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"Bb6" D2"F+" F G |"Bb7" B2 G2 |"Eb" F2 D F |"Ebm" D2 C2 |$"Bb6" B,2"Cm" D F |"C7" d2 B2 ||1
+"Cm" G2"Bo" F D |"Cm" C2"F+" ^C2 :|2$"Cm" G2"F7" D2 |"Bb" B,4 ||[K:B]"C#m" d2"F#7" z c |
+"B" (3c A F z c ||$[K:A]"Bm" (3c A F"E7" z B |"A" E4 ||[K:G]"Am" B2"D7" z A |"G" (3A F D z A ||$
+[K:Bb]"Gm" (3A F D"C7" z G |"Cm" C2"F+""_D.C. al 3rd end." ^C2 ||3"Cm" G2"F7" D2 |"Bb" B,4 |]
+
+X:2
+T:Christmas Song
+C:Torme-Wells
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Eb" E2 e2"Fm" dcBA |"Gm" G2 G2"Ab" G4 |"Eb" E2 c2"Bbm" BA"Eb7"GF |"Ab" E4"Db7" z4 |$
+"Eb" E2 E2"Fm" FFEF Ox/||1"Gm" (3G2 B2 c2"Aø" (3d2 z2"D7" c2 |
+"G" =B2 =B2"Abm" _d_c"Db7"_BA |"Gb" B4"Bb7" BAGF :|2$"Gm" (3G2 B2 c2"Aø" (3d2 z2"D7" c2 |
+"Gm" BG"C7"cB"Fm" A2"Bb7" D2 |"Eb" E4 z EDE ||[K:Ab]"Bbm" d4"Eb7" z cBA |$"Ab" B4"Fm" z E=DE |
+"Bbm" dcdc"Eb7" dcBA |"Ab" B4"Fm" z E=DE ||[K:Gb]"Abm" c4"Db7" z BAG |$"Gb" A4 z"Ebm" GAG |
+"Cm" F F2 F/F/"B7" (3F2 F2 F2 |"Fm" F4"Bb7" z2"_D.C. al Coda" =G2 ||$
+[K:Eb]Ox/"Gm" (3G2 B2 c2"Aø" d2"D7" ec |"Gm" B2"Cm" E2"Fm" z2"Bb7" F2 |"Eb" E8 |]
+
+X:=2
+T:Con Alma
+C:Dizzy Gillespie
+L:1/8
+M:C
+I:linebreak $
+K:F
+"F" A4"A7" A4 |"Dm" A4"C6" A4 ||[K:E]"B7" A2 B=c B2 A2 |$"E" G4"Em" =G2"Eb7" z2 ||
+[K:D]"D" F4"F#7" F4 |"Bm" F4"A6" F4 ||$[K:Db]"Ab7" G2 A__B A2 G2 ||1"Db""_Fine" F8 :|2
+"Db" F6 =E^F ||$[K:F]"Dbø" G^FE^D E4 |"F#7" z4 z ^FGA |"Gø" BA G^F G4 |$"C7" z4 z2 AB |
+"F" c8 | z8 |"F#m" z8 |"B7""_D.C. al Fine" z8 ||
+
+X:2
+T:Countdown
+C:John Coltrane
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Em" A2"F7" A2 |"Bb" A2"Db7" _B2 |"Gb" _d2"A7" c _B |"D" A4 |$"Dm" G2"Eb7" G2 |"Ab" G2"B7" ^G2 |
+"E" B2"G7" _B _A |"C" G4 |$"Cm" D _E"Db7" _B _A |"Gb" _d2"A7" c _B |"D" A2"F7" c2 |$
+"Bb" F2 G/c/-c/_B/ |"Em" A4- |"F7" A F/G/ c/_B/F/G/ |$"Bb" A2 A2- |"Eb7" A4 :|"Em" A2"F7" A2 |
+"Bb" A2"Db7" _B2 |"Gb" _d2"F7" c _B |$"Bb" A2"Eb7b5" G2 |"D" A4 |"Bb" d4 |"F#" ^c4 |"D" A4 |
+"Bb" d4 |"F#" ^c4 |"D" ^c4- | c4 |]]
+
+X:2
+T:Darn That Dream
+C:Jimmy Van Heusen
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Ab" E2 A2"E7" =E3 =E |"Bbm" F2 B2"C7" _G3 =G |"Fm" A2 c2"Gø" =ABcd |$"Cø" e2 f2"F7" c4 |
+"Bbm" c2 e2"Gb7" dcBA |"Cm" G2 B2"E7" _G3 _G ||1"Bbm" E4"Bo" G4 |"Bbm" E4"A7" z4 :|2$
+"Bbm" E4"A7" c4 |"Ab" A4"Fm" z4 ||[K:E]"E" G3 G"C#m" F3 E |"F#m" c2 c2"B7" A3 B |
+"E" (3d2 e2 d2"C#7" =d3 =c |$"F#m" B2 A2"B7" F4 |"E" G3 G"A#ø" F3 E |
+"G#m" G2"Go" ^A2"G#m" B2"Fø" c2 ||$[K:Ab]"Bbm" (3e2 e2 e2"Cm" e2 E2 |
+"Dbm" =B4"Eb7""_D.C. al 3rd end." c4 ||3"Bbm" E4"A7" c4 |"Ab" A8 |]
+
+X:3
+T:Django
+C:John Lewis
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"Fm6" z A2 G |"Bbm" F3/2 =E/ F D |"C7" z B2 d |"Fm6" A3/2 G/ A F |"F7" z c2 e |$
+"Gø" d3/2 c/ d B |"Eb7" z B2 d |"Ab" c3/2 =B/ c A |"Db" z A2 c |"Gm" B3/2 =A/ B G |$
+"G7" =B3/2 =A/ =B G |"C7" c3/2 =B/ c g |"Fm6" z g2 f |"Bbm" z e2 d |"C7" z c2 B |$
+"Eo" B2"Fm" A z |"Fm6" z G2 F |"Bbm" z E2 D |"C7" z C2 B, |"Fm6" B,2 A,2 |]
+
+X:2
+T:Don't Blame Me
+C:Dorothy Fields & Jimmy Mchugh
+L:1/4
+M:C
+I:linebreak $
+K:C
+"C" G2"Fm" _B2 |"Em" A2"Eb7" G2 |"Dm" (3F F F"Db7" E E |"C" D2"Am" C2 |$"Dø" (3F F F"Db7" E D |
+"Eø" (3G G G"Eb7" F E ||1"Gbø" A2"Fø" B2 |"Em" G"Eb7" z"Dm" z"Db7" z :|2$"Dm" A2"G4" A2 |
+"C6" c2"Gbø" z2 |"F" ^G A"Dm" ^G A |"Bø" ^A B"E7" ^A B |$"Bø" d2"Bb7" c c |
+"Am" z2"AmM" z2 |"D7" d2"Am" c c |"Fo" z D"D7" ^F B |$"Dm" A2"Ebm" _A2 |
+"Dm" G2"Db7" "_D.C. al 3rd end." z2 ||3"Dm" A2"G4" B2 |"C6" c4 |]
+
+X:3
+T:Don't Get Around Much Anymore
+C:Duke Ellington
+L:1/8
+M:C
+I:linebreak $
+K:C
+z e2 d cGFE- |:"C" E4"Dm" x4"D#m" z4 "Em" x4|"NC" z e2 d cGFE- |"A7" E8 |$"A7" z G2 F EDCc- |
+"Am" c3 A-"D7" A4 |"G7" z EF^F G C^DE ||1"C" C8 |"G7" z e2 d cGFE :|2$"C" C8- |"C7" C6 z2 ||
+"F" d4 c A2 c- |"Fm" c6 c2 |"Em" d4 c"C" G2 E- |"C7" E4-"C+" E c3 |$"D7" d4 c A2 c- |
+"F#ø" c8 "B7" x4|"Em" z BBB"D7" B A2 G- |"G7" G e2 d cGFE |"C" E4"Dm" x4"D#m" z4 "Em" x4|$
+"NC" z e2 d cGFE- |"A7" E8 |"A7" z G2 F EDCc- |"Am" c3 A-"D7" A4 |"G7" z EF^F GC^DE |"C" C8 |]]
+
+X:2
+T:Dream A Little Dream Of Me
+C:Fabian Andre & Wilbur Schwandt
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" z G"Em" F/G/F/E/ |"Am" G2"D7" F2 |"G" z G"Em" F/G/F/E/ |"E7" (3^G B ^G =F E |$
+"Am" z A G/A/G/E/ |"Aø" (3A G _E G2 |"G" D/E/G/A/"Am" _B"D7" A |"G""_Fine" G4 :|$
+[K:E]"E" z e"C#m" (3c e c |"F#m" B/G/B/G/"B7" z F |"E" z e"C#m" (3c e c |"F#m" B2"B7" z2 |$
+"E" z e"C#m" (3c e c |"F#m" B/G/B/G/"B7" z F |"E" z e B G |"Eb7" d2"D7""_D.C. al Fine" =d2 ||
+
+X:2
+T:East Of The Sun
+C:Brooks Bowman
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" (3D D D F2- |"G" F2"F" E2 |"Bm" (3B, B, B, F2- |"Bm" F2"Bb7" =F2 |"Am" (3E E E B2- |$
+"Am" B2"Bm" A2 |"Cm" (3c c c _E2- |"Cm" E4 "F7" x4||1"Am" (3c c c d d |"D7" B4 |$
+"F#ø" (3F F F"B7" B B |"Em" G3 G |"Em" (3F F F"A7" A A |"Em" F2"A7" E2 |"Am" (3c c c"Bm" d d |$
+"C" B B"D7" A2 :|2"Am" c3/2 B/"D7" d3/2 c/ |"F#ø" B A"F7" c3/2 B/ |"Em" G/G/G/G/ B B/B/ |$
+"A7" F F c A |"Am" (3C E G"Bm" B2- |"Cm" B A"D" (3c B B |"Bm" d2-"E7" d2 |"Bbm" _d2-"Eb7" d2 |$
+"Am" (3c B c E2- |"Am" E F"D7" (3B D E |"G" G4- | G4 |]
+
+X:2
+T:Embraceable You
+C:George Gershwin
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" z C D E |"Ebo" z2 (3C D E |"Fm" F B, B, B, |"Bb7" z4 |$"Fm" z F G A |"Fø" z F"Bb7" G A |
+"Eb" B E"Eb6" E E Ox/||"Dm" z4 "G7" x4|$"Cm" G E"Cm/Bb" F E |"Aø" G E"D7" F E |
+"Gm" G D"Gm/F" D D |"Eø" z4 "Eb7" x4|$"Dm" F D"G7" E D |"Cm" E F"F7" G =A |"Bb7" B B, B, B, |
+"Fm" z4"Bb7" "_D.C. al Coda" x4 ||$Ox/"Bbm" z2"Eb7" z2 |"Ab" z B"Fm" A G |"Dø" A G"G7" F G |
+"Cm" z E/E/"Cm/Bb" E/E/E/E/ |$"Aø" E/E/ G-"Ab" G2 |"Gm" z G"Cm" A B |"Fø" =B E"Bb7" D2 |
+"Eb6" E4 | z4 |]
+
+X:2
+T:Epistrophy
+C:Thelonius Monk
+L:1/8
+M:C
+I:linebreak $
+K:C
+"C7" z2 C_D"Db7" A _B3 |"C7" C_DA_B-"Db7" B2 z2 |"C7" z2 C_D"Db7" A _E3 |
+"C7" C_DA_E-"Db7" E2 z2 ||1$"D7" z2 D_E"Eb7" B c3 |"D7" D_EBc-"Eb7" c2 z2 |"D7" z2 D_E"Eb7" B F3 |
+"D7" D_EBF-"Eb7" F2 z2 |$"D7" z2 D_E"Eb7" B c3 |"D7" D_EBc-"Eb7" c2 z2 |"D7" z2 D_E"Eb7" B F3 |
+"D7" D_EBF-"Eb7" F2 z2 :|2$"Fm" z4 cdfg |"Fm" _a2 fg f2 d2 |"Fm" z4 cdf_a |"Fm" z _a2 g f2 d2 |$
+"Bb7" z4 cdf_a | _b2 _ab _a2 f2 |"C7" EG_Bd- d B3 |"Db7" F_A_c_e- e B3 ||$"D7" z2 D_E"Eb7" B c3 |
+"D7" D_EBc-"Eb7" c2 z2 |"D7" z2 D_E"Eb7" B F3 |"D7" D_EBF-"Eb7" F2 "_D.C. al 3rd end." z2 ||3
+"C7" C_DA_B-"Db7" B2 _A=B- | B6 z2 |]
+
+X:2
+T:Fools Rush In
+C:Rube Bloom
+L:1/4
+M:C
+I:linebreak $
+K:C
+"Dm" A A"DmM" A2 |"Dm" z B"Do" e/d/B/A/ |"Em" G4 | z"Am" A c/B/A/G/ |$"Dm" F F F2 |
+"Db7" z G B/A/G/F/ |"C" E4 |"C#o" z2 A E |$"Dm" D4 |"G4" z A G E |"C6" C4 |"Am" z D E G |$
+"D7" ^G A A2 |"Am" z A"Ebo" B c |"Dm" d4 |"G7" z"F" z"Em" z"Eb7" z ||$"Dm" A A"DmM" A2 |
+"Dm" z B"Do" e/d/B/A/ |"Em" G4 | z"Am" A c/B/A/G/ |$"Dm" F F F2 |"Db7" z G B/A/G/F/ |"Bb7" E4 |
+"A7" z4 |$"Dm" D D"Em" D2 |"Fm" z F"Bb7" ^G c |"Em" e e e2 |"Am" z e d/c/A/c/ |$"Dm" d d d2 |
+"G4" z d c B |"C6" c4 | z4 |]
+
+X:2
+T:Forest Flower
+C:Charles Lloyd
+L:1/8
+M:C
+I:linebreak $
+K:A
+"NC" z2 z B,/A,/ G,A,CE ||"A" B8- | B4 G E2 C/G/ ||[K:G]"G" F8- | F3 D/C/ B,CEG ||$
+[K:C]"C" d8- | d4 B G2 E/B/ ||[K:Bb]"Bb" A8- | A6 A2 ||[K:A]"A" G3 ^d- d4- ||
+[K:C]"A" d4"Dø" (3=d2"G7" ^G2 d2 ||$[K:C]"C" G8- | G3 D/C/ B,CEG |"C7" D3 D2 D2 D |
+"Fo" D3 D2 D2 D ||1[K:Bb]"Bb" D8 :|2$"Bb" D8- | D3 D/C/ =B,C=EG ||[K:Eb]"Cm" D3 D2 D2 D |
+"Bb7" D3 D2 D2 D |"Eb" D8- |$"Eb" D3 F/E/ DEGB |"Bb7" D3 D2 D2 D |"Ab7" D3 D2 D2 D ||
+[K:Gb]"Gb" D8- |$ D6 z D/F/ ||[K:C]"Gbm" _A6 z E/_A/ |"Am" B6 z G/B/ |"Cm" d6 z _B/d/ |"Ebm" f8 |
+"C6" e8- | e8 |]
+
+X:2
+T:Four
+C:Miles Davis
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+B c |:"Eb" d/B/c/ d"Fm" B/ c |"Gbo" d/f/e/ d"Gm" B/ c |"Ebm" _d4 |"Ab7" z2 E F |$
+"Fm" G/E/F/ G E/ F |"Gm" G/B/A/ G E/ F |"Abm" _G4 |"Db7" z2 F/G/A/=A/ |$"Gm" B2 E/G/ B |
+"Gbm" =B =E"B7" _E2 |"Fm" z c"Fm/Eb" B A |"Dm" G2"G7" F/G/A/=A/ ||1$"Gm" B2 (3E G B |
+"Gbm" =B =E"B7" _E2 |"Fm" z c B A |"E7" G2 z B/c/ :|2$"Gm" B/G/ B"Gbm" =B/A/ =B |"Fm" c A"E7" d B |
+"Eb6" e4 |]
+
+X:2
+T:Funkallero
+C:Bill Evans
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Ab6" z FAB |"Bb7" =B4 B4- |"Eb7" B2 =Bc A2 _B2 |"Ab6" =E4 E4- |$"Fm" E2 F2 A2 B2 |"Bb7" =B4 B4- |
+"Eb7" B2 =Bc A2 _B2 |"Ab6" =E4 E4- |"Ab6" E2 F2 A2 c2 ||$[K:Db]"Ebm" f4"Eb7" f4- |
+"Ab7" f2 e2"D7" afed |"Db" cA=AB-"Gb7" B4- |"Fm" B4"Bbm" z FAB ||$[K:Ab]"Bb7" =B4 B4- |
+"Eb7" B2 =Bc A2 _B2 |"Ab6" =E8 |]
+
+X:2
+T:Giant Steps
+C:John Coltrane
+L:1/4
+M:C
+I:linebreak $
+K:B
+"B" f2"Am" =d2 ||[K:G]"G" B2"Fm" G2 ||[K:Eb]"Eb" B4 ||[K:G]"Am" B2"D7" A2 |$"G" d2"Fm" _B2 ||
+[K:Eb]"Eb" G2"Dbm" E2 ||[K:B]"B" F4 ||[K:Eb]"Fm" G2"Bb7" F2 |$"Eb" B4 ||[K:G]"Am" B2"D7" A2 |
+"G" d4 ||[K:B]"C#m" d2"F#7" c2 |$"B" f4 ||[K:Eb]"Fm" g2"Bb7" f2 |"Eb" b4 ||1
+[K:B]"C#m" f2"F#7" z2 :|2"Eb" z4 |]]
+
+X:2
+T:God Only Knows
+C:Brian Wilson
+L:1/4
+M:C
+I:linebreak $
+K:E
+"A" c2 c3/2 d/ |"E" e2 b2 |"F#m" a4 |"F#m" c/"G#m" d3/2"A" e2 |:$[K:D]"D" z2 (3d c d |
+"Bm" c B F B ||[K:E]"F#m" z z/ A/ A/G/ A/c/ |"B7" f A B c |$"E" z e (3e d e |"F#o" f A B =c |
+"E" z e (3e d e |"C#m" g c d e |$"A" z2 (3c B c |"G#m" (3B e B A G |"F#m" E2 F2 |
+"E" G3/2 G/"F#m" A/"G#m" B3/2 |$"A" z2 (3c B c |"G#m" (3B e B A G |"F#m" E2 F2 |"E" E4 :|
+
+X:2
+T:Green Dolphin Street
+C:Bronislau Kaper
+L:1/4
+M:C
+I:linebreak $
+K:C
+"C6" c2 c2 |"C" z2 (3B G E |"Cm" _B4 | z4 |$"D7" A2 A2 |"Db7" z2 (3_A F _D |"C" G4 |
+"C#o" z4 Ox/||$"Dm" z G D E |"Db7" F G _A _B |"C" G2 G2 |"C6" z4 ||$[K:Eb]"Fm" z B F G |
+"E7" A B =B ^c |"Eb" B2 B2 ||[K:C]"Dm" z2"Db7" z "_D.C. al Coda" B ||$Ox/"Dm" z G"Dm/C" D E |
+"Bø" F G"Bb7" _A e |"Am" d2"Am/G" c2 |$"Gbø" C D"F7" _E B |"Em" A2"Eb7" G2 |
+"Dm" z G"Db7" G G |"C" G4 |"C6" z4 |]]
+
+X:2
+T:Grow Old With Me
+C:John Lennon
+L:1/8
+M:C
+I:linebreak $
+K:G
+"G" B3 G"D7" A3 G |"G" B4 z2 G2 |"Em" B2 d2 g f3 |"Bm" d8 |$"G" z2 Bd"D7" g f3 |"G" g8 |
+"Em" Bd g f3 |"Bm" d8 |$"C" z2 e2"D7" f g3 |"G" d4"Em" z4 |"C" z2 e2"D7" dB A2 |"G" G8 :|$
+"Em" z2 e2 f g3 |"Bm" f3 d e f3 |"Em" z2 e2 f g3 |"Bm" f3 d e f3 |$"C" e2 dc e4 |"Am" z8 |
+"C" c2 BA c4 |"D7" z8 ||$"G" z8 "D7" x4|"Em" z8 |"Am" z8 "Bm6" x4|"C#m6" z8 |$"C" z8 "D7" x4|"Em" z8 "A4" x4|
+"C" z8 "D7" x4|"G4" z8 "G" x4|]]
+
+X:1
+T:Have Yourself A Merry Little Christmas
+C:Martin & Blane
+L:1/8
+M:C
+I:linebreak $
+K:G
+"G" G2 B2"Em" d2 g2 |"Am" dcBA"D7" G2 A2 |"G" z2 GB"Em" d2 g2 |"Am" d8 "D7" x4|
+"G" B2 d2"Em" g2 b2 ||1$"Am" agfe"D7" d2 c2 |"B7" B8 "E7" x4|"A7" z8 "D7" x4:|2"F#ø" agfe"B7" ^d2 f2 |
+"Em" g8 |$"Dm" z8 "G7" x4|"C" bb b2"Co" z2 ag |"Bm" fg a2"Em" z2 gf |"Am" ef g2"D7" z2 f2 |
+"G" d8 |$"C#ø" gg g2"F#7" z2 fe |"Bm" de f2"E7" z2 de |"Em" fg a2"A7" z2 A2 |
+"Am" d8"D7" "_D.C. al 3rd end." x4 ||3$"F#ø" c'bag"B7" f2 a2 |"Em" b8 |"Dm" z8 "G7" x4||
+"C" b2 c2 e2 g2 |"Am" bagf"D7" e2 f2 |"G" g8 | z8 |]
+
+X:2
+T:House Of The Rising Sun
+C:The Animals
+L:1/4
+M:3/4
+I:linebreak $
+K:C
+"Am" A2 B |"C" c2 e |"D7" d A2 |"F" A2 a |$"Am" a2 a |"C" g2 e |"E7" e3 | z2 a |$"Am" a2 a |
+"C" g2 e |"D7" d A2 |"F" A2 A |$"Am" A2 A |"E7" ^G E B |"Am" A3 ||1"E7" z4 :|2"Am" z4 |]
+
+X:2
+T:How High The Moon
+C:Morgan Lewis
+L:1/4
+M:C
+I:linebreak $
+K:G
+"Am" z D"D4" G A ||"G" A2 B2 |"G6" z D G A ||[K:F]"Gm" B4 |$"Gb7" z C F G |"F" G2 A2 |
+"F6" z C F G ||[K:Eb]"Fm" A4 |$"E7" z D E F |"Eb" G G"Cm" G G ||[K:G]"Aø" G G"D7" A/G/ A ||1$
+"Gm" _B2 _B2 |"Am" z G"D7" A/G/ A |"G" B2"Am" z2 |"Bm" z A"C" B c |"Bm" d d"Bb7" d d :|2$
+"G" B2"Am" z2 |"Bm" z A"C" B c |"Bm" d d"Bb7" d d |"Am" d D"Ab7" G A |"G6" G4 |]
+
+X:2
+T:How Long Has This Been Going On
+C:George Gershwin
+L:1/8
+M:C
+I:linebreak $
+K:G
+"D7" z2 de e4 |"Do" z2 ed d4 |"Dm" z2 de"G7" e3 d |$"C" A2 G2"F7" G4 |"Em" z2 GA"Bbo" A3 G |
+"Am" E2"D7" D2"Bø" D3 ^D "E7" x4|$"A7" EGAG"D#7" _B2"D7" =B2 ||1"G" d8 "D#7" x4:|2
+"G" x4"Am" x4"A#o" G8 "Em" x4||$"C" B3 G"B7" A3 c |"C" B3 G"B7" A3 c |"C" B2 G2"B7" A2 c2 |
+"C#ø" B4"F#7" z2 ^c2 |$"Bm6" d3 B"F#7" ^c3 e |"Bm6" d3 B"F#7" ^c3 e |"Bm" d2 d2"Bb7" d2 d2 |
+"Am" d8"D7" "_D.C. al 3rd end." x4 ||3$"Bø" d4"E7" z2 z ^D |"A7" EGAG"D#7" _B2"D7" =B2 |"G6" G8 |]
+
+X:2
+T:I Can't Get Started
+C:Vernon Duke
+L:1/4
+M:C
+I:linebreak $
+K:C
+C/E/G/ S|:"C" B c"Am" (3A E F |"Dm" G2"G7" z/ E/G/B/ |"E7" d e"Am" (3c G A |$
+"Am" B2"D7" x4"Abm" z/ C/"Db7"E/G/ |"C" B c"Am" (3A E F |"Dm" G"Em" G"Fm" (3_A C D ||1$"Bb7" E4 "A7" x4|
+"Ab7" z2"G7" z/ C/E/G/ :|2"C6" C4 "Dm" x4|"C6" z C"F" E G ||$[K:D]"Em" A4 "A7" x4|
+"Em" (3F F F"A7" (3F =F E |"D" A4 "Em" x4|"D" (3E E E"D6" (3E _E D ||$[K:C]"Dm" A4 "G7" x4|
+"Dm" (3E E E"G7" (3E _E D |"Em" G2"Eb7" A2 |"D7" (3B d B"G7" "_D.S. al 3rd end." G/C/E/G/ ||3
+"C6" C4 |]
+
+X:2
+T:I Didn't Know What Time It Was
+C:Rodgers-Hart
+L:1/8
+M:C
+I:linebreak $
+K:Gb
+"Fm" B4"Bb7" z F G2 |"Ebm" A2 A2"Ab7" AB G2 |"Fm" B4"Bb7" z F G2 |"Ebm" A4"Ab7" z4 |$
+"Abm" A4 z"Fø" E F2 |"Ebm" G2 G2"Ebm/Db" GA F2 |"B" E2 E2"Bbm" EF D2 Ox/||1
+"Abm" c4"Gbm" z4 :|2"Abm" d4"Db7" z4 ||$"Abm/Gb" e4"Gb" z dcB |"Fø" A2 AF"Bb7" A2 AF |
+"Fø" A2 AF"E7" A2 =G2 |"Ebm" G4"Ab7" z4 |$"Abm" e4"Db7" z dcB |"Gb" A2 AF"Gb/F" A2 AF |
+"Ebm" A2 AF"Ab7" A2 G2 |"Abm" d4"Gbm" "_D.C. al Coda" z4 ||$Ox/"Bm" d4"E7" c4 |"Bbm" B4"Ebm" z F G2 |
+"Abm" A2 A2"Db4" AB G2 |"Gb6" G8 | z8 |]
+
+X:3
+T:I Got Rhythm
+C:George Gershwin
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" z C"Dm" z D |"Gm" F2"C7" G2 |"Am" z G"Dm" z F |"Gm" D2"C7" C2 |$"Cm" z C"F7" z D |
+"Bb" F2"Eb7" G B/G/ |"Am" A"Ab7" A"Gm" G/A/"Gb7" G |"F" "_Fine" F4 :|$[K:A]"A7" z A2 A | A2 B2 |
+"D7" z A2 A | A2 D2 ||$[K:G]"G7" z G2 G | G2 A2 |"C7" z G2 G | G2 "_D.C. al Fine" C2 |]
+
+X:2
+T:I Have Dreamed
+C:Harold Arlen
+L:1/4
+M:C
+I:linebreak $
+K:G
+"G" G3/2 F/ G2- | G D/G/"Am" A d |"G" A2 G2- |"Am" G4 |"G" G3/2 F/ G2- | G D/G/"Am" A d ||
+[K:A]"F#m" A4- |"F7" A4 |$"F#m" A3/2 G/ A2- | A E/A/"E7" B e |"F#m" B2 A2- ||[K:G]"Am" A2"D7" B A |
+"Em" G4- |"Eo" G2 A G |"D7" F4- ||[K:B]"C7" F4 |$"B" B3/2 A/ B2- | B F/B/"C#m" c f |"B" c2 B2- |
+"C#m" B4 |"B" B3/2 A/ B2- | B F/B/"C#m" c f ||[K:G]"D" f4- |$"D" f2 g f |"G" e d"C" B A |
+"F#ø" B2"B7b5" g f |"Em" e d B A |"Dbø" B2"Cm" G A |"Bm" B2"Am" c"G" d |$"C" e2"B7" f2 |
+"Em" g4- |"Dbø" g2"Cm" f g |"Bm" a2"Bbo" f g |"Am" e2"Ab7" f2 |"G" g4- | g4 |]
+
+X:2
+T:I Left My Heart In San Francisco
+C:George Cory
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"G7" z G A c S||"Eb" B2"Fm" z2 |"Gm" B c"Gbo" d e |"Fm" c"FmM" F3- |
+"Fm" F F"Fm6" =E F Ox/||$"Fm" c4- |"Bb7" c e d B |"Eb" G2"Cm" z2 |"Fm" G2"E7" G A |
+"Eb" B/A/G/A/ B2- |$"Ebm" B2"Ab7" c2 |"Dm" d/c/B/c/ d2- |"G7" d d ^c d |"Cm" e3 f |$"F7" d3 F |
+"Fm" B2"Gm" z2 |"Ab" B G"Bb7" A "_D.S. al Coda" c ||O"Bb7" d4- |$"A7" d d"Ab7" e f |"G7" g4- |
+g g ^f g |"C7" a3 g | =e =e f g |$"F7" f c3- | c c =B c |"Fm" a3 a "FmM" x4|"Fm" g3 B "E7" x4|
+"Eb6" e4 |]
+
+X:2
+T:I Loves You Porgy
+C:George Gershwin
+L:1/8
+M:C
+I:linebreak $
+K:G
+"D7" z GBd S|:"G" fa- a2"Em" z gdB |"C" Bd- d2 z EGB |$"Am" df f2"D7" z dBG |"G" B4"C" z FGB |$
+"Bm" df- f2"E7" z dB_A |"Am" GB- B2"Bm" z CEG |"C" Bd d2"D7" z BGE ||1$"G6" G4"D7" z GBd :|2
+"G6" G4"C#ø" z4 "F#7" x4|"Bm" z B^cd"Bm6" efed ||$"C#ø" B3 B"F#7" d^c- c2 |"Bm" z B^cd efed |
+"E7" F3 F"Eb7" A4 |"Dm" z de=f"Dm6" ga=fe |$"E7" d3 d"A7" =fe- e2 |"C7" z fff"B7" g3 g |
+"Bb7" eeee"A7" =f2 =f2 |$"Ab7" d8 |"D7" z2 G2 B2 "_D.S. al 3rd end." d2 ||3"G" G8- | G4 |]
+
+X:2
+T:I Remember Clifford
+C:Benny Golson
+L:1/8
+M:C
+I:linebreak $
+K:Eb
+"Ab" z CEG"Fm" BA- AE/F/ |"Bb7" G4"A7" z4 "Ab7" x4|"G7" z G=Bd"Bo" f3 e |"Cm" e4"Bbm" x4"Abm" z4 "Gbm" x4|
+"Fm" z CEF GFEF |"Bb7" E6 =B,_B |:$S"Eb" GG-"G7" G4 FD |"Ab" E4-"Aø" EFGA |
+"Bb7" B3 B"Bo" =BAD=B |"Cm" c4- c"Cm6"Gcd ||1$"Aø" e3 e"D7" e2 dc |
+"Gm" B/c/d- d2-"Gm6" dDG=A |"Eø" B3 B"A7" B2- B=A/G/ |"Fm" A6 G/F/D/C/ "Bb7" x4:|2$
+"Aø" e3 e"D7" eFBc |"Gø" d6 c2 "C7" x4|"Fm" F3 ^c"Bb7" ^F3 d |"Eb" G3 e"Ab" c3 c/d/ |
+"Aø" e4"D7" dcBc |"Gm" d/G/_d- d2"C7" z CEF |$"Fm" GCEF"E7" _G2 _c2 |"Eb" B6 z2 ||
+"Dø" A3 A"G7" BAGF |"Cm" E/F/G- G2"Cm6" z Gcd |"Aø" e3 e"D7" fedB |
+"Gm" d/G/_d-"C7" d2"Fm" c/F/_c-"Bb7" "_D.S. al 3rd end." cB ||3$"Aø" e3 e"D7" eFBc |
+"Gø" _d3 d"C7" d2- d/C/E/F/ |"Fm" GCEF"E7" _G2 _c2 |"Eb" B6 z2 |]
+
+X:3
+T:I Won't Last A Day Without You
+C:Roger Nicohols
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"D" d4 |"F#m" c2 d2 |"G" B4- |"A" B4 :|S"D" z A A B |"F#m" A2 A A |"G" A G G F |"A7" F E2 D/E/ |
+"Bm" F c c2- | c2 z F |"Em" G d d2- |"A7" d4 ||$"D" z A A B |"F#m" A2 A A |"G" A G G F |
+"A" F E2 D/E/ |"Bm" F c c2- | c2 z F |"Em" G d d2- |"A7" d2 d e ||$"D" f2 f f |"D7" f e2 f |
+"G" d B d2 |"C7" z2 d e |"D" f2 f f |"D7" f e2 f |"G" d4 |"C7" z2 f g |$"D" a2 a a |"D7" a g2 a |
+"G" f2 d B |"Gm6" d2 A d |"Em" g2 f d |"A7" A2 G A"^To Coda" :|"D" A4- | A4 ||$[K:A]"Bm" c2 A2 |
+"E7" F G A e |"A" B c3- |"F#m" c4 |"Bm" c d c B |"E7" c d e f ||[K:F#]"F#" c4- | c3 F |
+"G#m" f2 d2 |$"C#7" c d d F |"F#" G A3- | A4 |"D#m" f f f g |"E" B2 G B |"F#7" c4- | c2 B c ||
+[K:D]"G" d2"A" c "_D.S. al Coda" B ||$Ox/"A" A4- | A4 ||"D" A2 d2 |"F#m" c2 d2 |"G" B4- |"A" B4 |
+"D" d4 |"F#m" c2 d2 |"G" B2 A2 |"A" D2 E2 |"D" D4- | D4 |]
+
+X:2
+T:I'll Take Romance
+C:Ben Oakland
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" F2"Dm" D/F/- F |"Gm" G2-"Go" G A/B/ |"Am" c c"Ab7" c3/2 c/ |"Db" (3c _d c"Gø" B2 |$
+"Dm" (3B c B"Ebo" A c |"Gm" G2"Gb7" (3G F E Ox/||1"F6" F4 "Dm" x4|"Gm" z4 "Gb7" x4:|2
+"F6" F4 "F#" x4||$"F" z F/G/"Dm" E/F/A/c/ ||[K:Db]"Ebm" d2"Ebo" e2 |"Fm" c2"Eo" B2 |
+"Ebm" d d"Ab7" (3d e d |$"Dbo" c2"Db6" B2 ||[K:B]"C#m" B2"F#7" c2 |"B" A2"E7" G2 ||
+[K:F]"Dm" A A"Ebo" (3A c B |$"Gm" G G"Gb7" (3G B "_D.C. al Coda" A ||O"F6" F4- | F4 |]
+
+X:2
+T:I'm All Smiles
+C:Michael Leonard
+L:1/4
+M:3/4
+I:linebreak $
+K:Eb
+"Fm" A3 |"Bb7" F3 |"Eb" G3 | D E2 ||[K:Bb]"Cm" B3 |"F7" G3 |"Dm" G3- |"G7" G3 ||[K:D]"Em" d3 |
+"A7" B3 |$"D" c3 |"Bm" ^G A2 Ox/||1[K:F]"Gm" B B B |"C7" B A- A/E/ |"Fo" G3- |"F" G3 :|2$
+"Gm" B B B |"C7" B A- A/E/ |"Cm" c3- |"F7" c3 ||"Bbø" _d3- |"Eb7" d2 c |"Abø" _c3- |
+"Db7" c2 _c ||$[K:Ab]"Bbø" d d d |"Eb7" d E- E/d/ |"Ab" c3- |"Db" c3 ||[K:F]"Gm" c c B |
+"C7" c B c |"F" d A2- | A3 |$"Bb" e c G |"Ab7" f d _A |"Gm" G3- |"C7" "_D.C. al Coda" G3 Ox/||
+"Gm" B B B |"C7" B A- A/E/ |"F" F3- | F3 |]
+
+X:1
+T:I'm Glad There Is You
+C:Jimmy Dorsey & Paul Madeira
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" E E E2 | z E A/A/ E/E/ |"Fm" _E2 _E2 | z _E _A/_A/ _E/_E/ |$"Gm" D2"GmM" D2 |
+"Gm" z D"Go" (3E F G Ox/||"Am" c2"Ab7" z2 |"Gm" z4 "Gb7" x4|$"F" c c"Gm" c2 |
+"Am" z c"Ao" e/e/ d/d/ |"Gm" B2"GmM" B2 |"Gm" z B"C7" d/d/ c/c/ |$"Eb7b5" A2 A2 |
+"D7" z A (3c B A |"Gm" G4 "C7" x4|"Cm" z A"F7" B c |$"Bb" c F G A |"Bbm" c B"Eb7" F G |"F" A2 A2 |
+"Em" z E"Eb7" F G |$"Dm" A E"DmM" F G |"Dm" A G"Do" E F |"Gm" D4 |"Gb7" "_D.C. al Coda" E4 ||$
+Ox/"Aø" c4 |"Ab7" z2 c ^c |"Gm" d2"GmM" f2 |"Gm" z F"Gb7" (3A A A |"F6" F4 | z4 |]
+
+X:1
+T:Impossible Dream
+C:Mitch Leigh
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+C2 S|:"Ab" E4 (3z CD (3EDC | E4 z2 E2 |"Db" F4 (3z DE (3FED | F4 z2 F2 Ox/||$
+"Cm" G4 (3z CD (3EFG |"Db" A2 D2 z2 E2 |"Bbm" F4 (3z B,C (3DEF ||1"Eb7" G4 z2 C2 :|2
+"Eb7" G4 z A (3A B A ||$"Ab" c4 z A (3ABA |"Fm" c4 z A (3ABA |"Cm" c2 G2 z A (3BAG |
+"Db" B4 z A (3AGF |$"Fm" A4 (3z FG (3AGF |"E7" A4 (3z AB (3cBA |"Ab" c2 c2"Fm" c2 c2 ||
+[K:Gb]"Gb" B6 (3z B =c |"Bbm" d4 (3z =cB (3d=cB |$"Gb" d4 (3z =cd (3=cBA ||[K:Ab]"C7" G6 GA |
+"Db" B4 (3z AG (3BAG |"Bb7" B4 (3z AB (3AGF |"C7" =E4 "_D.S. al Coda" C2 ||$Ox/"Cm" G4 (3z CD (3EFG |
+"Db" A2 D4 A2 |"Ab" c4 A2 B2 |"Bbm" c4"Eb7" B2 A2 |"Ab" A8 |]
+
+X:2
+T:It's Only A Paper Moon
+C:Harold Arlen
+L:1/8
+M:C
+I:linebreak $
+K:G
+"G" z2 D2"G#o" dd d2 |"Am" ^B2 =B2"D7" A4 |"Am" z2 DD"D7" ^BB B2 |"G" B2 A2"G6" G4 |$
+"Dm" z2 D2"G7" dd ^d2 |"B#" e2 ^B2"C#o" A3 G |"D7" F2"Am" e2"D7" d2 F2 |"G" "_Fine" G8 :|$
+"B#6" A4"C#o" ^A4 |"G" B4 z2 GG |"Am" Bd ^B2"D7" =B2 B2 |"G" G6 G2 |$"B#6" A4"C#o" ^A4 |
+"G" B4 z G A^A |"Bm" Bd d2"E7" dG A^A |"Am" Bd B2"D7" "_D.C. al Fine" A4 |]
+
+X:2
+T:Just Friends
+C:John Klenner & Sam Lewis
+L:1/4
+M:C
+I:linebreak $
+K:B
+"F7" z2 d2 S||"E" d4 |"E6" z2 (3c d c |"Em" =G4 |"A7" z2 c2 |"D#m" c4 |$"G#m" z c (3B c B |
+"Dm" =F4 |"G7" z2 B2 |"C#m" B2 (3G B G Ox/||"F#7" A2 A2 |"B" A2 (3F A F |$"G#m" G A B d |
+"C#7" g2 d2 | z G (3G A B |"C#m" d2"F#7" c2 |"F#m" z2"B7" "_D.S. al Coda" d2 ||$Ox/"F#7" A2 c2 |
+"A#ø" c3/2 A/"D#7" c A |"G#m" B c"G#mM" d f |"C#7" g2 G2 |"C#m" f2"C7" d2 |"B6" B4 |]
+
+X:1
+T:La Vie En Rose
+C:Piaf-Gugliemi
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Ab" z4"F7" z4 |"Bbm" z4"Eb7" z4 |"Ab" z4"Aø" z4 |"Bbm" z4"Eb7" z4 |$"Ab" A3 G FECA |
+G3 F ECA,G |"Ab6" F3 E CG,A,G |"Bbm" F4"Eb7" E4 |$"Bbm" B3 A GFDA |"Eb7" G3 F EDB,G |
+"Bbm" F3 E"Eb7" D=A,B,G |"Abo" F4"Eb7" (3:2:1E4 |$"Ab" A3 G FECA | G3 F ECA,G |
+"Ab6" F3 E"Ab7" CG,A,A |"Db" A6 A2 |$"Db" (3B2 B2 A2"Dbm" (3B2 B2 A2 |"Ab" (3B2 B2 A2"Fm" E3 A |
+"Bb7" (3B2 B2 A2 (3B2 B2 A2 |"Bbm" (3B2 B2 A2"Eb7" c2 B2 |$"Ab" A3 G FECA | G3 F ECA,G |
+"Bbm" F2 E2"Eb7" F2 G2 |"Ab" A8 |]
+
+X:2
+T:Let's Cool One
+C:Thelonius Monk
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" D D D C |"Fm" E E"Bb7" E F |"Eb" G A"Fm" B c |"Gø" _d2"C7" z c |$"Fm" B =B/ c3/2 z ||1
+"Bb7" z2 B/=B/c/e/ |"Eb6" c4 "C7" x4|"Fm" z4 "Bb7" x4:|2$"Bb7" z2 B =B/c/ |"Eb" z4 | z4 ||
+[K:Ab]"Bbm" e2 d B |$"Eb9" e2 d/ =B A/ |"Ab" z2 =B (3c/e/f/ | f4 ||[K:Bb]"Cm" B3 B |$"F4" B2 F2 |
+"Fm" B,4 |"Bb7" z4 ||[K:Eb]"Eb" D D D C |$"Fm" E E"Bb7" E F |"Eb" G A"Fm" B c/_d/ |
+"Gø" z2"C7" z c |"Fm" B =B/ c3/2 z |$"Bb9" z2 (3B =B c |"Eb6" (3B G E (3B, =B, C |
+(3B, G, E, z2 |]
+
+X:2
+T:Lover Man
+C:Davis-Ramirez-Sherman
+L:1/8
+M:C
+I:linebreak $
+K:Db
+"Bbm" z B cB"Eb7" e2 Bc |"Bbm" dB e2"Eb7" e4 |"Ebm" z e fe"Ab7" a2 ef |"Ebm" ge a2 a4 |$
+"Db7" _fded _f d3 |"Gb7" _fded a d3 Ox/||"A7" z =A de"Ab7" _fedB ||1
+"Db" d4"Db6" x4"Cm" z4 "F" x4:|2$"Db" d8 ||[K:Eb]"Fm" a2 fg"FmM" a2 fg |"Fm" a2 fg"E7" ab a2 |
+"Eb" g2 ef"Fm" gf e2 |$"Gm" g8 "Fm" x4||[K:Db]"Ebm" g2 ef"EbmM" g2 ef |"Ebm" ge f2"D7" ga g2 |
+"Db" f4"Gb" fe d2 |$"Cø" f8"F7" "_D.C. al Coda" x4 ||O"A7" z =A de"Eb7" _fe"D7"dB |"Db7" d8 |]
+
+X:2
+T:Mack The Knife
+C:Kurt Weill
+L:1/4
+M:C
+I:linebreak $
+K:F
+"C+" z2 A c |"F6" d2 d2 |"F#o" z2 A c |"Gm" d2 d2 |$"C7" z2 G B |"Gm" d2 d2 |"C7" z2 G B |
+"F" d4 |$"F6" z2 c e |"Dm" g2 f2 |"Db7" z2 e d ||[K:Bb]"Cm" f2 G2 |$"F7" z2 A B |"Cm" f2 G2 |
+"F7" z2 f e |"Bb" d4 |]
+
+X:1
+T:Mercy, Mercy, Mercy
+C:Josef Zawinul
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Bb" z2 GF z2 DB, |"Eb" CB,B,G, B,2 C2 |"Bb" z2 GF z2 DB, |"Eb" CB,B,G, B,2 C2 |$
+"Bb" z2 GF z2 DB, |"Eb" CB,B,G, B,2 C2 |"Bb" z2 GF z2 DB, |"Eb" CB,B,G, B,2 C2 |$
+"Bb" F2 F2"Bb4" G G3 |"Bb7" _A2 _A2"Bb4" G G3 |"Bb" F2 F2"Bb4" G G3 |
+"Bb7" _A2 _A2"Bb4" G G3 |$"Bb" F2 B,B, DD EE |"F" F2"F4" z2 z4 |"Bb" D2 B,B, DD EE |
+"F7" F4 z F GB |$"Cm" c3 c z2 B c |"Dm" d3 d z2 d f |"Gm" g3"F" f"Gm" g3"F" f |"Gm" g8 |]
+
+X:2
+T:Moon River
+C:Henry Mancini
+L:1/8
+M:3/4
+I:linebreak $
+K:D treble
+"D" A6 |"Bm" e2 d4 |"G" c3 BAG |"F#m" A4 D2 |"G" c3 BAG |"F#m" A4 D2 |"C#ø" E6 |
+"F#7" z4 z2 Ox/||$"Bm" D6 |"D7" A2 F3 E |"G" D6 |"C7" A2 F3 E |"Bm" D2 F2 A2 |
+"Abø" d2"C#7" c3 B |"F#m" c2"B7" B3 A |"Em" B6"A7" "_D.C. al Coda" x4 ||$Ox/"Bm" D6 |"Bm/A" F4 A2 |
+"Abø" d6 |"G" e4 d2 |"D" A6 |"G" z2 cBAG |"F#m" A4 z2 |"G" z D cBAG |$"F#m" A6 |"Bm" D6 |
+"Em" G2 E4 |"A7" z4 F2 |"D" D4 z2 |"D#" z6 |"D6" z6 | z6 |]
+
+X:1
+T:Moonlight In Vermont
+C:John Blackburn & Karl Suessdo
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb6" c B"Cm" G F |"Fm" G2"E7" z2 |"Eb6" c B"Cm" G E |"Db7" F/G/ =B, z2 |$"Fm" G F"Bb4" E COx///||
+"Eb6" E4 :|[K:G]"Am" D D/D/"Ao" D/ D D/ |"Bm" D/D/ D"Bb7" D/ D D/ |$"Am" (3D D D"Ab7" (3d c d |
+"G" B4 ||[K:Ab]"Bbm" E E/E/"Bbo" E/ E E/ |"Cm" E/E/ E"B7" E/ E E/ |$"Bbm" (3E E E"A7" (3e d e |
+"Ab" c2"E7""_D.C. al Coda" =B2Ox///||[K:Eb]"Eb6" E2"Cm" z =B, |"Aø" C2 E G |$"Fm" c d"E7" =B ^c |
+"Eb" B4 | z4 |]
+
+X:1
+T:My Favorite Things
+C:Richard Rodgers
+L:1/4
+M:3/4
+I:linebreak $
+K:G
+"Em" E B B |"F#m" F E E |"Em" B, E E |"F#m" F E2 |"C" E B B |"C6" F E E |"C" B, E E |"C6" F E2 |$
+"Am" E B A |"D7" E F D |"G" D A G |"C" C3 |"G" B, C D |"C" E F G |"F#ø" A B A |"B7" ^D3 ||$
+[K:E]"E" E B B |"F#m" F E E |"E" B, E E |"F#m" F E2 |"A" E B B |"A6" F E E |"A" B, E E |
+"A6" F E2 ||$[K:G]"Am" E B A |"D7" E F D |"G" D A G |"C" C3 |"G" B, C D |"C" E F G |"F#ø" A B A |
+"B7" c3 |$"Em" z B B |"Dbø" B2 E |"F#ø" z A A |"B7" A2 ^D |"Em" z G G |"Em/D" G2 B, |"C" E3 |
+"C6" z E |$"Am" E F E |"C" F E F |"A7" G A G | A2 G |"G" B c B |"C" c3 |"Am" z3 |"D7" B3 |$
+"G6" G3 |"C" z3 |"G6" z3 |"C" z3 |"G" z3 |"C" z3 ||1"F#ø" z3 |"B7" z3 :|2"G" z3 | z3 |]
+
+X:1
+T:No Moon At All
+C:David Mann & Redd Evans
+L:1/8
+M:C
+I:linebreak $
+K:F
+"Dm6" AF G2 A4 |"A7" A2 E2 A4 |"Co" z2 A^F AG^FA |"Em" G2 D2 G4 |$"Eø" z2 GE GFEG |
+"Bø" F^C D2"A+" FD E2 ||1"Dm6" D4"F7" z4 |"Bb7" z4"A7" z4 :|2$"Dm6" D8 |"_Fine" z8 |]
+[K:D]"D7" z2 D2 F A3 | D2 F2 A4 ||[K:G]"G7" z2 G2 B d3 | G2 B2 d4 ||$[K:C]"C7" z2 c2 _B G3 |
+c2 _B2 G2 FG ||[K:F]"F" A2 A2 A2 A2 |"Eø" z c B2"Eb7""_D.C. al 2nd end." A4||
+
+X:1
+T:Only Yesterday
+C:Richard Carpenter
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" E2 E G | B2 (3B A G |"Fm" F4 | z4 |"Fo" F2 F A | d2 (3d c B |"Eb" A3/2 B/ G2 | z4 |$
+"Cm" E G B |"F7" e2 (3e d c |"Bb" d4 |"Gm" d/d/ d e B |"Ab" c4 |"Fm" c/c/ c B A |"Bb7" G3/2 A/ F2 |
+z4 :|$"Db" A A G F | A A G F |"Bb7" F F G/ A3/2 | F4 |"Db" A A G F | A A G F |"Bb7" (3F F F F2 |
+(3D D D E F ||$"Eb" G G G/ G3/2 | A G F/ E3/2 |"Fm" C G F/ E3/2 |"Bb7" D/ C/ B, z2 |
+"Eb" G G G/ G3/2 | A G F E |"Fm" C G F E |"Bb7" D D E F |$ z"G7" G, =B, D | G F E D |
+"Cm" E E/ F E/ G |"C7" z2 z C |"Fm" B2 A G |"Bb7" F2 E D |"Ab" F4 |"Bb7" F F E D |"Eb" E4 |$ z4 |
+"Fø" z4 | z4 |"Do" z4 | z4 |"Eb" z4 | z4 |]
+
+X:2
+T:Petite Fleur
+C:Sidney Bechet
+L:1/4
+M:C
+I:linebreak $
+K:Bb
+"D7" D4 | z/ D/^F/A/ (3c e d |"Gm" B4 | z/ D/G/A/ B/A/G/A/ |"A7" =E4 | (3z =E ^F (3G A ^F |
+"D7" D4 ||$ E2 ||"D7" D4 | z/ D/^F/A/ (3c e d |"Bb" f4 | (3z d e f/e/ d |"Cm" e4 |
+"F7" (3z c d (3e d c |"Bb" d4 |"Eb" (3z B c (3d c B |$"Aø" c ^F c2 |"D7" (3z A B (3c B A |
+"Gm" B2 z2 |"C7" (3z G A (3B A G |"A7" A4 | =E4 |"D7" A4 ||$ E2 ||"D7" D4 | z/ D/^F/A/ (3c e d |
+"Gm" B4 | z/ D/G/A/ (3B A G |"Aø" A3 c |"D7" B2 A2 |"Gm" G4 ||$"G" z D (3G B d ||"G7" f4 |
+(3z d e (3f _a g |"Cm" e4 | z G c d |"F7" e4 | (3z c d e c |"Bb" d4 |"Eb" (3z B c d B |
+"Aø" c4 |$"D7" (3z A B c A |"Gm" B4 |"C7" (3z G A (3B A G |"Aø" A2 z c |"D7" B2 A2 |"Gm" G4 |
+z4 |]
+
+X:1
+T:Santa Claus Is Coming To Town
+C:Fred Coots & Haven Gillespie
+L:1/4
+M:C
+I:linebreak $
+K:F
+cS |:"F" A/B/ c c3/2 c/ |"Gm" d/e/ f f2 |"Am" A/B/ c c c |"Bb" d/c/ B B2 |$"Am" A c"Dm" F A |
+"Gm" G B"C7" z E ||1"F" F4 |"Gm" z2"C7" c :|2$"F""_Fine" F4 | z2 f |][K:Bb]"Cm" g f"F7" =e f |
+"Bb" d d"Bb6" z f |$"Cm" g f"F7" =e f |"Bb" d2"Bb6" z g ||[K:C]"Dm" a g"G7" ^f g |
+"C" e e"C6" e e/f/ |$"Dm" g f"G7" e d |"C7" c2 z"_D.S. al 2nd end." c ||
+
+X:1
+T:Smile
+C:Charlie Chaplin
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"Ab" A2 B c |"Ab6" B A G F |"Cm" G2 A B |"Fm" A G F E |$"Ab" F2 G A |"Abo" F2 G A |"Bbm" B2 c d |
+"F7" =A2 B c |$"Bbm" d2 e f |"Db" e d c B |"Dbm" d2 e _f |"Gb7" e d c B |$"Cm" c2 d c |
+"Fm" d c B A |"Bbm" B2 F |"A7" c2 c2 :|$"Ab6" A4 | z4 |]
+
+X:1
+T:Someone To Watch Over Me
+C:George Gerschwin
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"D6" z D/E/"D7" F/A/B/d/ |"G6" (3e e d"Go" c2 |"Bm" (3d d c"Fo" B2 |"F#m" (3c c B"F7" A2 |$
+"Em" z B"F#o" A"G6" G ||1"G#ø" d2"Gm" D E |"F#m" F2"F7" z2 |"Em" z2"Eb7" z2 :|2$
+"G#ø" d2"G" D E |"D6" D2"D#" z2 ||"D6" z E"D7" F A |$"G" c d c d |"G6" e e z c |
+"G#ø" e d"Gm" z c |"F#m" e d"Bm" z B |$"G#ø" d c"C#7" z B |"F#+" d c"F#7" z ^A |
+"B7" F2"E7" z2 |"Em" E2"Eb7""_D.C. al 3rd end." z2 ||3$"G#ø" d2"G" D E |"D6" D4 | z4 |]
+
+X:3
+T:Speak Low
+C:Kurt Weill & Ogden Nash
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F#o" C S||"Gm" A4 |"C7" z2 (3G D G |"Gm" A4 |"C7" z2 (3G D G |"Gm" A2 (3G D G |"C7" A3 G |
+"Cm" d3 c |"F7" d3 A Ox/||$[K:Ab]"Bbm" c4 |"Eb7" z2 (3B F B |"Bbm" c4 |
+"Eb7" (3z B c (3B F G ||[K:F]"Am" A2-"Dm" (3A E F |"Gm" G2-"C7" (3G F E ||1"F6" D2 D2 :|2$"F6" F4 |
+z4 ||[K:Eb]"Fm" (3e d c e2 | z2 z A |"Db7" G2 F2 | z2 z F |"Eb" (3d c B d2 | z2 z G |"Db7" F4 ||
+[K:F]"C7" E3 "_D.S. al Coda" C ||$Ox/"Bbm" c4 |"Eb7" z2 (3B F G |"Am" A4 |"Dm" z2 (3A B c |
+"Gm" d d2 d |"C+" d d2 d |"F6" d4 |]
+
+X:1
+T:Star Eyes
+C:Gene De Paul
+L:1/4
+M:C
+I:linebreak $
+K:Eb
+"Eb" F2"Eb6" E2 |"Fm" z E/F/"Bb7" G/B/G/B/ |"Eb" F2"Eb6" E2 ||[K:Db]"Ebm" z E/F/"Ab7" G/A/B/c/ |$
+"Db" B2"Db6" A2 |"Gø" z d/c/"C7" B/c/d/e/ |"F" c2 z c |"Fø" _c/d/_c/d/"Bb7" B2O :|$
+[K:Ab]"Ab" e e e A |"Ab6" B3 A ||[K:Gb]"Abm" e2 z A |"Db7" B2 z A |$"Gb" d2 z G |"Gb6" A2 z G ||
+[K:Eb]"Fm" A A B A |"Bb7""_D.C. al Coda" F4 ||$Ox/"Eb7" e2"D7" z d |"Db7" _d2"C7" c2 |
+"Fm" z F"Bb7" (3A c e |"Eb6" e4 | z4 |]
+
+X:1
+T:Straighten Up & Fly Right
+C:Nat King Cole
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Ab" AAAA"Ab/C" AAAA |"Db7" AAAA"Do" z2 F2 |"Ab/Eb" ABGA"Fm" FGAB |"E7" c2 A2"Eb7" B3 E |$
+"Ab" AAAA"Ab/C" AAAA |"Db7" AAAA"Do" z2 A2 |"Ab" ABGA"Fm" FGAB |"Bbm" =B"Eb7" _B3"Ab6" A4 ||$
+S"Ab" z E F2"Ab/C" A2 F2 |"Db7" A4"Do" B4 |"Ab" z E F2"Ab/C" A2 F2 |"Bb7" A4"Eb7" G4 |$
+"Ab" z E F2"Ab/C" A2 F2 |"Db7" A4"Do" B4 |"Ab/C" A A3"Bo" AFAB |
+"Bbm" c2"Eb7" B2"Ab6""_Fine" A4 |][K:C]$"C7" cccc cc c2 |"Gm" c2 c2"C7" c3 c ||
+[K:F]"F7" c2 A2 FGAB |"Cm" c2 A2"F7" F4 ||$[K:Bb]"Bb7" BBBB BB B2 |"Fm" B3 B"Bb7" B4 ||
+[K:Eb]"Eb7" z8 ||[K:Ab]"Bbm" z4"Eb7""_D.S. al Fine" z4 ||
+
+X:2
+T:Sunrise Serenade
+C:Frankie Carle
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+"Gm" BAGB A2 G2 |"D7" d2 B2"Gm" G3 G | BAGB A2 G2 |"F7" fg^cd"Bb" z2 ga |$ b"Bbo"g_f_d B_dag |
+"Bb" fdc"G7"=B z2 _a"C7"g | z2 _d"F7"c z2 BB ||1"Bb" z8 :|2$[K:G]"Bb" z4 z2 (3E^EF |
+"D7" (3fE^E (3Ffe (3z =E^E (3Fed ||"G" z4 z2 (3E^EF |"D7" (3fE^E (3Ffe (3z =E^E (3Fed |$
+"G" z4 z2 (3A^AB | (3bA^A (3Bba (3z =A^A (3Bag |"C" z4 z2 bg |"A7" bgeB ffaa |$"D7" e4 z2 (3E^EF |
+(3fE^E (3Ffe (3z =E^E (3Fed |"G" z4 z2 (3E^EF |"D7" (3fE^E (3Ffe (3z =E^E (3Fed |$"G" z4 z2 ge |
+"Go" ge^c^A G^Afe |"G" dBA"E7"^G z2 =f"A7"e | z2 _B"D7"A z2 GG |"G" z8 |]
+
+X:2
+T:Take Five
+C:Paul Desmond
+L:1/8
+M:5/4
+I:linebreak $
+K:Gb
+"Ebm" =AB=A_A G2"Bbm" B,2 D2 |"Ebm" E6"Bbm" (3GFE D2 |"Ebm" E6"Bbm" (3D=CB, A,2 |
+"Ebm" B,6"Bbm" B,EGA |$"Ebm" =AB=A_A G2"Bbm" B,2 D2 |"Ebm" E6"Bbm" (3DCB, A,2 |
+"Ebm" B,6"Bbm" (3GFE D2 |"Ebm" E6 "_Fine" z4 |]$"B" e g2 e c2 A"Fø"Bc=c |
+d"Bbm" f2 d B2"Ebm" GA=AB | c"Abm" e2 c A2"Db7" FGA=A |"Gb" B=ABc d2 d=cd=d |$
+"B" e g2 e c2"Fø" ABc=c | d"Bbm" f2 d B2"Ebm" GA=AB | c"Abm" e2 c A2"Db7" FAdc |
+"Fø" B6"Bb7" "_D.C. al Fine" B,EGA ||
+
+X:1
+T:Tangerine
+C:Victor Schertzinger
+L:1/4
+M:C
+I:linebreak $
+K:F
+"D7" z2 d B ||"Gm" A4 |"C7" z2 c A |"F6" G F"Bb7" D2 |"A7" z2"Abo" F D |$"Gm" F D"C7" E D |
+"Gm" F D"C7" E COx///||"F" A4 |"Am" z2"D7" d B |$"Gm" A4 |"C7" z2 c A |"F6" G F D2 ||
+[K:A]"Bø" z2"E7" E =F |$"A" E F"F#m" A F |"Bm" A F"E7" B F |"A7""_D.C. al Coda" A4 ||$
+[K:F]O"Aø" A4 |"D7" z2 B c |"Gm" d B"Gm/F" (3A c B |"Eø" A2"A7" (3z G ^G |$
+"Dm" A F"Dm/C" (3E G F |"Bø" E2"Bb7" z D |"Gm" ^C D F B |"Gm" d2"F#7" E2 |"F6" F4 |]
+
+X:2
+T:The Days Of Wine & Roses
+C:Henry Mancini
+L:1/4
+M:C
+I:linebreak $
+K:F
+C S||"F" A4 |"Eb7" z G A c |"D7" d c c2 | z2 c A |"Gm" A D D2 |$ z2 c A |"BbmM" A _D _D2 |
+"Eb7" z2 A G |"Am" G C D E Ox/||$"Dm" G F A d |"Gm" c2 z B |"C7" c B A G |$
+"Eø" A2"A7" z E |"Dm" G F"G7" E D |"Gm" G4 |"C7" z2 z "_D.S. al Coda" C ||$Ox/"Dm" F G A c |
+"Bø" e4 |"Bb7" z2 d2 |"Am" c A"Dm" G F |"Gm" A A"C7" z D |"F" F4 |]
+
+X:2
+T:The Girl From Ipanema
+C:Antonio Carlos Jobim
+L:1/4
+M:C
+I:linebreak $
+K:F
+"F" G E E D | G E/E/ z/ E/ D |"G7b5" G E E D | G E/E/ z/ E/ D Ox/||$"Gm" F D/D/ z/ D/ C |
+"Gb7" E C/C/ z/ C/ B, ||1"Am" C4 "Ab7" x4|"Gm" z4 "Gb7" x4:|2"F" C4 | z4 ||$[K:Gb]"Gb" F4 |
+(3z G F (3E F E |"B7" D2 E2 | z4 ||$[K:E]"F#m" G4 | (3z A G (3F G F |"D7" E2 F2 | z4 ||$
+[K:F]"Gm" A4 | (3z B A (3G A G |"Eb7" F2 G2 | z2 A B |$"Am" c C/D/ (3E F G |"D7b5" ^G2 z A |
+"Gm" B B,/C/ (3D E F |"C7b5" "_D.C. al Coda" ^F4 ||$Ox/"Gm" A3/2 F/ (3F F D |"Gb7" c3/2 E/ (3E E D |
+"F" E4 |"Gb7" z4 |"F" z4 | z4 |]
+
+X:2
+T:The More I See You
+C:Harry Warren
+L:1/4
+M:C
+I:linebreak $
+K:D treble
+"A7" z A, D C |"D" D2 A,2 |"F#m" z D A ^G |"Em" A2 E2 |"A7" z A, D C |"D" D2 A,2 Ox/||$
+"F#m" z D A ^G |"Em" A4 |"A7" z A A A ||[K:Bb]"Dm" A2"Db7" A A |"Cm" A c"B7" A G |$"Bb" F2 F2 |
+"A+" z A F =E |"Dm" D2 D2 ||[K:D]"E7" z F D B, |"Em" "_D.C. al Coda" E4 ||$Ox/"F#m" z D B A |"Am" B4 |
+"D7" z A G F |"G" d3/2 B/ A G |"Gm" _B G D E |$"F#m" A2 A,2 |"F7" z A, D E |"Em" F2 A,2 |
+"Eb7" z F D E |"D" D4 |]
+
+X:2
+T:The Summer Knows
+C:Michel Legrand
+L:1/8
+M:C
+I:linebreak $
+K:Ab
+"Gb7" C2 ||"Fm6" GA F4 C2 |"FmM" GA B4 C2 |"Fm/Eb" GA F4 C2 |$"Dø" GA c4 F2 |"Bbm" cd B4 F2 |
+"BbmM" cd e4 F2 |"Bbm/Ab" cdBF cdBF |$"Gø" AB"C7" G4 C2 ||[K:F]"F" GA F4 C2 |"Gø" GA B4 C2 |
+"F" GA F4 C2 |$"Cm" GA c2"F4" z2 F2 |"Bb" cd B4 F2 |"Bø" cd f2"E7" z2 ed ||
+[K:A]"A" c2 E2"Bo" =F2 ed |$"A" c2 E2"Eb7" _e2 _d2 ||[K:Ab]"Ab" c2 E2"Bbo" =E2 ed |
+"Ab" c2 E2"D7" =d2 c2 ||[K:G]"G" c2 B2"Am/G" A2 G2 ||$[K:F]"Gø" cBAG"Gb7" E2 C2 ||"F" GA F4 C2 |
+"Gø" GA B4 F2 |"F" Bc A4 F2 |$"Gø" Bc _d4 C2 ||[K:Ab]"Fm" GA F4 C2 |"Gø" GA F4 F2 |
+"Fm6" F8 |]
+
+X:1
+T:This Masquerade
+C:Leon Russell
+L:1/4
+M:C
+I:linebreak $
+K:Ab
+"Fm" (3z F G A B |"FmM" c g f c |"Fm" A B c A |"Bb7" F4 |$"Fm" (3z F G A F |"Db7" e2 (3z f e |
+"C7" c4 | z4 |$"Fm" (3z F G A B |"FmM" c g f c |"Fm" A B c A |"Bb7" F2 (3z F G |$
+"Db7" A2 (3z B A |"C7" =B _B z A |"Fm" F4 |"Bb7" z4 |"Fm" F4 |"_Fine" z4 |][K:Db]$
+"Ebm" z d/e/ (3f g z |"Ab7" f e d e |"Db" f3/2 A/ (3A A z |"Db6" A2 z A |$"Ebm" e e f g |
+"Ab7" f e d e |"Db" f4 |"Db6" z2 z f ||$[K:C]"Dm" d e (3f e z |"G7" g f _a g |"C" g3/2 G/ (3G G z |
+"Am" G2 z G |$"Gm" _B2 z G |"G7" B2 z G ||[K:Ab]"C7" c d B c |"_D.C. al Fine" A4||
+
+X:1
+T:Undun
+C:Randy Bachman
+L:1/8
+M:C
+I:linebreak $
+K:G
+"F#ø" F F2"B7" F2 B2 F |"F#ø" F F2"B7" F2 B2 F |"F#ø" F F3"B7" F4 | z4 (3B2 A2 G2 |$
+"Em" G E3 z4 |"A7" z E GE GE GE |"F#m" A B3 B4 |"B7" z A AG AG AG |$"F#m" A B3"Gm" B2"G#m" z2 |
+"Am" z4 (3e2 d2 e2 |"G" d8 |"F#m" z4"B7" (3B2 A2 G2 |$"Em" G E3 z4 |"A7" z E GE GE GE |
+"F#m" A B3 B4 |"B7" z A AG A A2 G |$"F#m" A B3"Gm" B2"G#m" z2 |"Am" z4 ed ed |"G" g8 | Bd BA G4 :|$
+"F#ø" F F2"B7" F2 B2 F |"F#ø" F F2"B7" F2 B2 F |"F#ø" F F3"B7" F4 | z4 (3B2 A2 G2 |:$
+"Em/B" G E3"_Fine" z4 |"Em/C" z8 |"Em/C#" z8 |"Em/C" z8 ::$"Em/B" z4 (3e2 d2 e2 |"Em/C" d2 B2 z4 |
+"Em/C#" z2 z G AG A2 |"Em/C" A2 B2 B4 |$"Em/B" z4 (3e2 d2 e2 |"Em/C" d2 B2 z4 |
+"Em/C#" z2 z G AG A2 |"Em/C""_D.C. al Fine" B8 :|
+
+X:1
+T:What Are You Doing The Rest Of Your Life
+C:Michel Legrand
+L:1/8
+M:C
+I:linebreak $
+K:C
+"Bb7" z2 CD EF^GA ||"Am" B2 BA"AmM" B4 |"Am/G" z2 BA B"Gbø"cBA |"F" G2 GF"F+" G4 |$
+"F6" z2 GF"F/E" GAGF |"Dm" E2 ED"DmM" E4 |"Dm" z2 ED"Dm/C" EFED ||1"Bø" B,8 :|[K:A][]2$
+"A" C4"Bm" z4 |"C#m" z2 E2"D" A2 e2 ||"Bm" e^dec"Bb7" =dcd=c |"A" c2 E2"F#m" A2 e2 |$
+"Bm" e^dec"Bb7" =dcd=c |"A" c4"D" z ccc ||[K:Gb]"Abm" d=cdB"G7" _cB_c=A |"Gb" B2 D2"Gb6" =CDGB ||$
+[K:F]"Gm" c=BcA"Gb7" _BA_B^G |"F" A2 CD"Dm" EF^GA ||[K:C]"Am" B2 BA"AmM" B4 |
+"Am/G" z2 BA"Gbø" BcBA |$"F" G2 GF"F+" G4 |"F6" z2 GF"F/E" GAGF |"Dm" E2 ED"DmM" E4 |
+"Dm" z2 ED"Dm/C" EFED |"Bø" B,8 |$"E7" z4"Am" z2 C2 |"Dm" D2 DC"Dm/C" D4 |
+"Bø" z2 DC"Bb7" DEDC |"Am" A2 AG A4 |$"D7" z2 AG ABAG |"Bø" E2 ED E2 D2 |"Bb7" E2 ED E2 E2 |
+"Am6" A8 |]
+
+X:1
+T:Yesterday
+C:Lennon & McCartney
+L:1/8
+M:C
+I:linebreak $
+K:F
+"F" (3G2 F2 F2 z4 |"Eø" z2 A=B"A7" ^cdef |"Dm" e3 d"Dm/C" d4 |"Bb" z2 dd"C7" cBAG |$
+"F" B2 AA"Eø" z2 G2 |"Dm" F2 A2"G7" G2 D2 |"Bb" F2 A2"F""_Fine" A4 :|"Eø" A4"A7" A4 |$
+"Dm" d2"C" e2"Bb" f2 ed |"C7" e3 d c d3 |"F" A8 |"Eø" A4"A7" A4 |$"Dm" d2"C" e2"Bb" f2 ed |
+"C7" e3 d c2 e2 |"F" f2 c2 B2"_D.C. al Fine" A2 ||
+
+X:2
+T:Young At Heart
+C:Johnny Richards
+L:1/8
+M:C
+I:linebreak $
+K:Bb
+(3z =E F S||"Bb" d2- (3d=EF"Bb6" c2- (3c=EF |"Bb" (3B=EF A2-"Bbo" A2 (3z G ^F |$
+"Cm" G2 BG-"F7" G4- |"Dø" G4-"G7" G2 (3z D E |"Cm" c2- (3cDE"F7" B2- (3BDE |$
+"Cm" (3ADE G2"F7" z2 (3z F =E |"Bb" F2 AF-"Bb6" F4- |"Bb" F4"Bb6" z2 (3z ^C D ||$
+"Dø" _A2- (3A^CD"G7" G2- (3G^CD |"Dø" (3_A^CD G2-"G7" G2 (3z ^F G Ox/||
+"C7" d2- (3d^FG c2- (3c^FG |$"C7" (3d^FG c4 B2 |"F7" AA^G^G"Cm" AA^G^G |"F7" A2 cG-"Cm" G3 ^F |$
+"Bb" GG^F^F"Bo" GG^F^F |"Cm" G2 BF-"F7" F2 (3z =E "_D.S. al Coda" F ||$
+Ox/"C7" d2- (3d^FG c2- (3c^FG |"Eb" (3d=Bc"Ab7" e2- e2 z ^c |"Bb" (3dFd c"Bb6"B- B4 |$
+"Cm" (3cEc B"F7"A- A4 |"Bb" BB"Bb7"GG"Eb" BB"Eo"GG |"Cm" B2"F7" GB-"Bb" B2 z2 |]

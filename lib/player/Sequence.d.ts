@@ -1,7 +1,8 @@
 import { VoiceLeadingOptions } from '../harmony/Voicing';
-import { SheetState, Leadsheet, Measures } from './Sheet';
-import { RenderedMeasure } from './Measure';
-export interface SequenceEvent {
+import { SheetState, Measures, SheetEvent } from '../sheet/Sheet';
+import { RenderedMeasure } from '../sheet/Measure';
+import { Leadsheet } from './Leadsheet';
+export interface SequenceEvent extends SheetEvent<any> {
     path: number[];
     value: any;
     chord?: string;
@@ -104,7 +105,7 @@ export declare class Sequence {
         displaceDuration?: number;
         measures?: RenderedMeasure[];
         index?: number;
-        sheet?: import("./Measure").MeasureOrString[];
+        sheet?: import("../sheet/Measure").MeasureOrString[];
         jumps?: {
             [key: number]: number;
         };

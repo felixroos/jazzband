@@ -27,7 +27,7 @@
   - [useRaf](https://react-hooks.org/?path=/story/useraf--basic-example)
   - [node for max!](https://github.com/Cycling74/n4m-examples)
     - [tonal chord builder](https://github.com/Cycling74/n4m-examples/tree/master/tonal-chord-builder)
-
+- [roland cr78 rhythms](https://blog.zzounds.com/2018/03/02/machine-rhythms-roland-cr-78-compurhythm/)
 ## General Links
 
 - [WAA Link Collection](https://github.com/alemangui/web-audio-resources)
@@ -37,14 +37,22 @@
 - [jison](http://zaa.ch/jison/)
 - [abc](http://abcnotation.com/)
   - [ABCjs](https://abcjs.net/#what)
+    - [comment on parsing](https://github.com/paulrosen/abcjs/issues/152#issuecomment-388685354)
+    - [react-abcjs](https://github.com/rigobauer/react-abcjs)
+    - [react-abc2svg](https://github.com/rigobauer/react-abc2svg)
   - [abc2xml](http://abc2xml.appspot.com)
+  - [abcconverter XML](http://www.mandolintab.net/abcconverter.php)
   - [mehr](http://abcnotation.com/software)
+  - [sheets](http://normanschmidt.net/mehegan/music.php)
+  - [TuneGraphs](http://abcnotation.com/searchHelp#TuneGraph) !
 - [MML](https://en.wikipedia.org/wiki/Music_Macro_Language)
 - [Impro-Visor .ls format](https://www.cs.hmc.edu/~keller/jazz/improvisor/LeadsheetNotation.pdf)
   - [Many files](https://github.com/Impro-Visor/Impro-Visor/tree/master/leadsheets)
   - see Imaginary Book
   - ls format parser for jazzband ?
-- [musicJSON](https://github.com/soundio/music-json)
+- [musicJSON 1](https://github.com/saebekassebil/musicjson)
+  - [musicjson2abc](https://github.com/freakimkaefig/musicjson2abc)
+- [musicJSON 2](https://github.com/soundio/music-json)
 - [musicXML](https://www.musicxml.com/de/software/)
   - [midi](https://www.musicxml.com/tutorial/the-midi-compatible-part/)
 - [Plaine & Easy](https://www.iaml.info/plaine-easie-code)
@@ -146,6 +154,7 @@ Coltrane Circle
 - [Tone.js](https://github.com/Tonejs/Tone.js)
   - [MidiConvert](https://github.com/Tonejs/MidiConvert)
   - [Performance](https://github.com/Tonejs/Tone.js/wiki/Performance)
+- [Flocking.js](https://flockingjs.org)
 - [ABCjs](https://abcjs.net/#what)
 - [MIDI.js](https://github.com/mudcube/MIDI.js/)
 - [litsynth](https://github.com/padenot/litsynth) simple synth
@@ -186,6 +195,7 @@ Coltrane Circle
 - [audio nodes](https://audionodes.com/) looks really good, closed src though :(
 - [Paul Nasca](http://www.paulnasca.com/open-source-projects) (open source algorithms for music+picture)
 - [Sheet Music Instructor](http://www.sheetmusictutor.com/)
+- [gScribe Drum Trainer](https://www.mikeslessons.com/gscribe)
 
 ### AI Stuff
 
@@ -198,6 +208,7 @@ Coltrane Circle
 - [crazy max plugins](http://forumnet.ircam.fr/shop/en/)
   - [markov audio to score](http://nefeli.lib.teicrete.gr/browse/sefe/mta/2014/MorakeasMichail/attached-document-1402913270-993820-10855/MorakeasMichail2014.pdf)
   - [score following (video)](https://www.youtube.com/watch?v=YkMGtpcAA04)
+  - [eclid rhythms](http://registeringdomainnamesismorefunthandoingrealwork.com/2009/04/euclidean-algorithmic-beat-generator/)
 
 ### Algorithmic Composition
 
@@ -232,6 +243,8 @@ Coltrane Circle
 
 ## Live Coding
 
+- [SuperCollider](https://supercollider.github.io/)
+  - [supercolliderjs](https://crucialfelix.github.io/supercolliderjs/)
 - [Tidal Cycles](https://tidalcycles.org/index.php/Tutorial)
 - [Gibberwocky](http://gibberwocky.cc/)
   - [Paper](http://charlie-roberts.com/pubs/Live_Coding_DAW.pdf)

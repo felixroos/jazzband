@@ -1,8 +1,7 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
-import { SequenceOptions } from './Sequence';
+import { SequenceOptions } from '../player/Sequence';
 
 export type MeasureOrString = Measure | string[] | string | number[] | number;
-
 
 export interface Bar<T> {
   body?: T[];
@@ -14,7 +13,6 @@ export interface Bar<T> {
   idle?: true; // bar is repeated
   options?: SequenceOptions; // options to change stuff over time
 }
-
 
 export interface Measure {
   chords?: string[];

@@ -2,7 +2,7 @@ import { Scale } from 'tonal';
 import { util } from '..';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
-import { SequenceEvent, Sequence } from '../sheet/Sequence';
+import { SequenceEvent, Sequence } from '../player/Sequence';
 import { Sheet } from '../sheet/Sheet';
 
 export class Pattern {
@@ -137,7 +137,7 @@ export class Pattern {
   }
 
   static renderEvents(lines, options?): SequenceEvent[] {
-    const flat = Sheet.flatten(lines, true);
+    const flat = Sheet.flatEvents(lines);
     const events = Sequence.renderEvents(flat, options)
       .map(e => ({ ...e, note: Note.simplify(e.value.note) }));
     return events;

@@ -1,9 +1,10 @@
 import { Pulse } from './Pulse';
 import { Musician } from './musicians/Musician';
-import { Sheet, Leadsheet } from './sheet/Sheet';
+import { Sheet } from './sheet/Sheet';
 import { Metronome } from './Metronome';
 import { Logger } from './util/Logger';
 import { Snippet } from './sheet/Snippet';
+import { Leadsheet } from './player/Leadsheet';
 
 /** Band */
 export default class Band {

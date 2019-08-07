@@ -1,35 +1,18 @@
 import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
-import { Harmony } from '../harmony/Harmony';
-import { randomElement, maxArray, avgArray, humanize, isOffbeat } from '../util/util';
-import { Voicing, VoiceLeadingOptions } from '../harmony/Voicing';
-import { Distance } from 'tonal';
-import { Note } from 'tonal';
-import { Interval } from 'tonal';
-import { Logger } from '../util/Logger';
-import { SequenceOptions, SequenceEvent } from './Sequence';
 
 export type Measures = Array<MeasureOrString>;
 
-export type Leadsheet = {
-  name?: string,
-  composer?: string,
-  style?: string,
-  bpm?: number,
-  repeats?: number,
-  key?: string,
-  measures?: Measures,
-  chords?: Measures,
-  melody?: Measures,
-  renderedChords?: SequenceEvent[];
-  renderedMelody?: SequenceEvent[];
-  options?: SequenceOptions
+export type SheetEvent<T> = {
+  path: number[];
+  divisions?: number[];
+  value: T;
 }
 
 export type JumpSign = {
   pair?: string,
   move?: number,
   fine?: boolean,
-  validator?: (state) => boolean,
+  validator?: (state: SheetState) => boolean,
 }
 
 export type SheetState = {
@@ -48,17 +31,7 @@ export type SheetState = {
 }
 
 
-export class Sheet implements Leadsheet {
-  name?: string;
-  composer?: string;
-  style?: string;
-  bpm?: number;
-  repeats?: number;
-  key?: string;
-  measures?: Measures;
-  chords?: Measures;
-  melody?: Measures;
-  options?: SequenceOptions;
+export class Sheet {
 
   static jumpSigns: { [sign: string]: JumpSign } = {
     '}': { pair: '{', move: -1 },
@@ -82,46 +55,6 @@ export class Sheet implements Leadsheet {
     rest: ['r', '0'],
     prolong: ['/', '-', '_'],
     repeat: ['%']
-  }
-
-  constructor(sheet: Leadsheet) {
-    Object.assign(this, Sheet.from(sheet));
-  }
-
-  static from(sheet: Leadsheet) {
-    sheet.options = sheet.options || {};
-    return {
-      ...sheet,
-      options: {
-        forms: 1,
-        pedal: false,
-        real: true,
-        tightMelody: true,
-        bpm: 120,
-        swing: 0,
-        fermataLength: 4,
-        feel: 4,
-        pulses: 4,
-        ...sheet.options,
-        humanize: {
-          velocity: 0.1,
-          time: 0.002,
-          duration: 0.002,
-          ...(sheet.options.humanize || {})
-        },
-        voicings: {
-          minBottomDistance: 3, // min semitones between the two bottom notes
-          minTopDistance: 2, // min semitones between the two top notes
-          logging: false,
-          maxVoices: 4,
-          range: ['C3', 'C6'],
-          rangeBorders: [1, 1],
-          maxDistance: 7,
-          idleChance: 1,
-          ...(sheet.options.voicings || {}),
-        },
-      },
-    }
   }
 
   static render(sheet: MeasureOrString[], options: SheetState = {}): RenderedMeasure[] {
@@ -270,8 +203,8 @@ export class Sheet implements Leadsheet {
       }
     }
     return match;
-
   }
+
   // simple matching for brace start, ignores nested repeats
   static getJumpDestination(state: SheetState): number {
     let { sheet, index, fallbackToZero, nested } = state;
@@ -369,7 +302,6 @@ export class Sheet implements Leadsheet {
     return wiped;
   }
 
-
   static getRelatedHouse({ sheet, index }): number {
     const latestHouse = Sheet.findPair(sheet, index,
       [
@@ -420,26 +352,27 @@ export class Sheet implements Leadsheet {
     return timesJumped < allowedJumps;
   }
 
-  static transpose(sheet: Leadsheet, interval) {
-    if (sheet.chords) {
-      sheet = {
-        ...sheet,
-        chords: sheet.chords
-          .map(measure => Measure.from(measure).chords
-            .map(chord => Harmony.transposeChord(chord, interval)))
-      }
+  /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
+   * You can then turn SheetEvent[] back to the original nested array with Measure.expand. */
+  static flatEvents<T>(tree: T[] | T, path: number[] = [], divisions: number[] = []): SheetEvent<T>[] {
+    if (!Array.isArray(tree)) { // is primitive value
+      return [{
+        path,
+        divisions,
+        value: tree
+      }];
     }
-    if (sheet.melody) {
-      console.log('TODO: tranpose melody');
-    }
-    return sheet;
+    return tree.reduce(
+      (flat: SheetEvent<T>[], item: T[] | T, index: number): SheetEvent<T>[] =>
+        flat.concat(
+          Sheet.flatEvents(item, path.concat([index]), divisions.concat([tree.length]))
+        ), []);
   }
-
 
   /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
    * If withPath is set to true, the values are turned to objects containing the nested path (FlatEvent).
    * You can then turn FlatEvent[] back to the original nested array with Measure.expand. */
-  static flatten(tree: any[] | any, withPath = false, path: number[] = [], divisions: number[] = []): SequenceEvent[] {
+  static flatten<T>(tree: T[] | T, withPath = false, path: number[] = [], divisions: number[] = []): T[] | SheetEvent<T>[] {
     if (!Array.isArray(tree)) { // is primitive value
       if (withPath) {
         return [{
@@ -451,14 +384,14 @@ export class Sheet implements Leadsheet {
       return [tree];
     }
     return tree.reduce(
-      (flat: (any | SequenceEvent)[], item: any[] | any, index: number): (any | SequenceEvent)[] =>
+      (flat: (any | SheetEvent<T>)[], item: any[] | any, index: number): (any | SheetEvent<T>)[] =>
         flat.concat(
           Sheet.flatten(item, withPath, path.concat([index]), divisions.concat([tree.length]))
         ), []);
   }
 
   /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
-  static expand(items: SequenceEvent[]): any[] {
+  static expand<T>(items: SheetEvent<T>[]): any[] {
     let lastSiblingIndex = -1;
     return items.reduce((expanded, item, index) => {
       if (item.path.length === 1) {
@@ -476,18 +409,18 @@ export class Sheet implements Leadsheet {
   }
 
   static pathOf(value, tree): number[] | undefined {
-    const flat = Sheet.flatten(tree, true);
+    const flat = Sheet.flatEvents(tree);
     const match = flat.find(v => v.value === value);
     if (match) {
       return match.path;
     }
   }
 
-  static getPath(tree, path, withPath = false, flat?: SequenceEvent[]): any | SequenceEvent {
+  static getPath<T>(tree, path, withPath = false, flat?: SheetEvent<T>[]): any | SheetEvent<T> {
     if (typeof path === 'number') {
       path = [path];
     }
-    flat = flat || Sheet.flatten(tree, true);
+    flat = flat || Sheet.flatEvents(tree);
     const match = flat.find(v => {
       const min = Math.min(path.length, v.path.length);
       return v.path.slice(0, min).join(',') === path.slice(0, min).join(',')
@@ -498,8 +431,8 @@ export class Sheet implements Leadsheet {
     return match ? match.value : undefined;
   }
 
-  static nextItem(tree, path, move = 1, withPath = false, flat?: SequenceEvent[]): any | SequenceEvent {
-    flat = Sheet.flatten(tree, true);
+  static nextItem<T>(tree, path, move = 1, withPath = false, flat?: SheetEvent<T>[]): any | SheetEvent<T> {
+    flat = Sheet.flatEvents(tree);
     const match = Sheet.getPath(tree, path, true, flat);
     if (match) {
       let index = (flat.indexOf(match) + move + flat.length) % flat.length;
@@ -511,7 +444,7 @@ export class Sheet implements Leadsheet {
   }
 
   static nextValue(tree, value, move = 1): any | undefined {
-    const flat = Sheet.flatten(tree, true);
+    const flat = Sheet.flatEvents(tree);
     const match = flat.find(v => v.value === value);
     if (match) {
       return Sheet.nextItem(tree, match.path, move, false, flat)
@@ -519,7 +452,7 @@ export class Sheet implements Leadsheet {
   }
 
   static nextPath(tree, path?, move = 1): any | undefined {
-    const flat = Sheet.flatten(tree, true);
+    const flat = Sheet.flatEvents(tree);
     if (!path) {
       return flat[0] ? flat[0].path : undefined;
     }
@@ -528,11 +461,6 @@ export class Sheet implements Leadsheet {
       const next = Sheet.nextItem(tree, match.path, move, true, flat);
       return next ? next.path : undefined;
     }
-  }
-
-  static randomItem(tree) {
-    const flat = Sheet.flatten(tree, true);
-    return randomElement(flat);
   }
 
   static stringify(measures: MeasureOrString[], property = 'chords'): string | any[] {

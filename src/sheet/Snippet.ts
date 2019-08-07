@@ -1,4 +1,3 @@
-import * as JsDiff from 'diff';
 import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
 import { Sheet } from './Sheet';
 
@@ -377,13 +376,6 @@ export class Snippet {
 
   static expand(snippet, options?) {
     return Snippet.from(Snippet.render(snippet, options));
-  }
-
-  static diff(snippetA, snippetB) {
-    const diffFormat = [Snippet.formatForDiff(snippetA), Snippet.formatForDiff(snippetB)];
-    return JsDiff.diffWords(
-      diffFormat[0], diffFormat[1]
-    );
   }
 
   static obfuscate(snippet, keepFirst = true, format = true) {

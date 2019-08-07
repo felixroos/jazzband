@@ -1,4 +1,4 @@
-import { SequenceEvent } from '../sheet/Sequence';
+import { SequenceEvent } from '../player/Sequence';
 export declare class Pattern {
     static traverse(size: any, step: any, offset?: number): any[];
     static traverseArray(array: any, move: any, start?: number): any[];

@@ -3,6 +3,8 @@ import { Chord } from 'tonal';
 import { Interval } from 'tonal';
 import { Distance } from 'tonal';
 import { isPitchClass } from '../util/util';
+import { Measure } from '../sheet/Measure';
+import { Leadsheet } from '../player/Leadsheet';
 
 export declare type intervalDirection = 'up' | 'down';
 export declare type step = string | number;
@@ -261,4 +263,18 @@ export class Harmony {
     )
   }
 
+  static transposeSheet(sheet: Leadsheet, interval) {
+    if (sheet.chords) {
+      sheet = {
+        ...sheet,
+        chords: sheet.chords
+          .map(measure => Measure.from(measure).chords
+            .map(chord => Harmony.transposeChord(chord, interval)))
+      }
+    }
+    if (sheet.melody) {
+      console.log('TODO: tranpose melody');
+    }
+    return sheet;
+  }
 }

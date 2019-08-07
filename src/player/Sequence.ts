@@ -1,17 +1,18 @@
 import { VoiceLeadingOptions, Voicing } from '../harmony/Voicing';
-import { SheetState, Sheet, Leadsheet, Measures } from './Sheet';
+import { SheetState, Sheet, Measures, SheetEvent } from '../sheet/Sheet';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { avgArray, humanize, maxArray } from '../util/util';
 import { Logger } from '../util/Logger';
-import { Measure, RenderedMeasure } from './Measure';
+import { Measure, RenderedMeasure } from '../sheet/Measure';
 import { util } from '..';
 import { Scale } from 'tonal';
 import { Pattern } from '../util/Pattern';
+import { Leadsheet } from './Leadsheet';
 
-export interface SequenceEvent {
+export interface SequenceEvent extends SheetEvent<any> {
   path: number[];
   value: any;
   chord?: string;
@@ -138,7 +139,7 @@ export class Sequence {
   static getOptions(options: SequenceOptions) {
     return {
       bpm: 120,
-      pulses: 4,
+      /* pulses: 4, */
       ...options,
     };
   }
@@ -474,7 +475,7 @@ export class Sequence {
   ) {
     options = this.getOptions(options);
     let renderedMeasures = Sheet.render(measures, options);
-    const flat = Sheet.flatten(renderedMeasures, true)
+    const flat = Sheet.flatEvents(renderedMeasures)
       .map(event => ({
         ...event,
         measure: renderedMeasures[event.path[0]]
@@ -491,7 +492,7 @@ export class Sequence {
     // TODO add measureStartTime / measureEndTime for easier access later
     // seperate chords before flattening // => "chords" also used for melody, need rename...
     const chords = renderedMeasures.map((e) => e.body);
-    const flat = Sheet.flatten(chords, true)
+    const flat = Sheet.flatEvents(chords)
       .map(event => ({
         ...event,
         measure: renderedMeasures[event.path[0]],
@@ -677,7 +678,7 @@ export class Sequence {
   static insertBassNote
 
   static render(sheet: Leadsheet): SequenceEvent[] {
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let sequence = [],
       melody = [],
       bass = [],

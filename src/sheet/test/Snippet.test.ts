@@ -1,9 +1,12 @@
-import { Snippet } from "../sheet/Snippet";
-import { totalDiff } from '../util/util';
+import { Snippet } from "../Snippet";
+import { totalDiff } from '../../util/util';
+import * as JsDiff from 'diff';
 
 /* test.only('Snippet.testFormat', () => {
     expect(Snippet.testFormat(['C', 'F', 'B'])).toBe('C F B');
 }) */
+
+
 
 test('Snippet.parse2', () => {
   expect(Snippet.nest(`f . a c . e`)).toEqual(['f', ['a', 'c'], 'e']);
@@ -196,7 +199,15 @@ test('Snippet.diff', () => {
     |: C7  |  x  |  C7   |  C7   |
     |1 A7  |  D7  |  D-7  |  G7  :|
     |2 F7  |  F7  |  C7   |  G7   |`;
-  const diff = Snippet.diff(snippetA, snippetB);
+
+  function snippetDiff(snippetA, snippetB) {
+    const diffFormat = [Snippet.formatForDiff(snippetA), Snippet.formatForDiff(snippetB)];
+    return JsDiff.diffWords(
+      diffFormat[0], diffFormat[1]
+    );
+  }
+
+  const diff = snippetDiff(snippetA, snippetB);
   const total = totalDiff(diff);
   expect(total.balance).toBe(0);
   expect(total.added).toBe(1);

@@ -1,14 +1,15 @@
 import { Logger } from '../util/Logger';
-import { Sheet, Leadsheet } from './Sheet';
+import { Sheet } from '../sheet/Sheet';
 import * as Tone from 'tone';
 import { Voicing } from '..';
 import { Note } from 'tonal';
 import { Harmony } from '../harmony/Harmony';
 import { piano as pianoSamples } from '../samples/piano/index.js';
 import { drumSamples } from '../samples/drumset';
-import { Snippet } from './Snippet';
+import { Snippet } from '../sheet/Snippet';
 import { SequenceOptions, Sequence, SequenceEvent } from './Sequence';
 import { VoiceLeadingOptions } from '../harmony/Voicing';
+import { Leadsheet } from './Leadsheet';
 
 export declare type noteTrigger = (time, duration?) => any;
 
@@ -37,7 +38,7 @@ export class SheetPlayer {
       swingSubdivision: '8n',
       ...sheet,
     }
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let {
       swing,
       swingSubdivision,
@@ -83,7 +84,7 @@ export class SheetPlayer {
   }
 
   static async playMelody(sheet): Promise<Tone.Sequence> {
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let { real } = sheet.options;
     const lead = await SheetPlayer.getLead(real);
     return new Tone.Sequence((time, note) => {
@@ -136,7 +137,7 @@ export class SheetPlayer {
     if (!chords && !melody) {
       return;
     }
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let { pedal, real }: SequenceOptions = sheet.options;
     let { maxVoices }: VoiceLeadingOptions = sheet.options.voicings;
     if (melody) {
@@ -173,7 +174,7 @@ export class SheetPlayer {
     if (!sheet) {
       return;
     }
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let { pedal, real }: SequenceOptions = sheet.options;
     let { maxVoices }: VoiceLeadingOptions = sheet.options.voicings;
 
@@ -214,7 +215,7 @@ export class SheetPlayer {
     if (!sheet) {
       return;
     }
-    sheet = Sheet.from(sheet);
+    sheet = Leadsheet.from(sheet);
     let { real, pedal } = sheet.options;
 
 
