@@ -1,24 +1,17 @@
-import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
+import { Measure, RenderedMeasure, Measures } from './Measure';
+import { Rhythm } from './Rhythm';
 
-export type Measures = Array<MeasureOrString>;
-
-export type SheetEvent<T> = {
-  path: number[];
-  divisions?: number[];
-  value: T;
-}
-
-export type JumpSign = {
+export type JumpSign<T> = {
   pair?: string,
   move?: number,
   fine?: boolean,
-  validator?: (state: SheetState) => boolean,
+  validator?: (state: SheetState<T>) => boolean,
 }
 
-export type SheetState = {
-  measures?: RenderedMeasure[],
+export type SheetState<T> = {
+  measures?: RenderedMeasure<T>[],
   index?: number,
-  sheet?: Measures,
+  sheet?: Measures<T>,
   jumps?: { [key: number]: number },
   visits?: { [key: number]: number },
   nested?: boolean,
@@ -27,13 +20,10 @@ export type SheetState = {
   totalForms?: number; // the inital value of forms
   firstTime?: boolean; // flips to false after first chorus is complete
   lastTime?: boolean; // flips to true when last chorus starts
-  property?: string; // to which measure property name the sheet should be rendered
 }
 
-
 export class Sheet {
-
-  static jumpSigns: { [sign: string]: JumpSign } = {
+  static jumpSigns: { [sign: string]: JumpSign<any> } = {
     '}': { pair: '{', move: -1 },
     'DC': {},
     'DS': { pair: 'Segno', move: -1 },
@@ -57,12 +47,11 @@ export class Sheet {
     repeat: ['%']
   }
 
-  static render(sheet: MeasureOrString[], options: SheetState = {}): RenderedMeasure[] {
-    let state: SheetState = {
+  static render<T>(sheet: Measures<T>, options: SheetState<T> = {}): RenderedMeasure<T>[] {
+    let state: SheetState<T> = {
       sheet,
       measures: [],
       forms: 1,
-      property: 'chords',
       nested: true,
       fallbackToZero: true,
       firstTime: true,
@@ -82,12 +71,12 @@ export class Sheet {
     return state.measures;
   }
 
-  static nextMeasure(state: SheetState): SheetState {
+  static nextMeasure<T>(state: SheetState<T>): SheetState<T> {
     state = {
       ...state,
       ...Sheet.nextSection(state)
     } // moves to the right house (if any)
-    let { sheet, index, measures, property } = state;
+    let { sheet, index, measures } = state;
     state = {
       ...state,
       measures: measures.concat([Measure.render(state)]),
@@ -96,7 +85,7 @@ export class Sheet {
     return Sheet.nextForm(state);
   }
 
-  static nextIndex(state): SheetState {
+  static nextIndex<T>(state): SheetState<T> {
     let { sheet, index, jumps, nested, fallbackToZero, lastTime } = state;
     if (!Sheet.shouldJump({ sheet, index, jumps, lastTime })) {
       return {
@@ -114,7 +103,7 @@ export class Sheet {
     }
   }
 
-  static newForm(state): SheetState {
+  static newForm<T>(state): SheetState<T> {
     return {
       ...state,
       index: 0,
@@ -124,7 +113,7 @@ export class Sheet {
     }
   }
 
-  static nextForm(state, force = false): SheetState {
+  static nextForm<T>(state, force = false): SheetState<T> {
     let { sheet, index, forms } = state;
     if (force || (index >= sheet.length && forms > 1)) {
       return Sheet.newForm({
@@ -137,7 +126,7 @@ export class Sheet {
   }
 
   // moves the index to the current house (if any)
-  static nextSection(state: SheetState): SheetState {
+  static nextSection<T>(state: SheetState<T>): SheetState<T> {
     let { sheet, index, visits, firstTime, lastTime } = state;
     // skip intro when not firstTime
     if (!firstTime && Measure.from(sheet[index]).section === 'IN') {
@@ -166,10 +155,10 @@ export class Sheet {
     }
   }
   /** Starts at a given index, stops when the pair functions returned equally often */
-  static findPair(
+  static findPair<T>(
     sheet,
     index: number,
-    pairs: Array<(measure?: Measure, options?: { sheet?: Measures, index?: number }) => boolean>,
+    pairs: Array<(measure?: Measure<T>, options?: { sheet?: Measures<T>, index?: number }) => boolean>,
     move = 1,
     stack = 0): number {
     let match = -1; // start with no match
@@ -189,10 +178,10 @@ export class Sheet {
     return match;
   }
 
-  static findMatch(
+  static findMatch<T>(
     sheet,
     index: number,
-    find: (measure?: Measure, options?: { sheet?: Measures, index?: number }) => boolean,
+    find: (measure?: Measure<T>, options?: { sheet?: Measures<T>, index?: number }) => boolean,
     move = 1): number {
     let match = -1; // start with no match
     while (match === -1 && index >= 0 && index < sheet.length) {
@@ -206,7 +195,7 @@ export class Sheet {
   }
 
   // simple matching for brace start, ignores nested repeats
-  static getJumpDestination(state: SheetState): number {
+  static getJumpDestination<T>(state: SheetState<T>): number {
     let { sheet, index, fallbackToZero, nested } = state;
     const sign = Measure.getJumpSign(sheet[index]);
     // if fine > jump till end
@@ -228,8 +217,8 @@ export class Sheet {
   }
 
   // returns the index of the repeat sign that pairs with the given index
-  static getBracePair(
-    { sheet, index, fallbackToZero }: { sheet: Measures, index: number, fallbackToZero?: boolean }
+  static getBracePair<T>(
+    { sheet, index, fallbackToZero }: { sheet: Measures<T>, index: number, fallbackToZero?: boolean }
   ): number {
     if (fallbackToZero === undefined) {
       fallbackToZero = true;
@@ -326,7 +315,7 @@ export class Sheet {
     return 1;
   }
 
-  static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState, move = 1): boolean {
+  static readyForFineOrCoda<T>({ sheet, index, jumps, lastTime }: SheetState<T>, move = 1): boolean {
     const signs = Object.keys(Sheet.jumpSigns)
       .filter(s => s.includes('DC') || s.includes('DS'));
     const backJump = Sheet.findMatch(sheet, index,
@@ -339,7 +328,7 @@ export class Sheet {
   }
 
 
-  static shouldJump({ sheet, index, jumps, lastTime }: SheetState) {
+  static shouldJump<T>({ sheet, index, jumps, lastTime }: SheetState<T>) {
     if (!Measure.hasJumpSign(sheet[index])) {
       return false;
     }
@@ -352,132 +341,28 @@ export class Sheet {
     return timesJumped < allowedJumps;
   }
 
-  /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
-   * You can then turn SheetEvent[] back to the original nested array with Measure.expand. */
-  static flatEvents<T>(tree: T[] | T, path: number[] = [], divisions: number[] = []): SheetEvent<T>[] {
-    if (!Array.isArray(tree)) { // is primitive value
-      return [{
-        path,
-        divisions,
-        value: tree
-      }];
-    }
-    return tree.reduce(
-      (flat: SheetEvent<T>[], item: T[] | T, index: number): SheetEvent<T>[] =>
-        flat.concat(
-          Sheet.flatEvents(item, path.concat([index]), divisions.concat([tree.length]))
-        ), []);
+  static stringify<T>(measures: Measures<T>): string | any[] {
+    return measures.map(measure => (Measure.from(measure).body));
   }
 
-  /** Flattens the given possibly nested tree array to an array containing all values in sequential order. 
-   * If withPath is set to true, the values are turned to objects containing the nested path (FlatEvent).
-   * You can then turn FlatEvent[] back to the original nested array with Measure.expand. */
-  static flatten<T>(tree: T[] | T, withPath = false, path: number[] = [], divisions: number[] = []): T[] | SheetEvent<T>[] {
-    if (!Array.isArray(tree)) { // is primitive value
-      if (withPath) {
-        return [{
-          path,
-          divisions,
-          value: tree
-        }];
-      }
-      return [tree];
-    }
-    return tree.reduce(
-      (flat: (any | SheetEvent<T>)[], item: any[] | any, index: number): (any | SheetEvent<T>)[] =>
-        flat.concat(
-          Sheet.flatten(item, withPath, path.concat([index]), divisions.concat([tree.length]))
-        ), []);
-  }
-
-  /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
-  static expand<T>(items: SheetEvent<T>[]): any[] {
-    let lastSiblingIndex = -1;
-    return items.reduce((expanded, item, index) => {
-      if (item.path.length === 1) {
-        expanded[item.path[0]] = item.value;
-      } else if (item.path[0] > lastSiblingIndex) {
-        lastSiblingIndex = item.path[0];
-        const siblings = items
-          .filter((i, j) => j >= index && i.path.length >= item.path.length)
-          .map(i => ({ ...i, path: i.path.slice(1) }));
-        expanded[item.path[0]] = Sheet.expand(siblings)
-        /* expanded.push(Measure.expand(siblings)); */
-      }
-      return expanded;
-    }, []);
-  }
-
-  static pathOf(value, tree): number[] | undefined {
-    const flat = Sheet.flatEvents(tree);
-    const match = flat.find(v => v.value === value);
-    if (match) {
-      return match.path;
-    }
-  }
-
-  static getPath<T>(tree, path, withPath = false, flat?: SheetEvent<T>[]): any | SheetEvent<T> {
-    if (typeof path === 'number') {
-      path = [path];
-    }
-    flat = flat || Sheet.flatEvents(tree);
-    const match = flat.find(v => {
-      const min = Math.min(path.length, v.path.length);
-      return v.path.slice(0, min).join(',') === path.slice(0, min).join(',')
-    });
-    if (withPath) {
-      return match;
-    }
-    return match ? match.value : undefined;
-  }
-
-  static nextItem<T>(tree, path, move = 1, withPath = false, flat?: SheetEvent<T>[]): any | SheetEvent<T> {
-    flat = Sheet.flatEvents(tree);
-    const match = Sheet.getPath(tree, path, true, flat);
-    if (match) {
-      let index = (flat.indexOf(match) + move + flat.length) % flat.length;
-      if (withPath) {
-        return flat[index];
-      }
-      return flat[index] ? flat[index].value : undefined;
-    }
-  }
-
-  static nextValue(tree, value, move = 1): any | undefined {
-    const flat = Sheet.flatEvents(tree);
-    const match = flat.find(v => v.value === value);
-    if (match) {
-      return Sheet.nextItem(tree, match.path, move, false, flat)
-    }
-  }
-
-  static nextPath(tree, path?, move = 1): any | undefined {
-    const flat = Sheet.flatEvents(tree);
-    if (!path) {
-      return flat[0] ? flat[0].path : undefined;
-    }
-    const match = Sheet.getPath(tree, path, true, flat);
-    if (match) {
-      const next = Sheet.nextItem(tree, match.path, move, true, flat);
-      return next ? next.path : undefined;
-    }
-  }
-
-  static stringify(measures: MeasureOrString[], property = 'chords'): string | any[] {
-    return measures.map(measure => (Measure.from(measure)[property]));
-  }
-
-  static obfuscate(measures: Measures, keepFirst = true): Measure[] {
+  static obfuscate(measures: Measures<string>, keepFirst = true): Measure<string>[] {
     return measures
-      .map(m => Measure.from(m, 'chords'))
+      .map(m => Measure.from(m))
       .map((m, i) => {
-        m.chords = m.chords.map((c, j) => {
+        m.body = Rhythm.from(m.body).map((c, j) => {
           if (keepFirst && i === 0 && j === 0) {
             return c;
+          }
+          if (typeof c !== 'string') {
+            console.warn('Sheet.obfuscate does not support nested Rhythms (yet)');
+            return ''
           }
           return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
         })
         return m;
       });
   }
+
+
+
 }

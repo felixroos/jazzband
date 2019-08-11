@@ -1,41 +1,26 @@
 import { JumpSign, SheetState } from './Sheet';
 import { SequenceOptions } from '../player/Sequence';
-export declare type MeasureOrString = Measure | string[] | string | number[] | number;
-export interface Bar<T> {
-    body?: T[];
-    signs?: string[];
-    comments?: string[];
-    house?: number | number[];
-    times?: number;
-    section?: string;
-    idle?: true;
-    options?: SequenceOptions;
-}
-export interface Measure {
-    chords?: string[];
-    body?: string[];
-    signs?: string[];
-    comments?: string[];
-    house?: number | number[];
-    times?: number;
-    section?: string;
-    idle?: true;
-    options?: SequenceOptions;
-}
-export interface RenderedMeasure extends Measure {
-    chords?: string[];
+import { NestedRhythm } from './Rhythm';
+export declare type MeasureOrBody<T> = Measure<T> | T[] | T;
+export declare type Measures<T> = Array<MeasureOrBody<T>>;
+export interface RenderedMeasure<T> extends Measure<T> {
     index: number;
-    measure?: Measure;
     form?: number;
     totalForms?: number;
-    lastTime?: boolean;
-    firstTime?: boolean;
 }
-export declare class Measure implements Measure {
-    static from(measure: MeasureOrString, property?: string): Measure;
-    static render(state: SheetState): RenderedMeasure;
-    static hasSign(sign: string, measure: MeasureOrString): boolean;
-    static hasHouse(measure: MeasureOrString, number?: number): boolean;
-    static getJumpSign(measure: any): JumpSign;
-    static hasJumpSign(measure: MeasureOrString): boolean;
+export declare class Measure<T> {
+    body?: T | NestedRhythm<T>;
+    signs?: string[];
+    comments?: string[];
+    house?: number | number[];
+    times?: number;
+    section?: string;
+    idle?: true;
+    options?: SequenceOptions;
+    static from<T>(measure: MeasureOrBody<T>): Measure<T>;
+    static render<T>(state: SheetState<T>): RenderedMeasure<T>;
+    static hasSign<T>(sign: string, measure: MeasureOrBody<T>): boolean;
+    static hasHouse<T>(measure: MeasureOrBody<T>, number?: number): boolean;
+    static getJumpSign<T>(measure: MeasureOrBody<T>): JumpSign<T>;
+    static hasJumpSign<T>(measure: MeasureOrBody<T>): boolean;
 }

@@ -1,12 +1,11 @@
 import { Snippet } from "../Snippet";
 import { totalDiff } from '../../util/util';
 import * as JsDiff from 'diff';
+import { Measure } from '../Measure';
 
 /* test.only('Snippet.testFormat', () => {
     expect(Snippet.testFormat(['C', 'F', 'B'])).toBe('C F B');
 }) */
-
-
 
 test('Snippet.parse2', () => {
   expect(Snippet.nest(`f . a c . e`)).toEqual(['f', ['a', 'c'], 'e']);
@@ -53,15 +52,15 @@ test('Snippet.parse2', () => {
 
 test('Snippet.parse2 control flow', () => {
   expect(Snippet.parse2(`| A (DC) | B |`))
-    .toEqual([{ chords: ['A'], signs: ['DC'] }, 'B']);
+    .toEqual([{ body: ['A'], signs: ['DC'] }, 'B']);
   expect(Snippet.parse2(`| A (Fine) | B (DC) |`))
-    .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
+    .toEqual([{ body: ['A'], signs: ['Fine'] }, { body: ['B'], signs: ['DC'] }]);
   expect(Snippet.parse2(`| A (Fi) | B (DC) |`))
-    .toEqual([{ chords: ['A'], signs: ['Fine'] }, { chords: ['B'], signs: ['DC'] }]);
+    .toEqual([{ body: ['A'], signs: ['Fine'] }, { body: ['B'], signs: ['DC'] }]);
   expect(Snippet.parse2(`| A (ToCoda) | B (DC) | (Coda) C |`))
-    .toEqual([{ chords: ['A'], signs: ['ToCoda'] }, { chords: ['B'], signs: ['DC'] }, { chords: ['C'], signs: ['Coda'] }]);
+    .toEqual([{ body: ['A'], signs: ['ToCoda'] }, { body: ['B'], signs: ['DC'] }, { body: ['C'], signs: ['Coda'] }]);
   expect(Snippet.parse2(`| A (2Q) | B (DC) | (Q) C |`))
-    .toEqual([{ chords: ['A'], signs: ['ToCoda'] }, { chords: ['B'], signs: ['DC'] }, { chords: ['C'], signs: ['Coda'] }]);
+    .toEqual([{ body: ['A'], signs: ['ToCoda'] }, { body: ['B'], signs: ['DC'] }, { body: ['C'], signs: ['Coda'] }]);
 })
 
 
@@ -95,9 +94,9 @@ test('Snippet.parse: houses', () => {
             | F7   | F7 |  C7 | A7  |
             | D-7  | G7 |  C7 | G7  |`))
     .toEqual([
-      { chords: ['C7'], signs: ['{'] }, 'F7',
-      { house: 1, chords: ['C7'] }, { chords: ['C7'], signs: ['}'] },
-      { house: 2, chords: ['C7'] }, 'C7',
+      { body: ['C7'], signs: ['{'] }, 'F7',
+      { house: 1, body: ['C7'] }, { body: ['C7'], signs: ['}'] },
+      { house: 2, body: ['C7'] }, 'C7',
       'F7', 'F7', 'C7', 'A7',
       'D-7', 'G7', 'C7', 'G7']);
 });
@@ -106,7 +105,7 @@ test('Snippet.parse: houses', () => {
   expect(Snippet.parse(`
             |:C7:|`))
     .toEqual([
-      { chords: ['C7'], signs: ['{', '}'] }
+      { body: ['C7'], signs: ['{', '}'] }
     ]);
 });
 
@@ -118,7 +117,7 @@ test('Snippet.minify', () => {
   expect(Snippet.minify(`C7
                                 F7`)).toEqual('C7|F7');
   expect(Snippet.minify(`C7|||||F7`)).toEqual('C7|F7');
-  const urlSafe = Snippet.minify(`
+  const minified = Snippet.minify(`
     |: E-7b5    | A7b9      | D-     | x          |
     |  G-7      | C7        | F^7    | E-7b5 A7b9 |
     
@@ -127,7 +126,19 @@ test('Snippet.minify', () => {
     
     |2 D-       | G-7       | Bb7    | A7b9       |
     |  D- B7    | Bb7#11 A7 | D-     | x          |
-    `, true);
+    `, false);
+  expect(minified).toBe(`:E-7b5|A7b9|D-|x|G-7|C7|F^7|E-7b5 A7b9|1 D-|G-7|Bb7|A7b9|D-|G7#11|E-7b5|A7b9:|2 D-|G-7|Bb7|A7b9|D- B7|Bb7#11 A7|D-|x`)
+
+  const urlSafe = Snippet.minify(`
+      |: E-7b5    | A7b9      | D-     | x          |
+      |  G-7      | C7        | F^7    | E-7b5 A7b9 |
+      
+      |1 D-       | G-7       | Bb7    | A7b9       |
+      |  D-       | G7#11     | E-7b5  | A7b9      :|
+      
+      |2 D-       | G-7       | Bb7    | A7b9       |
+      |  D- B7    | Bb7#11 A7 | D-     | x          |
+      `, true);
 
   expect(urlSafe).toBe(`RE-7b5IA7b9ID-IxIG-7IC7IFM7IE-7b5_A7b9I1_D-IG-7IBb7IA7b9ID-IG7Y11IE-7b5IA7b9RI2_D-IG-7IBb7IA7b9ID-_B7IBb7Y11_A7ID-Ix`)
   expect(new RegExp(/^[a-zA-Z0-9_-]*$/).test(urlSafe)).toBe(true)
@@ -222,21 +233,21 @@ test('Snippet.render', () => {
             |2 C7 | C7  |
 | F7   | F7 |  C7 | A7  |
 | D-7  | G7 |  C7 | G7  |`)
-    .map(m => m.chords))
-    .toEqual(
-      [["C7"], ["F7"], ["C7"], ["G7"],
-      ["C7"], ["F7"], ["C7"], ["C7"],
-      ["F7"], ["F7"], ["C7"], ["A7"],
-      ["D-7"], ["G7"], ["C7"], ["G7"]]
-    );
+    .map(m => m.body)
+  ).toEqual(
+    [["C7"], ["F7"], ["C7"], ["G7"],
+    ["C7"], ["F7"], ["C7"], ["C7"],
+    ["F7"], ["F7"], ["C7"], ["A7"],
+    ["D-7"], ["G7"], ["C7"], ["G7"]]
+  );
 });
 
 test('Snippet.from', () => {
   expect(
     Snippet.from([
-      { chords: ['C7'], signs: ['{'] }, 'F7',
-      { house: 1, chords: ['C7'] }, { chords: ['C7'], signs: ['}'] },
-      { house: 2, chords: ['C7'] }, 'C7',
+      { body: ['C7'], signs: ['{'] }, 'F7',
+      { house: 1, body: ['C7'] }, { body: ['C7'], signs: ['}'] },
+      { house: 2, body: ['C7'] }, 'C7',
       'F7', 'F7', 'C7', 'A7',
       'D-7', 'G7', 'C7', 'G7'
     ])).toBe(Snippet.format(`
@@ -248,8 +259,8 @@ test('Snippet.from', () => {
   expect(
     Snippet.from([
       'A',
-      { chords: ['B'], signs: ['Segno', 'Fine'] },
-      { chords: ['C'], signs: ['DS'] }
+      { body: ['B'], signs: ['Segno', 'Fine'] },
+      { body: ['C'], signs: ['DS'] }
     ])).toBe(Snippet.format(`| A | (S) B (Fi) | C (DS) |`));
 });
 

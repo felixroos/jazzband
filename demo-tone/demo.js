@@ -1,3 +1,4 @@
+import * as opensheetmusicdisplay from 'opensheetmusicdisplay';
 import iRealReader from 'ireal-reader';
 import { Note } from 'tonal';
 import * as Tone from 'tone';
@@ -5,11 +6,13 @@ import link from '../songs/1350.json';
 import { SheetPlayer } from '../src/player/SheetPlayer';
 import { RealParser } from '../src/sheet/RealParser';
 import { Snippet } from '../src/sheet/Snippet';
+import { Rhythm } from '../src/sheet/Rhythm';
 import { Pattern } from '../src/util/Pattern';
 import * as util from '../src/util/util';
 import { drawPart } from './drawEvents';
 import { green, maidens, swing } from './grooves';
 const playlist = new iRealReader(decodeURI(link));
+
 //const playlist = new iRealReader(decodeURI(beatles));
 // const playlist = new iRealReader(decodeURI(stevie));
 
@@ -29,6 +32,81 @@ let frame,
   flip = true;
 
 window.onload = function() {
+  var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay('osmd', {autoResize: true});
+  console.log('osmd', osmd);
+
+  /* fetch(require('./mxl/maidens.musicxml')) */
+  fetch(require('./mxl/Just_Friends_Solo.musicxml'))
+    .then(data => data.text())
+    .then(mxl => {
+      console.log('loaded mxl');
+      document.getElementById('osmd').style.width = '1200px';
+      osmd.load(mxl);
+      osmd.render();
+    });
+
+  document.getElementById('bolero').addEventListener('click', () => {
+    console.log('ding');
+
+    const bolero = [
+      [
+        [0.5, [1, 1, 1]], // bar 1 beat 1
+        [0.5, [1, 1, 1]], // 1.2
+        [0.5, 0.5] // 1.3
+      ],
+      [
+        [0.5, [1, 1, 1]], // 2.1
+        [0.5, [1, 1, 1]], // 2.2
+        [[1, 1, 1], [1, 1, 1]] // 2.3
+      ]
+    ];
+    // playback with Tone.js
+
+    function triggerEvent(synth) {
+      return (time, event) => {
+        synth.triggerAttackRelease(event.value, event.duration, time);
+      };
+    }
+
+    function playEvents(events, length) {
+      var synth = new Tone.Synth().toMaster();
+      const part = new Tone.Part(triggerEvent(synth), events).start(0);
+      part.loop = true;
+      part.loopEnd = length;
+      Tone.Transport.start('+1');
+    }
+
+    function playNotes(notes, cycle, synth) {
+      const events = Rhythm.render(notes, cycle).filter(e => !!e.value);
+      const part = new Tone.Part((time, event) => {
+        synth.triggerAttackRelease(event.value, event.duration, time);
+      }, events).start(0);
+      part.loop = true;
+      part.loopEnd = cycle;
+      Tone.Transport.start('+1');
+    }
+
+    /* const boleroEvents = Rhythm.render(bolero, 6)
+      .map(Rhythm.useValueAsDuration)
+      .map(e => ({ ...e, value: 'A3' }));
+    playEvents(boleroEvents, 6); */
+
+    var kick = new Tone.MembraneSynth().toMaster();
+    var synth = new Tone.Synth().toMaster();
+    var synth2 = new Tone.Synth().toMaster();
+
+    /* playNotes(['C2', 'C2', 'C2', 'C2'], 2, kick);
+    playNotes(['C3', 'E3', 'G3'], 2, pluck);
+    playNotes(['C2', 'G2', 'C2', 'B1'], 2, pluck); */
+
+    playNotes(['C2', 'C2', 'C2', 'C2'], Rhythm.spm(120, 4), kick);
+    playNotes(['C3', 'E3', 'G3'], Rhythm.spm(120, 3), synth);
+    playNotes(['C2', 0, 'G2', 0], Rhythm.spm(120, 4), synth2);
+
+    /* playNotes(['C3', 'D3', 'E3', 'F3'], 2); */
+    // playNotes(['E3', 'G3', 'B3'], 2);
+  });
+
   // buttons
   const stop = document.getElementById('stop');
   const steps = document.getElementById('steps');
@@ -89,9 +167,9 @@ window.onload = function() {
                 } */
     }
   };
-  SheetPlayer.renderSheetPart(standardSheet).then(standardPart => {
+  /* SheetPlayer.renderSheetPart(standardSheet).then(standardPart => {
     drawPart(standardPart, false, flip)();
-  });
+  }); */
 
   next.addEventListener('click', () => {
     setTimeout(() => play(), 500);

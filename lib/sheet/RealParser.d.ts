@@ -1,4 +1,4 @@
-import { Measures } from './Sheet';
+import { Measures } from './Measure';
 export declare class RealParser {
     /**
      * The RegExp for a complete chord. The match array contains:
@@ -17,8 +17,8 @@ export declare class RealParser {
         "Kcl": string[];
     };
     static getChord(iRealChord: any): any;
-    static parseSheet(raw: any): Measures;
-    static getSheet(tokens: any): Measures;
+    static parseSheet(raw: any): Measures<string>;
+    static getSheet(tokens: any): Measures<string>;
     static parse(raw: string): any;
     static parseChord(match: any): iRealChord;
     static newToken(arr: any): iRealToken;

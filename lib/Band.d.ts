@@ -1,7 +1,7 @@
 import { Pulse } from './Pulse';
 import { Musician } from './musicians/Musician';
-import { Leadsheet } from './sheet/Sheet';
 import { Metronome } from './Metronome';
+import { Leadsheet } from './player/Leadsheet';
 /** Band */
 export default class Band {
     props: any;

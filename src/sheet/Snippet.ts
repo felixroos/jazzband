@@ -1,5 +1,6 @@
-import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
+import { Measure, RenderedMeasure, Measures } from './Measure';
 import { Sheet } from './Sheet';
+import { Rhythm } from './Rhythm';
 
 export class Snippet {
   static controlSigns = [
@@ -206,7 +207,7 @@ export class Snippet {
       .filter(s => !!s);
   }
 
-  static parse(snippet, simplify = true) {
+  static parse(snippet, simplify = true): Measures<string> {
     const formatted = Snippet.format(snippet, false);
     return formatted
       .split('|') // split into measures
@@ -215,7 +216,7 @@ export class Snippet {
       .filter(measure => !measure || measure.length) // kill empty measures
       .map(measure => ({ symbols: measure, signs: [] }))
       // parse symbols to chords and signs
-      .map((measure: { symbols, signs, house, chords }) => {
+      .map((measure: { symbols, signs, house, body }) => {
         // repeat start
         if (measure.symbols[0][0] === ':') {
           if (measure.symbols[0].length === 1) {
@@ -246,7 +247,7 @@ export class Snippet {
               .find(c => [c.name, c.short].includes(s.replace(')', '').replace('(', ''))));
         }
 
-        measure.chords = [].concat(measure.symbols);
+        measure.body = [].concat(measure.symbols);
 
         delete measure.symbols;
         return measure;
@@ -258,8 +259,8 @@ export class Snippet {
         if (measure.signs.length === 0) {
           delete measure.signs;
         }
-        if (measure.chords.length === 0) {
-          delete measure.chords;
+        if (measure.body.length === 0) {
+          delete measure.body;
         }
         return measure;
       })
@@ -270,10 +271,10 @@ export class Snippet {
         if (!simplify) {
           return measure;
         }
-        if (measure.chords && Object.keys(measure).length === 1) {
-          return measure.chords.length === 1 ?
-            measure.chords[0] : // simplify one chord measures
-            measure.chords
+        if (measure.body && Object.keys(measure).length === 1) {
+          return measure.body.length === 1 ?
+            measure.body[0] : // simplify one chord measures
+            measure.body
         }
         return measure;
       });
@@ -297,7 +298,7 @@ export class Snippet {
       .filter(measure => measure && measure.length) // kill empty measures
       .map(measure => ({ symbols: measure.trim(), signs: [] }))
       // parse symbols to chords and signs
-      .map((measure: { symbols, signs, house, chords }) => {
+      .map((measure: { symbols, signs, house, body }) => {
         // repeat start
         if (measure.symbols[0] === ':') {
           measure.signs.unshift('{');
@@ -321,7 +322,7 @@ export class Snippet {
             .filter(s => !controlSigns
               .find(c => [c.name, c.short].includes(s.replace(')', '').replace('(', ''))));
         }
-        measure.chords = measure.symbols;
+        measure.body = measure.symbols;
         delete measure.symbols;
         return measure;
       })
@@ -332,8 +333,8 @@ export class Snippet {
         if (measure.signs.length === 0) {
           delete measure.signs;
         }
-        if (measure.chords.length === 0) {
-          delete measure.chords;
+        if (measure.body.length === 0) {
+          delete measure.body;
         }
         return measure;
       })
@@ -344,29 +345,30 @@ export class Snippet {
         if (!simplify) {
           return measure;
         }
-        if (measure.chords && Object.keys(measure).length === 1) {
-          return measure.chords.length === 1 ?
-            measure.chords[0] : // simplify one chord measures
-            measure.chords
+        if (measure.body && Object.keys(measure).length === 1) {
+          return measure.body.length === 1 ?
+            measure.body[0] : // simplify one chord measures
+            measure.body
         }
         return measure;
       });
   }
 
-  static testFormat(measures: RenderedMeasure[]) {
-    return measures.map(m => m.chords).join(' ');
+  static testFormat(measures: RenderedMeasure<any>[]) {
+    return measures.map(m => m.body).join(' ');
   }
 
-  static from(measures: MeasureOrString[], format = true) {
+  static from<T>(measures: Measures<string>, format = true) {
     const snippet = measures
-      .map(m => Measure.from(m, 'chords'))
-      .reduce((snippet, { signs, house, chords }) => {
+      .map(m => Measure.from(m))
+      .reduce((snippet, { signs, house, body }) => {
         const controlSigns = Snippet.getControlSigns(signs || []);
         const start = controlSigns.filter(c => !c.end).map(c => '(' + c.short + ')').join(' ');
         const end = controlSigns.filter(c => !!c.end).map(c => '(' + c.short + ')').join(' ');
         const repeatStart = signs && signs.includes('{');
         const repeatEnd = signs && signs.includes('}');
-        return snippet + `|${repeatStart ? ':' : ''}${house || ''} ${start ? start + ' ' : ''}${chords ? chords.join(' ') : ''}${end ? ' ' + end : ''}${repeatEnd ? ':' : ''}`;
+        body = Rhythm.from(body);
+        return snippet + `|${repeatStart ? ':' : ''}${house || ''} ${start ? start + ' ' : ''}${body ? body.join(' ') : ''}${end ? ' ' + end : ''}${repeatEnd ? ':' : ''}`;
       }, '');
     if (format) {
       return Snippet.format(snippet);
@@ -378,7 +380,7 @@ export class Snippet {
     return Snippet.from(Snippet.render(snippet, options));
   }
 
-  static obfuscate(snippet, keepFirst = true, format = true) {
+  static obfuscate(snippet: string, keepFirst = true, format = true) {
     const chords = Snippet.parse(snippet);
     return Snippet.from(Sheet.obfuscate(chords, keepFirst), format);
   }

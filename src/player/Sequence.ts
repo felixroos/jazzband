@@ -1,18 +1,19 @@
 import { VoiceLeadingOptions, Voicing } from '../harmony/Voicing';
-import { SheetState, Sheet, Measures, SheetEvent } from '../sheet/Sheet';
+import { SheetState, Sheet } from '../sheet/Sheet';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
 import { Distance } from 'tonal';
 import { Interval } from 'tonal';
 import { avgArray, humanize, maxArray } from '../util/util';
 import { Logger } from '../util/Logger';
-import { Measure, RenderedMeasure } from '../sheet/Measure';
+import { Measure, RenderedMeasure, Measures } from '../sheet/Measure';
 import { util } from '..';
 import { Scale } from 'tonal';
 import { Pattern } from '../util/Pattern';
 import { Leadsheet } from './Leadsheet';
+import { RhythmEvent, Rhythm } from '../sheet/Rhythm';
 
-export interface SequenceEvent extends SheetEvent<any> {
+export interface SequenceEvent extends RhythmEvent<any> {
   path: number[];
   value: any;
   chord?: string;
@@ -25,7 +26,7 @@ export interface SequenceEvent extends SheetEvent<any> {
   type?: string;
   // voicings?: VoiceLeadingOptions;
   options?: SequenceOptions;
-  measure?: RenderedMeasure;
+  measure?: RenderedMeasure<any>;
 }
 
 export type Groove = {
@@ -77,7 +78,7 @@ export type EventFilterFn = (
 
 export type EventFilter = EventFactory<EventFilterFn>;
 
-export interface SequenceOptions extends SheetState {
+export interface SequenceOptions extends SheetState<any> {
   logging?: boolean;
   arpeggio?: boolean; // if true, all chords will be played as arpeggios
   pedal?: boolean; // if true, notes that stay will not be retriggered
@@ -111,24 +112,6 @@ export interface SequenceOptions extends SheetState {
 }
 
 export class Sequence {
-  static fraction(divisions: number[], whole = 1) {
-    return divisions.reduce((f, d) => f / d, whole);
-  }
-
-  static time(divisions: number[], path, whole = 1) {
-    return divisions.reduce(
-      ({ f, p }, d, i) => ({ f: f / d, p: p + (f / d) * path[i] }),
-      { f: whole, p: 0 }
-    ).p;
-  }
-
-  static simplePath(path) {
-    return path.join('.').replace(/(\.0)*$/, ''); //.split('.');
-  }
-
-  static haveSamePath(a: SequenceEvent, b: SequenceEvent) {
-    return Sequence.simplePath(a.path) === Sequence.simplePath(b.path);
-  }
 
   static getSignType(symbol: string) {
     return Object.keys(Sheet.sequenceSigns).find(type =>
@@ -173,7 +156,7 @@ export class Sequence {
         ...event,
         options,
         velocity: 1,
-        duration: Sequence.fraction(event.divisions, whole),
+        duration: Rhythm.duration(event.divisions, whole),
         time: last ? last.time + last.duration : 0,
       });
     }
@@ -227,7 +210,7 @@ export class Sequence {
       if (index > 0) {
         const previousEvent = events[index - 1];
         previousVoicing = previousEvent
-          ? events.filter(e => Sequence.haveSamePath(previousEvent, e))
+          ? events.filter(e => Rhythm.haveSamePath(previousEvent, e))
           : [];
         previousVoicing = previousVoicing.map(e => e.value);
       }
@@ -271,7 +254,7 @@ export class Sequence {
   }
 
   static renderBass: EventReduce = options => {
-    return (events, event, index, chords) => {
+    return (events, event) => {
       let { duration } = event;
 
       if (event.type !== 'chord') {
@@ -319,7 +302,7 @@ export class Sequence {
       let topNote;
       if (options.tightMelody) {
         topNote = melody.find(
-          n => Sequence.haveSamePath(n, event) && Harmony.isValidNote(n.value)
+          n => Rhythm.haveSamePath(n, event) && Harmony.isValidNote(n.value)
           // n => Sequence.isInside(n, event) && Harmony.isValidNote(n.value)
         );
       }
@@ -404,7 +387,7 @@ export class Sequence {
   };
 
   static isOff(event) {
-    return Sequence.time(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
+    return Rhythm.time(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
   }
 
   // static addSwing: EventMap = (options) => (event, index, events) => {
@@ -436,7 +419,7 @@ export class Sequence {
     }
     return events
       .map((e, i) => {
-        if (Sequence.haveSamePath(e, eventBefore)) {
+        if (Rhythm.haveSamePath(e, eventBefore)) {
           e.duration += swingOffset;
         }
         return e;
@@ -444,8 +427,8 @@ export class Sequence {
       .concat([event]); */
   };
 
-  static inOut: EventFilter = () => (event, idnex, events) => {
-    return event.measure.firstTime || event.measure.lastTime;
+  static inOut: EventFilter = () => (event, index, events) => {
+    return event.measure.form === 0 || event.measure.form === event.measure.totalForms;
   }
 
   static removeDuplicates: EventFilter = options => (event, index, events) => {
@@ -454,7 +437,7 @@ export class Sequence {
         (e, i) =>
           i !== index &&
           Harmony.hasSamePitch(e.value, event.value) &&
-          Sequence.haveSamePath(e, event)
+          Rhythm.haveSamePath(e, event)
       );
       return !duplicate || !event.chord; // always choose melody note
     }
@@ -464,18 +447,18 @@ export class Sequence {
         (e, i) =>
           i !== index &&
           Harmony.hasSamePitch(e.value, event.value) &&
-          Sequence.haveSamePath(e, event)
+          Rhythm.haveSamePath(e, event)
       );
     return !melody;
   };
 
   static renderGrid(
-    measures: Measures,
+    measures: Measures<any>,
     options?: SequenceOptions
   ) {
     options = this.getOptions(options);
     let renderedMeasures = Sheet.render(measures, options);
-    const flat = Sheet.flatEvents(renderedMeasures)
+    const flat = Rhythm.flatten(renderedMeasures)
       .map(event => ({
         ...event,
         measure: renderedMeasures[event.path[0]]
@@ -484,29 +467,21 @@ export class Sequence {
   }
 
   static renderMeasures(
-    measures: Measures,
+    measures: Measures<any>,
     options?: SequenceOptions
   ): SequenceEvent[] {
     options = this.getOptions(options);
-    let renderedMeasures = Sheet.render(measures, { ...options, property: 'body' });
+    let renderedMeasures = Sheet.render(measures, { ...options });
     // TODO add measureStartTime / measureEndTime for easier access later
     // seperate chords before flattening // => "chords" also used for melody, need rename...
     const chords = renderedMeasures.map((e) => e.body);
-    const flat = Sheet.flatEvents(chords)
+    const flat = Rhythm.flatten(chords)
       .map(event => ({
         ...event,
         measure: renderedMeasures[event.path[0]],
         options: renderedMeasures[event.path[0]].options
       }));
     return this.renderEvents(flat, options);
-  }
-
-  static addPaths(
-    a: number[],
-    b: number[]
-  ) {
-    [a, b] = [a, b].sort((a, b) => b.length - a.length);
-    return a.map((n, i) => n + (b[i] || 0));
   }
 
   static getNextChordOff: GroovePreset = ({ target, source, sourceEvents, options }) => {
@@ -520,7 +495,7 @@ export class Sequence {
   }
 
   static fillGrooves(
-    groove: Measures | ((/* source: SequenceEvent, events: SequenceEvent[] */) => Measures),
+    groove: Measure<any> | (() => Measures<any>),
     sourceEvents: SequenceEvent[],
     mapFn: GroovePreset = ({ target }) => target,
     options?: SequenceOptions
@@ -549,7 +524,7 @@ export class Sequence {
       const insert = grooveEvents
         .map((e) => ({ // add path / time together
           ...e,
-          path: Sequence.addPaths([bar], e.path),
+          path: Rhythm.addPaths([bar], e.path),
           time: e.time + time,
         }))
         .filter(e => e.value !== 0)
@@ -572,7 +547,7 @@ export class Sequence {
   }
 
   static insertGrooves(
-    groove: Measures | ((source: SequenceEvent, events: SequenceEvent[]) => Measures),
+    groove: Measures<any> | ((source: SequenceEvent, events: SequenceEvent[]) => Measures<any>),
     sourceEvents: SequenceEvent[],
     mergeFn: GroovePreset = ({ target }) => target,
     options?: SequenceOptions
@@ -590,7 +565,7 @@ export class Sequence {
       const insert = grooveEvents
         .map((e) => ({ // add path / time together
           ...e,
-          path: Sequence.addPaths(source.path, e.path),
+          path: Rhythm.addPaths(source.path, e.path),
           time: e.time + source.time,
         }))
         .map((target, index) => {
@@ -735,7 +710,7 @@ export class Sequence {
     sequence = Sequence.renderGroove(sequence, sheet.options);
 
     sequence = sequence.map((event, index, events) => {
-      // const pathEvents = events.filter(e => Sequence.haveSamePath(e, event));
+      // const pathEvents = events.filter(e => Rhythm.haveSamePath(e, event));
       event = Sequence.humanizeEvent(sheet.options)(event, index, sequence);
       event = Sequence.addDynamicVelocity(sheet.options)(
         event,

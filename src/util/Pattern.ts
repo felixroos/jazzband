@@ -3,7 +3,7 @@ import { util } from '..';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
 import { SequenceEvent, Sequence } from '../player/Sequence';
-import { Sheet } from '../sheet/Sheet';
+import { Rhythm } from '../sheet/Rhythm';
 
 export class Pattern {
   static traverse(size, step, offset = 0) {
@@ -137,7 +137,7 @@ export class Pattern {
   }
 
   static renderEvents(lines, options?): SequenceEvent[] {
-    const flat = Sheet.flatEvents(lines);
+    const flat = Rhythm.flatten(lines);
     const events = Sequence.renderEvents(flat, options)
       .map(e => ({ ...e, note: Note.simplify(e.value.note) }));
     return events;

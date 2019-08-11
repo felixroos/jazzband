@@ -1,20 +1,14 @@
-import { Measure, RenderedMeasure, MeasureOrString } from './Measure';
-export declare type Measures = Array<MeasureOrString>;
-export declare type SheetEvent<T> = {
-    path: number[];
-    divisions?: number[];
-    value: T;
-};
-export declare type JumpSign = {
+import { Measure, RenderedMeasure, Measures } from './Measure';
+export declare type JumpSign<T> = {
     pair?: string;
     move?: number;
     fine?: boolean;
-    validator?: (state: SheetState) => boolean;
+    validator?: (state: SheetState<T>) => boolean;
 };
-export declare type SheetState = {
-    measures?: RenderedMeasure[];
+export declare type SheetState<T> = {
+    measures?: RenderedMeasure<T>[];
     index?: number;
-    sheet?: Measures;
+    sheet?: Measures<T>;
     jumps?: {
         [key: number]: number;
     };
@@ -27,35 +21,34 @@ export declare type SheetState = {
     totalForms?: number;
     firstTime?: boolean;
     lastTime?: boolean;
-    property?: string;
 };
 export declare class Sheet {
     static jumpSigns: {
-        [sign: string]: JumpSign;
+        [sign: string]: JumpSign<any>;
     };
     static sequenceSigns: {
         rest: string[];
         prolong: string[];
         repeat: string[];
     };
-    static render(sheet: MeasureOrString[], options?: SheetState): RenderedMeasure[];
-    static nextMeasure(state: SheetState): SheetState;
-    static nextIndex(state: any): SheetState;
-    static newForm(state: any): SheetState;
-    static nextForm(state: any, force?: boolean): SheetState;
-    static nextSection(state: SheetState): SheetState;
+    static render<T>(sheet: Measures<T>, options?: SheetState<T>): RenderedMeasure<T>[];
+    static nextMeasure<T>(state: SheetState<T>): SheetState<T>;
+    static nextIndex<T>(state: any): SheetState<T>;
+    static newForm<T>(state: any): SheetState<T>;
+    static nextForm<T>(state: any, force?: boolean): SheetState<T>;
+    static nextSection<T>(state: SheetState<T>): SheetState<T>;
     /** Starts at a given index, stops when the pair functions returned equally often */
-    static findPair(sheet: any, index: number, pairs: Array<(measure?: Measure, options?: {
-        sheet?: Measures;
+    static findPair<T>(sheet: any, index: number, pairs: Array<(measure?: Measure<T>, options?: {
+        sheet?: Measures<T>;
         index?: number;
     }) => boolean>, move?: number, stack?: number): number;
-    static findMatch(sheet: any, index: number, find: (measure?: Measure, options?: {
-        sheet?: Measures;
+    static findMatch<T>(sheet: any, index: number, find: (measure?: Measure<T>, options?: {
+        sheet?: Measures<T>;
         index?: number;
     }) => boolean, move?: number): number;
-    static getJumpDestination(state: SheetState): number;
-    static getBracePair({ sheet, index, fallbackToZero }: {
-        sheet: Measures;
+    static getJumpDestination<T>(state: SheetState<T>): number;
+    static getBracePair<T>({ sheet, index, fallbackToZero }: {
+        sheet: Measures<T>;
         index: number;
         fallbackToZero?: boolean;
     }): number;
@@ -88,22 +81,8 @@ export declare class Sheet {
         sheet: any;
         index: any;
     }): number;
-    static readyForFineOrCoda({ sheet, index, jumps, lastTime }: SheetState, move?: number): boolean;
-    static shouldJump({ sheet, index, jumps, lastTime }: SheetState): boolean;
-    /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
-     * You can then turn SheetEvent[] back to the original nested array with Measure.expand. */
-    static flatEvents<T>(tree: T[] | T, path?: number[], divisions?: number[]): SheetEvent<T>[];
-    /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
-     * If withPath is set to true, the values are turned to objects containing the nested path (FlatEvent).
-     * You can then turn FlatEvent[] back to the original nested array with Measure.expand. */
-    static flatten<T>(tree: T[] | T, withPath?: boolean, path?: number[], divisions?: number[]): T[] | SheetEvent<T>[];
-    /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
-    static expand<T>(items: SheetEvent<T>[]): any[];
-    static pathOf(value: any, tree: any): number[] | undefined;
-    static getPath<T>(tree: any, path: any, withPath?: boolean, flat?: SheetEvent<T>[]): any | SheetEvent<T>;
-    static nextItem<T>(tree: any, path: any, move?: number, withPath?: boolean, flat?: SheetEvent<T>[]): any | SheetEvent<T>;
-    static nextValue(tree: any, value: any, move?: number): any | undefined;
-    static nextPath(tree: any, path?: any, move?: number): any | undefined;
-    static stringify(measures: MeasureOrString[], property?: string): string | any[];
-    static obfuscate(measures: Measures, keepFirst?: boolean): Measure[];
+    static readyForFineOrCoda<T>({ sheet, index, jumps, lastTime }: SheetState<T>, move?: number): boolean;
+    static shouldJump<T>({ sheet, index, jumps, lastTime }: SheetState<T>): boolean;
+    static stringify<T>(measures: Measures<T>): string | any[];
+    static obfuscate(measures: Measures<string>, keepFirst?: boolean): Measure<string>[];
 }

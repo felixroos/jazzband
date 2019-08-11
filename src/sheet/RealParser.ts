@@ -1,5 +1,4 @@
-import { Measure } from './Measure';
-import { Measures } from './Sheet';
+import { Measure, Measures } from './Measure';
 
 // extension of https://github.com/daumling/ireal-renderer/blob/master/src/ireal-renderer.js
 
@@ -38,12 +37,12 @@ export class RealParser {
     return iRealChord.note + iRealChord.modifiers + (iRealChord.over ? '/' + this.getChord(iRealChord.over) : '');
   }
 
-  static parseSheet(raw): Measures {
+  static parseSheet(raw): Measures<string> {
     const tokens = RealParser.parse(raw);
     return RealParser.getSheet(tokens);
   }
 
-  static getSheet(tokens): Measures {
+  static getSheet(tokens): Measures<string> {
     const parsed = tokens
       .reduce((current, token, index, array) => {
         const lastBarEnded = ['{', '|', '[', '||' /* 'Z',  *//* , ']' */]
@@ -126,7 +125,11 @@ export class RealParser {
     if (parsed.measure.chords.length) {
       parsed.measures.push(parsed.measure);
     }
-    return parsed.measures;
+    return parsed.measures.map(measure => {
+      const chords = [].concat(measure.chords);
+      delete measure.chords;
+      return { ...measure, body: chords };
+    });
   }
 
 

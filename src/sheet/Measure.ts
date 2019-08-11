@@ -1,90 +1,64 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
 import { SequenceOptions } from '../player/Sequence';
+import { NestedRhythm } from './Rhythm';
 
-export type MeasureOrString = Measure | string[] | string | number[] | number;
+export type MeasureOrBody<T> = Measure<T> | T[] | T;
+export type Measures<T> = Array<MeasureOrBody<T>>;
 
-export interface Bar<T> {
-  body?: T[];
-  signs?: string[];
-  comments?: string[];
-  house?: number | number[];
-  times?: number;
-  section?: string;
-  idle?: true; // bar is repeated
-  options?: SequenceOptions; // options to change stuff over time
-}
-
-export interface Measure {
-  chords?: string[];
-  body?: string[];
-  signs?: string[];
-  comments?: string[];
-  house?: number | number[];
-  times?: number;
-  section?: string;
-  idle?: true; // bar is repeated
-  options?: SequenceOptions; // options to change stuff over time
-}
-
-export interface RenderedMeasure extends Measure {
-  chords?: string[]; // the content of the measure (symbols to play like chords or notes or sounds)
+export interface RenderedMeasure<T> extends Measure<T> {
   index: number; // the corresponding index of the sheet measure (from where it was rendered)
-  measure?: Measure;
   form?: number; // the number of the current form
   totalForms?: number; // number of total forms
-  lastTime?: boolean; // if the current form is the last
-  firstTime?: boolean; // if the current form is the first
 }
 
-export class Measure implements Measure {
-  static from(measure: MeasureOrString, property = 'chords'): Measure {
+export class Measure<T> {
+  body?: T | NestedRhythm<T>;
+  signs?: string[];
+  comments?: string[];
+  house?: number | number[];
+  times?: number;
+  section?: string;
+  idle?: true; // bar is repeated
+  options?: SequenceOptions; // options to change stuff over time
+
+  static from<T>(measure: MeasureOrBody<T>): Measure<T> {
+    // if (!Array.isArray(measure) && typeof measure !== 'object') {
     if (!Array.isArray(measure) && typeof measure !== 'object') {
       return {
-        [property]: [measure]
+        body: [measure]
       };
     }
     if (Array.isArray(measure)) {
       return {
-        [property]: [].concat(measure)
+        body: [].concat(measure)
       };
     }
-    return {
-      ...measure,
-      [property]: measure[property] || measure.chords
-    }
-    // return Object.assign({}, measure);
-    // return measure;
+    return measure;
   }
 
-  /* static render(sheet: MeasureOrString[], index: number, form?: number, property = 'chords'): RenderedMeasure { */
-  static render(state: SheetState): RenderedMeasure {
+  static render<T>(state: SheetState<T>): RenderedMeasure<T> {
     let {
       sheet,
       index,
       forms,
-      firstTime,
-      lastTime,
       totalForms,
-      property
     } = state;
-    const measure = Measure.from(sheet[index], property);
+    const measure = Measure.from(sheet[index]);
+    // TODO: options is lost here...
     return {
-      options: { ...measure, ...(measure.options || {}) },
-      [property]: measure[property],
+      body: measure.body,
       form: totalForms - forms,
       totalForms,
-      firstTime,
-      lastTime,
       index
     };
   }
 
-  static hasSign(sign: string, measure: MeasureOrString): boolean {
+  static hasSign<T>(sign: string, measure: MeasureOrBody<T>): boolean {
     measure = Measure.from(measure);
     return !!measure.signs && measure.signs.includes(sign);
   }
 
-  static hasHouse(measure: MeasureOrString, number?: number): boolean {
+  static hasHouse<T>(measure: MeasureOrBody<T>, number?: number): boolean {
     measure = Measure.from(measure);
     let { house } = measure;
     if (!house) {
@@ -98,7 +72,7 @@ export class Measure implements Measure {
     return house.includes(number);
   }
 
-  static getJumpSign(measure): JumpSign {
+  static getJumpSign<T>(measure: MeasureOrBody<T>): JumpSign<T> {
     const signs = (Measure.from(measure).signs || []).filter(s =>
       Object.keys(Sheet.jumpSigns).includes(s)
     );
@@ -108,7 +82,7 @@ export class Measure implements Measure {
     return Sheet.jumpSigns[signs[0]];
   }
 
-  static hasJumpSign(measure: MeasureOrString): boolean {
+  static hasJumpSign<T>(measure: MeasureOrBody<T>): boolean {
     return Object.keys(Sheet.jumpSigns).reduce(
       (match, current) => match || Measure.hasSign(current, measure),
       false

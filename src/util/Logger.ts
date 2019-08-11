@@ -5,6 +5,7 @@ import { Snippet } from '../sheet/Snippet';
 import { getRangePosition, getStepsInChord, noteArray, getDegreeFromStep } from './util';
 import { Sheet } from '../sheet/Sheet';
 import { Sequence } from '../player/Sequence';
+import { Rhythm } from '../sheet/Rhythm';
 
 export class Logger {
   static emoji = {
@@ -112,11 +113,11 @@ export class Logger {
         })
     }); */
     sequence.reduce((blocks, event) => {
-      const alreadyParsed = !!blocks.find(b => Sequence.haveSamePath(b, event));
+      const alreadyParsed = !!blocks.find(b => Rhythm.haveSamePath(b, event));
       if (alreadyParsed) {
         return blocks
       }
-      const sameTime = sequence.filter(e => Sequence.haveSamePath(e, event));
+      const sameTime = sequence.filter(e => Rhythm.haveSamePath(e, event));
       let degrees;
       let chord = event.chord;
       if (!chord) {
@@ -134,7 +135,7 @@ export class Logger {
       const notes = block.events.map(e => e.value);
       let konsole = Logger.logNotes({ notes, active: notes, idle: [], added: [], range: ['C3', 'C6'], labels: block.degrees || notes });
       konsole.push(block.value);
-      konsole.push(Sequence.simplePath(block.path));
+      konsole.push(Rhythm.simplePath(block.path));
       Logger.logCustom(konsole, console.log);
     });
   }

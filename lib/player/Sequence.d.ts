@@ -1,8 +1,9 @@
 import { VoiceLeadingOptions } from '../harmony/Voicing';
-import { SheetState, Measures, SheetEvent } from '../sheet/Sheet';
-import { RenderedMeasure } from '../sheet/Measure';
+import { SheetState } from '../sheet/Sheet';
+import { Measure, RenderedMeasure, Measures } from '../sheet/Measure';
 import { Leadsheet } from './Leadsheet';
-export interface SequenceEvent extends SheetEvent<any> {
+import { RhythmEvent } from '../sheet/Rhythm';
+export interface SequenceEvent extends RhythmEvent<any> {
     path: number[];
     value: any;
     chord?: string;
@@ -14,7 +15,7 @@ export interface SequenceEvent extends SheetEvent<any> {
     time?: number;
     type?: string;
     options?: SequenceOptions;
-    measure?: RenderedMeasure;
+    measure?: RenderedMeasure<any>;
 }
 export declare type Groove = {
     [name: string]: (events: SequenceEvent[], options: SequenceOptions) => SequenceEvent[];
@@ -36,7 +37,7 @@ export declare type EventReduceFn = (events: SequenceEvent[], event: SequenceEve
 export declare type EventReduce = EventFactory<EventReduceFn>;
 export declare type EventFilterFn = (event: SequenceEvent, index?: number, events?: SequenceEvent[]) => boolean;
 export declare type EventFilter = EventFactory<EventFilterFn>;
-export interface SequenceOptions extends SheetState {
+export interface SequenceOptions extends SheetState<any> {
     logging?: boolean;
     arpeggio?: boolean;
     pedal?: boolean;
@@ -68,10 +69,6 @@ export interface SequenceOptions extends SheetState {
     displaceDuration?: number;
 }
 export declare class Sequence {
-    static fraction(divisions: number[], whole?: number): number;
-    static time(divisions: number[], path: any, whole?: number): number;
-    static simplePath(path: any): any;
-    static haveSamePath(a: SequenceEvent, b: SequenceEvent): boolean;
     static getSignType(symbol: string): string;
     static getOptions(options: SequenceOptions): {
         logging?: boolean;
@@ -103,9 +100,9 @@ export declare class Sequence {
         displaceChance?: number;
         displaceTime?: number;
         displaceDuration?: number;
-        measures?: RenderedMeasure[];
+        measures?: RenderedMeasure<any>[];
         index?: number;
-        sheet?: import("../sheet/Measure").MeasureOrString[];
+        sheet?: any[];
         jumps?: {
             [key: number]: number;
         };
@@ -118,7 +115,6 @@ export declare class Sequence {
         totalForms?: number;
         firstTime?: boolean;
         lastTime?: boolean;
-        property?: string;
     };
     static testEvents: (props: string[]) => (event: any) => any;
     static addLatestOptions: EventReduce;
@@ -142,12 +138,12 @@ export declare class Sequence {
     static addSwing: EventReduce;
     static inOut: EventFilter;
     static removeDuplicates: EventFilter;
-    static renderGrid(measures: Measures, options?: SequenceOptions): SequenceEvent[];
-    static renderMeasures(measures: Measures, options?: SequenceOptions): SequenceEvent[];
+    static renderGrid(measures: Measures<any>, options?: SequenceOptions): SequenceEvent[];
+    static renderMeasures(measures: Measures<any>, options?: SequenceOptions): SequenceEvent[];
     static addPaths(a: number[], b: number[]): number[];
     static getNextChordOff: GroovePreset;
-    static fillGrooves(groove: Measures | (() => Measures), sourceEvents: SequenceEvent[], mapFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];
-    static insertGrooves(groove: Measures | ((source: SequenceEvent, events: SequenceEvent[]) => Measures), sourceEvents: SequenceEvent[], mergeFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];
+    static fillGrooves(groove: Measure<any> | (() => Measures<any>), sourceEvents: SequenceEvent[], mapFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];
+    static insertGrooves(groove: Measures<any> | ((source: SequenceEvent, events: SequenceEvent[]) => Measures<any>), sourceEvents: SequenceEvent[], mergeFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];
     static melodyGroove(): ({ target, source, index, grooveEvents }: {
         target: any;
         source: any;

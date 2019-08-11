@@ -25,31 +25,25 @@ export class SheetPlayer {
 
   static getSequence(sheet, options: SequenceOptions = {}) {
     return Sheet.render(sheet, options)
-      .map((measure, measureIndex) => measure.chords
+      .map((measure, measureIndex) => measure.body
         .map((chord, chordIndex) => ({ chord, path: [measureIndex, chordIndex], measure })));
   }
 
-  static async play(sheet) {
+  static async play(sheet: Leadsheet) {
     SheetPlayer.stop();
     sheet = {
       chords: [],
       melody: [],
-      swing: 0.5,
-      swingSubdivision: '8n',
       ...sheet,
     }
     sheet = Leadsheet.from(sheet);
     let {
-      swing,
-      swingSubdivision,
       bpm,
     } = sheet.options;
     Logger.logLegend();
     Logger.logSheet(sheet);
 
     Tone.Transport.bpm.value = bpm;
-    /* Tone.Transport.swing = swing;
-    Tone.Transport.swingSubdivision = swingSubdivision; */
 
     const parts = SheetPlayer.playParts([
       await SheetPlayer.playSheet(sheet),
@@ -138,6 +132,7 @@ export class SheetPlayer {
       return;
     }
     sheet = Leadsheet.from(sheet);
+    console.log('render', sheet);
     let { pedal, real }: SequenceOptions = sheet.options;
     let { maxVoices }: VoiceLeadingOptions = sheet.options.voicings;
     if (melody) {

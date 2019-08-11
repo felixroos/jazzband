@@ -1,31 +1,6 @@
 import { Sequence } from '../player/Sequence';
-import { Sheet } from '../sheet/Sheet';
+import { Rhythm } from '../sheet/Rhythm';
 
-test('Sequence.fraction', () => {
-  expect(Sequence.fraction([2, 2])).toEqual(0.25)
-  expect(Sequence.fraction([1, 4])).toEqual(0.25)
-  expect(Sequence.fraction([1, 1])).toEqual(1)
-});
-
-test('Sequence.time', () => {
-  expect(Sequence.time([2, 2], [0, 1])).toEqual(0.25)
-  expect(Sequence.time([2, 2], [1, 0])).toEqual(0.5)
-  expect(Sequence.time([1, 4], [0, 3])).toEqual(0.75)
-  expect(Sequence.time([1, 1], [0, 0])).toEqual(0);
-  expect(Sequence.time([1, 1], [0])).toEqual(NaN); // bad 
-});
-
-test('Sequence.simplePath', () => {
-  expect(Sequence.simplePath([1, 0])).toEqual('1');
-  expect(Sequence.simplePath([0, 1])).toEqual('0.1');
-  expect(Sequence.simplePath([1, 0, 1])).toEqual('1.0.1');
-  expect(Sequence.simplePath([1, 0, 0, 1])).toEqual('1.0.0.1');
-  expect(Sequence.simplePath([0, 0, 0, 1])).toEqual('0.0.0.1');
-  expect(Sequence.simplePath([0, 0, 1])).toEqual('0.0.1');
-  expect(Sequence.simplePath([0])).toEqual('0');
-  expect(Sequence.simplePath([20])).toEqual('20');
-  expect(Sequence.simplePath([20, 0])).toEqual('20');
-});
 
 test('Sequence.getSignType', () => {
   expect(Sequence.getSignType('/')).toBe('prolong');
@@ -38,7 +13,7 @@ test('Sequence.getOptions', () => {
 });
 
 test('Sequence.prolongNotes', () => {
-  const events = Sheet.flatEvents([['C', '/'], ['F', '/', '/', 'Bb']]);
+  const events = Rhythm.flatten([['C', '/'], ['F', '/', '/', 'Bb']]);
   const withTime = events.reduce(Sequence.addTimeAndDuration(), []);
   expect(withTime
     .map(Sequence.testEvents(['duration', 'time', 'value']))
@@ -66,7 +41,7 @@ test('Sequence.prolongNotes', () => {
 });
 
 test('Sequence.renderVoicings', () => {
-  const events = Sheet.flatEvents([['C', 'F']]);
+  const events = Rhythm.flatten([['C', 'F']]);
   expect(
     events
       .map(e => ({ ...e, type: 'chord' }))
@@ -85,10 +60,10 @@ test('Sequence.renderVoicings', () => {
 });
 
 test('Sequence.addFermataToEnd', () => {
-  const events = Sheet.flatEvents(['C', 'F']);
+  const events = Rhythm.flatten([['C'], ['F']]);
   expect(
     events
-      .map(e => ({ ...e, chord: e.value }))
+      /* .map(e => ({ ...e, chord: e.value })) */
       .reduce(Sequence.addTimeAndDuration(), [])
       .map(Sequence.addFermataToEnd({ fermataLength: 2 }))
       .map(Sequence.testEvents(['duration']))
@@ -99,7 +74,7 @@ test('Sequence.addFermataToEnd', () => {
 });
 
 test('Sequence.addLatestOptions', () => {
-  const events = Sheet.flatEvents([
+  const events = Rhythm.flatten([
     { chords: ['C-'], options: { pulses: 4 } }, // needs to be set to be not undefined..
     'F',
     { chords: ['Bb'], options: { pulses: 3 } },
@@ -117,7 +92,7 @@ test('Sequence.addLatestOptions', () => {
 test('Sequence.renderMeasures', () => {
   expect(
     Sequence.renderMeasures([['A', 'B'], ['C']]).map(e =>
-      Sequence.simplePath(e.path)
+      Rhythm.simplePath(e.path)
     )
   ).toEqual(['0', '0.1', '1']);
 });
@@ -151,15 +126,6 @@ test('Sequence.isOverlapping', () => {
 
 });
 
-test('addPaths', () => {
-  expect(Sequence.addPaths([1, 0], [0, 1])).toEqual([1, 1]);
-  expect(Sequence.addPaths([1, 1], [0, 1])).toEqual([1, 2]);
-  expect(Sequence.addPaths([0, 0], [0, 1])).toEqual([0, 1]);
-  expect(Sequence.addPaths([0], [0, 1])).toEqual([0, 1]);
-  expect(Sequence.addPaths([0, 1], [1])).toEqual([1, 1]);
-  expect(Sequence.addPaths([1], [1, 1])).toEqual([2, 1]);
-})
-
 test('insertGroove', () => {
   const events = Sequence.renderMeasures([['A'], ['B', 'C']]);
   const oneTwo = Sequence.insertGrooves([[1, 2]], events, ({ target, source }) => {
@@ -172,7 +138,7 @@ test('insertGroove', () => {
     oneTwo.map(Sequence.testEvents(['value'])).map(e => e.value)
   ).toEqual(['A-1', 'A-2', 'B-1', 'C-1']);
   expect(
-    oneTwo.map(Sequence.testEvents(['path'])).map(e => Sequence.simplePath(e.path))
+    oneTwo.map(Sequence.testEvents(['path'])).map(e => Rhythm.simplePath(e.path))
   ).toEqual(['0', '0.1', '1', '1.1']);
 })
 /* test.only('Sequence.isPathBefore', () => {

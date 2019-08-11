@@ -1,4 +1,4 @@
-import { Leadsheet } from '../sheet/Sheet';
+import { Leadsheet } from '../player/Leadsheet';
 export declare type intervalDirection = 'up' | 'down';
 export declare type step = string | number;
 export declare class Harmony {
@@ -86,5 +86,5 @@ export declare class Harmony {
     /** Returns the note with the least distance to "from". TODO: add range */
     static getNearestTargets(from: any, targets: any, preferredDirection?: intervalDirection, flip?: boolean): any;
     static intervalMatrix(from: any, to: any): any;
-    static transposeSheet(sheet: Leadsheet, interval: any): any;
+    static transposeSheet(sheet: Leadsheet, interval: any): Leadsheet;
 }

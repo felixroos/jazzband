@@ -1,5 +1,5 @@
-import { Measures } from '../sheet/Sheet';
 import { SequenceOptions } from './Sequence';
+import { Measures } from '../sheet/Measure';
 
 export class Leadsheet {
   name?: string;
@@ -8,9 +8,8 @@ export class Leadsheet {
   bpm?: number;
   repeats?: number;
   key?: string;
-  measures?: Measures;
-  chords?: Measures;
-  melody?: Measures;
+  chords?: Measures<string>;
+  melody?: Measures<string>;
   options?: SequenceOptions;
 
   constructor(sheet: Leadsheet) {

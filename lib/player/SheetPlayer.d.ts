@@ -10,12 +10,8 @@ export declare class SheetPlayer {
     static instruments: any[];
     static realPiano: any;
     static realDrums: any;
-    static getSequence(sheet: any, options?: SequenceOptions): {
-        chord: string;
-        path: number[];
-        measure: import("../sheet/Measure").RenderedMeasure;
-    }[][];
-    static play(sheet: any): Promise<any[]>;
+    static getSequence(sheet: any, options?: SequenceOptions): any[];
+    static play(sheet: Leadsheet): Promise<any[]>;
     static playParts(parts: any): any[];
     static stop(): void;
     static playMelody(sheet: any): Promise<Tone.Sequence>;
