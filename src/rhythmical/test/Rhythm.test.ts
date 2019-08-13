@@ -3,56 +3,51 @@ import { Rhythm, RhythmEvent, TimedEvent } from '../Rhythm';
 
 
 test('Rhythm.duration', () => {
-  expect(Rhythm.duration([2, 2])).toEqual(0.25)
-  expect(Rhythm.duration([1, 4])).toEqual(0.25)
-  expect(Rhythm.duration([1, 1])).toEqual(1);
-  expect(Rhythm.duration([4, 2], 4)).toEqual(0.5);
-  expect(Rhythm.duration([4, 3], 4)).toEqual(1 / 3);
+  expect(Rhythm.duration([2, 2].map(d => ([0, d])))).toEqual(0.25)
+  expect(Rhythm.duration([1, 4].map(d => ([0, d])))).toEqual(0.25)
+  expect(Rhythm.duration([1, 1].map(d => ([0, d])))).toEqual(1);
+  expect(Rhythm.duration([4, 2].map(d => ([0, d])), 4)).toEqual(0.5);
+  expect(Rhythm.duration([4, 3].map(d => ([0, d])), 4)).toEqual(1 / 3);
 });
 
 test('Rhythm.time', () => {
-  expect(Rhythm.time([2, 2], [0, 1])).toEqual(0.25)
-  expect(Rhythm.time([2, 2], [1, 0])).toEqual(0.5)
-  expect(Rhythm.time([1, 4], [0, 3])).toEqual(0.75)
-  expect(Rhythm.time([1, 1], [0, 0])).toEqual(0);
-  expect(Rhythm.time([1, 1], [0])).toEqual(NaN); // bad
-  expect(Rhythm.time([4, 3], [1, 0], 4)).toEqual(1);
+  expect(Rhythm.time([[0, 2], [1, 2]])).toEqual(0.25)
+  expect(Rhythm.time([[1, 2], [0, 2]])).toEqual(0.5)
+  expect(Rhythm.time([[0, 1], [3, 4]])).toEqual(0.75)
+  expect(Rhythm.time([[0, 1], [0, 1]])).toEqual(0);
+  // expect(Rhythm.time([[0,1], [1]])).toEqual(NaN); // bad
+  expect(Rhythm.time([[1, 4], [0, 3]], 4)).toEqual(1);
 });
 
 
 test('Rhythm.calculate', () => {
+
   const calculated =
-    Rhythm.flatten([1, [0, 3], 0, 1]).map(Rhythm.calculate(4));
+    Rhythm.flat([1, [0, 3], 0, 1]).map(Rhythm.calculate(4));
   expect(
     calculated
       .map(({ value, time, duration }) => ({ value, time, duration }))
   ).toEqual(
     [
       { value: 1, time: 0, duration: 1 },
-      { value: 0, time: 1, duration: 0.5 },
-      { value: 3, time: 1.5, duration: 0.5 },
-      { value: 0, time: 2, duration: 1 },
+      { value: 0, time: 1, duration: 0 },
+      { value: 3, time: 1.5, duration: 1.5 },
+      { value: 0, time: 2, duration: 0 },
       { value: 1, time: 3, duration: 1 }
     ]
   );
-  const withDuration = [
-    { time: 0, duration: 1 },
-    { time: 1, duration: 0 },
-    { time: 1.5, duration: 1.5 },
-    { time: 2, duration: 0 },
-    { time: 3, duration: 1 }
-  ];
-  expect(calculated.map(({ time, duration, value }: TimedEvent<number>) => ({
-    time,
-    duration: value * duration
-  }))).toEqual(withDuration)
-
-  expect(calculated.map(Rhythm.useValueAsDuration)
-    .map(({ time, duration }) => ({ time, duration })))
-    .toEqual(withDuration)
 
   expect(Rhythm.render(['C7', 'F7'], 4)
     .map(e => e.duration)).toEqual([2, 2]);
+});
+
+test('render', () => {
+  expect(Rhythm.render([0, 1, 0, 1], 4)).toEqual(
+    [
+      { value: 1, path: [[1, 4]], time: 1, duration: 1 },
+      { value: 1, path: [[3, 4]], time: 3, duration: 1 }
+    ]
+  );
 })
 
 
@@ -187,6 +182,21 @@ test('pathOf', () => {
 });
 
 test('multiply', () => {
+
+
+
+  /* console.log(JSON.stringify(Rhythm.multiply(
+    [[[1.5, [0, 1]], [0, 1]], [[0, 1], 1]]
+    , 2))) */
+
+  //[[[3,0],[0,[2,0]]],[0,[2,0]],[0,[2,0]],[2,0]]
+  //[[[3,0],[0,[2,0]]],[0,[2,0]],[0,[2,0]],[2,0]]
+
+  /* expect(Rhythm.multiply([[[1.5, [0, 1]], [0, 1]], [[0, 1], 1]], 2)).toEqual(
+    [[[3, 0], [0, [2, 0]]], [0, [2, 0]], [0, [2, 0]], [2, 0]]
+  ) */
+
+  expect(Rhythm.multiplyPath([0, 0], [4, 2], 2)).toEqual([0, 0]);
   /* expect(Rhythm.multiply([1, [1, 1]])).toEqual([2, 0, [1], [1]]) */
   expect(Rhythm.multiplyDivisions([2, 2], 2)).toEqual([4, 2]);
   expect(Rhythm.multiplyPath([0, 0], [4, 2], 2)).toEqual([0, 0]);
@@ -213,12 +223,12 @@ test('multiply', () => {
 
 });
 
-test('divide', () => {
+/* test('divide', () => {
   expect(Rhythm.divide([[2], 0, 2, 0], 2)).toEqual([[1], 1]);
   expect(Rhythm.divide([2, 0, 2, 0], 2)).toEqual([1, 1]);
   expect(Rhythm.divide([0, 0, 2, 0], 2)).toEqual([0, 1]);
   expect(Rhythm.divide([2, 0, 2, 0, 2, 0], 2)).toEqual([1, 1, 1]);
-});
+}); */
 
 
 describe('addPaths', () => {
@@ -473,25 +483,56 @@ describe('new syntax', () => {
 
   describe('wrap', () => {
     test('simple', () => {
-      expect(Rhythm.wrap([1, 2, 3, 4, 5, 6, 7, 8], 4)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
-      expect(Rhythm.wrap([1, 2, 3, 4, 5, 6, 7, 8], 4)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
-      expect(Rhythm.wrap([1, 2, 3, 4, 5, 6, 7, 8], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 0]]);
-      expect(Rhythm.wrap([1, 2, 3, 4, 5, 6, 7, 8], 2)).toEqual([[1, 2], [3, 4], [5, 6], [7, 8]]);
-      expect(Rhythm.wrap([1, 2, 3, 4, 5, 6, 7, 8], 5)).toEqual([[1, 2, 3, 4, 5], [6, 7, 8, 0, 0]]);
-      expect(Rhythm.wrap([1], 4)).toEqual([[1, 0, 0, 0]]);
-      expect(Rhythm.wrap([1], 3)).toEqual([[1, 0, 0]]);
+      expect(Rhythm.group([1, 2, 3, 4, 5, 6, 7, 8], 4)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
+      expect(Rhythm.group([1, 2, 3, 4, 5, 6, 7, 8], 4)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
+      expect(Rhythm.group([1, 2, 3, 4, 5, 6, 7, 8], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 0]]);
+      expect(Rhythm.group([1, 2, 3, 4, 5, 6, 7, 8], 2)).toEqual([[1, 2], [3, 4], [5, 6], [7, 8]]);
+      expect(Rhythm.group([1, 2, 3, 4, 5, 6, 7, 8], 5)).toEqual([[1, 2, 3, 4, 5], [6, 7, 8, 0, 0]]);
+      expect(Rhythm.group([1], 4)).toEqual([[1, 0, 0, 0]]);
+      expect(Rhythm.group([1], 3)).toEqual([[1, 0, 0]]);
     });
     test('nesting', () => {
-      expect(Rhythm.wrap([1, 2, [0, 3], 4, 5, [0, 6], 7, 8], 4)).toEqual([[1, 2, [0, 3], 4], [5, [0, 6], 7, 8]]);
-      expect(Rhythm.wrap([1, [1, 1], 3, 4], 2)).toEqual([[1, [1, 1]], [3, 4]]);
+      expect(Rhythm.group([1, 2, [0, 3], 4, 5, [0, 6], 7, 8], 4)).toEqual([[1, 2, [0, 3], 4], [5, [0, 6], 7, 8]]);
+      expect(Rhythm.group([1, [1, 1], 3, 4], 2)).toEqual([[1, [1, 1]], [3, 4]]);
     });
     test('simple offset', () => {
-      expect(Rhythm.wrap([4, 1, 2, 3, 4], 4, 3)).toEqual([[0, 0, 0, 4], [1, 2, 3, 4]]);
-      expect(Rhythm.wrap([3, 1, 2, 3], 3, 2)).toEqual([[0, 0, 3], [1, 2, 3]]);
-      expect(Rhythm.wrap([[0, 1], 1, 2, 3, 4], 4, 3)).toEqual([[0, 0, 0, [0, 1]], [1, 2, 3, 4]]);
-      expect(Rhythm.wrap([3, 4, 1, 2], 4, 2)).toEqual([[0, 0, 3, 4], [1, 2, 0, 0]]);
+      expect(Rhythm.group([4, 1, 2, 3, 4], 4, 3)).toEqual([[0, 0, 0, 4], [1, 2, 3, 4]]);
+      expect(Rhythm.group([3, 1, 2, 3], 3, 2)).toEqual([[0, 0, 3], [1, 2, 3]]);
+      expect(Rhythm.group([[0, 1], 1, 2, 3, 4], 4, 3)).toEqual([[0, 0, 0, [0, 1]], [1, 2, 3, 4]]);
+      expect(Rhythm.group([3, 4, 1, 2], 4, 2)).toEqual([[0, 0, 3, 4], [1, 2, 0, 0]]);
     });
   });
+
+  test('unwrap', () => {
+
+    const son4 = [
+      [1.5, [0, 1], 0, 1], // bar 1
+      [0, 1, 1, 0] // bar 2
+    ];/* 
+    const son2 = [
+      [[1.5, [0, 1]], [0, 1]], // bar 1
+      [[0, 1], [1, 0]] // bar 2
+    ]; */
+    const son0 = Rhythm.ungroup(son4);
+    expect(son0).toEqual([1.5, [0, 1], 0, 1, 0, 1, 1, 0]);
+    const son2half = Rhythm.group(son0, 2);
+    expect(son2half).toEqual([[1.5, [0, 1]], [0, 1], [0, 1], [1, 0]]);
+    const son2 = Rhythm.group(son2half, 2);
+    expect(son2).toEqual([[[1.5, [0, 1]], [0, 1]], [[0, 1], [1, 0]]]);
+
+
+    const afrobell4 = [[2, 0, 2], [0, 1, 2], [0, 2, 0], [2, 0, 1]];
+    const afrobell0 = Rhythm.ungroup(afrobell4);
+    expect(afrobell0).toEqual([2, 0, 2, 0, 1, 2, 0, 2, 0, 2, 0, 1]);
+    const afrobell3 = Rhythm.group(afrobell0, 4);
+    expect(afrobell3).toEqual([[2, 0, 2, 0], [1, 2, 0, 2], [0, 2, 0, 1]]);
+
+    expect(Rhythm.ungroup([[1, 2, 3, 4], [5, 6, 7, 8]])).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(Rhythm.ungroup([[1, 2, [3, 3], 4], [5, 6, 7, 8]])).toEqual([1, 2, [3, 3], 4, 5, 6, 7, 8]);
+    expect(Rhythm.ungroup([[1, 2, 3], [4, 5, 6], [7, 8, 0]])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 0]);
+    expect(Rhythm.ungroup([[1, [1, 1]], [3, 4]])).toEqual([1, [1, 1], 3, 4]);
+    expect(Rhythm.ungroup([[0, 0, 0, 4], [1, 2, 3, 4]])).toEqual([0, 0, 0, 4, 1, 2, 3, 4]);
+  })
 
   describe('combine', () => {
     test('without collisions', () => {
@@ -514,17 +555,39 @@ describe('new syntax', () => {
 
   })
 
-  describe('append', () => {
+  describe('insert', () => {
     test('default', () => {
-      expect(Rhythm.append([1, 2, 3, 4], [[0, 0]])).toEqual([[1, 2], [3, 4]]);
-      expect(Rhythm.append([0, 2, 3, 4], [[3, 0]])).toEqual([[3, 2], [3, 4]]);
-      expect(Rhythm.append([0, 2, 3, 4], [[3, 4]])).toEqual([[3, 2], [3, 4]]);
-      expect(Rhythm.append([0, 4, 3, 4], [[3, 2]])).toEqual([[3, 4], [3, 4]]);
-      expect(Rhythm.append([3, 4, 5, 6], [[1, 2, 0]], 2)).toEqual([[1, 2, 3], [4, 5, 6]]);
-      expect(Rhythm.append([3, 4, 5, 6, 7, 8], [[1, 2, 0, 0]], 2)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
+      expect(Rhythm.insert([1, 2, 3, 4], [[0, 0]], 0)).toEqual([[1, 2], [3, 4]]);
+      expect(Rhythm.insert([0, 2, 3, 4], [[3, 0]], 0)).toEqual([[3, 2], [3, 4]]);
+      expect(Rhythm.insert([0, 2, 3, 4], [[3, 4]], 0)).toEqual([[3, 2], [3, 4]]);
+      expect(Rhythm.insert([0, 4, 3, 4], [[3, 2]], 0)).toEqual([[3, 4], [3, 4]]);
+      expect(Rhythm.insert([3, 4, 5, 6], [[1, 2, 0]], 2)).toEqual([[1, 2, 3], [4, 5, 6]]);
+      expect(Rhythm.insert([3, 4, 5, 6, 7, 8], [[1, 2, 0, 0]], 2)).toEqual([[1, 2, 3, 4], [5, 6, 7, 8]]);
     })
-    test('nested overflow', () => {
-      /* expect(Rhythm.append([4, 1, 2, 3, 4], [[1, 2, 3, 0]], 3)).toEqual([[1, 2, 3, 4], [1, 2, 3, 4]]); */
+    test('negative offset', () => {
+      const swingCymbal = [
+        1, // one
+        [2, 0, 1], // two with "swing" off
+        1, // three
+        [2, 0, 1] // four with "swing" off
+      ];
+      
+      expect(Rhythm.insert([3, 4], [[1, 2, 0, 0]], 2)).toEqual([[1, 2, 3, 4]]); // from left
+      expect(Rhythm.insert([3, 4], [[1, 2, 0, 0]], -2)).toEqual([[1, 2, 3, 4]]); // from right
+
+      const smoke = [[1, 1, 1.5, [0, 1]], [[0, 1], [0, 1], 2, 0]];
+      const smokeOn = Rhythm.insert([[0, 7], 0, 0, 0], smoke.concat([smoke[0]]));
+      expect(smokeOn).toEqual(
+        [
+          [1, 1, 1.5, [0, 1]], [[0, 1], [0, 1], 2, 0],
+          [1, 1, 1.5, [0, 1]], [[0, 7], 0, 0, 0],
+        ]
+      )
+      const bars = Rhythm.insert(
+        [1.5, [0, 1], [1, 1], 1, [1, 1], 0],
+        [[1, 1, 1, 1], [1, 1, 1, 1]], -2);
+      expect(bars).toEqual([[1, 1, 1, 1], [1, 1, 1.5, [0, 1]], [[1, 1], 1, [1, 1], 0]]);
+      /* expect(Rhythm.insert([4, 1, 2, 3, 4], [[1, 2, 3, 0]], 3)).toEqual([[1, 2, 3, 4], [1, 2, 3, 4]]); */
 
     })
 

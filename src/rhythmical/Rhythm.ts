@@ -16,16 +16,17 @@ export type RhythmBrick = {
 export type EventPath = Fraction[];
 export type FlatEvent<T> = {
   value: T,
-  path: EventPath
+  path: EventPath,
+  length?: number
 }
 
 
-export interface TimedEvent<T> extends RhythmEvent<T> {
+export interface TimedEvent<T> extends FlatEvent<T> {
   time: number;
   duration: number;
 }
 
-export type EventMapFn<T> = (event: RhythmEvent<T>) => TimedEvent<T>;
+export type EventMapFn<T> = (event: FlatEvent<T>) => TimedEvent<T>;
 
 export class Rhythm {
 
@@ -36,16 +37,28 @@ export class Rhythm {
     return body;
   }
 
-  static duration(divisions: number[], whole = 1) {
+  static duration(path: EventPath, whole = 1) {
+    return path.reduce((f, p) => f / p[1], whole);
+  }
+
+  static time(path: EventPath, whole = 1) {
+    return path.reduce(
+      ({ f, t }, p, i) => ({ f: f / p[1], t: t + (f / p[1]) * path[i][0] }),
+      { f: whole, t: 0 }
+    ).t;
+  }
+
+  static oldDuration(divisions: number[], whole = 1) {
     return divisions.reduce((f, d) => f / d, whole);
   }
 
-  static time(divisions: number[], path, whole = 1) {
+  static oldTime(divisions: number[], path, whole = 1) {
     return divisions.reduce(
       ({ f, p }, d, i) => ({ f: f / d, p: p + (f / d) * path[i] }),
       { f: whole, p: 0 }
     ).p;
   }
+
 
   static addPaths(
     a: number[],
@@ -75,14 +88,18 @@ export class Rhythm {
     return path;
   }
 
-  static calculate<T>(length = 1): EventMapFn<T> {
-    return ({ path, divisions, value }) => {
+  static calculate<T>(totalLength = 1): EventMapFn<T> {
+    return ({ path, value, length }) => {
+      if (typeof value === 'number') {
+        length = value;
+      } else {
+        length = 1;
+      }
       return {
         value,
         path,
-        divisions,
-        time: Rhythm.time(divisions, path, length),
-        duration: Rhythm.duration(divisions, length)
+        time: Rhythm.time(path, totalLength),
+        duration: Rhythm.duration(path, totalLength) * length
       };
     }
   }
@@ -94,8 +111,15 @@ export class Rhythm {
     };
   }
 
-  static render<T>(rhythm: NestedRhythm<T>, length = 1): TimedEvent<T>[] {
-    return Rhythm.flatten(rhythm)
+  static useValueAsLength(event: FlatEvent<number>): FlatEvent<number> {
+    return {
+      ...event,
+      length: event.value
+    };
+  }
+
+  static render<T>(rhythm: NestedRhythm<T>, length = 1, useValueAsLength = false): TimedEvent<T>[] {
+    return Rhythm.flat(rhythm)
       .map(Rhythm.calculate(length))
       .filter(event => !!event.duration)
   }
@@ -339,6 +363,13 @@ export class Rhythm {
     }, {});
   }
 
+
+  /**
+   * NEW SYNTAX
+   */
+
+
+
   static multiplyDivisions(divisions: number[], factor: number): number[] {
     return [divisions[0] * factor].concat(divisions.slice(1));
   }
@@ -348,22 +379,30 @@ export class Rhythm {
     return Rhythm.overflow(path, divisions);
   }
 
-  static multiplyEvents(rhythm: RhythmEvent<number>[], factor: number): RhythmEvent<number>[] {
-    return rhythm.map(({ value, path, divisions }) => ({
-      value: value * factor,
-      divisions: Rhythm.multiplyDivisions(divisions, factor),
-      path: Rhythm.multiplyPath(path, divisions, factor)
-    }));
+  static multiplyEvents(rhythm: FlatEvent<number>[], factor: number): FlatEvent<number>[] {
+    return Rhythm.fixTopLevel(rhythm
+      .map(({ value, path }) => ({
+        value: value * factor,
+        path:
+          Rhythm.carry(
+            path.map((f, i) => [
+              f[0] * factor,
+              f[1] * (!i ? factor : 1)
+              // f[1] * factor
+              // f[1]
+            ])
+          )
+      })));
   }
 
-  static divideEvents(rhythm: RhythmEvent<number>[], factor: number): RhythmEvent<number>[] {
+  static divideEvents(rhythm: FlatEvent<number>[], factor: number): FlatEvent<number>[] {
     return Rhythm.multiplyEvents(rhythm, 1 / factor);
   }
 
   static multiply(rhythm: NestedRhythm<number>, factor: number): NestedRhythm<number> {
-    return Rhythm.nest(
+    return Rhythm.nested(
       Rhythm.multiplyEvents(
-        Rhythm.flatten(rhythm), factor
+        Rhythm.flat(rhythm), factor
       )
     );
   }
@@ -371,12 +410,6 @@ export class Rhythm {
   static divide(rhythm: NestedRhythm<number>, divisor: number) {
     return Rhythm.multiply(rhythm, 1 / divisor);
   }
-
-
-  /**
-   * NEW SYNTAX
-   */
-
 
 
   static maxArray(array) {
@@ -470,25 +503,29 @@ export class Rhythm {
     );
   }
 
-  /* Makes sure the top level is correct on all events + adds optional path to move the events */
-  static shiftEvents<T>(events: FlatEvent<T>[], path?: EventPath): FlatEvent<T>[] {
-    if (path) {
-      events = events.map(e => ({ ...e, path: Rhythm.add(e.path, path) }));
-    }
+  static fixTopLevel<T>(events: FlatEvent<T>[]): FlatEvent<T>[] {
     // find max divisor on top level
     const max: number = Rhythm.maxArray(events.map(e => e.path[0][1]));
     // use max divisor for all top levels
     return events.map(e => ({
       ...e,
       path: e.path.map((f, i) => !i ? [f[0], max] : f),
-    })).filter(e => !!e.value);
+    }));
+  }
+
+  /* Makes sure the top level is correct on all events + adds optional path to move the events */
+  static shiftEvents<T>(events: FlatEvent<T>[], path?: EventPath): FlatEvent<T>[] {
+    if (path) {
+      events = events.map(e => ({ ...e, path: Rhythm.add(e.path, path) }));
+    }
+    return Rhythm.fixTopLevel(events).filter(e => !!e.value);
   }
 
   static shift<T>(rhythm: NestedRhythm<T>, path: EventPath) {
     return Rhythm.nested(Rhythm.shiftEvents(Rhythm.flat(rhythm), path));
   }
 
-  static wrapEvents<T>(events: FlatEvent<T>[], pulse, offset?: number): FlatEvent<T>[] {
+  static groupEvents<T>(events: FlatEvent<T>[], pulse, offset?: number): FlatEvent<T>[] {
     let wrapped =
       events.map(({ value, path }) => {
         path = [].concat(
@@ -507,8 +544,26 @@ export class Rhythm {
     return wrapped;
   }
 
-  static wrap<T>(rhythm: NestedRhythm<T>, pulse: number, offset?: number): NestedRhythm<T> {
-    return Rhythm.nested(Rhythm.wrapEvents(Rhythm.flat(rhythm), pulse, offset));
+  static group<T>(rhythm: NestedRhythm<T>, pulse: number, offset?: number): NestedRhythm<T> {
+    return Rhythm.nested(Rhythm.groupEvents(Rhythm.flat(rhythm), pulse, offset));
+  }
+
+  static ungroupEvents<T>(events: FlatEvent<T>[]): FlatEvent<T>[] {
+    return events.map(({ value, path }) => ({
+      value,
+      path: [
+        [
+          path[0][0] * path[1][1] + path[1][0],
+          path[1][1] * path[0][1]
+        ]
+      ]
+        .concat(path.slice(2)),
+    }));
+  }
+
+
+  static ungroup<T>(rhythm: NestedRhythm<T>) {
+    return Rhythm.nested(Rhythm.ungroupEvents(Rhythm.flat(rhythm)));
   }
 
   static combine<T>(source: NestedRhythm<T>, target: NestedRhythm<T>): NestedRhythm<T> {
@@ -533,16 +588,27 @@ export class Rhythm {
     return paths[0] === paths[1];
   }
 
-  static appendEvents<T>(sourceEvents: FlatEvent<T>[], targetEvents: FlatEvent<T>[], offset?: number) {
+  static insertEvents<T>(sourceEvents: FlatEvent<T>[], targetEvents: FlatEvent<T>[], beat?: number) {
     const pulses = targetEvents.map(e => e.path[1] ? e.path[1][1] : 1);
-    sourceEvents = Rhythm.wrapEvents(sourceEvents, pulses[0], offset);
+    const beats = targetEvents[0].path[0][1] * pulses[0];
+    if (beat === undefined) {
+      beat = beats; // set to end if undefined
+    } else if (beat < 0) {
+      beat = beats + beat // subtract from end
+    }
+    // handle negative offset
+    sourceEvents = Rhythm.groupEvents(sourceEvents, pulses[0], beat);
     return Rhythm.combineEvents(targetEvents, sourceEvents);
   }
 
-  static append<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, offset?: number) {
+  static insert<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, beat?: number) {
     return Rhythm.nested(
-      Rhythm.appendEvents(Rhythm.flat(source), Rhythm.flat(target), offset)
+      Rhythm.insertEvents(Rhythm.flat(source), Rhythm.flat(target), beat)
     );
+  }
+
+  static migratePath(divisions: number[], path?: number[]) {
+    return divisions.map((d, index) => [path ? path[index] : 0, d]);
   }
 }
 
@@ -569,7 +635,7 @@ static normalize(a: RhythmEvent<number>, depth) {
 
 /*
 
-  static insert<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, offset = 0) {
+  static f<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, offset = 0) {
     let targetEvents = Rhythm.flatten(target);
     const pulses = targetEvents.map(e => e.divisions[1] || 1);
     source = Rhythm.addPulse(source, pulses[0], offset);

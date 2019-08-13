@@ -2,7 +2,7 @@ import { VoiceLeadingOptions } from '../harmony/Voicing';
 import { SheetState } from '../sheet/Sheet';
 import { Measure, RenderedMeasure, Measures } from '../sheet/Measure';
 import { Leadsheet } from './Leadsheet';
-import { RhythmEvent } from '../sheet/Rhythm';
+import { RhythmEvent } from '../rhythmical/Rhythm';
 export interface SequenceEvent extends RhythmEvent<any> {
     path: number[];
     value: any;
@@ -140,7 +140,6 @@ export declare class Sequence {
     static removeDuplicates: EventFilter;
     static renderGrid(measures: Measures<any>, options?: SequenceOptions): SequenceEvent[];
     static renderMeasures(measures: Measures<any>, options?: SequenceOptions): SequenceEvent[];
-    static addPaths(a: number[], b: number[]): number[];
     static getNextChordOff: GroovePreset;
     static fillGrooves(groove: Measure<any> | (() => Measures<any>), sourceEvents: SequenceEvent[], mapFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];
     static insertGrooves(groove: Measures<any> | ((source: SequenceEvent, events: SequenceEvent[]) => Measures<any>), sourceEvents: SequenceEvent[], mergeFn?: GroovePreset, options?: SequenceOptions): SequenceEvent[];

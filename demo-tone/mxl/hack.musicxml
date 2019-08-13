@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<score-partwise version="3.1">
+    <identification>
+        <encoding>
+            <software>Hacking Track 0.0.1</software>
+            <encoding-date>2019-08-10</encoding-date>
+            <supports element="accidental" type="yes"/>
+            <supports element="beam" type="yes"/>
+            <supports element="print" attribute="new-page" type="yes" value="yes"/>
+            <supports element="print" attribute="new-system" type="yes" value="yes"/>
+            <supports element="stem" type="yes"/>
+        </encoding>
+    </identification>
+    <defaults>
+        <scaling>
+            <millimeters>7.05556</millimeters>
+            <tenths>40</tenths>
+        </scaling>
+        <page-layout>
+            <page-height>1683.36</page-height>
+            <page-width>1190.88</page-width>
+            <page-margins type="even">
+                <left-margin>56.6929</left-margin>
+                <right-margin>56.6929</right-margin>
+                <top-margin>56.6929</top-margin>
+                <bottom-margin>113.386</bottom-margin>
+            </page-margins>
+            <page-margins type="odd">
+                <left-margin>56.6929</left-margin>
+                <right-margin>56.6929</right-margin>
+                <top-margin>56.6929</top-margin>
+                <bottom-margin>113.386</bottom-margin>
+            </page-margins>
+        </page-layout>
+        <word-font font-family="Helvetica,Arial,sans-serif" font-size="10"/>
+        <lyric-font font-family="Helvetica,Arial,sans-serif" font-size="11"/>
+    </defaults>
+    <credit page="1">
+        <credit-words default-x="595.44" default-y="1626.67" justify="center" valign="top" font-family="Helvetica,sans" font-size="24">Hacking Track</credit-words>
+    </credit>
+    <credit page="1">
+        <credit-words default-x="1134.19" default-y="1626.67" justify="right" valign="top" font-family="Helvetica,sans" font-size="24">Felix Roos</credit-words>
+    </credit>
+    <part-list>
+        <score-part id="P1">
+            <part-name> </part-name>
+            <part-abbreviation></part-abbreviation>
+            <score-instrument id="P1-I1">
+                <instrument-name>Tp</instrument-name>
+            </score-instrument>
+            <midi-device id="P1-I1" port="1"/>
+            <midi-instrument id="P1-I1">
+                <midi-channel>1</midi-channel>
+                <midi-program>57</midi-program>
+                <volume>78.7402</volume>
+                <pan>0</pan>
+            </midi-instrument>
+        </score-part>
+    </part-list>
+    <part id="P1">
+        <measure number="1" width="321.53">
+            <print>
+                <system-layout>
+                    <system-margins>
+                        <left-margin>0.00</left-margin>
+                        <right-margin>0.00</right-margin>
+                    </system-margins>
+                    <top-system-distance>179.28</top-system-distance>
+                </system-layout>
+            </print>
+            <attributes>
+                <divisions>4</divisions>
+                <time>
+                    <beats>4</beats>
+                    <beat-type>4</beat-type>
+                </time>
+            </attributes>
+            <harmony print-frame="no">
+                <root>
+                    <root-step>D</root-step>
+                </root>
+                <kind text="7" use-symbols="yes">major-seventh</kind>
+            </harmony>
+            <note>
+                <rest/>
+                <duration>4</duration>
+                <voice>1</voice>
+                <type>quarter</type>
+            </note>
+            <note>
+                <pitch>
+                    <step>F</step>
+                    <alter>1</alter>
+                    <octave>4</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>up</stem>
+                <beam number="1">begin</beam>
+            </note>
+            <note>
+                <pitch>
+                    <step>G</step>
+                    <alter>0</alter>
+                    <octave>4</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>up</stem>
+                <beam number="1">end</beam>
+            </note>
+            <note>
+                <pitch>
+                    <step>A</step>
+                    <alter>0</alter>
+                    <octave>4</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>down</stem>
+                <beam number="1">begin</beam>
+            </note>
+            <note>
+                <pitch>
+                    <step>B</step>
+                    <alter>0</alter>
+                    <octave>4</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>down</stem>
+                <beam number="1">continue</beam>
+            </note>
+            <note>
+                <pitch>
+                    <step>C</step>
+                    <alter>1</alter>
+                    <octave>5</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>down</stem>
+                <beam number="1">continue</beam>
+            </note>
+            <note>
+                <pitch>
+                    <step>D</step>
+                    <alter>0</alter>
+                    <octave>5</octave>
+                </pitch>
+                <duration>2</duration>
+                <voice>1</voice>
+                <type>eighth</type>
+                <stem>down</stem>
+                <beam number="1">end</beam>
+            </note>
+        </measure>
+        <measure number="2" width="321.53">
+            <harmony print-frame="no">
+                <root>
+                    <root-step>D</root-step>
+                </root>
+                <kind text="7" use-symbols="yes">major-seventh</kind>
+            </harmony>
+        </measure>
+        <measure number="3" width="321.53">
+            <harmony print-frame="no">
+                <root>
+                    <root-step>D</root-step>
+                </root>
+                <kind text="7" use-symbols="yes">major-seventh</kind>
+            </harmony>
+        </measure>
+        <measure number="4" width="321.53">
+            <harmony print-frame="no">
+                <root>
+                    <root-step>D</root-step>
+                </root>
+                <kind text="7" use-symbols="yes">major-seventh</kind>
+            </harmony>
+        </measure>
+    </part>
+</score-partwise>

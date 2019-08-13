@@ -1,5 +1,5 @@
 import { Measure, RenderedMeasure, Measures } from './Measure';
-import { Rhythm } from './Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 export type JumpSign<T> = {
   pair?: string,

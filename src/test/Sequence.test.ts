@@ -1,5 +1,5 @@
 import { Sequence } from '../player/Sequence';
-import { Rhythm } from '../sheet/Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 
 test('Sequence.getSignType', () => {

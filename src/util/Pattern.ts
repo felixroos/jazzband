@@ -3,7 +3,7 @@ import { util } from '..';
 import { Harmony } from '../harmony/Harmony';
 import { Note } from 'tonal';
 import { SequenceEvent, Sequence } from '../player/Sequence';
-import { Rhythm } from '../sheet/Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 export class Pattern {
   static traverse(size, step, offset = 0) {

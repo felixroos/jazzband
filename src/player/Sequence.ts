@@ -11,7 +11,7 @@ import { util } from '..';
 import { Scale } from 'tonal';
 import { Pattern } from '../util/Pattern';
 import { Leadsheet } from './Leadsheet';
-import { RhythmEvent, Rhythm } from '../sheet/Rhythm';
+import { RhythmEvent, Rhythm } from '../rhythmical/Rhythm';
 
 export interface SequenceEvent extends RhythmEvent<any> {
   path: number[];
@@ -156,7 +156,7 @@ export class Sequence {
         ...event,
         options,
         velocity: 1,
-        duration: Rhythm.duration(event.divisions, whole),
+        duration: Rhythm.oldDuration(event.divisions, whole),
         time: last ? last.time + last.duration : 0,
       });
     }
@@ -387,7 +387,7 @@ export class Sequence {
   };
 
   static isOff(event) {
-    return Rhythm.time(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
+    return Rhythm.oldTime(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
   }
 
   // static addSwing: EventMap = (options) => (event, index, events) => {

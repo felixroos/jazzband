@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <script src="demo.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
     <style>
       canvas {
         width: 800px;
@@ -16,8 +17,11 @@
     </style>
   </head>
 
-  <body>
+  <body style="margin:0;padding:0">
+    <div id="ace" style="right:0;width:40%;height:600px;position:fixed"></div>
     <div id="osmd"></div>
+    <button id="staff">Staff</button>
+
     <button id="bolero">Bolero</button>
     <button id="next">Play a Jazz Standard</button>
     <!-- <button id="instruments">Random Instruments</button>

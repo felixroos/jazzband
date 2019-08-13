@@ -5,7 +5,7 @@ import { Snippet } from '../sheet/Snippet';
 import { getRangePosition, getStepsInChord, noteArray, getDegreeFromStep } from './util';
 import { Sheet } from '../sheet/Sheet';
 import { Sequence } from '../player/Sequence';
-import { Rhythm } from '../sheet/Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 export class Logger {
   static emoji = {

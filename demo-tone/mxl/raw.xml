@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
 <score-partwise version="3.1">
+  <work>
+    <work-title>Just Friends Solo</work-title>
+    </work>
   <identification>
     <encoding>
-      <software>MuseScore 3.2.3</software>
+      <software>Rhythmical</software>
       <encoding-date>2019-08-10</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
@@ -40,7 +43,7 @@
     <credit-words default-x="595.44" default-y="1626.67" justify="center" valign="top" font-family="Futura" font-size="24">Just Friends Solo</credit-words>
     </credit>
   <credit page="1">
-    <credit-words default-x="595.44" default-y="1569.97" justify="left" valign="top" font-size="14">by Chet Baker</credit-words>
+    <credit-words default-x="595.44" default-y="1569.97" justify="center" valign="top" font-size="14">by Chet Baker</credit-words>
     </credit>
   <credit page="1">
     <credit-words default-x="1134.19" default-y="1526.67" justify="right" valign="bottom" font-size="12">Transcribed by Felix Roos</credit-words>
@@ -100,7 +103,7 @@
         <direction-type>
           <words relative-x="-113.38" relative-y="40.85" font-weight="bold" font-size="12">Swing</words>
           </direction-type>
-      </direction>
+        </direction>
       <direction placement="above">
         <direction-type>
           <metronome parentheses="no" default-x="-36.90" default-y="8.89" relative-x="-79.49" relative-y="53.88">

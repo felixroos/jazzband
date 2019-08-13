@@ -5,7 +5,7 @@ import { Distance } from 'tonal';
 import { isPitchClass } from '../util/util';
 import { Measure } from '../sheet/Measure';
 import { Leadsheet } from '../player/Leadsheet';
-import { Rhythm } from '../sheet/Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 export declare type intervalDirection = 'up' | 'down';
 export declare type step = string | number;

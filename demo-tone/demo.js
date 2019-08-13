@@ -6,11 +6,14 @@ import link from '../songs/1350.json';
 import { SheetPlayer } from '../src/player/SheetPlayer';
 import { RealParser } from '../src/sheet/RealParser';
 import { Snippet } from '../src/sheet/Snippet';
-import { Rhythm } from '../src/sheet/Rhythm';
+import { Rhythm } from '../src/rhythmical/Rhythm';
 import { Pattern } from '../src/util/Pattern';
 import * as util from '../src/util/util';
 import { drawPart } from './drawEvents';
 import { green, maidens, swing } from './grooves';
+import { MusicJSON } from '../src/mxl/MusicJSON';
+/* import ace from 'ace-builds';
+ace.config.set('basePath', '') */
 const playlist = new iRealReader(decodeURI(link));
 
 //const playlist = new iRealReader(decodeURI(beatles));
@@ -32,18 +35,131 @@ let frame,
   flip = true;
 
 window.onload = function() {
-  var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay('osmd', {autoResize: true});
-  console.log('osmd', osmd);
+  let sheet = {
+    title: 'Hacking Track',
+    composer: 'Felix Roos',
+    parts: [
+      {
+        id: 'P1',
+        name: 'YO',
+        shortName: '',
+        instrumentName: 'Tp',
+        measures: [
+          {
+            key: 0,
+            time: [4, 4],
+            harmony: [
+              {
+                root: 'A',
+                symbol: '7',
+                text: 'major-seventh'
+              }
+            ],
+            notes: [
+              { duration: 'quarter' },
+              {
+                step: 'F',
+                alter: 1,
+                octave: 4,
+                stem: 'up',
+                beam: 'begin',
+                duration: 'eighth'
+              },
+              {
+                step: 'G',
+                octave: 4,
+                stem: 'up',
+                beam: 'end',
+                duration: 'eighth'
+              },
+              {
+                step: 'A',
+                octave: 4,
+                stem: 'down',
+                beam: 'begin',
+                duration: 'eighth'
+              },
+              {
+                step: 'B',
+                octave: 4,
+                stem: 'down',
+                beam: 'continue',
+                duration: 'eighth'
+              },
+              {
+                step: 'C',
+                octave: 5,
+                alter: 1,
+                stem: 'down',
+                beam: 'continue',
+                duration: 'eighth'
+              },
+              {
+                step: 'D',
+                octave: 5,
+                stem: 'down',
+                beam: 'end',
+                duration: 'eighth'
+              }
+            ]
+          },
+          {
+            notes: [
+              {
+                step: 'D',
+                octave: 4,
+                stem: 'up',
+                duration: 'quarter'
+              }
+            ]
+          },
+          {
+            notes: []
+          },
+          {
+            notes: []
+          }
+        ]
+      }
+    ]
+  };
 
-  /* fetch(require('./mxl/maidens.musicxml')) */
-  fetch(require('./mxl/Just_Friends_Solo.musicxml'))
-    .then(data => data.text())
-    .then(mxl => {
-      console.log('loaded mxl');
-      document.getElementById('osmd').style.width = '1200px';
-      osmd.load(mxl);
-      osmd.render();
+  renderStaff(sheet);
+  const editor = ace.edit('ace');
+  /* editor.setTheme('ace/theme/monokai'); */
+  /* editor.getSession().setMode('ace/mode/javascript'); */
+  editor.setTheme('ace/theme/monokai');
+  editor.session.setMode('ace/mode/json');
+  editor.setOptions({ fontSize: '11pt' });
+  editor.setValue(JSON.stringify(sheet, null, '\t'));
+  editor.getSession().on('change', str => {
+    try {
+      const parsed = JSON.parse(editor.getValue());
+      sheet = parsed;
+      renderStaff(sheet);
+    } catch (e) {
+      console.log('invalid json');
+    }
+  });
+
+  document.getElementById('staff').addEventListener('click', () => {
+    sheet = JSON.parse(editor.getValue());
+    renderStaff(sheet);
+  });
+
+  function renderStaff(sheet) {
+    document.getElementById('osmd').innerHTML = '';
+    const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay('osmd', {
+      autoResize: true
     });
+
+    const rendered = MusicJSON.renderXML(sheet);
+    document.getElementById('osmd').style.width = '900px';
+    osmd.load(rendered);
+    osmd.render();
+  }
+
+  console.log('osmd', osmd);
 
   document.getElementById('bolero').addEventListener('click', () => {
     console.log('ding');
@@ -91,6 +207,17 @@ window.onload = function() {
       .map(e => ({ ...e, value: 'A3' }));
     playEvents(boleroEvents, 6); */
 
+    playEvents(
+      Rhythm.render(
+        [[[3, 0], [0, [2, 0]]], [0, [2, 0]], [0, [2, 0]], [2, 0]],
+        4
+      ).map(e => ({
+        ...e,
+        value: 'A3'
+      })),
+      4
+    );
+
     var kick = new Tone.MembraneSynth().toMaster();
     var synth = new Tone.Synth().toMaster();
     var synth2 = new Tone.Synth().toMaster();
@@ -99,10 +226,10 @@ window.onload = function() {
     playNotes(['C3', 'E3', 'G3'], 2, pluck);
     playNotes(['C2', 'G2', 'C2', 'B1'], 2, pluck); */
 
-    playNotes(['C2', 'C2', 'C2', 'C2'], Rhythm.spm(120, 4), kick);
+    /* playNotes(['C2', 'C2', 'C2', 'C2'], Rhythm.spm(120, 4), kick);
     playNotes(['C3', 'E3', 'G3'], Rhythm.spm(120, 3), synth);
     playNotes(['C2', 0, 'G2', 0], Rhythm.spm(120, 4), synth2);
-
+ */
     /* playNotes(['C3', 'D3', 'E3', 'F3'], 2); */
     // playNotes(['E3', 'G3', 'B3'], 2);
   });

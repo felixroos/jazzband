@@ -1,6 +1,6 @@
 import { Measure, RenderedMeasure, Measures } from './Measure';
 import { Sheet } from './Sheet';
-import { Rhythm } from './Rhythm';
+import { Rhythm } from '../rhythmical/Rhythm';
 
 export class Snippet {
   static controlSigns = [

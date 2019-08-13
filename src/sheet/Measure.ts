@@ -1,6 +1,6 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
 import { SequenceOptions } from '../player/Sequence';
-import { NestedRhythm } from './Rhythm';
+import { NestedRhythm } from '../rhythmical/Rhythm';
 
 export type MeasureOrBody<T> = Measure<T> | T[] | T;
 export type Measures<T> = Array<MeasureOrBody<T>>;

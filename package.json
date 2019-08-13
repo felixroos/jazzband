@@ -48,7 +48,9 @@
     "tone": "^13.4.9",
     "ts-jest": "^24.0.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.3.3333",
+    "xml-js": "^1.6.11",
+    "ace-builds": "^1.4.5"
   },
   "dependencies": {
     "diff": "^4.0.1",
