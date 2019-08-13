@@ -31,6 +31,7 @@ export type MeasureOptions = {
   first?: boolean;
   notes: PitchOptions[],
   harmony: ChordOptions[],
+  partIndex: number;
 }
 
 export type ChordOptions = {
@@ -59,7 +60,7 @@ export type GlobalOptions = {
 }
 
 export type Part = {
-  id: string;
+  id?: string;
   name: string;
   shortName: string;
   instrumentName: string;
@@ -83,11 +84,18 @@ export class MusicJSON {
 
   static addParts(options: SheetOptions) {
     let { parts } = options;
+    parts = parts.map((part, index) => ({
+      ...part,
+      id: part.id || `P${index + 1}`,
+      name: part.name || ' ',
+      shortName: part.shortName || ' ',
+      instrumentName: part.instrumentName || ' ',
+    }))
     return (!parts.length ? {} : {
-      "part-list": parts.map(part => ({
-        "score-part": {
+      "part-list": {
+        "score-part": parts.map(part => ({
           "_attributes": {
-            "id": "P1"
+            "id": part.id
           },
           "part-name": {
             "_text": part.name
@@ -97,7 +105,7 @@ export class MusicJSON {
           },
           "score-instrument": {
             "_attributes": {
-              "id": "P1-I1"
+              "id": part.id + "-I1"
             },
             "instrument-name": {
               "_text": part.instrumentName
@@ -105,13 +113,13 @@ export class MusicJSON {
           },
           "midi-device": {
             "_attributes": {
-              "id": "P1-I1",
+              "id": part.id + "-I1",
               "port": "1"
             }
           },
           "midi-instrument": {
             "_attributes": {
-              "id": "P1-I1"
+              "id": part.id + "-I1"
             },
             "midi-channel": {
               "_text": "1"
@@ -126,13 +134,13 @@ export class MusicJSON {
               "_text": "0"
             }
           }
-        }
-      })),
-      "part": parts.map(part => ({
+        }))
+      },
+      "part": parts.map((part, index) => ({
         "_attributes": {
-          "id": "P1"
+          "id": part.id
         },
-        "measure": MusicJSON.addMeasures(part, options)
+        "measure": MusicJSON.addMeasures(part, options, index)
       }))
     })
   }
@@ -377,14 +385,18 @@ export class MusicJSON {
     }
   }
 
-  static addClef(sign = "G", line = 2) {
+  static addClef(sign = "G", line) {
+    const defaultLines = {
+      'G': 2,
+      'F': 4
+    };
     return {
       "clef": {
         "sign": {
           "_text": sign
         },
         "line": {
-          "_text": line
+          "_text": line || defaultLines[sign]
         }
       },
     }
@@ -445,6 +457,7 @@ export class MusicJSON {
   static getDuration({ duration, divisions, dotted }: DurationOptions) {
     dotted = dotted || false;
     const durationTypes = {
+      whole: 0.25,
       half: 0.5,
       quarter: 1,
       eighth: 2,
@@ -589,7 +602,7 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
   }
 
   static addNotes(notes: PitchOptions[], divisions) {
-    return notes.map(note => {
+    return !notes ? [] : notes.map(note => {
       note = {
         ...note,
         divisions
@@ -599,16 +612,11 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
   }
 
   static addMeasure(measureOptions: MeasureOptions, globalOptions: GlobalOptions) {
-    const { number, key, time, clef, clefLine, notes, harmony } = measureOptions;
-
+    const { number, key, time, clef, clefLine, notes, harmony, partIndex } = measureOptions;
     let { divisions, transposeChromatic, transposeDiatonic } = globalOptions;
-
-    return {
-      "_attributes": {
-        "number": number,
-        "width": "321.53"
-      },
-      ...(number === 1 ? { // add stuff that only belongs in first measure
+    let print = {};
+    if (number === 1 && partIndex === 0) {
+      print = {
         "print": {
           "system-layout": {
             "system-margins": {
@@ -624,8 +632,25 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
             }
           }
         },
-        ...MusicJSON.addTransposition(transposeDiatonic, transposeChromatic)
-      } : {}),
+      }
+    }
+    if (number === 1 && partIndex > 0) {
+      print = {
+        "print": {
+          "staff-layout": {
+            "_attributes": { "number": partIndex },
+            "staff-distance": { "_text": "65.00" }
+          }
+        },
+      }
+    }
+    return {
+      "_attributes": {
+        "number": number,
+        "width": "321.53"
+      },
+      ...print,
+      ...(number === 1 ? MusicJSON.addTransposition(transposeDiatonic, transposeChromatic) : {}),
       ...(key || time || clef ? {
         "attributes": {
           "divisions": {
@@ -641,9 +666,10 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
     };
   }
 
-  static addMeasures(part: Part, options: GlobalOptions) {
-    return part.measures.map((measure, index) => MusicJSON.addMeasure({
+  static addMeasures(part: Part, options: GlobalOptions, partIndex?: number) {
+    return !part.measures ? [] : part.measures.map((measure, index) => MusicJSON.addMeasure({
       number: index + 1,
+      partIndex,
       ...measure
     }, options));
   }

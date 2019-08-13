@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/felix/.nvm/versions/node/v8.11.1/bin/node /Users/felix/.nvm/versions/node/v8.11.1/bin/yarn add ace
+  /Users/felix/.nvm/versions/node/v8.11.1/bin/node /Users/felix/.nvm/versions/node/v8.11.1/bin/yarn add demoSheet.json
 
 PATH: 
   /Users/felix/.nvm/versions/node/v8.11.1/lib/node_modules/npm/node_modules/npm-lifecycle/node-gyp-bin:/Users/felix/projects/jazzband/node_modules/.bin:/Users/felix/.nvm/versions/node/v8.11.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:~/bin:/Library/TeX/texbin:/opt/X11/bin
@@ -14,7 +14,17 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: ENOENT: no such file or directory, scandir '/Users/felix/projects/jazzband/node_modules/ace/node_modules/core-js'
+  Error: https://registry.npmjs.org/demoSheet.json: Not found
+      at Request.params.callback [as _callback] (/Users/felix/.nvm/versions/node/v8.11.1/lib/node_modules/yarn/lib/cli.js:66091:18)
+      at Request.self.callback (/Users/felix/.nvm/versions/node/v8.11.1/lib/node_modules/yarn/lib/cli.js:129590:22)
+      at emitTwo (events.js:126:13)
+      at Request.emit (events.js:214:7)
+      at Request.<anonymous> (/Users/felix/.nvm/versions/node/v8.11.1/lib/node_modules/yarn/lib/cli.js:130562:10)
+      at emitOne (events.js:116:13)
+      at Request.emit (events.js:211:7)
+      at IncomingMessage.<anonymous> (/Users/felix/.nvm/versions/node/v8.11.1/lib/node_modules/yarn/lib/cli.js:130484:12)
+      at Object.onceWrapper (events.js:313:30)
+      at emitNone (events.js:111:20)
 
 npm manifest: 
   {
@@ -33,7 +43,8 @@ npm manifest:
       "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
       "demo-patterns": "parcel ./demo-patterns/index.html --out-dir ./demo-patterns/dist",
       "demo-build": "parcel build ./demo/index.html --out-dir ./demo/dist --public-url ./",
-      "deploy-demo": "npm run demo-build && node ./scripts/pages.js"
+      "deploy-demo": "npm run demo-build && node ./scripts/pages.js",
+      "convert": "xml-js src/mxl/sheets/convert.xml --compact > src/mxl/sheets/convert.json"
     },
     "repository": {
       "type": "git",
@@ -60,9 +71,7 @@ npm manifest:
       "babel-jest": "^24.1.0",
       "babel-polyfill": "^6.26.0",
       "gh-pages": "^2.0.1",
-      "i": "^0.3.6",
       "jest": "^24.1.0",
-      "npm": "^6.10.3",
       "opensheetmusicdisplay": "^0.7.0",
       "parcel": "^1.11.0",
       "parcel-plugin-clean-dist": "0.0.6",
@@ -70,7 +79,8 @@ npm manifest:
       "ts-jest": "^24.0.0",
       "typedoc": "^0.14.2",
       "typescript": "^3.3.3333",
-      "xml-js": "^1.6.11"
+      "xml-js": "^1.6.11",
+      "ace-builds": "^1.4.5"
     },
     "dependencies": {
       "diff": "^4.0.1",

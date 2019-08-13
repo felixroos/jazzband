@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MXL demo</title>
+    <base href="./">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" /> -->
+    <script src="/demo.d3b53871.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
+    <style>* {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
+      body {
+        overflow: hidden;
+      }
+      #grid {
+        height: 100vh;
+        width: 100vw;
+        display: grid;
+        justify-content: stretch;
+        grid-template-columns: 50% 50%;
+        grid-template-rows: 450px auto 50px;
+      }
+      #render-xml {
+        grid-column: 1;
+        grid-row: 3;
+      }
+
+      #xml-output {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      #ace {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      #osmd {
+        grid-column: 2;
+        grid-row: 1/4;
+        overflow: auto;
+      }</style>
+  </head>
+  <body style="margin:0;padding:0">
+    <div id="grid">
+      <!-- right:0;width:40%;position:fixed-->
+      <div id="ace"></div>
+      <div id="xml-output"></div>
+      <!-- <button id="staff">Render from JSON (auto)</button> -->
+      <button id="render-xml">Render from XML</button>
+      <div id="osmd"></div>
+    </div>
+  </body>
+</html>
