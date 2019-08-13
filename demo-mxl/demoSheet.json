@@ -1,9 +1,9 @@
 {
-	"title": "JSON > MXL Demo",
+	"title": "json > mxl Demo",
 	"composer": "felixroos",
 	"parts": [
 		{
-			"name": "Melody",
+		    "name": "melody",
 			"measures": [
 				{
 					"clef": "G",
@@ -85,15 +85,15 @@
 							"octave": 5,
 							"stem": "down",
 							"duration": "half",
-							"dotted":true
+							"dotted": true
 						},
 						{
-						    "duration":"eighth"
+							"duration": "eighth"
 						},
 						{
-						    "duration":"eighth",
-						    "step":"A",
-						    "stem":"up"
+							"duration": "eighth",
+							"step": "A",
+							"stem": "up"
 						}
 					]
 				},
@@ -172,18 +172,18 @@
 							"stem": "down",
 							"duration": "whole"
 						}
-						]
+					]
 				}
 			]
 		},
 		{
-			"name": "Bass",
+			"name": "bass",
 			"measures": [
 				{
 					"key": 2,
 					"clef": "F",
 					"time": [
-						3,
+						4,
 						4
 					],
 					"notes": [

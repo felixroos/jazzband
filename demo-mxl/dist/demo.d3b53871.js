@@ -8890,10 +8890,10 @@ function () {
 exports.MusicJSON = MusicJSON;
 },{"xml-js":"../node_modules/xml-js/lib/index.js"}],"demoSheet.json":[function(require,module,exports) {
 module.exports = {
-  "title": "JSON > MXL Demo",
+  "title": "json > mxl Demo",
   "composer": "felixroos",
   "parts": [{
-    "name": "Melody",
+    "name": "melody",
     "measures": [{
       "clef": "G",
       "key": 2,
@@ -9028,11 +9028,11 @@ module.exports = {
       }]
     }]
   }, {
-    "name": "Bass",
+    "name": "bass",
     "measures": [{
       "key": 2,
       "clef": "F",
-      "time": [3, 4],
+      "time": [4, 4],
       "notes": [{
         "step": "D",
         "alter": 0,
@@ -9106,7 +9106,7 @@ window.onload = function () {
   renderStaff(sheet);
   var editor = ace.edit('ace');
   var xmleditor = ace.edit('xml-output');
-  xmleditor.setTheme('ace/theme/github');
+  xmleditor.setTheme('ace/theme/monokai');
   xmleditor.session.setMode('ace/mode/xml');
   editor.setTheme('ace/theme/monokai');
   editor.session.setMode('ace/mode/json');
@@ -9123,6 +9123,16 @@ window.onload = function () {
     } catch (e) {
       console.warn('invalid json');
     }
+  });
+  document.getElementById('download-xml').addEventListener('click', function () {
+    var filename = 'hack.musicxml';
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(xmleditor.getValue()));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   });
   document.getElementById('render-xml').addEventListener('click', function () {
     var xml = xmleditor.getValue();

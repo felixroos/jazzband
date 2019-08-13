@@ -6,7 +6,7 @@ window.onload = function() {
   renderStaff(sheet);
   const editor = ace.edit('ace');
   const xmleditor = ace.edit('xml-output');
-  xmleditor.setTheme('ace/theme/github');
+  xmleditor.setTheme('ace/theme/monokai');
   xmleditor.session.setMode('ace/mode/xml');
   editor.setTheme('ace/theme/monokai');
   editor.session.setMode('ace/mode/json');
@@ -22,6 +22,22 @@ window.onload = function() {
     } catch (e) {
       console.warn('invalid json');
     }
+  });
+  document.getElementById('download-xml').addEventListener('click', () => {
+    const filename = 'hack.musicxml';
+    var element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(xmleditor.getValue())
+    );
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
   });
   document.getElementById('render-xml').addEventListener('click', () => {
     const xml = xmleditor.getValue();
