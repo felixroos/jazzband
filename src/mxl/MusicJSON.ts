@@ -13,8 +13,8 @@ export interface PitchOptions extends DurationOptions {
   step: string;
   octave: number;
   alter?: number;
-  stem?: 'up' | 'down';
-  beam?: 'string';
+  stem?: string;
+  beam?: string;
   /* beams?: { number: number, type: string }[]; */
 }
 
@@ -27,6 +27,7 @@ export type MeasureOptions = {
   key?: number;
   time?: number[];
   clef?: string,
+  currentClef?: string,
   clefLine?: number;
   first?: boolean;
   notes: PitchOptions[],
@@ -454,19 +455,20 @@ export class MusicJSON {
     };
   }
 
+  static durationTypes = {
+    whole: 0.25,
+    half: 0.5,
+    quarter: 1,
+    eighth: 2,
+    '16th': 4,
+    '32th': 8,
+    '64th': 16,
+    '128th': 32,
+  }
+
   static getDuration({ duration, divisions, dotted }: DurationOptions) {
     dotted = dotted || false;
-    const durationTypes = {
-      whole: 0.25,
-      half: 0.5,
-      quarter: 1,
-      eighth: 2,
-      '16th': 4,
-      '32th': 8,
-      '64th': 16,
-      '128th': 32,
-    }
-    let absoluteDuration = divisions / durationTypes[duration];
+    let absoluteDuration = divisions / MusicJSON.durationTypes[duration];
     if (dotted) {
       absoluteDuration = absoluteDuration + absoluteDuration / 2;
     }
@@ -551,13 +553,38 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
      */
   }
 
-  static addPitch(pitchOptions: PitchOptions) {
+  static getStemDirection(step: string, octave: number, clef = 'G') {
+    const middle = {
+      'G': 34,
+      'F': 22
+    }[clef] || 34;
+    return MusicJSON.getPitchPosition({ step, octave }) <= middle ? 'up' : 'down';
+  }
+
+  static getGroupStartIndices(grouping: number[]) {
+    return grouping.reduce((indices, group, index) => !index ? [0] : indices.concat([indices[index - 1] + group]), []);
+  }
+
+  static getBeamType(index, grouping) {
+    const startIndices = MusicJSON.getGroupStartIndices(grouping);
+    if (startIndices.includes(index)) {
+      return 'begin';
+    } else if (startIndices.includes(index + 1)) {
+      return 'end';
+    }
+    // TBD check if latest elemeent had a group
+    return 'continue';
+  }
+
+  static addPitch(pitchOptions: PitchOptions, currentClef = 'G') {
     let { step, octave, alter, stem, beam, duration, divisions, dotted } = {
       octave: 4,
-      stem: 'down',
       alter: 0,
       ...pitchOptions
     };
+    /* const middle =  */
+    stem = stem || MusicJSON.getStemDirection(step, octave, currentClef);
+
     function getBeam(beam) {
       return !beam ? {} : {
         "beam": {
@@ -601,18 +628,89 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
     };
   }
 
-  static addNotes(notes: PitchOptions[], divisions) {
+  static isRest(note) {
+    return !note.step;
+  }
+
+  static isBeamable(note) {
+    return note && !MusicJSON.isRest(note) && MusicJSON.durationTypes[note.duration] >= 2;
+  }
+
+  static getPitchPosition(note: { step: string, octave: number }) {
+    const pitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    return note.octave * pitches.length + pitches.indexOf(note.step);
+  }
+
+  static addBeams(notes: PitchOptions[]): PitchOptions[] {
+    // add beam begin/continue/end to each note
+    notes = notes.map((note, index): PitchOptions => {
+      if (!MusicJSON.isBeamable(note) || !!note.beam) {
+        return note;
+      }
+      const next = notes[index + 1];
+      if (!index) { // is first note in measure
+        return MusicJSON.isBeamable(next) ? { ...note, beam: 'begin' } : note;
+      }
+      const last = notes[index - 1];
+      if ((!MusicJSON.isBeamable(last) || last.beam === 'end') && MusicJSON.isBeamable(next)) {
+        return { ...note, beam: 'begin' };
+      }
+      if (MusicJSON.isBeamable(last) && !MusicJSON.isBeamable(next)) {
+        return { ...note, beam: 'end' };
+      }
+      if (MusicJSON.isBeamable(last) && MusicJSON.isBeamable(next)) {
+        return { ...note, beam: 'continue' };
+      }
+      return note;
+    });
+
+    // group beamed notes to seperate arrays
+    const groups = notes.reduce((groups, note) => {
+      if (note.beam === 'begin') {
+        groups.push([]);
+      }
+      if (MusicJSON.isBeamable(note) && !!note.beam) {
+        if (!groups.length) {
+          console.warn('bad beaming', note);
+          return groups;
+        }
+        groups[groups.length - 1].push(note);
+      }
+      return groups;
+    }, []);
+
+    // add stem directions to groups
+    notes = notes.map(note => {
+      const group = groups.find(group => group.includes(note));
+      if (!group || !!note.stem) {
+        return note;
+      }
+      const pitches = group.map(note => MusicJSON.getPitchPosition(note));
+      const middle = MusicJSON.getPitchPosition({ step: 'B', octave: 4 });
+      const above = Math.max(...pitches) - middle;
+      const below = middle - Math.min(...pitches);
+      if (above >= below) {
+        return { ...note, stem: 'down' }
+      }
+      return { ...note, stem: 'up' }
+    });
+
+    return notes;
+  }
+
+  static addNotes(notes: PitchOptions[], divisions, currentClef = 'G') {
+    notes = MusicJSON.addBeams(notes);
     return !notes ? [] : notes.map(note => {
       note = {
         ...note,
         divisions
       };
-      return note.step ? MusicJSON.addPitch(note) : MusicJSON.addRest(note);
+      return note.step ? MusicJSON.addPitch(note, currentClef) : MusicJSON.addRest(note);
     });
   }
 
   static addMeasure(measureOptions: MeasureOptions, globalOptions: GlobalOptions) {
-    const { number, key, time, clef, clefLine, notes, harmony, partIndex } = measureOptions;
+    const { number, key, time, clef, currentClef, clefLine, notes, harmony, partIndex } = measureOptions;
     let { divisions, transposeChromatic, transposeDiatonic } = globalOptions;
     let print = {};
     if (number === 1 && partIndex === 0) {
@@ -662,15 +760,19 @@ example: duration of bar rest in 44 with smallest division = 2 = 4 * 2 = 8
         }
       } : {}),
       "harmony": MusicJSON.addHarmony(harmony),
-      "note": MusicJSON.addNotes(notes, divisions)
+      "note": MusicJSON.addNotes(notes, divisions, currentClef)
     };
   }
 
   static addMeasures(part: Part, options: GlobalOptions, partIndex?: number) {
-    return !part.measures ? [] : part.measures.map((measure, index) => MusicJSON.addMeasure({
-      number: index + 1,
-      partIndex,
-      ...measure
-    }, options));
+    return !part.measures ? [] : part.measures.map((measure, index, measures) => {
+      const currentClef = measures.slice(0, index + 1).reverse().find(m => !!m.clef);
+      return MusicJSON.addMeasure({
+        number: index + 1,
+        partIndex,
+        currentClef: currentClef ? currentClef.clef || 'G' : 'G',
+        ...measure
+      }, options)
+    });
   }
 }

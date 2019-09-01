@@ -27,21 +27,17 @@
 							"step": "F",
 							"alter": 1,
 							"octave": 4,
-							"stem": "up",
-							"beam": "begin",
 							"duration": "eighth"
 						},
 						{
 							"step": "G",
 							"octave": 4,
-							"stem": "up",
 							"beam": "end",
 							"duration": "eighth"
 						},
 						{
 							"step": "A",
 							"octave": 4,
-							"stem": "down",
 							"beam": "begin",
 							"duration": "eighth"
 						},
@@ -49,24 +45,18 @@
 							"step": "B",
 							"octave": 4,
 							"alter": -1,
-							"stem": "down",
-							"beam": "continue",
 							"duration": "eighth"
 						},
 						{
 							"step": "B",
 							"octave": 4,
 							"alter": 0,
-							"stem": "down",
-							"beam": "continue",
 							"duration": "eighth"
 						},
 						{
 							"step": "C",
 							"alter": 0,
 							"octave": 5,
-							"stem": "down",
-							"beam": "end",
 							"duration": "eighth"
 						}
 					]
@@ -83,7 +73,6 @@
 						{
 							"step": "D",
 							"octave": 5,
-							"stem": "down",
 							"duration": "half",
 							"dotted": true
 						},
@@ -92,8 +81,7 @@
 						},
 						{
 							"duration": "eighth",
-							"step": "A",
-							"stem": "up"
+							"step": "A"
 						}
 					]
 				},
@@ -109,50 +97,37 @@
 						{
 							"step": "B",
 							"octave": 4,
-							"duration": "half",
-							"stem": "down"
+							"duration": "half"
 						},
 						{
 							"step": "G",
 							"octave": 4,
-							"duration": "eighth",
-							"stem": "down",
-							"beam": "begin"
+							"duration": "eighth"
 						},
 						{
 							"step": "A",
 							"octave": 4,
-							"duration": "eighth",
-							"stem": "down",
-							"beam": "continue"
+							"duration": "eighth"
 						},
 						{
 							"step": "B",
 							"octave": 4,
-							"duration": "16th",
-							"stem": "down",
-							"beam": "continue"
+							"duration": "16th"
 						},
 						{
 							"step": "B",
 							"octave": 4,
-							"duration": "16th",
-							"stem": "down",
-							"beam": "continue"
+							"duration": "16th"
 						},
 						{
 							"step": "B",
 							"octave": 4,
-							"duration": "16th",
-							"stem": "down",
-							"beam": "continue"
+							"duration": "16th"
 						},
 						{
 							"step": "B",
 							"octave": 4,
-							"duration": "16th",
-							"stem": "down",
-							"beam": "end"
+							"duration": "16th"
 						}
 					]
 				},
@@ -169,7 +144,6 @@
 							"step": "C",
 							"alter": 1,
 							"octave": 5,
-							"stem": "down",
 							"duration": "whole"
 						}
 					]
@@ -191,14 +165,12 @@
 							"step": "D",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						},
 						{
 							"step": "A",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						}
 					]
@@ -209,14 +181,12 @@
 							"step": "B",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						},
 						{
 							"step": "F",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						}
 					]
@@ -227,14 +197,12 @@
 							"step": "E",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						},
 						{
 							"step": "B",
 							"alter": 0,
 							"octave": 2,
-							"stem": "up",
 							"duration": "half"
 						}
 					]
@@ -245,14 +213,12 @@
 							"step": "D",
 							"alter": 0,
 							"octave": 3,
-							"stem": "down",
 							"duration": "half"
 						},
 						{
 							"step": "A",
 							"alter": 0,
 							"octave": 2,
-							"stem": "up",
 							"duration": "half"
 						}
 					]

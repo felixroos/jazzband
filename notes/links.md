@@ -28,6 +28,9 @@
   - [node for max!](https://github.com/Cycling74/n4m-examples)
     - [tonal chord builder](https://github.com/Cycling74/n4m-examples/tree/master/tonal-chord-builder)
 - [roland cr78 rhythms](https://blog.zzounds.com/2018/03/02/machine-rhythms-roland-cr-78-compurhythm/)
+  - https://www.youtube.com/watch?v=x71J_GgXtaM
+
+
 ## General Links
 
 - [WAA Link Collection](https://github.com/alemangui/web-audio-resources)
@@ -122,6 +125,7 @@
 
 ### Music Color & Geometry
 
+- [Clock Diagrams](https://www.youtube.com/watch?v=oGeBem72R3Y)
 - [Circle of Fifths](http://www.harmonagon.com/#)
 - [Planetary Harmonic](https://www.lunarplanner.com/Harmonics/planetary-harmonics.html) (Get Note Color)
 - [Music Color](https://roelhollander.eu/en/tuning-frequency/sound-light-colour/)

@@ -8642,17 +8642,7 @@ function () {
         divisions = _a.divisions,
         dotted = _a.dotted;
     dotted = dotted || false;
-    var durationTypes = {
-      whole: 0.25,
-      half: 0.5,
-      quarter: 1,
-      eighth: 2,
-      '16th': 4,
-      '32th': 8,
-      '64th': 16,
-      '128th': 32
-    };
-    var absoluteDuration = divisions / durationTypes[duration];
+    var absoluteDuration = divisions / MusicJSON.durationTypes[duration];
 
     if (dotted) {
       absoluteDuration = absoluteDuration + absoluteDuration / 2;
@@ -8736,10 +8726,47 @@ function () {
      */
   };
 
-  MusicJSON.addPitch = function (pitchOptions) {
+  MusicJSON.getStemDirection = function (step, octave, clef) {
+    if (clef === void 0) {
+      clef = 'G';
+    }
+
+    var middle = {
+      'G': 34,
+      'F': 22
+    }[clef] || 34;
+    return MusicJSON.getPitchPosition({
+      step: step,
+      octave: octave
+    }) <= middle ? 'up' : 'down';
+  };
+
+  MusicJSON.getGroupStartIndices = function (grouping) {
+    return grouping.reduce(function (indices, group, index) {
+      return !index ? [0] : indices.concat([indices[index - 1] + group]);
+    }, []);
+  };
+
+  MusicJSON.getBeamType = function (index, grouping) {
+    var startIndices = MusicJSON.getGroupStartIndices(grouping);
+
+    if (startIndices.includes(index)) {
+      return 'begin';
+    } else if (startIndices.includes(index + 1)) {
+      return 'end';
+    } // TBD check if latest elemeent had a group
+
+
+    return 'continue';
+  };
+
+  MusicJSON.addPitch = function (pitchOptions, currentClef) {
+    if (currentClef === void 0) {
+      currentClef = 'G';
+    }
+
     var _a = __assign({
       octave: 4,
-      stem: 'down',
       alter: 0
     }, pitchOptions),
         step = _a.step,
@@ -8750,6 +8777,10 @@ function () {
         duration = _a.duration,
         divisions = _a.divisions,
         dotted = _a.dotted;
+    /* const middle =  */
+
+
+    stem = stem || MusicJSON.getStemDirection(step, octave, currentClef);
 
     function getBeam(beam) {
       return !beam ? {} : {
@@ -8800,12 +8831,118 @@ function () {
     }, getBeam(beam));
   };
 
-  MusicJSON.addNotes = function (notes, divisions) {
+  MusicJSON.isRest = function (note) {
+    return !note.step;
+  };
+
+  MusicJSON.isBeamable = function (note) {
+    return note && !MusicJSON.isRest(note) && MusicJSON.durationTypes[note.duration] >= 2;
+  };
+
+  MusicJSON.getPitchPosition = function (note) {
+    var pitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    return note.octave * pitches.length + pitches.indexOf(note.step);
+  };
+
+  MusicJSON.addBeams = function (notes) {
+    // add beam begin/continue/end to each note
+    notes = notes.map(function (note, index) {
+      if (!MusicJSON.isBeamable(note) || !!note.beam) {
+        return note;
+      }
+
+      var next = notes[index + 1];
+
+      if (!index) {
+        // is first note in measure
+        return MusicJSON.isBeamable(next) ? __assign({}, note, {
+          beam: 'begin'
+        }) : note;
+      }
+
+      var last = notes[index - 1];
+
+      if ((!MusicJSON.isBeamable(last) || last.beam === 'end') && MusicJSON.isBeamable(next)) {
+        return __assign({}, note, {
+          beam: 'begin'
+        });
+      }
+
+      if (MusicJSON.isBeamable(last) && !MusicJSON.isBeamable(next)) {
+        return __assign({}, note, {
+          beam: 'end'
+        });
+      }
+
+      if (MusicJSON.isBeamable(last) && MusicJSON.isBeamable(next)) {
+        return __assign({}, note, {
+          beam: 'continue'
+        });
+      }
+
+      return note;
+    }); // group beamed notes to seperate arrays
+
+    var groups = notes.reduce(function (groups, note) {
+      if (note.beam === 'begin') {
+        groups.push([]);
+      }
+
+      if (MusicJSON.isBeamable(note) && !!note.beam) {
+        if (!groups.length) {
+          console.warn('bad beaming', note);
+          return groups;
+        }
+
+        groups[groups.length - 1].push(note);
+      }
+
+      return groups;
+    }, []); // add stem directions to groups
+
+    notes = notes.map(function (note) {
+      var group = groups.find(function (group) {
+        return group.includes(note);
+      });
+
+      if (!group || !!note.stem) {
+        return note;
+      }
+
+      var pitches = group.map(function (note) {
+        return MusicJSON.getPitchPosition(note);
+      });
+      var middle = MusicJSON.getPitchPosition({
+        step: 'B',
+        octave: 4
+      });
+      var above = Math.max.apply(Math, pitches) - middle;
+      var below = middle - Math.min.apply(Math, pitches);
+
+      if (above >= below) {
+        return __assign({}, note, {
+          stem: 'down'
+        });
+      }
+
+      return __assign({}, note, {
+        stem: 'up'
+      });
+    });
+    return notes;
+  };
+
+  MusicJSON.addNotes = function (notes, divisions, currentClef) {
+    if (currentClef === void 0) {
+      currentClef = 'G';
+    }
+
+    notes = MusicJSON.addBeams(notes);
     return !notes ? [] : notes.map(function (note) {
       note = __assign({}, note, {
         divisions: divisions
       });
-      return note.step ? MusicJSON.addPitch(note) : MusicJSON.addRest(note);
+      return note.step ? MusicJSON.addPitch(note, currentClef) : MusicJSON.addRest(note);
     });
   };
 
@@ -8814,6 +8951,7 @@ function () {
         key = measureOptions.key,
         time = measureOptions.time,
         clef = measureOptions.clef,
+        currentClef = measureOptions.currentClef,
         clefLine = measureOptions.clefLine,
         notes = measureOptions.notes,
         harmony = measureOptions.harmony,
@@ -8871,19 +9009,33 @@ function () {
       }, key ? MusicJSON.addKey(key) : {}, time ? MusicJSON.addTime(time) : {}, clef ? MusicJSON.addClef(clef, clefLine) : {})
     } : {}, {
       "harmony": MusicJSON.addHarmony(harmony),
-      "note": MusicJSON.addNotes(notes, divisions)
+      "note": MusicJSON.addNotes(notes, divisions, currentClef)
     });
   };
 
   MusicJSON.addMeasures = function (part, options, partIndex) {
-    return !part.measures ? [] : part.measures.map(function (measure, index) {
+    return !part.measures ? [] : part.measures.map(function (measure, index, measures) {
+      var currentClef = measures.slice(0, index + 1).reverse().find(function (m) {
+        return !!m.clef;
+      });
       return MusicJSON.addMeasure(__assign({
         number: index + 1,
-        partIndex: partIndex
+        partIndex: partIndex,
+        currentClef: currentClef ? currentClef.clef || 'G' : 'G'
       }, measure), options);
     });
   };
 
+  MusicJSON.durationTypes = {
+    whole: 0.25,
+    half: 0.5,
+    quarter: 1,
+    eighth: 2,
+    '16th': 4,
+    '32th': 8,
+    '64th': 16,
+    '128th': 32
+  };
   return MusicJSON;
 }();
 
@@ -8909,41 +9061,31 @@ module.exports = {
         "step": "F",
         "alter": 1,
         "octave": 4,
-        "stem": "up",
-        "beam": "begin",
         "duration": "eighth"
       }, {
         "step": "G",
         "octave": 4,
-        "stem": "up",
         "beam": "end",
         "duration": "eighth"
       }, {
         "step": "A",
         "octave": 4,
-        "stem": "down",
         "beam": "begin",
         "duration": "eighth"
       }, {
         "step": "B",
         "octave": 4,
         "alter": -1,
-        "stem": "down",
-        "beam": "continue",
         "duration": "eighth"
       }, {
         "step": "B",
         "octave": 4,
         "alter": 0,
-        "stem": "down",
-        "beam": "continue",
         "duration": "eighth"
       }, {
         "step": "C",
         "alter": 0,
         "octave": 5,
-        "stem": "down",
-        "beam": "end",
         "duration": "eighth"
       }]
     }, {
@@ -8955,15 +9097,13 @@ module.exports = {
       "notes": [{
         "step": "D",
         "octave": 5,
-        "stem": "down",
         "duration": "half",
         "dotted": true
       }, {
         "duration": "eighth"
       }, {
         "duration": "eighth",
-        "step": "A",
-        "stem": "up"
+        "step": "A"
       }]
     }, {
       "harmony": [{
@@ -8974,44 +9114,31 @@ module.exports = {
       "notes": [{
         "step": "B",
         "octave": 4,
-        "duration": "half",
-        "stem": "down"
+        "duration": "half"
       }, {
         "step": "G",
         "octave": 4,
-        "duration": "eighth",
-        "stem": "down",
-        "beam": "begin"
+        "duration": "eighth"
       }, {
         "step": "A",
         "octave": 4,
-        "duration": "eighth",
-        "stem": "down",
-        "beam": "continue"
+        "duration": "eighth"
       }, {
         "step": "B",
         "octave": 4,
-        "duration": "16th",
-        "stem": "down",
-        "beam": "continue"
+        "duration": "16th"
       }, {
         "step": "B",
         "octave": 4,
-        "duration": "16th",
-        "stem": "down",
-        "beam": "continue"
+        "duration": "16th"
       }, {
         "step": "B",
         "octave": 4,
-        "duration": "16th",
-        "stem": "down",
-        "beam": "continue"
+        "duration": "16th"
       }, {
         "step": "B",
         "octave": 4,
-        "duration": "16th",
-        "stem": "down",
-        "beam": "end"
+        "duration": "16th"
       }]
     }, {
       "harmony": [{
@@ -9023,7 +9150,6 @@ module.exports = {
         "step": "C",
         "alter": 1,
         "octave": 5,
-        "stem": "down",
         "duration": "whole"
       }]
     }]
@@ -9037,13 +9163,11 @@ module.exports = {
         "step": "D",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }, {
         "step": "A",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }]
     }, {
@@ -9051,13 +9175,11 @@ module.exports = {
         "step": "B",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }, {
         "step": "F",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }]
     }, {
@@ -9065,13 +9187,11 @@ module.exports = {
         "step": "E",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }, {
         "step": "B",
         "alter": 0,
         "octave": 2,
-        "stem": "up",
         "duration": "half"
       }]
     }, {
@@ -9079,13 +9199,11 @@ module.exports = {
         "step": "D",
         "alter": 0,
         "octave": 3,
-        "stem": "down",
         "duration": "half"
       }, {
         "step": "A",
         "alter": 0,
         "octave": 2,
-        "stem": "up",
         "duration": "half"
       }]
     }]

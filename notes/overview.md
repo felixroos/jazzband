@@ -173,3 +173,9 @@ Sophisticated logging methods mainly used for voicings and sequences
   - Maybe use svg
 - check out node for max
 - update tonal
+- encapsulate rhythmical package
+- encapsulate sheet package
+- encapsulate json2mxl package
+- make jazzband demo textarea editor reusable
+- implement adapter for rhythm > json2mxl
+- implement adapter for sheet > json2mxl
