@@ -4,15 +4,10 @@ demo-tone/dist
 **/**/dist/*.wav
 **/**/dist/*.mp3
 **/**/.cache
-**/**/samples/piano
-**/**/samples/harp
-**/**/samples/drummer
-**/**/samples/MetronomeUp.wav
 .vscode
-
-samples
-songs
 
 legacy.md
 
 docs
+
+.DS_Store
