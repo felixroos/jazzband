@@ -1,5 +1,4 @@
 import { Measure, RenderedMeasure, Measures } from './Measure';
-import { Rhythm } from '../rhythmical/Rhythm';
 
 export type JumpSign<T> = {
   pair?: string,
@@ -345,11 +344,19 @@ export class Sheet {
     return measures.map(measure => (Measure.from(measure).body));
   }
 
+  // temporarily borrowed from rhythmical > Rhythm.from to avoid dependency
+  static makeArray<T>(body: T | T[]) {
+    if (!Array.isArray(body)) {
+      return [body];
+    }
+    return body;
+  }
+
   static obfuscate(measures: Measures<string>, keepFirst = true): Measure<string>[] {
     return measures
       .map(m => Measure.from(m))
       .map((m, i) => {
-        m.body = Rhythm.from(m.body).map((c, j) => {
+        m.body = Sheet.makeArray(m.body).map((c, j) => {
           if (keepFirst && i === 0 && j === 0) {
             return c;
           }

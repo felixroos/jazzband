@@ -64,7 +64,7 @@ export const chords = [
     short: '-7'
   },
   {
-    symbol: 'oM7',
+    symbol: 'oM7', // not working
     groups: ['Expert'],
     long: 'diminished major 7',
     short: 'o△7'

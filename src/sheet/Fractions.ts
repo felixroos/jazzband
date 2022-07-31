@@ -1,4 +1,3 @@
-/* export type Fraction = [number, number]; */
 export type Fraction = number[];
 
 export class Fractions {

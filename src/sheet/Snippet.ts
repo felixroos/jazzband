@@ -1,6 +1,5 @@
 import { Measure, RenderedMeasure, Measures } from './Measure';
 import { Sheet } from './Sheet';
-import { Rhythm } from '../rhythmical/Rhythm';
 
 export class Snippet {
   static controlSigns = [
@@ -367,7 +366,7 @@ export class Snippet {
         const end = controlSigns.filter(c => !!c.end).map(c => '(' + c.short + ')').join(' ');
         const repeatStart = signs && signs.includes('{');
         const repeatEnd = signs && signs.includes('}');
-        body = Rhythm.from(body);
+        body = Sheet.makeArray(body);
         return snippet + `|${repeatStart ? ':' : ''}${house || ''} ${start ? start + ' ' : ''}${body ? body.join(' ') : ''}${end ? ' ' + end : ''}${repeatEnd ? ':' : ''}`;
       }, '');
     if (format) {

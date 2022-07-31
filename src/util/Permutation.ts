@@ -1,3 +1,11 @@
+import { sort } from 'shelljs';
+
+export declare type ConstraintFilter<T> = (path: T[], candidate?: T) => boolean;
+export declare type PathValidator<T> = (path: T[], solution?) => boolean;
+export declare type PathSolver<T> = (path: T[], candidate: T) => T[][];
+export declare type RoadFinder<T> = (path: T[]) => T[];
+
+
 export class Permutation {
   static permutateElements(array, validate?, path = []) {
     const isValid = next => !validate || validate(path, next, array);
@@ -17,6 +25,188 @@ export class Permutation {
         ],
         []
       );
+  }
+
+  static filter: { [key: string]: (...args) => ConstraintFilter<any> } = {
+    max: (max) => (path, next) => {
+      return path.length < max;
+    },
+    unique: () => (path, next) => {
+      return !path.includes(next);
+    },
+    noRepeat: () => (path, next) => {
+      return path[path.length - 1] !== next;
+    }
+  }
+
+  static collector = {
+    maxItems: (n) => (items) => (collected, solutions) => {
+      n = n || items.length;
+      return collected.length >= n ? [] : items
+    },
+    unique: (active = true) => (items) => (collected, solutions) => {
+      return active ? items.filter(item => !collected.includes(item)) : items
+    },
+    maxSolutions: (number?) => (items) => (collected, solutions) => {
+      return number !== undefined && solutions.length >= number ? [] : items;
+    },
+    validate: (validators: ((...args) => boolean)[]) => (items) => (collected, solutions) => {
+      return items.filter(Permutation.validate(validators))
+    }
+  }
+
+  static validator: { [key: string]: (...args) => PathValidator<any> } = {
+    min: (min) => (path) => {
+      return path.length >= min;
+    },
+    sample: (number) => (path) => {
+      return path.length === number;
+    },
+    strictOrder: (active = true, equalityFn = Permutation.isEqual) => {
+      return (path, solutions) =>
+        active || !solutions.find(solution => equalityFn(path, solution));
+    }
+  }
+
+  static validate(filters: ((...args) => boolean)[]) {
+    return (...args) => filters.reduce(
+      (result, filter) => result && filter(...args), true
+    );
+  }
+
+  static isEqual(collectionA, collectionB) {
+    return collectionA.sort().join('-') === collectionB.sort().join('-');
+  }
+
+  static collect<T>(items, collectors: ((items: T[]) => (collected, solutions) => T[])[]) {
+    return (path, solutions) => {
+      return collectors.reduce((filtered, collector) => collector(filtered)(path, solutions), items)
+    }
+  }
+
+  static urn(items, number = items.length, strictOrder = true, unique = true, maxSolutions?) {
+    return Permutation.search(
+      Permutation.collect(items,
+        [
+          Permutation.collector.maxSolutions(maxSolutions),
+          Permutation.collector.maxItems(number),
+          Permutation.collector.unique(unique),
+        ]),
+      Permutation.validate([
+        Permutation.validator.sample(number),
+        Permutation.validator.strictOrder(strictOrder)
+      ])
+    )
+  }
+
+
+  static permutate_old<T>(
+    items: T[],
+    constraints: ConstraintFilter<T>[] = [
+      Permutation.filter.max(items.length),
+      Permutation.filter.unique(),
+    ],
+    validators: PathValidator<T>[] = [
+      Permutation.validator.min(items.length)
+    ],
+    concatFn = (_path: T[], _candidate: T): T[] => [..._path, _candidate],
+    path: T[] = []
+  ): T[][] {
+    const candidates = constraints.reduce((filtered, constraint) =>
+      filtered.filter((candidate) => constraint(path, candidate))
+      , [...items]);
+    if (!candidates.length) {
+      return [path];
+    }
+    return candidates.reduce((solutions, candidate) => [
+      ...solutions,
+      path,
+      ...Permutation.permutate_old(items, constraints, validators, concatFn, concatFn(path, candidate))
+    ], []).filter(
+      (permutation, index, permutations) => validators.reduce(
+        (valid, validator) => valid && validator(permutation), true
+      )
+    )
+  }
+
+
+  static search<T>(
+    collector: (path: T[], solutions: T[][]) => T[],
+    validator: (path: T[], solutions: T[][]) => boolean,
+    concatFn = (_path: T[], _candidate: T): T[] => [..._path, _candidate],
+    path: T[] = [],
+    solutions: T[][] = []
+  ): T[][] {
+    // get candidates for current path
+    let candidates = collector(path, solutions);
+    // runs current path through validator to either get a new solution or nothing
+    if (validator(path, solutions)) {
+      solutions.push(path);
+    }
+    // if no candidates found, we cannot go deeper => either solution or dead end
+    if (!candidates.length) {
+      return solutions;
+    }
+    let c = -1;
+    while (++c < candidates.length) {
+      solutions = Permutation.search(collector, validator, concatFn, concatFn(path, candidates[c]), solutions);
+      candidates = collector(path, solutions);
+    }
+    return solutions;
+    // go deeper
+    //return candidates.reduce((_, candidate) => Permutation.search(collector, validator, concatFn, concatFn(path, candidate), solutions), []);
+  }
+
+  static possibleHands(stash: number[], cards: number) {
+    return Permutation.search<number>(
+      (picked) => stash.filter(card => !picked.includes(card)),
+      (hand, hands) => hand.length === cards && !hands.find((h) => h.join('+') === hand.join('+')),
+      (hand, card) => [...hand, card].sort((a, b) => a - b)
+    )
+  }
+
+  static rooks(n) {
+    const positions = Array(n).fill(0).map((_, i) => i);
+    let runs = 0;
+    const solutions = Permutation.search<number>(
+      (picked) => positions.filter((i) => !picked.includes(i)),
+      (hand, hands) => hand.length === n,
+      (positions, position) => {
+        runs += 1;
+        return [...positions, position];
+      }
+    )
+    return { solutions, runs };
+  }
+
+  static randomRook(n) {
+    const positions = Array(n).fill(0).map((_, i) => i);
+    return Permutation.search<number>(
+      (picked, solutions) => solutions.length ? [] : positions.filter((i) => !picked.includes(i)),
+      (hand, hands) => hand.length === n,
+      (positions, position) => Math.random() > 0.5 ? [...positions, position] : [position, ...positions]
+    )
+  }
+
+  static permutate<T>(
+    items: T[],
+    constraints: ConstraintFilter<T>[] = [
+      Permutation.filter.max(items.length),
+      Permutation.filter.unique(),
+    ],
+    validators: PathValidator<T>[] = [
+      Permutation.validator.min(items.length)
+    ],
+    concatFn = (_path: T[], _candidate: T): T[] => [..._path, _candidate],
+    path: T[] = []
+  ) {
+    return Permutation.search(
+      (path: T[]) => items.filter(
+        Permutation.validate(
+          constraints.map(constraint => (candidate) => constraint(path, candidate))
+        )
+      ), Permutation.validate(validators)
+    );
   }
 
   static permutationComplexity(array, validate?, path = []) {

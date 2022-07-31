@@ -9,7 +9,6 @@
     "build": "rm -rf lib/ && tsc",
     "watch": "tsc --watch",
     "docs": "typedoc src",
-    "demo-mxl": "parcel ./demo-mxl/index.html --out-dir ./demo-mxl/dist --no-hmr",
     "demo-tone": "parcel ./demo-tone/index.html --out-dir ./demo-tone/dist --no-hmr",
     "demo-tone-build": "parcel build ./demo-tone/index.html --out-dir ./demo-tone/dist --public-url ./",
     "demo": "parcel ./demo/index.html --out-dir ./demo/dist --no-hmr",
@@ -45,14 +44,12 @@
     "babel-polyfill": "^6.26.0",
     "gh-pages": "^2.0.1",
     "jest": "^24.9.0",
-    "opensheetmusicdisplay": "^0.7.0",
     "parcel": "^1.11.0",
     "parcel-plugin-clean-dist": "0.0.6",
     "tone": "^13.4.9",
     "ts-jest": "^24.0.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.3333",
-    "xml-js": "^1.6.11"
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "diff": "^4.0.1",

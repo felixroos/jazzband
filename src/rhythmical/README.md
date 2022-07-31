@@ -29,7 +29,7 @@ const bolero = [
 
 Compared with the standard rhythm notation:
 
-![bolero](./bolero.png)
+![bolero](./img/bolero.png)
 
 - it is a direct representation in array format
 - you could even see the inner brackets as beams
@@ -62,7 +62,7 @@ Lets take the afrobell in 4/4:
 const afrobell4 = [[2, 0, 2], [0, 1, 2], [0, 2, 0], [2, 0, 1]];
 ```
 
-![afrobell4](./afrobell-4.png)
+![afrobell4](./img/afrobell-4.png)
 
 We can remove the triplet groupings with ungroup:
 
@@ -76,7 +76,7 @@ const afrobell = Rhythm.ungroup(afrobell4);
 [2, 0, 2, 0, 1, 2, 0, 2, 0, 2, 0, 1];
 ```
 
-![afrobell0](./afrobell0.png)
+![afrobell0](./img/afrobell0.png)
 
 We can now apply another grouping:
 
@@ -88,7 +88,7 @@ const afrobell3 = Rhythm.group(afrobell, 4);
 [[2, 0, 2, 0], [1, 2, 0, 2], [0, 2, 0, 1]];
 ```
 
-![afrobell3](./afrobell3.png)
+![afrobell3](./img/afrobell3.png)
 
 ### Example 3: Insert
 
@@ -98,7 +98,7 @@ You can insert rhythms into one another. Take the rhythm of a famous rock song r
 const smoke = [[1, 1, 1.5, [0, 1]], [[0, 1], [0, 1], 2, 0]];
 ```
 
-![smoke](./smoke.png)
+![smoke](./img/smoke.png)
 
 As you may know, the riff of the original is 4 bars long. Let's build the next two bars, reusing the first bar:
 
@@ -117,7 +117,7 @@ yields:
 ];
 ```
 
-![smoke](./smokeend.png)
+![smoke](./img/smokeend.png)
 
 Note: The first argument is expected to be ungrouped, while the second argument is expected to have groups. This allows you to reuse rhythmic blocks independent of time signatures.
 
@@ -389,16 +389,14 @@ yields
 
 where each chord is mapped to its personal "track". Playing all the tracks at the same time should return a a seamless rhythm.
 
-// https://mattwarnockguitar.com/jazz-rhythms/
-// https://blog.zzounds.com/2018/03/02/machine-rhythms-roland-cr-78-compurhythm/
-
+<!-- 
 ## throwaway
 
 ## Example 2: Change Grouping
 
 Lets take the son clave in 4/4:
 
-![son clave](./son-4.png)
+![son clave](./img/son-4.png)
 
 ```js
 const son4 = [
@@ -423,7 +421,7 @@ const son = Rhythm.ungroup(son4);
 
 this could be notated like this:
 
-![son clave](./son-0.png)
+![son clave](./img/son-0.png)
 
 ### Rhythm.group
 
@@ -444,7 +442,7 @@ Now, instead of 2 bars of 4/4, we have 4 bars of 2/4:
 ];
 ```
 
-![son clave](./son-2-4.png)
+![son clave](./img/son-2-4.png)
 
 if we group this rhythm again:
 
@@ -463,4 +461,5 @@ we get the double time version of the original:
 ];
 ```
 
-![son clave](./son-2.png)
+![son clave](./img/son-2.png)
+ -->

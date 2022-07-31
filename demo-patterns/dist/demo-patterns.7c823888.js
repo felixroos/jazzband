@@ -3630,21 +3630,7 @@ exports.Pulse = Pulse;
 },{"waaclock":"../node_modules/waaclock/index.js"}],"../lib/sheet/Measure.js":[function(require,module,exports) {
 "use strict";
 
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -3657,40 +3643,36 @@ var Measure =
 function () {
   function Measure() {}
 
-  Measure.from = function (measure, property) {
-    if (property === void 0) {
-      property = 'chords';
-    }
-
-    var _a, _b;
-
-    if (typeof measure === 'string') {
-      return _a = {}, _a[property] = [measure], _a;
+  Measure.from = function (measure) {
+    // if (!Array.isArray(measure) && typeof measure !== 'object') {
+    if (!Array.isArray(measure) && _typeof(measure) !== 'object') {
+      return {
+        body: [measure]
+      };
     }
 
     if (Array.isArray(measure)) {
-      return _b = {}, _b[property] = [].concat(measure), _b;
+      return {
+        body: [].concat(measure)
+      };
     }
 
-    return Object.assign({}, measure); // return measure;
+    return measure;
   };
-  /* static render(sheet: MeasureOrString[], index: number, form?: number, property = 'chords'): RenderedMeasure { */
-
 
   Measure.render = function (state) {
-    var _a;
-
     var sheet = state.sheet,
         index = state.index,
         forms = state.forms,
-        firstTime = state.firstTime,
-        lastTime = state.lastTime,
-        totalForms = state.totalForms,
-        property = state.property;
-    var measure = Measure.from(sheet[index], property);
-    return _a = {
-      options: __assign({}, measure, measure.options || {})
-    }, _a[property] = measure[property], _a.form = totalForms - forms, _a.totalForms = totalForms, _a.firstTime = firstTime, _a.lastTime = lastTime, _a.index = index, _a;
+        totalForms = state.totalForms;
+    var measure = Measure.from(sheet[index]); // TODO: options is lost here...
+
+    return {
+      body: measure.body,
+      form: totalForms - forms,
+      totalForms: totalForms,
+      index: index
+    };
   };
 
   Measure.hasSign = function (sign, measure) {
@@ -3737,305 +3719,1452 @@ function () {
 }();
 
 exports.Measure = Measure;
-},{"./Sheet":"../lib/sheet/Sheet.js"}],"../lib/instruments/Instrument.js":[function(require,module,exports) {
+},{"./Sheet":"../lib/sheet/Sheet.js"}],"../lib/rhythmical/Fractions.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Harmony_1 = require("../harmony/Harmony");
-
-var Instrument =
+var Fractions =
 /** @class */
 function () {
-  function Instrument(_a) {
-    var _b = _a === void 0 ? {} : _a,
-        context = _b.context,
-        gain = _b.gain,
-        mix = _b.mix,
-        onTrigger = _b.onTrigger,
-        midiOffset = _b.midiOffset;
+  function Fractions() {}
 
-    this.midiOffset = 0;
-    this.gain = 1;
-    this.activeEvents = [];
-    this.onTrigger = onTrigger;
-    this.midiOffset = midiOffset || this.midiOffset;
-    this.gain = gain || this.gain;
-    this.init({
-      context: context,
-      mix: mix
+  Fractions.add = function (a, b, cancel) {
+    if (cancel === void 0) {
+      cancel = true;
+    }
+
+    var _a;
+
+    var lcm = Fractions.lcm(a[1], b[1]);
+    _a = [a, b].map(function (f) {
+      return Fractions.setDivisor(f, lcm);
+    }), a = _a[0], b = _a[1];
+    var sum = [a[0] + b[0], lcm];
+
+    if (cancel) {
+      return Fractions.cancel(sum);
+    }
+
+    return sum;
+  };
+
+  Fractions.cancel = function (a) {
+    return Fractions.setDivisor(a, a[1] / Fractions.gcd(a[0], a[1]));
+  };
+
+  Fractions.setDivisor = function (a, divisor) {
+    return [a[0] * divisor / a[1], divisor];
+  };
+
+  Fractions.lcm = function (x, y) {
+    return !x || !y ? 0 : Math.abs(x * y / Fractions.gcd(x, y));
+  };
+
+  Fractions.gcd = function (x, y) {
+    x = Math.abs(x);
+    y = Math.abs(y);
+
+    while (y) {
+      var t = y;
+      y = x % y;
+      x = t;
+    }
+
+    return x;
+  };
+
+  return Fractions;
+}();
+
+exports.Fractions = Fractions;
+},{}],"../lib/rhythmical/Rhythm.js":[function(require,module,exports) {
+"use strict";
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Fractions_1 = require("./Fractions");
+
+var Rhythm =
+/** @class */
+function () {
+  function Rhythm() {}
+
+  Rhythm.from = function (body) {
+    if (!Array.isArray(body)) {
+      return [body];
+    }
+
+    return body;
+  };
+
+  Rhythm.duration = function (path, whole) {
+    if (whole === void 0) {
+      whole = 1;
+    }
+
+    return path.reduce(function (f, p) {
+      return f / p[1];
+    }, whole);
+  };
+
+  Rhythm.time = function (path, whole) {
+    if (whole === void 0) {
+      whole = 1;
+    }
+
+    return path.reduce(function (_a, p, i) {
+      var f = _a.f,
+          t = _a.t;
+      return {
+        f: f / p[1],
+        t: t + f / p[1] * path[i][0]
+      };
+    }, {
+      f: whole,
+      t: 0
+    }).t;
+  };
+
+  Rhythm.oldDuration = function (divisions, whole) {
+    if (whole === void 0) {
+      whole = 1;
+    }
+
+    return divisions.reduce(function (f, d) {
+      return f / d;
+    }, whole);
+  };
+
+  Rhythm.oldTime = function (divisions, path, whole) {
+    if (whole === void 0) {
+      whole = 1;
+    }
+
+    return divisions.reduce(function (_a, d, i) {
+      var f = _a.f,
+          p = _a.p;
+      return {
+        f: f / d,
+        p: p + f / d * path[i]
+      };
+    }, {
+      f: whole,
+      p: 0
+    }).p;
+  };
+
+  Rhythm.addPaths = function (a, b, divisions) {
+    var _a; // console.warn('addPaths is deprecated');
+
+
+    _a = [a, b].sort(function (a, b) {
+      return b.length - a.length;
+    }), a = _a[0], b = _a[1];
+    var added = a.map(function (n, i) {
+      return n + (b[i] || 0);
     });
-  }
 
-  Instrument.prototype.init = function (_a) {
-    var context = _a.context,
-        mix = _a.mix;
+    if (!divisions) {
+      return added;
+    }
 
-    if (!context && (!mix || !mix.context)) {
-      console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
+    return Rhythm.overflow(added, divisions);
+  };
+  /** recalculates path inside given divisions */
+
+
+  Rhythm.overflow = function (path, divisions) {
+    path = [].concat(path);
+
+    for (var i = path.length - 1; i > 0; --i) {
+      if (path[i] >= divisions[i]) {
+        var rest = Math.floor(path[i] / divisions[i]);
+        path[i] = path[i] % divisions[i];
+        path[i - 1] += rest; // todo what happens if rest is too much for path[i-1]
+      }
+    }
+
+    return path;
+  };
+
+  Rhythm.calculate = function (totalLength) {
+    if (totalLength === void 0) {
+      totalLength = 1;
+    }
+
+    return function (_a) {
+      var path = _a.path,
+          value = _a.value,
+          length = _a.length;
+
+      if (typeof value === 'number') {
+        length = value;
+      } else {
+        length = 1;
+      }
+
+      return {
+        value: value,
+        path: path,
+        time: Rhythm.time(path, totalLength),
+        duration: Rhythm.duration(path, totalLength) * length
+      };
+    };
+  };
+
+  Rhythm.useValueAsDuration = function (event) {
+    return __assign({}, event, {
+      duration: event.duration * event.value
+    });
+  };
+
+  Rhythm.useValueAsLength = function (event) {
+    return __assign({}, event, {
+      length: event.value
+    });
+  };
+
+  Rhythm.render = function (rhythm, length, useValueAsLength) {
+    if (length === void 0) {
+      length = 1;
+    }
+
+    if (useValueAsLength === void 0) {
+      useValueAsLength = false;
+    }
+
+    return Rhythm.flat(rhythm).map(Rhythm.calculate(length)).filter(function (event) {
+      return !!event.duration;
+    });
+  };
+
+  Rhythm.spm = function (bpm, pulse) {
+    return 60 / bpm * pulse;
+  };
+  /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
+   * You can then turn RhythmEvent[] back to the original nested array with Measure.expand. */
+
+
+  Rhythm.flatten = function (tree, path, divisions) {
+    if (path === void 0) {
+      path = [];
+    }
+
+    if (divisions === void 0) {
+      divisions = [];
+    }
+
+    if (!Array.isArray(tree)) {
+      // is primitive value
+      return [{
+        path: path,
+        divisions: divisions,
+        value: tree
+      }];
+    }
+
+    return tree.reduce(function (flat, item, index) {
+      return flat.concat(Rhythm.flatten(item, path.concat([index]), divisions.concat([tree.length])));
+    }, []);
+  };
+
+  Rhythm.isValid = function (items) {
+    return items.reduce(function (valid, item) {
+      return valid && item.divisions && item.path && item.divisions.length === item.path.length;
+    }, true);
+  };
+
+  Rhythm.nest = function (items, fill) {
+    if (fill === void 0) {
+      fill = 0;
+    }
+
+    return items.reduce(function (nested, item) {
+      if (item.path[0] >= item.divisions[0]) {
+        console.error("invalid path " + item.path[0] + " in divisions " + item.divisions[0] + " on item", item);
+        return nested;
+      }
+
+      if (item.path.length !== item.divisions.length) {
+        console.error('invalid flat rhythm: different length of path / divisions', item);
+        return nested;
+      }
+
+      if (nested.length && nested.length < item.divisions[0]) {
+        console.error('ivalid flat rhythm: different divisions on same level > concat', items, nested);
+        nested = nested.concat(Array(item.divisions[0] - nested.length).fill(fill));
+        /* return nested; */
+      }
+
+      if (nested.length && nested.length > item.divisions[0]) {
+        console.warn('flat rhythm: different divisions on same level', items, nested);
+      }
+
+      if (!nested.length && item.divisions[0]) {
+        nested = new Array(item.divisions[0]).fill(fill);
+      }
+
+      if (item.path.length === 1) {
+        /* if (expanded[item.path[0]] !== undefined) {
+          if (!!expanded[item.path[0]]) {
+            return expanded; // dont override if already not 0
+          }
+          console.warn('override path ', item.path[0], ':', expanded[item.path[0]], 'with', item.value);
+        } */
+        if (Math.round(item.path[0]) === item.path[0]) {
+          nested[item.path[0]] = item.value;
+        } else if (item.value !== fill) {// console.warn('fractured path! value "' + item.value + '" !== "' + fill + '"', item)
+        }
+      } else {
+        nested[item.path[0]] = Rhythm.nest(items.filter(function (i) {
+          return i.path.length > 1 && i.path[0] === item.path[0];
+        }).map(function (i) {
+          return __assign({}, i, {
+            path: i.path.slice(1),
+            divisions: i.divisions.slice(1)
+          });
+        }), fill);
+      }
+
+      return nested;
+    }, []);
+  };
+  /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten. */
+
+
+  Rhythm.expand = function (items) {
+    console.warn('expand is deprecated');
+    var lastSiblingIndex = -1;
+    return items.reduce(function (expanded, item, index) {
+      if (item.path.length === 1) {
+        expanded[item.path[0]] = item.value;
+      } else if (item.path[0] > lastSiblingIndex) {
+        lastSiblingIndex = item.path[0];
+        var siblings = items.filter(function (i, j) {
+          return j >= index && i.path.length >= item.path.length;
+        }).map(function (i) {
+          return __assign({}, i, {
+            path: i.path.slice(1)
+          });
+        });
+        expanded[item.path[0]] = Rhythm.expand(siblings);
+      }
+
+      return expanded;
+    }, []);
+  };
+
+  Rhythm.pathOf = function (value, tree) {
+    var flat = Rhythm.flatten(tree);
+    var match = flat.find(function (v) {
+      return v.value === value;
+    });
+
+    if (match) {
+      return match.path;
+    }
+  };
+
+  Rhythm.simplePath = function (path) {
+    return path.join('.').replace(/(\.0)*$/, ''); //.split('.');
+  };
+
+  Rhythm.haveSamePath = function (a, b) {
+    return Rhythm.simplePath(a.path) === Rhythm.simplePath(b.path);
+  };
+
+  Rhythm.haveSameSlot = function (a, b) {
+    return Rhythm.simplePath(a.path) === Rhythm.simplePath(b.path) && Rhythm.simplePath(a.divisions) === Rhythm.simplePath(b.divisions); //a.divisions.length === b.divisions.length
+  };
+
+  Rhythm.getPath = function (tree, path, withPath, flat) {
+    if (withPath === void 0) {
+      withPath = false;
+    }
+
+    if (typeof path === 'number') {
+      path = [path];
+    }
+
+    flat = flat || Rhythm.flatten(tree);
+    var match = flat.find(function (v) {
+      var min = Math.min(path.length, v.path.length);
+      return v.path.slice(0, min).join(',') === path.slice(0, min).join(',');
+    });
+
+    if (withPath) {
+      return match;
+    }
+
+    return match ? match.value : undefined;
+  };
+
+  Rhythm.addPulse = function (rhythm, pulse, offset) {
+    if (offset === void 0) {
+      offset = 0;
+    }
+
+    var measures = Math.ceil(rhythm.length / pulse);
+    return Rhythm.nest(Rhythm.flatten(rhythm).map(function (_a) {
+      var value = _a.value,
+          divisions = _a.divisions,
+          path = _a.path;
+      divisions = [measures].concat([pulse], divisions.slice(1));
+      path = [Math.floor(path[0] / pulse)].concat([path[0] % pulse], path.slice(1));
+      path = offset ? Rhythm.addPaths(path, [0, offset], divisions) : path;
+      return {
+        value: value,
+        divisions: divisions,
+        path: path
+      };
+    }));
+  };
+  /* static addPulses<T>(rhythm: NestedRhythm<T>, pulses: number[], offset: number = 0): NestedRhythm<T> {
+    return Rhythm.nest(
+      Rhythm.flatten(rhythm).map(({ value, divisions, path }) => {
+        // const pulse = divisions[1] || 1;
+        const pulse = path[0]
+        const measures = Math.ceil(rhythm.length / pulse);
+        divisions = [measures].concat([pulse], divisions.slice(1));
+        path = [Math.floor(path[0] / pulse)].concat([path[0] % pulse], path.slice(1));
+        path = offset ? Rhythm.addPaths(path, [0, offset], divisions) : path;
+        return {
+          value,
+          divisions,
+          path
+        }
+      })
+    );
+  } */
+
+
+  Rhythm.removePulse = function (rhythm) {
+    return Rhythm.nest(Rhythm.flatten(rhythm).map(function (_a) {
+      var value = _a.value,
+          divisions = _a.divisions,
+          path = _a.path;
+      return {
+        value: value,
+        divisions: [divisions[1] * divisions[0]].concat(divisions.slice(2)),
+        path: [path[0] * divisions[1] + path[1]].concat(path.slice(2))
+      };
+    }));
+  };
+
+  Rhythm.nextItem = function (tree, path, move, withPath, flat) {
+    if (move === void 0) {
+      move = 1;
+    }
+
+    if (withPath === void 0) {
+      withPath = false;
+    }
+
+    flat = Rhythm.flatten(tree);
+    var match = Rhythm.getPath(tree, path, true, flat);
+
+    if (match) {
+      var index = (flat.indexOf(match) + move + flat.length) % flat.length;
+
+      if (withPath) {
+        return flat[index];
+      }
+
+      return flat[index] ? flat[index].value : undefined;
+    }
+  };
+
+  Rhythm.nextValue = function (tree, value, move) {
+    if (move === void 0) {
+      move = 1;
+    }
+
+    var flat = Rhythm.flatten(tree);
+    var match = flat.find(function (v) {
+      return v.value === value;
+    });
+
+    if (match) {
+      return Rhythm.nextItem(tree, match.path, move, false, flat);
+    }
+  };
+
+  Rhythm.nextPath = function (tree, path, move) {
+    if (move === void 0) {
+      move = 1;
+    }
+
+    var flat = Rhythm.flatten(tree);
+
+    if (!path) {
+      return flat[0] ? flat[0].path : undefined;
+    }
+
+    var match = Rhythm.getPath(tree, path, true, flat);
+
+    if (match) {
+      var next = Rhythm.nextItem(tree, match.path, move, true, flat);
+      return next ? next.path : undefined;
+    }
+  };
+
+  Rhythm.getBlock = function (length, position, pulse) {
+    if (pulse === void 0) {
+      pulse = 4;
+    }
+
+    var blocks = {
+      4: [4],
+      2: position === 0 ? [2, 0] : [0, 2] // or any other 2 block
+
+      /** ... */
+
+    };
+    Array(position).fill(0).concat(blocks[length]).concat(Array(pulse - position - length).fill(0));
+    return blocks[length];
+  };
+
+  Rhythm.prototype.addGroove = function (items, pulse) {
+    if (pulse === void 0) {
+      pulse = 4;
+    }
+
+    var chordsPerBeat = pulse / items.length;
+
+    if (chordsPerBeat < 0) {// need another grid... or just error??
+    }
+
+    if (Math.round(chordsPerBeat) !== chordsPerBeat) {// apply bjorklund to fill chords evenly
+    }
+
+    var rendered = Rhythm.render(items, pulse);
+    var time = 0;
+    return rendered.reduce(function (combined, chordEvent, index) {
+      var _a; // const time = rendered.slice(0, index + 1).reduce((sum, track) => sum + track.duration, 0);
+
+
+      combined = __assign({}, combined, (_a = {}, _a[chordEvent.value] = Rhythm.getBlock(chordEvent.duration, time), _a));
+      time += chordEvent.duration;
+      return combined;
+    }, {});
+  };
+  /**
+   * NEW SYNTAX
+   */
+
+
+  Rhythm.multiplyDivisions = function (divisions, factor) {
+    return [divisions[0] * factor].concat(divisions.slice(1));
+  };
+
+  Rhythm.multiplyPath = function (path, divisions, factor) {
+    path = path.map(function (v) {
+      return factor * v;
+    });
+    return Rhythm.overflow(path, divisions);
+  };
+
+  Rhythm.multiplyEvents = function (rhythm, factor) {
+    return Rhythm.fixTopLevel(rhythm.map(function (_a) {
+      var value = _a.value,
+          path = _a.path;
+      return {
+        value: value * factor,
+        path: Rhythm.carry(path.map(function (f, i) {
+          return [f[0] * factor, f[1] * (!i ? factor : 1) // f[1] * factor
+          // f[1]
+          ];
+        }))
+      };
+    }));
+  };
+
+  Rhythm.divideEvents = function (rhythm, factor) {
+    return Rhythm.multiplyEvents(rhythm, 1 / factor);
+  };
+
+  Rhythm.multiply = function (rhythm, factor) {
+    return Rhythm.nested(Rhythm.multiplyEvents(Rhythm.flat(rhythm), factor));
+  };
+
+  Rhythm.divide = function (rhythm, divisor) {
+    return Rhythm.multiply(rhythm, 1 / divisor);
+  };
+
+  Rhythm.maxArray = function (array) {
+    if (!array || !array.length) {
       return;
     }
 
-    this.context = context || mix.context;
-    this.mix = mix || this.context.destination;
+    return array.reduce(function (max, item) {
+      return Math.max(max, item);
+    }, array[0]);
   };
+  /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
+   * You can then turn RhythmEvent[] back to the original nested array with Measure.expand. */
 
-  Instrument.prototype.playNotes = function (notes, settings) {
-    var _this = this;
 
-    if (settings === void 0) {
-      settings = {};
+  Rhythm.flat = function (rhythm, path) {
+    if (path === void 0) {
+      path = [];
     }
 
-    var deadline = settings.deadline || this.context.currentTime;
-    settings = Object.assign({
-      duration: 2000,
-      gain: 1
-    }, settings, {
-      deadline: deadline
-    });
+    return rhythm.reduce(function (flat, item, index) {
+      if (!Array.isArray(item)) {
+        return flat.concat([{
+          value: item,
+          path: path.concat([[index, rhythm.length]])
+        }]);
+      }
 
-    if (settings.interval) {
-      // call recursively with single notes at interval
-      return notes.map(function (note, index) {
-        _this.playNotes([note], Object.assign({}, settings, {
-          interval: 0,
-          deadline: deadline + index * settings.interval
-        }));
+      return flat.concat(Rhythm.flat(item, path.concat([[index, rhythm.length]])));
+    }, []);
+  };
+
+  Rhythm.nested = function (items, fill) {
+    if (fill === void 0) {
+      fill = 0;
+    }
+
+    return items.reduce(function (nested, item) {
+      if (item.path[0][0] >= item.path[0][1]) {
+        console.error("invalid path " + item.path[0] + " on item", item);
+        return nested;
+      }
+
+      if (nested.length && nested.length < item.path[0][1]) {
+        console.warn('ivalid flat rhythm: different divisions on same level > concat', items, nested);
+        nested = nested.concat(Array(item.path[0][1] - nested.length).fill(fill));
+        /* return nested; */
+      }
+
+      if (nested.length && nested.length > item.path[0][1]) {
+        console.warn('flat rhythm: different divisions on same level', items, nested);
+      }
+
+      if (!nested.length && item.path[0][1]) {
+        nested = new Array(item.path[0][1]).fill(fill);
+      }
+
+      if (item.path.length === 1) {
+        if (Math.round(item.path[0][0]) === item.path[0][0]) {
+          nested[item.path[0][0]] = item.value;
+        } else if (item.value !== fill) {
+          console.warn('fractured path! value "' + item.value + '" !== "' + fill + '"', item);
+        }
+      } else {
+        nested[item.path[0][0]] = Rhythm.nested(items.filter(function (i) {
+          return i.path.length > 1 && i.path[0][0] === item.path[0][0];
+        }).map(function (i) {
+          return __assign({}, i, {
+            path: i.path.slice(1)
+          });
+        }), fill);
+      }
+
+      return nested;
+    }, []);
+  }; // aligns all paths to longest path length, filling each up with [0, 1]
+
+
+  Rhythm.align = function () {
+    var paths = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      paths[_i] = arguments[_i];
+    }
+
+    return paths.map(function (p) {
+      return p.concat(Array(Rhythm.maxArray(paths.map(function (p) {
+        return p.length;
+      })) - p.length).fill([0, 1]));
+    });
+  }; // carries all fractions that are >=1 over to the next fraction to mimic notated rhythm behaviour
+
+
+  Rhythm.carry = function (a) {
+    a = [].concat(a);
+
+    for (var i = a.length - 1; i > 0; --i) {
+      a[i - 1][0] += Math.floor(a[i][0] / a[i][1]);
+      a[i][0] = a[i][0] % a[i][1];
+    }
+
+    a[0][1] = Math.max(a[0][0] + 1, a[0][1]);
+    return a;
+  };
+
+  Rhythm.add = function (a, b, cancel) {
+    if (cancel === void 0) {
+      cancel = false;
+    }
+
+    var _a;
+
+    _a = Rhythm.align(a, b), a = _a[0], b = _a[1];
+    return Rhythm.carry(a.map(function (f, i) {
+      return Fractions_1.Fractions.add(f, b[i], cancel);
+    }));
+  };
+
+  Rhythm.fixTopLevel = function (events) {
+    // find max divisor on top level
+    var max = Rhythm.maxArray(events.map(function (e) {
+      return e.path[0][1];
+    })); // use max divisor for all top levels
+
+    return events.map(function (e) {
+      return __assign({}, e, {
+        path: e.path.map(function (f, i) {
+          return !i ? [f[0], max] : f;
+        })
+      });
+    });
+  };
+  /* Makes sure the top level is correct on all events + adds optional path to move the events */
+
+
+  Rhythm.shiftEvents = function (events, path) {
+    if (path) {
+      events = events.map(function (e) {
+        return __assign({}, e, {
+          path: Rhythm.add(e.path, path)
+        });
       });
     }
 
-    var midi = notes.map(function (note) {
-      return Harmony_1.Harmony.getMidi(note, _this.midiOffset);
+    return Rhythm.fixTopLevel(events).filter(function (e) {
+      return !!e.value;
     });
-    var noteOff = settings.deadline + settings.duration / 1000;
-    var notesOn = notes.map(function (note, index) {
+  };
+
+  Rhythm.shift = function (rhythm, path) {
+    return Rhythm.nested(Rhythm.shiftEvents(Rhythm.flat(rhythm), path));
+  };
+
+  Rhythm.groupEvents = function (events, pulse, offset) {
+    var wrapped = events.map(function (_a) {
+      var value = _a.value,
+          path = _a.path;
+      path = [].concat([[Math.floor(path[0][0] / pulse), Math.ceil(path[0][1] / pulse)]], [[path[0][0] % pulse, pulse]], path.slice(1));
       return {
-        note: note,
-        midi: midi[index],
-        gain: settings.gain,
-        noteOff: noteOff,
-        deadline: settings.deadline
+        value: value,
+        path: path
       };
     });
 
-    if (settings.pulse && this.onTrigger) {
-      settings.pulse.clock.callbackAtTime(function (deadline) {
-        _this.activeEvents = _this.activeEvents.concat(notesOn);
-
-        _this.onTrigger({
-          on: notesOn,
-          off: [],
-          active: _this.activeEvents
-        });
-      }, settings.deadline);
+    if (offset) {
+      wrapped = Rhythm.shiftEvents(wrapped, [[0, 1], [offset, pulse]]);
     }
 
-    if (settings.duration && settings.pulse) {
-      settings.pulse.clock.callbackAtTime(function (deadline) {
-        // find out which notes need to be deactivated
-        var notesOff = notes.filter(function (note) {
-          return !_this.activeEvents.find(function (event) {
-            var keep = note === event.note && event.noteOff > deadline;
+    return wrapped;
+  };
 
-            if (keep) {
-              console.log('keep', note);
-            }
+  Rhythm.group = function (rhythm, pulse, offset) {
+    return Rhythm.nested(Rhythm.groupEvents(Rhythm.flat(rhythm), pulse, offset));
+  };
 
-            return keep;
-          });
-        }).map(function (note) {
-          return _this.activeEvents.find(function (e) {
-            return e.note === note;
-          });
-        });
-        _this.activeEvents = _this.activeEvents.filter(function (e) {
-          return !notesOff.includes(e);
-        });
+  Rhythm.ungroupEvents = function (events) {
+    return events.map(function (_a) {
+      var value = _a.value,
+          path = _a.path;
+      return {
+        value: value,
+        path: [[path[0][0] * path[1][1] + path[1][0], path[1][1] * path[0][1]]].concat(path.slice(2))
+      };
+    });
+  };
 
-        if (_this.onTrigger) {
-          _this.onTrigger({
-            on: [],
-            off: notesOff,
-            active: _this.activeEvents
-          });
-        }
-      }, noteOff);
+  Rhythm.ungroup = function (rhythm) {
+    return Rhythm.nested(Rhythm.ungroupEvents(Rhythm.flat(rhythm)));
+  };
+
+  Rhythm.combine = function (source, target) {
+    var targetEvents = Rhythm.flat(target);
+    var sourceEvents = Rhythm.flat(source);
+
+    if (source.length > target.length) {
+      targetEvents = Rhythm.shiftEvents(Rhythm.flat(target), [[0, source.length]]); // add empty bars
+    } else if (target.length > source.length) {
+      sourceEvents = Rhythm.shiftEvents(Rhythm.flat(source), [[0, target.length]]); // add empty bars
     }
 
-    return this.playKeys(midi, settings);
+    return Rhythm.nested(Rhythm.combineEvents(targetEvents, sourceEvents));
   };
 
-  Instrument.prototype.playKeys = function (keys, settings) {// TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
+  Rhythm.combineEvents = function (a, b) {
+    return Rhythm.shiftEvents([].concat(a, b).filter(function (e) {
+      return !!e.value;
+    }));
   };
 
-  return Instrument;
+  Rhythm.isEqualPath = function (a, b) {
+    var paths = Rhythm.align(a, b).map(function (p) {
+      return JSON.stringify(p);
+    });
+    return paths[0] === paths[1];
+  };
+
+  Rhythm.insertEvents = function (sourceEvents, targetEvents, beat) {
+    var pulses = targetEvents.map(function (e) {
+      return e.path[1] ? e.path[1][1] : 1;
+    });
+    var beats = targetEvents[0].path[0][1] * pulses[0];
+
+    if (beat === undefined) {
+      beat = beats; // set to end if undefined
+    } else if (beat < 0) {
+      beat = beats + beat; // subtract from end
+    } // handle negative offset
+
+
+    sourceEvents = Rhythm.groupEvents(sourceEvents, pulses[0], beat);
+    return Rhythm.combineEvents(targetEvents, sourceEvents);
+  };
+
+  Rhythm.insert = function (source, target, beat) {
+    return Rhythm.nested(Rhythm.insertEvents(Rhythm.flat(source), Rhythm.flat(target), beat));
+  };
+
+  Rhythm.migratePath = function (divisions, path) {
+    return divisions.map(function (d, index) {
+      return [path ? path[index] : 0, d];
+    });
+  };
+
+  return Rhythm;
 }();
 
-exports.Instrument = Instrument;
-},{"../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../lib/instruments/Synthesizer.js":[function(require,module,exports) {
+exports.Rhythm = Rhythm;
+/*
+
+
+static normalize(a: RhythmEvent<number>, depth) {
+  const diff = depth - a.path.length;
+  if (diff > 0) { // gets longer
+    return {
+      value: a.value,
+      path: a.path.concat(Array(diff).fill(0)),
+      divisions: a.divisions.concat(Array(diff).fill(1)),
+    }
+  }
+  // const divisions = a.divisions.slice(0, depth);
+  return {
+    value: a.value * Rhythm.duration(a.divisions),
+    path: a.path.slice(0, depth),
+    divisions: a.divisions.slice(0, depth)
+  }
+} */
+
+/*
+
+  static f<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, offset = 0) {
+    let targetEvents = Rhythm.flatten(target);
+    const pulses = targetEvents.map(e => e.divisions[1] || 1);
+    source = Rhythm.addPulse(source, pulses[0], offset);
+
+    const targetLength = source.length;
+    if (targetLength >= target.length) {
+      const fill = targetLength - target.length;
+      target = target.concat(Array(fill).fill(0));
+    }
+    targetEvents = Rhythm.flatten(target);
+    const sourceEvents = Rhythm.flatten(source)
+      .map(event => ({ ...event, divisions: [target.length].concat(event.divisions.slice(1)) }))
+      .filter(event => !!event.value || !targetEvents.find(e => Rhythm.haveSameSlot(e, event)))
+      .map(event => ({ ...event, path: Rhythm.overflow(event.path, event.divisions) }));
+    return Rhythm.nest(targetEvents.concat(sourceEvents));
+  }
+
+  static merge<T>(source: NestedRhythm<T>, target: NestedRhythm<T>, path = [0]) {
+    const targetLength = source.length + path[0];
+    if (targetLength >= target.length) {
+      const fill = targetLength - target.length;
+      target = target.concat(Array(fill).fill(0));
+    }
+    const targetEvents = Rhythm.flatten(target);
+    const sourceEvents = Rhythm.flatten(source)
+      .map(event => ({ ...event, divisions: [target.length].concat(event.divisions.slice(1)) }))
+      .filter(event => !!event.value || !targetEvents.find(e => Rhythm.haveSameSlot(e, event)))
+      .map(event => ({ ...event, path: Rhythm.addPaths(path, event.path, event.divisions) }));
+
+    return Rhythm.nest(targetEvents.concat(sourceEvents));
+  }
+  */
+},{"./Fractions":"../lib/rhythmical/Fractions.js"}],"../lib/sheet/Sheet.js":[function(require,module,exports) {
 "use strict";
 
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (b.hasOwnProperty(p)) d[p] = b[p];
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
       }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
     }
 
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    return t;
   };
-}();
+
+  return __assign.apply(this, arguments);
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Instrument_1 = require("./Instrument");
+var Measure_1 = require("./Measure");
 
-var tonal_1 = require("tonal");
+var Rhythm_1 = require("../rhythmical/Rhythm");
 
-var util_1 = require("../util/util");
-
-var Synthesizer =
+var Sheet =
 /** @class */
-function (_super) {
-  __extends(Synthesizer, _super);
+function () {
+  function Sheet() {}
 
-  function Synthesizer(props) {
-    var _this = _super.call(this, props) || this;
-
-    _this.duration = 200;
-    _this.type = 'sine';
-    _this.gain = 0.9;
-    _this.attack = .05;
-    _this.decay = .05;
-    _this.sustain = .4;
-    _this.release = .1;
-    _this.duration = props.duration || _this.duration;
-    _this.type = props.type || _this.type;
-    _this.gain = props.gain || _this.gain;
-    return _this;
-  }
-
-  Synthesizer.prototype.getVoice = function (type, gain, key) {
-    if (type === void 0) {
-      type = 'sine';
+  Sheet.render = function (sheet, options) {
+    if (options === void 0) {
+      options = {};
     }
 
-    if (gain === void 0) {
-      gain = 0;
+    var state = __assign({
+      sheet: sheet,
+      measures: [],
+      forms: 1,
+      nested: true,
+      fallbackToZero: true,
+      firstTime: true
+    }, options);
+
+    state = __assign({}, state, {
+      totalForms: state.forms
+    }, Sheet.newForm(state));
+    var runs = 0;
+
+    while (runs < 1000 && state.index < sheet.length) {
+      runs++;
+      state = Sheet.nextMeasure(state);
     }
 
-    var frequency = tonal_1.Note.freq(key);
-    var oscNode = this.context.createOscillator();
-    oscNode.type = type;
-    var gainNode = this.context.createGain();
-    oscNode.connect(gainNode);
-    gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-    gainNode.connect(this.mix);
-    oscNode.frequency.value = frequency;
+    return state.measures;
+  };
+
+  Sheet.nextMeasure = function (state) {
+    state = __assign({}, state, Sheet.nextSection(state)); // moves to the right house (if any)
+
+    var sheet = state.sheet,
+        index = state.index,
+        measures = state.measures;
+    state = __assign({}, state, {
+      measures: measures.concat([Measure_1.Measure.render(state)])
+    }, Sheet.nextIndex(state));
+    return Sheet.nextForm(state);
+  };
+
+  Sheet.nextIndex = function (state) {
+    var _a;
+
+    var sheet = state.sheet,
+        index = state.index,
+        jumps = state.jumps,
+        nested = state.nested,
+        fallbackToZero = state.fallbackToZero,
+        lastTime = state.lastTime;
+
+    if (!Sheet.shouldJump({
+      sheet: sheet,
+      index: index,
+      jumps: jumps,
+      lastTime: lastTime
+    })) {
+      return {
+        index: index + 1
+      };
+    }
+
+    var braces = [Sheet.getJumpDestination({
+      sheet: sheet,
+      index: index,
+      fallbackToZero: fallbackToZero,
+      nested: nested
+    }), index];
+    jumps = Sheet.wipeKeys(jumps, [braces[0], braces[1] - 1]); // wipes indices inside braces
+
     return {
-      oscNode: oscNode,
-      gainNode: gainNode,
-      key: key,
-      frequency: frequency
+      index: braces[0],
+      jumps: __assign({}, jumps, (_a = {}, _a[braces[1]] = (jumps[braces[1]] || 0) + 1, _a))
     };
   };
 
-  Synthesizer.prototype.lowestGain = function (a, b) {
-    return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
-  };
-
-  Synthesizer.prototype.startKeys = function (keys, settings) {
-    if (settings === void 0) {
-      settings = {};
-    }
-  };
-
-  Synthesizer.prototype.playKeys = function (keys, settings) {
-    var _this = this;
-
-    if (settings === void 0) {
-      settings = {};
-    }
-
-    _super.prototype.playKeys.call(this, keys, settings); // fires callback   
-    //const time = this.context.currentTime + settings.deadline / 1000;
-
-
-    var time = settings.deadline || this.context.currentTime;
-    var interval = settings.interval || 0;
-    return keys.map(function (key, i) {
-      var delay = i * interval;
-      var _a = [settings.endless, settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
-          endless = _a[0],
-          attack = _a[1],
-          decay = _a[2],
-          sustain = _a[3],
-          release = _a[4],
-          duration = _a[5],
-          gain = _a[6];
-
-      var voice = _this.getVoice(_this.type, 0, key);
-
-      util_1.adsr({
-        attack: attack,
-        decay: decay,
-        sustain: sustain,
-        release: release,
-        gain: gain,
-        duration: duration,
-        endless: endless
-      }, time + delay, voice.gainNode.gain);
-      voice.oscNode.start(settings.deadline + delay);
-      return voice;
+  Sheet.newForm = function (state) {
+    return __assign({}, state, {
+      index: 0,
+      jumps: {},
+      visits: {},
+      lastTime: state.forms === 1
     });
   };
 
-  Synthesizer.prototype.stopVoice = function (voice, settings) {
-    if (settings === void 0) {
-      settings = {};
+  Sheet.nextForm = function (state, force) {
+    if (force === void 0) {
+      force = false;
     }
 
-    if (!voice) {
-      return;
+    var sheet = state.sheet,
+        index = state.index,
+        forms = state.forms;
+
+    if (force || index >= sheet.length && forms > 1) {
+      return Sheet.newForm(__assign({}, state, {
+        firstTime: false,
+        forms: forms - 1
+      }));
     }
 
-    var time = settings.deadline || this.context.currentTime;
-    voice.gainNode.gain.setTargetAtTime(0, time, settings.release || this.release); //voice.oscNode.stop()
+    return state;
+  }; // moves the index to the current house (if any)
+
+
+  Sheet.nextSection = function (state) {
+    var _a;
+
+    var sheet = state.sheet,
+        index = state.index,
+        visits = state.visits,
+        firstTime = state.firstTime,
+        lastTime = state.lastTime; // skip intro when not firstTime
+
+    if (!firstTime && Measure_1.Measure.from(sheet[index]).section === 'IN') {
+      return {
+        index: Sheet.getNextSectionIndex({
+          sheet: sheet,
+          index: index
+        })
+      };
+    } // skip coda when not last time
+
+
+    if (Measure_1.Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state, -1)) {
+      return Sheet.nextForm(state, true);
+    }
+
+    if (!Measure_1.Measure.hasHouse(sheet[index], 1)) {
+      return {};
+    }
+
+    var next = Sheet.getNextHouseIndex({
+      sheet: sheet,
+      index: index,
+      visits: visits
+    });
+
+    if (next === -1) {
+      next = index;
+      visits = {}; // reset visits
+    }
+
+    return {
+      visits: __assign({}, visits, (_a = {}, _a[next] = (visits[next] || 0) + 1, _a)),
+      index: next
+    };
+  };
+  /** Starts at a given index, stops when the pair functions returned equally often */
+
+
+  Sheet.findPair = function (sheet, index, pairs, move, stack) {
+    if (move === void 0) {
+      move = 1;
+    }
+
+    if (stack === void 0) {
+      stack = 0;
+    }
+
+    var match = -1; // start with no match
+
+    while (match === -1 && index >= 0 && index < sheet.length) {
+      if (pairs[0](sheet[index], {
+        sheet: sheet,
+        index: index
+      })) {
+        // same sign
+        stack++;
+      }
+
+      if (pairs[1](sheet[index], {
+        sheet: sheet,
+        index: index
+      })) {
+        // pair sign
+        stack--;
+      }
+
+      if (stack === 0) {
+        // all pairs resolved > match!
+        match = index;
+      } else {
+        index += move;
+      }
+    }
+
+    return match;
   };
 
-  Synthesizer.prototype.stopVoices = function (voices, settings) {
-    var _this = this;
+  Sheet.findMatch = function (sheet, index, find, move) {
+    if (move === void 0) {
+      move = 1;
+    }
 
-    voices.forEach(function (voice) {
-      _this.stopVoice(voice, settings);
+    var match = -1; // start with no match
+
+    while (match === -1 && index >= 0 && index < sheet.length) {
+      if (find(sheet[index], {
+        sheet: sheet,
+        index: index
+      })) {
+        match = index;
+      } else {
+        index += move;
+      }
+    }
+
+    return match;
+  }; // simple matching for brace start, ignores nested repeats
+
+
+  Sheet.getJumpDestination = function (state) {
+    var sheet = state.sheet,
+        index = state.index,
+        fallbackToZero = state.fallbackToZero,
+        nested = state.nested;
+    var sign = Measure_1.Measure.getJumpSign(sheet[index]); // if fine > jump till end
+
+    if (sign.fine) {
+      return sheet.length;
+    } // if no pair given => da capo
+
+
+    if (!sign.pair) {
+      return 0;
+    } // if nested mode on and opening brace is searched, use getBracePair..
+
+
+    if (nested !== false && sign.pair === '{') {
+      return Sheet.getBracePair({
+        sheet: sheet,
+        index: index,
+        fallbackToZero: fallbackToZero
+      });
+    }
+
+    var destination = Sheet.findMatch(sheet, index, function (m) {
+      return Measure_1.Measure.hasSign(sign.pair, m);
+    }, sign.move || -1); // default move back
+
+    if (fallbackToZero) {
+      // default to zero when searching repeat start (could be forgotten)
+      return destination === -1 ? 0 : destination;
+    }
+
+    return destination;
+  }; // returns the index of the repeat sign that pairs with the given index
+
+
+  Sheet.getBracePair = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index,
+        fallbackToZero = _a.fallbackToZero;
+
+    if (fallbackToZero === undefined) {
+      fallbackToZero = true;
+    }
+
+    if (Measure_1.Measure.hasSign('{', sheet[index])) {
+      return Sheet.findPair(sheet, index, [function (m) {
+        return Measure_1.Measure.hasSign('{', m);
+      }, function (m) {
+        return Measure_1.Measure.hasSign('}', m);
+      }], 1);
+    } else if (Measure_1.Measure.hasSign('}', sheet[index])) {
+      var pair = Sheet.findPair(sheet, index, [function (m, state) {
+        // this logic could be infinitely complex, having many side effects and interpretations
+        // the current behaviour is similar to musescore or ireal handling braces
+        if (!Measure_1.Measure.hasSign('}', m)) {
+          return false;
+        }
+
+        if (index === state.index) {
+          return true;
+        }
+
+        var relatedHouse = Sheet.getRelatedHouse({
+          sheet: sheet,
+          index: state.index
+        });
+        return relatedHouse === -1;
+      }, function (m) {
+        return Measure_1.Measure.hasSign('{', m);
+      }], -1);
+
+      if (fallbackToZero) {
+        return pair === -1 ? 0 : pair; // default to zero when searching repeat start (could be forgotten)
+      }
+
+      return pair;
+    }
+
+    return -1;
+  }; // returns true if the house at the given index has not been visited enough times
+
+
+  Sheet.canVisitHouse = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index,
+        visits = _a.visits;
+    var houses = sheet[index].house;
+
+    if (houses === undefined) {
+      return false;
+    }
+
+    if (!Array.isArray(houses)) {
+      houses = [houses];
+    }
+
+    var visited = visits[index] || 0;
+    return visited < houses.length;
+  }; // returns the next house that can be visited (from the given index)
+
+
+  Sheet.getNextHouseIndex = function (_a, move) {
+    var sheet = _a.sheet,
+        index = _a.index,
+        visits = _a.visits;
+
+    if (move === void 0) {
+      move = 1;
+    }
+
+    return Sheet.findMatch(sheet, index, function (m, step) {
+      return Measure_1.Measure.hasHouse(m) && Sheet.canVisitHouse({
+        sheet: sheet,
+        index: step.index,
+        visits: visits
+      });
+    }, move);
+  };
+
+  Sheet.getNextSectionIndex = function (_a, move) {
+    var sheet = _a.sheet,
+        index = _a.index;
+
+    if (move === void 0) {
+      move = 1;
+    }
+
+    return Sheet.findMatch(sheet, index + 1, function (m) {
+      return Measure_1.Measure.from(m).section !== undefined;
+    }, 1);
+  }; // wipes all keys in the given range
+
+
+  Sheet.wipeKeys = function (numberMap, range) {
+    var wiped = {};
+    Object.keys(numberMap).map(function (i) {
+      return parseInt(i);
+    }).filter(function (i) {
+      return i < range[0] || i > range[1];
+    }).forEach(function (i) {
+      return wiped[i] = numberMap[i];
+    });
+    return wiped;
+  };
+
+  Sheet.getRelatedHouse = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index;
+    var latestHouse = Sheet.findPair(sheet, index, [function (m, state) {
+      return index === state.index || Measure_1.Measure.hasSign('}', m);
+    }, function (m) {
+      return Measure_1.Measure.hasHouse(m);
+    }], -1);
+    return latestHouse;
+  };
+
+  Sheet.isFirstHouse = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index;
+    return Measure_1.Measure.hasHouse(sheet[index], 1);
+  };
+
+  Sheet.getAllowedJumps = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index;
+
+    if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
+      return 0;
+    }
+
+    var measure = Measure_1.Measure.from(sheet[index]);
+
+    if (measure.times !== undefined) {
+      return measure.times;
+    }
+
+    return 1;
+  };
+
+  Sheet.readyForFineOrCoda = function (_a, move) {
+    var sheet = _a.sheet,
+        index = _a.index,
+        jumps = _a.jumps,
+        lastTime = _a.lastTime;
+
+    if (move === void 0) {
+      move = 1;
+    }
+
+    var signs = Object.keys(Sheet.jumpSigns).filter(function (s) {
+      return s.includes('DC') || s.includes('DS');
+    });
+    var backJump = Sheet.findMatch(sheet, index, function (m) {
+      return signs.reduce(function (match, sign) {
+        return match || Measure_1.Measure.hasSign(sign, m);
+      }, false);
+    }, move);
+
+    if (backJump === -1) {
+      return lastTime; // last time
+    }
+
+    return jumps[backJump] > 0;
+  };
+
+  Sheet.shouldJump = function (_a) {
+    var sheet = _a.sheet,
+        index = _a.index,
+        jumps = _a.jumps,
+        lastTime = _a.lastTime;
+
+    if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
+      return false;
+    }
+
+    var sign = Measure_1.Measure.getJumpSign(sheet[index]);
+
+    if (sign.validator && !sign.validator({
+      sheet: sheet,
+      index: index,
+      jumps: jumps,
+      lastTime: lastTime
+    })) {
+      return false;
+    }
+
+    var allowedJumps = Sheet.getAllowedJumps({
+      sheet: sheet,
+      index: index
+    });
+    var timesJumped = jumps[index] || 0;
+    return timesJumped < allowedJumps;
+  };
+
+  Sheet.stringify = function (measures) {
+    return measures.map(function (measure) {
+      return Measure_1.Measure.from(measure).body;
     });
   };
 
-  return Synthesizer;
-}(Instrument_1.Instrument);
+  Sheet.obfuscate = function (measures, keepFirst) {
+    if (keepFirst === void 0) {
+      keepFirst = true;
+    }
 
-exports.Synthesizer = Synthesizer;
-},{"./Instrument":"../lib/instruments/Instrument.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js"}],"../lib/symbols.js":[function(require,module,exports) {
+    return measures.map(function (m) {
+      return Measure_1.Measure.from(m);
+    }).map(function (m, i) {
+      m.body = Rhythm_1.Rhythm.from(m.body).map(function (c, j) {
+        if (keepFirst && i === 0 && j === 0) {
+          return c;
+        }
+
+        if (typeof c !== 'string') {
+          console.warn('Sheet.obfuscate does not support nested Rhythms (yet)');
+          return '';
+        }
+
+        return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
+      });
+      return m;
+    });
+  };
+
+  Sheet.jumpSigns = {
+    '}': {
+      pair: '{',
+      move: -1
+    },
+    'DC': {},
+    'DS': {
+      pair: 'Segno',
+      move: -1
+    },
+    'DS.Fine': {
+      pair: 'Segno',
+      move: -1
+    },
+    'DS.Coda': {
+      pair: 'Segno',
+      move: -1
+    },
+    'DC.Fine': {},
+    'DC.Coda': {},
+    'Fine': {
+      fine: true,
+      validator: function validator(state) {
+        return Sheet.readyForFineOrCoda(state);
+      }
+    },
+    'ToCoda': {
+      pair: 'Coda',
+      move: 1,
+      validator: function validator(state) {
+        return Sheet.readyForFineOrCoda(state);
+      }
+    }
+  };
+  Sheet.sequenceSigns = {
+    rest: ['r', '0'],
+    prolong: ['/', '-', '_'],
+    repeat: ['%']
+  };
+  return Sheet;
+}();
+
+exports.Sheet = Sheet;
+},{"./Measure":"../lib/sheet/Measure.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../lib/symbols.js":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -4499,6 +5628,15 @@ function randomNumber(n) {
 
 exports.randomNumber = randomNumber;
 
+function randomNumberInRange(a, b) {
+  var _a;
+
+  _a = [Math.min(a, b), Math.max(a, b)], a = _a[0], b = _a[1];
+  return Math.floor(Math.random() * (Math.round(b) - Math.round(a) + 1)) + a;
+}
+
+exports.randomNumberInRange = randomNumberInRange;
+
 function arraySum(array) {
   return array.reduce(function (s, i) {
     return s + i;
@@ -4858,7 +5996,7 @@ function getStepInChord(note, chord, min) {
 
 exports.getStepInChord = getStepInChord;
 
-function getChordScales(chord, group) {
+function getChordScales(chord, group, filter) {
   if (group === void 0) {
     group = 'Diatonic';
   }
@@ -4868,7 +6006,7 @@ function getChordScales(chord, group) {
 
   return symbols_1.scaleNames(group).filter(function (name) {
     /* isSuperset(Scale.intervals(name)) */
-    return tonal_1.PcSet.isSupersetOf(tonal_1.Chord.intervals(tokens[1]), tonal_1.Scale.intervals(name));
+    return (!filter || filter(name)) && tonal_1.PcSet.isSupersetOf(tonal_1.Chord.intervals(tokens[1]), tonal_1.Scale.intervals(name));
   });
 }
 
@@ -5603,6 +6741,10 @@ var tonal_4 = require("tonal");
 
 var util_1 = require("../util/util");
 
+var Measure_1 = require("../sheet/Measure");
+
+var Rhythm_1 = require("../rhythmical/Rhythm");
+
 var Harmony =
 /** @class */
 function () {
@@ -5868,6 +7010,24 @@ function () {
     }
     /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
     );
+  };
+
+  Harmony.transposeSheet = function (sheet, interval) {
+    if (sheet.chords) {
+      sheet = __assign({}, sheet, {
+        chords: sheet.chords.map(function (measure) {
+          return Rhythm_1.Rhythm.from(Measure_1.Measure.from(measure).body).map(function (chord) {
+            return Harmony.transposeChord(chord, interval);
+          });
+        })
+      });
+    }
+
+    if (sheet.melody) {
+      console.log('TODO: tranpose melody');
+    }
+
+    return sheet;
   }; // mapping for ireal chords to tonal symbols, see getTonalChord
 
 
@@ -5937,772 +7097,305 @@ function () {
 }();
 
 exports.Harmony = Harmony;
-},{"tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js"}],"../lib/sheet/Sheet.js":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js","../sheet/Measure":"../lib/sheet/Measure.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../lib/instruments/Instrument.js":[function(require,module,exports) {
 "use strict";
-
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Measure_1 = require("./Measure");
-
 var Harmony_1 = require("../harmony/Harmony");
+
+var Instrument =
+/** @class */
+function () {
+  function Instrument(_a) {
+    var _b = _a === void 0 ? {} : _a,
+        context = _b.context,
+        gain = _b.gain,
+        mix = _b.mix,
+        onTrigger = _b.onTrigger,
+        midiOffset = _b.midiOffset;
+
+    this.midiOffset = 0;
+    this.gain = 1;
+    this.activeEvents = [];
+    this.onTrigger = onTrigger;
+    this.midiOffset = midiOffset || this.midiOffset;
+    this.gain = gain || this.gain;
+    this.init({
+      context: context,
+      mix: mix
+    });
+  }
+
+  Instrument.prototype.init = function (_a) {
+    var context = _a.context,
+        mix = _a.mix;
+
+    if (!context && (!mix || !mix.context)) {
+      console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
+      return;
+    }
+
+    this.context = context || mix.context;
+    this.mix = mix || this.context.destination;
+  };
+
+  Instrument.prototype.playNotes = function (notes, settings) {
+    var _this = this;
+
+    if (settings === void 0) {
+      settings = {};
+    }
+
+    var deadline = settings.deadline || this.context.currentTime;
+    settings = Object.assign({
+      duration: 2000,
+      gain: 1
+    }, settings, {
+      deadline: deadline
+    });
+
+    if (settings.interval) {
+      // call recursively with single notes at interval
+      return notes.map(function (note, index) {
+        _this.playNotes([note], Object.assign({}, settings, {
+          interval: 0,
+          deadline: deadline + index * settings.interval
+        }));
+      });
+    }
+
+    var midi = notes.map(function (note) {
+      return Harmony_1.Harmony.getMidi(note, _this.midiOffset);
+    });
+    var noteOff = settings.deadline + settings.duration / 1000;
+    var notesOn = notes.map(function (note, index) {
+      return {
+        note: note,
+        midi: midi[index],
+        gain: settings.gain,
+        noteOff: noteOff,
+        deadline: settings.deadline
+      };
+    });
+
+    if (settings.pulse && this.onTrigger) {
+      settings.pulse.clock.callbackAtTime(function (deadline) {
+        _this.activeEvents = _this.activeEvents.concat(notesOn);
+
+        _this.onTrigger({
+          on: notesOn,
+          off: [],
+          active: _this.activeEvents
+        });
+      }, settings.deadline);
+    }
+
+    if (settings.duration && settings.pulse) {
+      settings.pulse.clock.callbackAtTime(function (deadline) {
+        // find out which notes need to be deactivated
+        var notesOff = notes.filter(function (note) {
+          return !_this.activeEvents.find(function (event) {
+            var keep = note === event.note && event.noteOff > deadline;
+
+            if (keep) {
+              console.log('keep', note);
+            }
+
+            return keep;
+          });
+        }).map(function (note) {
+          return _this.activeEvents.find(function (e) {
+            return e.note === note;
+          });
+        });
+        _this.activeEvents = _this.activeEvents.filter(function (e) {
+          return !notesOff.includes(e);
+        });
+
+        if (_this.onTrigger) {
+          _this.onTrigger({
+            on: [],
+            off: notesOff,
+            active: _this.activeEvents
+          });
+        }
+      }, noteOff);
+    }
+
+    return this.playKeys(midi, settings);
+  };
+
+  Instrument.prototype.playKeys = function (keys, settings) {// TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
+  };
+
+  return Instrument;
+}();
+
+exports.Instrument = Instrument;
+},{"../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../lib/instruments/Synthesizer.js":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Instrument_1 = require("./Instrument");
+
+var tonal_1 = require("tonal");
 
 var util_1 = require("../util/util");
 
-var Sheet =
+var Synthesizer =
 /** @class */
-function () {
-  function Sheet(sheet) {
-    Object.assign(this, Sheet.from(sheet));
+function (_super) {
+  __extends(Synthesizer, _super);
+
+  function Synthesizer(props) {
+    var _this = _super.call(this, props) || this;
+
+    _this.duration = 200;
+    _this.type = 'sine';
+    _this.gain = 0.9;
+    _this.attack = .05;
+    _this.decay = .05;
+    _this.sustain = .4;
+    _this.release = .1;
+    _this.duration = props.duration || _this.duration;
+    _this.type = props.type || _this.type;
+    _this.gain = props.gain || _this.gain;
+    return _this;
   }
 
-  Sheet.from = function (sheet) {
-    sheet.options = sheet.options || {};
-    return __assign({}, sheet, {
-      options: __assign({
-        forms: 1,
-        arpeggio: false,
-        bell: false,
-        pedal: false,
-        real: true,
-        tightMelody: true,
-        bpm: 120,
-        swing: 0,
-        fermataLength: 4,
-        duckMeasures: 1,
-        feel: 4,
-        pulses: 4
-      }, sheet.options, {
-        humanize: __assign({
-          velocity: 0.1,
-          time: 0.002,
-          duration: 0.002
-        }, sheet.options.humanize || {}),
-        voicings: __assign({
-          minBottomDistance: 3,
-          minTopDistance: 2,
-          logging: false,
-          maxVoices: 4,
-          range: ['C3', 'C6'],
-          rangeBorders: [1, 1],
-          maxDistance: 7,
-          idleChance: 1
-        }, sheet.options.voicings || {})
-      })
-    });
-  };
-
-  Sheet.render = function (sheet, options) {
-    if (options === void 0) {
-      options = {};
+  Synthesizer.prototype.getVoice = function (type, gain, key) {
+    if (type === void 0) {
+      type = 'sine';
     }
 
-    var state = __assign({
-      sheet: sheet,
-      measures: [],
-      forms: 1,
-      property: 'chords',
-      nested: true,
-      fallbackToZero: true,
-      firstTime: true
-    }, options);
-
-    state = __assign({}, state, {
-      totalForms: state.forms
-    }, Sheet.newForm(state));
-    var runs = 0;
-
-    while (runs < 1000 && state.index < sheet.length) {
-      runs++;
-      state = Sheet.nextMeasure(state);
+    if (gain === void 0) {
+      gain = 0;
     }
 
-    return state.measures;
-  };
-
-  Sheet.nextMeasure = function (state) {
-    state = __assign({}, state, Sheet.nextSection(state)); // moves to the right house (if any)
-
-    var sheet = state.sheet,
-        index = state.index,
-        measures = state.measures,
-        property = state.property;
-    state = __assign({}, state, {
-      measures: measures.concat([Measure_1.Measure.render(state)])
-    }, Sheet.nextIndex(state));
-    return Sheet.nextForm(state);
-  };
-
-  Sheet.nextIndex = function (state) {
-    var _a;
-
-    var sheet = state.sheet,
-        index = state.index,
-        jumps = state.jumps,
-        nested = state.nested,
-        fallbackToZero = state.fallbackToZero,
-        lastTime = state.lastTime;
-
-    if (!Sheet.shouldJump({
-      sheet: sheet,
-      index: index,
-      jumps: jumps,
-      lastTime: lastTime
-    })) {
-      return {
-        index: index + 1
-      };
-    }
-
-    var braces = [Sheet.getJumpDestination({
-      sheet: sheet,
-      index: index,
-      fallbackToZero: fallbackToZero,
-      nested: nested
-    }), index];
-    jumps = Sheet.wipeKeys(jumps, [braces[0], braces[1] - 1]); // wipes indices inside braces
-
+    var frequency = tonal_1.Note.freq(key);
+    var oscNode = this.context.createOscillator();
+    oscNode.type = type;
+    var gainNode = this.context.createGain();
+    oscNode.connect(gainNode);
+    gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
+    gainNode.connect(this.mix);
+    oscNode.frequency.value = frequency;
     return {
-      index: braces[0],
-      jumps: __assign({}, jumps, (_a = {}, _a[braces[1]] = (jumps[braces[1]] || 0) + 1, _a))
+      oscNode: oscNode,
+      gainNode: gainNode,
+      key: key,
+      frequency: frequency
     };
   };
 
-  Sheet.newForm = function (state) {
-    return __assign({}, state, {
-      index: 0,
-      jumps: {},
-      visits: {},
-      lastTime: state.forms === 1
+  Synthesizer.prototype.lowestGain = function (a, b) {
+    return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
+  };
+
+  Synthesizer.prototype.startKeys = function (keys, settings) {
+    if (settings === void 0) {
+      settings = {};
+    }
+  };
+
+  Synthesizer.prototype.playKeys = function (keys, settings) {
+    var _this = this;
+
+    if (settings === void 0) {
+      settings = {};
+    }
+
+    _super.prototype.playKeys.call(this, keys, settings); // fires callback   
+    //const time = this.context.currentTime + settings.deadline / 1000;
+
+
+    var time = settings.deadline || this.context.currentTime;
+    var interval = settings.interval || 0;
+    return keys.map(function (key, i) {
+      var delay = i * interval;
+      var _a = [settings.endless, settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
+          endless = _a[0],
+          attack = _a[1],
+          decay = _a[2],
+          sustain = _a[3],
+          release = _a[4],
+          duration = _a[5],
+          gain = _a[6];
+
+      var voice = _this.getVoice(_this.type, 0, key);
+
+      util_1.adsr({
+        attack: attack,
+        decay: decay,
+        sustain: sustain,
+        release: release,
+        gain: gain,
+        duration: duration,
+        endless: endless
+      }, time + delay, voice.gainNode.gain);
+      voice.oscNode.start(settings.deadline + delay);
+      return voice;
     });
   };
 
-  Sheet.nextForm = function (state, force) {
-    if (force === void 0) {
-      force = false;
+  Synthesizer.prototype.stopVoice = function (voice, settings) {
+    if (settings === void 0) {
+      settings = {};
     }
 
-    var sheet = state.sheet,
-        index = state.index,
-        forms = state.forms;
-
-    if (force || index >= sheet.length && forms > 1) {
-      return Sheet.newForm(__assign({}, state, {
-        firstTime: false,
-        forms: forms - 1
-      }));
+    if (!voice) {
+      return;
     }
 
-    return state;
-  }; // moves the index to the current house (if any)
-
-
-  Sheet.nextSection = function (state) {
-    var _a;
-
-    var sheet = state.sheet,
-        index = state.index,
-        visits = state.visits,
-        firstTime = state.firstTime,
-        lastTime = state.lastTime; // skip intro when not firstTime
-
-    if (!firstTime && Measure_1.Measure.from(sheet[index]).section === 'IN') {
-      return {
-        index: Sheet.getNextSectionIndex({
-          sheet: sheet,
-          index: index
-        })
-      };
-    } // skip coda when not last time
-
-
-    if (Measure_1.Measure.hasSign('Coda', sheet[index]) && !Sheet.readyForFineOrCoda(state, -1)) {
-      return Sheet.nextForm(state, true);
-    }
-
-    if (!Measure_1.Measure.hasHouse(sheet[index], 1)) {
-      return {};
-    }
-
-    var next = Sheet.getNextHouseIndex({
-      sheet: sheet,
-      index: index,
-      visits: visits
-    });
-
-    if (next === -1) {
-      next = index;
-      visits = {}; // reset visits
-    }
-
-    return {
-      visits: __assign({}, visits, (_a = {}, _a[next] = (visits[next] || 0) + 1, _a)),
-      index: next
-    };
-  };
-  /** Starts at a given index, stops when the pair functions returned equally often */
-
-
-  Sheet.findPair = function (sheet, index, pairs, move, stack) {
-    if (move === void 0) {
-      move = 1;
-    }
-
-    if (stack === void 0) {
-      stack = 0;
-    }
-
-    var match = -1; // start with no match
-
-    while (match === -1 && index >= 0 && index < sheet.length) {
-      if (pairs[0](sheet[index], {
-        sheet: sheet,
-        index: index
-      })) {
-        // same sign
-        stack++;
-      }
-
-      if (pairs[1](sheet[index], {
-        sheet: sheet,
-        index: index
-      })) {
-        // pair sign
-        stack--;
-      }
-
-      if (stack === 0) {
-        // all pairs resolved > match!
-        match = index;
-      } else {
-        index += move;
-      }
-    }
-
-    return match;
+    var time = settings.deadline || this.context.currentTime;
+    voice.gainNode.gain.setTargetAtTime(0, time, settings.release || this.release); //voice.oscNode.stop()
   };
 
-  Sheet.findMatch = function (sheet, index, find, move) {
-    if (move === void 0) {
-      move = 1;
-    }
-
-    var match = -1; // start with no match
-
-    while (match === -1 && index >= 0 && index < sheet.length) {
-      if (find(sheet[index], {
-        sheet: sheet,
-        index: index
-      })) {
-        match = index;
-      } else {
-        index += move;
-      }
-    }
-
-    return match;
-  }; // simple matching for brace start, ignores nested repeats
-
-
-  Sheet.getJumpDestination = function (state) {
-    var sheet = state.sheet,
-        index = state.index,
-        fallbackToZero = state.fallbackToZero,
-        nested = state.nested;
-    var sign = Measure_1.Measure.getJumpSign(sheet[index]); // if fine > jump till end
-
-    if (sign.fine) {
-      return sheet.length;
-    } // if no pair given => da capo
-
-
-    if (!sign.pair) {
-      return 0;
-    } // if nested mode on and opening brace is searched, use getBracePair..
-
-
-    if (nested !== false && sign.pair === '{') {
-      return Sheet.getBracePair({
-        sheet: sheet,
-        index: index,
-        fallbackToZero: fallbackToZero
-      });
-    }
-
-    var destination = Sheet.findMatch(sheet, index, function (m) {
-      return Measure_1.Measure.hasSign(sign.pair, m);
-    }, sign.move || -1); // default move back
-
-    if (fallbackToZero) {
-      // default to zero when searching repeat start (could be forgotten)
-      return destination === -1 ? 0 : destination;
-    }
-
-    return destination;
-  }; // returns the index of the repeat sign that pairs with the given index
-
-
-  Sheet.getBracePair = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index,
-        fallbackToZero = _a.fallbackToZero;
-
-    if (fallbackToZero === undefined) {
-      fallbackToZero = true;
-    }
-
-    if (Measure_1.Measure.hasSign('{', sheet[index])) {
-      return Sheet.findPair(sheet, index, [function (m) {
-        return Measure_1.Measure.hasSign('{', m);
-      }, function (m) {
-        return Measure_1.Measure.hasSign('}', m);
-      }], 1);
-    } else if (Measure_1.Measure.hasSign('}', sheet[index])) {
-      var pair = Sheet.findPair(sheet, index, [function (m, state) {
-        // this logic could be infinitely complex, having many side effects and interpretations
-        // the current behaviour is similar to musescore or ireal handling braces
-        if (!Measure_1.Measure.hasSign('}', m)) {
-          return false;
-        }
-
-        if (index === state.index) {
-          return true;
-        }
-
-        var relatedHouse = Sheet.getRelatedHouse({
-          sheet: sheet,
-          index: state.index
-        });
-        return relatedHouse === -1;
-      }, function (m) {
-        return Measure_1.Measure.hasSign('{', m);
-      }], -1);
-
-      if (fallbackToZero) {
-        return pair === -1 ? 0 : pair; // default to zero when searching repeat start (could be forgotten)
-      }
-
-      return pair;
-    }
-
-    return -1;
-  }; // returns true if the house at the given index has not been visited enough times
-
-
-  Sheet.canVisitHouse = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index,
-        visits = _a.visits;
-    var houses = sheet[index].house;
-
-    if (houses === undefined) {
-      return false;
-    }
-
-    if (!Array.isArray(houses)) {
-      houses = [houses];
-    }
-
-    var visited = visits[index] || 0;
-    return visited < houses.length;
-  }; // returns the next house that can be visited (from the given index)
-
-
-  Sheet.getNextHouseIndex = function (_a, move) {
-    var sheet = _a.sheet,
-        index = _a.index,
-        visits = _a.visits;
-
-    if (move === void 0) {
-      move = 1;
-    }
-
-    return Sheet.findMatch(sheet, index, function (m, step) {
-      return Measure_1.Measure.hasHouse(m) && Sheet.canVisitHouse({
-        sheet: sheet,
-        index: step.index,
-        visits: visits
-      });
-    }, move);
-  };
-
-  Sheet.getNextSectionIndex = function (_a, move) {
-    var sheet = _a.sheet,
-        index = _a.index;
-
-    if (move === void 0) {
-      move = 1;
-    }
-
-    return Sheet.findMatch(sheet, index + 1, function (m) {
-      return Measure_1.Measure.from(m).section !== undefined;
-    }, 1);
-  }; // wipes all keys in the given range
-
-
-  Sheet.wipeKeys = function (numberMap, range) {
-    var wiped = {};
-    Object.keys(numberMap).map(function (i) {
-      return parseInt(i);
-    }).filter(function (i) {
-      return i < range[0] || i > range[1];
-    }).forEach(function (i) {
-      return wiped[i] = numberMap[i];
-    });
-    return wiped;
-  };
-
-  Sheet.getRelatedHouse = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index;
-    var latestHouse = Sheet.findPair(sheet, index, [function (m, state) {
-      return index === state.index || Measure_1.Measure.hasSign('}', m);
-    }, function (m) {
-      return Measure_1.Measure.hasHouse(m);
-    }], -1);
-    return latestHouse;
-  };
-
-  Sheet.isFirstHouse = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index;
-    return Measure_1.Measure.hasHouse(sheet[index], 1);
-  };
-
-  Sheet.getAllowedJumps = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index;
-
-    if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
-      return 0;
-    }
-
-    var measure = Measure_1.Measure.from(sheet[index]);
-
-    if (measure.times !== undefined) {
-      return measure.times;
-    }
-
-    return 1;
-  };
-
-  Sheet.readyForFineOrCoda = function (_a, move) {
-    var sheet = _a.sheet,
-        index = _a.index,
-        jumps = _a.jumps,
-        lastTime = _a.lastTime;
-
-    if (move === void 0) {
-      move = 1;
-    }
-
-    var signs = Object.keys(Sheet.jumpSigns).filter(function (s) {
-      return s.includes('DC') || s.includes('DS');
-    });
-    var backJump = Sheet.findMatch(sheet, index, function (m) {
-      return signs.reduce(function (match, sign) {
-        return match || Measure_1.Measure.hasSign(sign, m);
-      }, false);
-    }, move);
-
-    if (backJump === -1) {
-      return lastTime; // last time
-    }
-
-    return jumps[backJump] > 0;
-  };
-
-  Sheet.shouldJump = function (_a) {
-    var sheet = _a.sheet,
-        index = _a.index,
-        jumps = _a.jumps,
-        lastTime = _a.lastTime;
-
-    if (!Measure_1.Measure.hasJumpSign(sheet[index])) {
-      return false;
-    }
-
-    var sign = Measure_1.Measure.getJumpSign(sheet[index]);
-
-    if (sign.validator && !sign.validator({
-      sheet: sheet,
-      index: index,
-      jumps: jumps,
-      lastTime: lastTime
-    })) {
-      return false;
-    }
-
-    var allowedJumps = Sheet.getAllowedJumps({
-      sheet: sheet,
-      index: index
-    });
-    var timesJumped = jumps[index] || 0;
-    return timesJumped < allowedJumps;
-  };
-
-  Sheet.transpose = function (sheet, interval) {
-    if (sheet.chords) {
-      sheet = __assign({}, sheet, {
-        chords: sheet.chords.map(function (measure) {
-          return Measure_1.Measure.from(measure).chords.map(function (chord) {
-            return Harmony_1.Harmony.transposeChord(chord, interval);
-          });
-        })
-      });
-    }
-
-    if (sheet.melody) {
-      console.log('TODO: tranpose melody');
-    }
-
-    return sheet;
-  };
-  /** Flattens the given possibly nested tree array to an array containing all values in sequential order.
-   * If withPath is set to true, the values are turned to objects containing the nested path (FlatEvent).
-   * You can then turn FlatEvent[] back to the original nested array with Measure.expand. */
-
-
-  Sheet.flatten = function (tree, withPath, path, divisions) {
-    if (withPath === void 0) {
-      withPath = false;
-    }
-
-    if (path === void 0) {
-      path = [];
-    }
-
-    if (divisions === void 0) {
-      divisions = [];
-    }
-
-    if (!Array.isArray(tree)) {
-      // is primitive value
-      if (withPath) {
-        return [{
-          path: path,
-          divisions: divisions,
-          value: tree
-        }];
-      }
-
-      return [tree];
-    }
-
-    return tree.reduce(function (flat, item, index) {
-      return flat.concat(Sheet.flatten(item, withPath, path.concat([index]), divisions.concat([tree.length])));
-    }, []);
-  };
-  /** Turns a flat FlatEvent array to a (possibly) nested Array of its values. Reverts Measure.flatten (using withPath=true). */
-
-
-  Sheet.expand = function (items) {
-    var lastSiblingIndex = -1;
-    return items.reduce(function (expanded, item, index) {
-      if (item.path.length === 1) {
-        expanded[item.path[0]] = item.value;
-      } else if (item.path[0] > lastSiblingIndex) {
-        lastSiblingIndex = item.path[0];
-        var siblings = items.filter(function (i, j) {
-          return j >= index && i.path.length >= item.path.length;
-        }).map(function (i) {
-          return __assign({}, i, {
-            path: i.path.slice(1)
-          });
-        });
-        expanded[item.path[0]] = Sheet.expand(siblings);
-        /* expanded.push(Measure.expand(siblings)); */
-      }
-
-      return expanded;
-    }, []);
-  };
-
-  Sheet.pathOf = function (value, tree) {
-    var flat = Sheet.flatten(tree, true);
-    var match = flat.find(function (v) {
-      return v.value === value;
-    });
-
-    if (match) {
-      return match.path;
-    }
-  };
-
-  Sheet.getPath = function (tree, path, withPath, flat) {
-    if (withPath === void 0) {
-      withPath = false;
-    }
-
-    if (typeof path === 'number') {
-      path = [path];
-    }
-
-    flat = flat || Sheet.flatten(tree, true);
-    var match = flat.find(function (v) {
-      var min = Math.min(path.length, v.path.length);
-      return v.path.slice(0, min).join(',') === path.slice(0, min).join(',');
-    });
-
-    if (withPath) {
-      return match;
-    }
-
-    return match ? match.value : undefined;
-  };
-
-  Sheet.nextItem = function (tree, path, move, withPath, flat) {
-    if (move === void 0) {
-      move = 1;
-    }
-
-    if (withPath === void 0) {
-      withPath = false;
-    }
-
-    flat = Sheet.flatten(tree, true);
-    var match = Sheet.getPath(tree, path, true, flat);
-
-    if (match) {
-      var index = (flat.indexOf(match) + move + flat.length) % flat.length;
-
-      if (withPath) {
-        return flat[index];
-      }
-
-      return flat[index] ? flat[index].value : undefined;
-    }
-  };
-
-  Sheet.nextValue = function (tree, value, move) {
-    if (move === void 0) {
-      move = 1;
-    }
-
-    var flat = Sheet.flatten(tree, true);
-    var match = flat.find(function (v) {
-      return v.value === value;
-    });
-
-    if (match) {
-      return Sheet.nextItem(tree, match.path, move, false, flat);
-    }
-  };
-
-  Sheet.nextPath = function (tree, path, move) {
-    if (move === void 0) {
-      move = 1;
-    }
-
-    var flat = Sheet.flatten(tree, true);
-
-    if (!path) {
-      return flat[0] ? flat[0].path : undefined;
-    }
-
-    var match = Sheet.getPath(tree, path, true, flat);
-
-    if (match) {
-      var next = Sheet.nextItem(tree, match.path, move, true, flat);
-      return next ? next.path : undefined;
-    }
-  };
-
-  Sheet.randomItem = function (tree) {
-    var flat = Sheet.flatten(tree, true);
-    return util_1.randomElement(flat);
-  };
-
-  Sheet.stringify = function (measures, property) {
-    if (property === void 0) {
-      property = 'chords';
-    }
-
-    return measures.map(function (measure) {
-      return Measure_1.Measure.from(measure)[property];
+  Synthesizer.prototype.stopVoices = function (voices, settings) {
+    var _this = this;
+
+    voices.forEach(function (voice) {
+      _this.stopVoice(voice, settings);
     });
   };
 
-  Sheet.obfuscate = function (measures, keepFirst) {
-    if (keepFirst === void 0) {
-      keepFirst = true;
-    }
+  return Synthesizer;
+}(Instrument_1.Instrument);
 
-    return measures.map(function (m) {
-      return Measure_1.Measure.from(m, 'chords');
-    }).map(function (m, i) {
-      m.chords = m.chords.map(function (c, j) {
-        if (keepFirst && i === 0 && j === 0) {
-          return c;
-        }
-
-        return c.replace(/([A-G1-9a-z#b\-\^+])/g, '?');
-      });
-      return m;
-    });
-  };
-
-  Sheet.jumpSigns = {
-    '}': {
-      pair: '{',
-      move: -1
-    },
-    'DC': {},
-    'DS': {
-      pair: 'Segno',
-      move: -1
-    },
-    'DS.Fine': {
-      pair: 'Segno',
-      move: -1
-    },
-    'DS.Coda': {
-      pair: 'Segno',
-      move: -1
-    },
-    'DC.Fine': {},
-    'DC.Coda': {},
-    'Fine': {
-      fine: true,
-      validator: function validator(state) {
-        return Sheet.readyForFineOrCoda(state);
-      }
-    },
-    'ToCoda': {
-      pair: 'Coda',
-      move: 1,
-      validator: function validator(state) {
-        return Sheet.readyForFineOrCoda(state);
-      }
-    }
-  };
-  Sheet.sequenceSigns = {
-    rest: ['r', '0'],
-    prolong: ['/', '-', '_'],
-    repeat: ['%']
-  };
-  return Sheet;
-}();
-
-exports.Sheet = Sheet;
-},{"./Measure":"../lib/sheet/Measure.js","../harmony/Harmony":"../lib/harmony/Harmony.js","../util/util":"../lib/util/util.js"}],"../lib/Metronome.js":[function(require,module,exports) {
+exports.Synthesizer = Synthesizer;
+},{"./Instrument":"../lib/instruments/Instrument.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js"}],"../lib/Metronome.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7073,7 +7766,9 @@ function () {
     choices = choices.filter(function (choice) {
       return (!noTopDrop || !choice.topDropped) && (!noTopAdd || !choice.topAdded) && (!noBottomDrop || !choice.bottomDropped) && (!noBottomAdd || !choice.bottomAdded);
     }).filter(function (choice) {
-      return (!filterChoices || filterChoices(choice)) && (choice.difference > 0 || Math.random() < idleChance) && (!topNotes || Voicing.hasTopNotes(choice.targets, topNotes));
+      return (!filterChoices || filterChoices(choice)) && (!topNotes || Voicing.hasTopNotes(choice.targets, topNotes));
+    }).filter(function (choice, index, filtered) {
+      return choice.difference > 0 || filtered.length === 1 || Math.random() < idleChance;
     }).sort(sortChoices ? function (a, b) {
       return sortChoices(a, b);
     } : function (a, b) {
@@ -7209,7 +7904,8 @@ function () {
       minTopDistance: 2
     }, options);
     return function (path, next, array) {
-      return Permutation_1.Permutation.combineValidators(Voicing.notesAtPositionValidator(options.topNotes, path.length + array.length - 1), Voicing.notesAtPositionValidator(options.bottomNotes, 0), Voicing.degreesAtPositionValidator(options.topDegrees, path.length + array.length - 1, options.root), Voicing.degreesAtPositionValidator(options.bottomDegrees, 0, options.root), Voicing.validateInterval(function (interval) {
+      var lastPosition = path.length + array.length - 1;
+      return Permutation_1.Permutation.combineValidators(Voicing.notesAtPositionValidator(options.topNotes, lastPosition), Voicing.notesAtPositionValidator(options.bottomNotes, 0), Voicing.degreesAtPositionValidator(options.topDegrees, lastPosition, options.root), Voicing.degreesAtPositionValidator(options.bottomDegrees, 0, options.root), Voicing.validateInterval(function (interval) {
         return tonal_4.Interval.semitones(interval) <= options.maxDistance;
       }), Voicing.validateInterval(function (interval, _a) {
         var path = _a.path,
@@ -7272,9 +7968,8 @@ function () {
     });
 
     if (extraNotes.length) {
-      required = extraNotes.concat(required).filter(function (n, i, a) {
-        return a.indexOf(n) === i;
-      }).concat(required);
+      required = extraNotes.concat(required);
+      /* .filter((n, i, a) => a.indexOf(n) === i).concat(required); */
 
       if (maxVoices === 1) {
         return [extraNotes];
@@ -7470,6 +8165,11 @@ function () {
 
         return util_1.isInRange(pick[0], range) && util_1.isInRange(pick[pick.length - 1], range);
       });
+
+      if (!combinations.length) {
+        return [];
+      }
+
       var firstPick = combinations[0];
       var firstNoteInRange = Harmony_1.Harmony.getNearestNote(range[0], firstPick[0], 'up');
       var pick = util_1.renderAbsoluteNotes(firstPick, tonal_2.Note.oct(firstNoteInRange));
@@ -7857,1603 +8557,7 @@ exports.Voicing = Voicing;
         return choices.slice(0, voices);
     }
  */
-},{"../util/Permutation":"../lib/util/Permutation.js","../util/Logger":"../lib/util/Logger.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js","./Harmony":"../lib/harmony/Harmony.js"}],"../node_modules/diff/dist/diff.js":[function(require,module,exports) {
-var define;
-var global = arguments[3];
-/*!
-
- diff v4.0.1
-
-Software License Agreement (BSD License)
-
-Copyright (c) 2009-2015, Kevin Decker <kpdecker@gmail.com>
-
-All rights reserved.
-
-Redistribution and use of this software in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above
-  copyright notice, this list of conditions and the
-  following disclaimer.
-
-* Redistributions in binary form must reproduce the above
-  copyright notice, this list of conditions and the
-  following disclaimer in the documentation and/or other
-  materials provided with the distribution.
-
-* Neither the name of Kevin Decker nor the names of its
-  contributors may be used to endorse or promote products
-  derived from this software without specific prior
-  written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-@license
-*/
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) : typeof define === 'function' && define.amd ? define(['exports'], factory) : (global = global || self, factory(global.Diff = {}));
-})(this, function (exports) {
-  'use strict';
-
-  function Diff() {}
-
-  Diff.prototype = {
-    diff: function diff(oldString, newString) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      var callback = options.callback;
-
-      if (typeof options === 'function') {
-        callback = options;
-        options = {};
-      }
-
-      this.options = options;
-      var self = this;
-
-      function done(value) {
-        if (callback) {
-          setTimeout(function () {
-            callback(undefined, value);
-          }, 0);
-          return true;
-        } else {
-          return value;
-        }
-      } // Allow subclasses to massage the input prior to running
-
-
-      oldString = this.castInput(oldString);
-      newString = this.castInput(newString);
-      oldString = this.removeEmpty(this.tokenize(oldString));
-      newString = this.removeEmpty(this.tokenize(newString));
-      var newLen = newString.length,
-          oldLen = oldString.length;
-      var editLength = 1;
-      var maxEditLength = newLen + oldLen;
-      var bestPath = [{
-        newPos: -1,
-        components: []
-      }]; // Seed editLength = 0, i.e. the content starts with the same values
-
-      var oldPos = this.extractCommon(bestPath[0], newString, oldString, 0);
-
-      if (bestPath[0].newPos + 1 >= newLen && oldPos + 1 >= oldLen) {
-        // Identity per the equality and tokenizer
-        return done([{
-          value: this.join(newString),
-          count: newString.length
-        }]);
-      } // Main worker method. checks all permutations of a given edit length for acceptance.
-
-
-      function execEditLength() {
-        for (var diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
-          var basePath = void 0;
-
-          var addPath = bestPath[diagonalPath - 1],
-              removePath = bestPath[diagonalPath + 1],
-              _oldPos = (removePath ? removePath.newPos : 0) - diagonalPath;
-
-          if (addPath) {
-            // No one else is going to attempt to use this value, clear it
-            bestPath[diagonalPath - 1] = undefined;
-          }
-
-          var canAdd = addPath && addPath.newPos + 1 < newLen,
-              canRemove = removePath && 0 <= _oldPos && _oldPos < oldLen;
-
-          if (!canAdd && !canRemove) {
-            // If this path is a terminal then prune
-            bestPath[diagonalPath] = undefined;
-            continue;
-          } // Select the diagonal that we want to branch from. We select the prior
-          // path whose position in the new string is the farthest from the origin
-          // and does not pass the bounds of the diff graph
-
-
-          if (!canAdd || canRemove && addPath.newPos < removePath.newPos) {
-            basePath = clonePath(removePath);
-            self.pushComponent(basePath.components, undefined, true);
-          } else {
-            basePath = addPath; // No need to clone, we've pulled it from the list
-
-            basePath.newPos++;
-            self.pushComponent(basePath.components, true, undefined);
-          }
-
-          _oldPos = self.extractCommon(basePath, newString, oldString, diagonalPath); // If we have hit the end of both strings, then we are done
-
-          if (basePath.newPos + 1 >= newLen && _oldPos + 1 >= oldLen) {
-            return done(buildValues(self, basePath.components, newString, oldString, self.useLongestToken));
-          } else {
-            // Otherwise track this path as a potential candidate and continue.
-            bestPath[diagonalPath] = basePath;
-          }
-        }
-
-        editLength++;
-      } // Performs the length of edit iteration. Is a bit fugly as this has to support the
-      // sync and async mode which is never fun. Loops over execEditLength until a value
-      // is produced.
-
-
-      if (callback) {
-        (function exec() {
-          setTimeout(function () {
-            // This should not happen, but we want to be safe.
-
-            /* istanbul ignore next */
-            if (editLength > maxEditLength) {
-              return callback();
-            }
-
-            if (!execEditLength()) {
-              exec();
-            }
-          }, 0);
-        })();
-      } else {
-        while (editLength <= maxEditLength) {
-          var ret = execEditLength();
-
-          if (ret) {
-            return ret;
-          }
-        }
-      }
-    },
-    pushComponent: function pushComponent(components, added, removed) {
-      var last = components[components.length - 1];
-
-      if (last && last.added === added && last.removed === removed) {
-        // We need to clone here as the component clone operation is just
-        // as shallow array clone
-        components[components.length - 1] = {
-          count: last.count + 1,
-          added: added,
-          removed: removed
-        };
-      } else {
-        components.push({
-          count: 1,
-          added: added,
-          removed: removed
-        });
-      }
-    },
-    extractCommon: function extractCommon(basePath, newString, oldString, diagonalPath) {
-      var newLen = newString.length,
-          oldLen = oldString.length,
-          newPos = basePath.newPos,
-          oldPos = newPos - diagonalPath,
-          commonCount = 0;
-
-      while (newPos + 1 < newLen && oldPos + 1 < oldLen && this.equals(newString[newPos + 1], oldString[oldPos + 1])) {
-        newPos++;
-        oldPos++;
-        commonCount++;
-      }
-
-      if (commonCount) {
-        basePath.components.push({
-          count: commonCount
-        });
-      }
-
-      basePath.newPos = newPos;
-      return oldPos;
-    },
-    equals: function equals(left, right) {
-      if (this.options.comparator) {
-        return this.options.comparator(left, right);
-      } else {
-        return left === right || this.options.ignoreCase && left.toLowerCase() === right.toLowerCase();
-      }
-    },
-    removeEmpty: function removeEmpty(array) {
-      var ret = [];
-
-      for (var i = 0; i < array.length; i++) {
-        if (array[i]) {
-          ret.push(array[i]);
-        }
-      }
-
-      return ret;
-    },
-    castInput: function castInput(value) {
-      return value;
-    },
-    tokenize: function tokenize(value) {
-      return value.split('');
-    },
-    join: function join(chars) {
-      return chars.join('');
-    }
-  };
-
-  function buildValues(diff, components, newString, oldString, useLongestToken) {
-    var componentPos = 0,
-        componentLen = components.length,
-        newPos = 0,
-        oldPos = 0;
-
-    for (; componentPos < componentLen; componentPos++) {
-      var component = components[componentPos];
-
-      if (!component.removed) {
-        if (!component.added && useLongestToken) {
-          var value = newString.slice(newPos, newPos + component.count);
-          value = value.map(function (value, i) {
-            var oldValue = oldString[oldPos + i];
-            return oldValue.length > value.length ? oldValue : value;
-          });
-          component.value = diff.join(value);
-        } else {
-          component.value = diff.join(newString.slice(newPos, newPos + component.count));
-        }
-
-        newPos += component.count; // Common case
-
-        if (!component.added) {
-          oldPos += component.count;
-        }
-      } else {
-        component.value = diff.join(oldString.slice(oldPos, oldPos + component.count));
-        oldPos += component.count; // Reverse add and remove so removes are output first to match common convention
-        // The diffing algorithm is tied to add then remove output and this is the simplest
-        // route to get the desired output with minimal overhead.
-
-        if (componentPos && components[componentPos - 1].added) {
-          var tmp = components[componentPos - 1];
-          components[componentPos - 1] = components[componentPos];
-          components[componentPos] = tmp;
-        }
-      }
-    } // Special case handle for when one terminal is ignored (i.e. whitespace).
-    // For this case we merge the terminal into the prior string and drop the change.
-    // This is only available for string mode.
-
-
-    var lastComponent = components[componentLen - 1];
-
-    if (componentLen > 1 && typeof lastComponent.value === 'string' && (lastComponent.added || lastComponent.removed) && diff.equals('', lastComponent.value)) {
-      components[componentLen - 2].value += lastComponent.value;
-      components.pop();
-    }
-
-    return components;
-  }
-
-  function clonePath(path) {
-    return {
-      newPos: path.newPos,
-      components: path.components.slice(0)
-    };
-  }
-
-  var characterDiff = new Diff();
-
-  function diffChars(oldStr, newStr, options) {
-    return characterDiff.diff(oldStr, newStr, options);
-  }
-
-  function generateOptions(options, defaults) {
-    if (typeof options === 'function') {
-      defaults.callback = options;
-    } else if (options) {
-      for (var name in options) {
-        /* istanbul ignore else */
-        if (options.hasOwnProperty(name)) {
-          defaults[name] = options[name];
-        }
-      }
-    }
-
-    return defaults;
-  } //
-  // Ranges and exceptions:
-  // Latin-1 Supplement, 0080–00FF
-  //  - U+00D7  × Multiplication sign
-  //  - U+00F7  ÷ Division sign
-  // Latin Extended-A, 0100–017F
-  // Latin Extended-B, 0180–024F
-  // IPA Extensions, 0250–02AF
-  // Spacing Modifier Letters, 02B0–02FF
-  //  - U+02C7  ˇ &#711;  Caron
-  //  - U+02D8  ˘ &#728;  Breve
-  //  - U+02D9  ˙ &#729;  Dot Above
-  //  - U+02DA  ˚ &#730;  Ring Above
-  //  - U+02DB  ˛ &#731;  Ogonek
-  //  - U+02DC  ˜ &#732;  Small Tilde
-  //  - U+02DD  ˝ &#733;  Double Acute Accent
-  // Latin Extended Additional, 1E00–1EFF
-
-
-  var extendedWordChars = /^[A-Za-z\xC0-\u02C6\u02C8-\u02D7\u02DE-\u02FF\u1E00-\u1EFF]+$/;
-  var reWhitespace = /\S/;
-  var wordDiff = new Diff();
-
-  wordDiff.equals = function (left, right) {
-    if (this.options.ignoreCase) {
-      left = left.toLowerCase();
-      right = right.toLowerCase();
-    }
-
-    return left === right || this.options.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right);
-  };
-
-  wordDiff.tokenize = function (value) {
-    var tokens = value.split(/(\s+|[()[\]{}'"]|\b)/); // Join the boundary splits that we do not consider to be boundaries. This is primarily the extended Latin character set.
-
-    for (var i = 0; i < tokens.length - 1; i++) {
-      // If we have an empty string in the next field and we have only word chars before and after, merge
-      if (!tokens[i + 1] && tokens[i + 2] && extendedWordChars.test(tokens[i]) && extendedWordChars.test(tokens[i + 2])) {
-        tokens[i] += tokens[i + 2];
-        tokens.splice(i + 1, 2);
-        i--;
-      }
-    }
-
-    return tokens;
-  };
-
-  function diffWords(oldStr, newStr, options) {
-    options = generateOptions(options, {
-      ignoreWhitespace: true
-    });
-    return wordDiff.diff(oldStr, newStr, options);
-  }
-
-  function diffWordsWithSpace(oldStr, newStr, options) {
-    return wordDiff.diff(oldStr, newStr, options);
-  }
-
-  var lineDiff = new Diff();
-
-  lineDiff.tokenize = function (value) {
-    var retLines = [],
-        linesAndNewlines = value.split(/(\n|\r\n)/); // Ignore the final empty token that occurs if the string ends with a new line
-
-    if (!linesAndNewlines[linesAndNewlines.length - 1]) {
-      linesAndNewlines.pop();
-    } // Merge the content and line separators into single tokens
-
-
-    for (var i = 0; i < linesAndNewlines.length; i++) {
-      var line = linesAndNewlines[i];
-
-      if (i % 2 && !this.options.newlineIsToken) {
-        retLines[retLines.length - 1] += line;
-      } else {
-        if (this.options.ignoreWhitespace) {
-          line = line.trim();
-        }
-
-        retLines.push(line);
-      }
-    }
-
-    return retLines;
-  };
-
-  function diffLines(oldStr, newStr, callback) {
-    return lineDiff.diff(oldStr, newStr, callback);
-  }
-
-  function diffTrimmedLines(oldStr, newStr, callback) {
-    var options = generateOptions(callback, {
-      ignoreWhitespace: true
-    });
-    return lineDiff.diff(oldStr, newStr, options);
-  }
-
-  var sentenceDiff = new Diff();
-
-  sentenceDiff.tokenize = function (value) {
-    return value.split(/(\S.+?[.!?])(?=\s+|$)/);
-  };
-
-  function diffSentences(oldStr, newStr, callback) {
-    return sentenceDiff.diff(oldStr, newStr, callback);
-  }
-
-  var cssDiff = new Diff();
-
-  cssDiff.tokenize = function (value) {
-    return value.split(/([{}:;,]|\s+)/);
-  };
-
-  function diffCss(oldStr, newStr, callback) {
-    return cssDiff.diff(oldStr, newStr, callback);
-  }
-
-  function _typeof(obj) {
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
-  }
-
-  function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
-  }
-
-  var objectPrototypeToString = Object.prototype.toString;
-  var jsonDiff = new Diff(); // Discriminate between two lines of pretty-printed, serialized JSON where one of them has a
-  // dangling comma and the other doesn't. Turns out including the dangling comma yields the nicest output:
-
-  jsonDiff.useLongestToken = true;
-  jsonDiff.tokenize = lineDiff.tokenize;
-
-  jsonDiff.castInput = function (value) {
-    var _this$options = this.options,
-        undefinedReplacement = _this$options.undefinedReplacement,
-        _this$options$stringi = _this$options.stringifyReplacer,
-        stringifyReplacer = _this$options$stringi === void 0 ? function (k, v) {
-      return typeof v === 'undefined' ? undefinedReplacement : v;
-    } : _this$options$stringi;
-    return typeof value === 'string' ? value : JSON.stringify(canonicalize(value, null, null, stringifyReplacer), stringifyReplacer, '  ');
-  };
-
-  jsonDiff.equals = function (left, right) {
-    return Diff.prototype.equals.call(jsonDiff, left.replace(/,([\r\n])/g, '$1'), right.replace(/,([\r\n])/g, '$1'));
-  };
-
-  function diffJson(oldObj, newObj, options) {
-    return jsonDiff.diff(oldObj, newObj, options);
-  } // This function handles the presence of circular references by bailing out when encountering an
-  // object that is already on the "stack" of items being processed. Accepts an optional replacer
-
-
-  function canonicalize(obj, stack, replacementStack, replacer, key) {
-    stack = stack || [];
-    replacementStack = replacementStack || [];
-
-    if (replacer) {
-      obj = replacer(key, obj);
-    }
-
-    var i;
-
-    for (i = 0; i < stack.length; i += 1) {
-      if (stack[i] === obj) {
-        return replacementStack[i];
-      }
-    }
-
-    var canonicalizedObj;
-
-    if ('[object Array]' === objectPrototypeToString.call(obj)) {
-      stack.push(obj);
-      canonicalizedObj = new Array(obj.length);
-      replacementStack.push(canonicalizedObj);
-
-      for (i = 0; i < obj.length; i += 1) {
-        canonicalizedObj[i] = canonicalize(obj[i], stack, replacementStack, replacer, key);
-      }
-
-      stack.pop();
-      replacementStack.pop();
-      return canonicalizedObj;
-    }
-
-    if (obj && obj.toJSON) {
-      obj = obj.toJSON();
-    }
-
-    if (_typeof(obj) === 'object' && obj !== null) {
-      stack.push(obj);
-      canonicalizedObj = {};
-      replacementStack.push(canonicalizedObj);
-
-      var sortedKeys = [],
-          _key;
-
-      for (_key in obj) {
-        /* istanbul ignore else */
-        if (obj.hasOwnProperty(_key)) {
-          sortedKeys.push(_key);
-        }
-      }
-
-      sortedKeys.sort();
-
-      for (i = 0; i < sortedKeys.length; i += 1) {
-        _key = sortedKeys[i];
-        canonicalizedObj[_key] = canonicalize(obj[_key], stack, replacementStack, replacer, _key);
-      }
-
-      stack.pop();
-      replacementStack.pop();
-    } else {
-      canonicalizedObj = obj;
-    }
-
-    return canonicalizedObj;
-  }
-
-  var arrayDiff = new Diff();
-
-  arrayDiff.tokenize = function (value) {
-    return value.slice();
-  };
-
-  arrayDiff.join = arrayDiff.removeEmpty = function (value) {
-    return value;
-  };
-
-  function diffArrays(oldArr, newArr, callback) {
-    return arrayDiff.diff(oldArr, newArr, callback);
-  }
-
-  function parsePatch(uniDiff) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var diffstr = uniDiff.split(/\r\n|[\n\v\f\r\x85]/),
-        delimiters = uniDiff.match(/\r\n|[\n\v\f\r\x85]/g) || [],
-        list = [],
-        i = 0;
-
-    function parseIndex() {
-      var index = {};
-      list.push(index); // Parse diff metadata
-
-      while (i < diffstr.length) {
-        var line = diffstr[i]; // File header found, end parsing diff metadata
-
-        if (/^(\-\-\-|\+\+\+|@@)\s/.test(line)) {
-          break;
-        } // Diff index
-
-
-        var header = /^(?:Index:|diff(?: -r \w+)+)\s+(.+?)\s*$/.exec(line);
-
-        if (header) {
-          index.index = header[1];
-        }
-
-        i++;
-      } // Parse file headers if they are defined. Unified diff requires them, but
-      // there's no technical issues to have an isolated hunk without file header
-
-
-      parseFileHeader(index);
-      parseFileHeader(index); // Parse hunks
-
-      index.hunks = [];
-
-      while (i < diffstr.length) {
-        var _line = diffstr[i];
-
-        if (/^(Index:|diff|\-\-\-|\+\+\+)\s/.test(_line)) {
-          break;
-        } else if (/^@@/.test(_line)) {
-          index.hunks.push(parseHunk());
-        } else if (_line && options.strict) {
-          // Ignore unexpected content unless in strict mode
-          throw new Error('Unknown line ' + (i + 1) + ' ' + JSON.stringify(_line));
-        } else {
-          i++;
-        }
-      }
-    } // Parses the --- and +++ headers, if none are found, no lines
-    // are consumed.
-
-
-    function parseFileHeader(index) {
-      var fileHeader = /^(---|\+\+\+)\s+(.*)$/.exec(diffstr[i]);
-
-      if (fileHeader) {
-        var keyPrefix = fileHeader[1] === '---' ? 'old' : 'new';
-        var data = fileHeader[2].split('\t', 2);
-        var fileName = data[0].replace(/\\\\/g, '\\');
-
-        if (/^".*"$/.test(fileName)) {
-          fileName = fileName.substr(1, fileName.length - 2);
-        }
-
-        index[keyPrefix + 'FileName'] = fileName;
-        index[keyPrefix + 'Header'] = (data[1] || '').trim();
-        i++;
-      }
-    } // Parses a hunk
-    // This assumes that we are at the start of a hunk.
-
-
-    function parseHunk() {
-      var chunkHeaderIndex = i,
-          chunkHeaderLine = diffstr[i++],
-          chunkHeader = chunkHeaderLine.split(/@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
-      var hunk = {
-        oldStart: +chunkHeader[1],
-        oldLines: +chunkHeader[2] || 1,
-        newStart: +chunkHeader[3],
-        newLines: +chunkHeader[4] || 1,
-        lines: [],
-        linedelimiters: []
-      };
-      var addCount = 0,
-          removeCount = 0;
-
-      for (; i < diffstr.length; i++) {
-        // Lines starting with '---' could be mistaken for the "remove line" operation
-        // But they could be the header for the next file. Therefore prune such cases out.
-        if (diffstr[i].indexOf('--- ') === 0 && i + 2 < diffstr.length && diffstr[i + 1].indexOf('+++ ') === 0 && diffstr[i + 2].indexOf('@@') === 0) {
-          break;
-        }
-
-        var operation = diffstr[i].length == 0 && i != diffstr.length - 1 ? ' ' : diffstr[i][0];
-
-        if (operation === '+' || operation === '-' || operation === ' ' || operation === '\\') {
-          hunk.lines.push(diffstr[i]);
-          hunk.linedelimiters.push(delimiters[i] || '\n');
-
-          if (operation === '+') {
-            addCount++;
-          } else if (operation === '-') {
-            removeCount++;
-          } else if (operation === ' ') {
-            addCount++;
-            removeCount++;
-          }
-        } else {
-          break;
-        }
-      } // Handle the empty block count case
-
-
-      if (!addCount && hunk.newLines === 1) {
-        hunk.newLines = 0;
-      }
-
-      if (!removeCount && hunk.oldLines === 1) {
-        hunk.oldLines = 0;
-      } // Perform optional sanity checking
-
-
-      if (options.strict) {
-        if (addCount !== hunk.newLines) {
-          throw new Error('Added line count did not match for hunk at line ' + (chunkHeaderIndex + 1));
-        }
-
-        if (removeCount !== hunk.oldLines) {
-          throw new Error('Removed line count did not match for hunk at line ' + (chunkHeaderIndex + 1));
-        }
-      }
-
-      return hunk;
-    }
-
-    while (i < diffstr.length) {
-      parseIndex();
-    }
-
-    return list;
-  } // Iterator that traverses in the range of [min, max], stepping
-  // by distance from a given start position. I.e. for [0, 4], with
-  // start of 2, this will iterate 2, 3, 1, 4, 0.
-
-
-  function distanceIterator(start, minLine, maxLine) {
-    var wantForward = true,
-        backwardExhausted = false,
-        forwardExhausted = false,
-        localOffset = 1;
-    return function iterator() {
-      if (wantForward && !forwardExhausted) {
-        if (backwardExhausted) {
-          localOffset++;
-        } else {
-          wantForward = false;
-        } // Check if trying to fit beyond text length, and if not, check it fits
-        // after offset location (or desired location on first iteration)
-
-
-        if (start + localOffset <= maxLine) {
-          return localOffset;
-        }
-
-        forwardExhausted = true;
-      }
-
-      if (!backwardExhausted) {
-        if (!forwardExhausted) {
-          wantForward = true;
-        } // Check if trying to fit before text beginning, and if not, check it fits
-        // before offset location
-
-
-        if (minLine <= start - localOffset) {
-          return -localOffset++;
-        }
-
-        backwardExhausted = true;
-        return iterator();
-      } // We tried to fit hunk before text beginning and beyond text length, then
-      // hunk can't fit on the text. Return undefined
-
-    };
-  }
-
-  function applyPatch(source, uniDiff) {
-    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-    if (typeof uniDiff === 'string') {
-      uniDiff = parsePatch(uniDiff);
-    }
-
-    if (Array.isArray(uniDiff)) {
-      if (uniDiff.length > 1) {
-        throw new Error('applyPatch only works with a single input.');
-      }
-
-      uniDiff = uniDiff[0];
-    } // Apply the diff to the input
-
-
-    var lines = source.split(/\r\n|[\n\v\f\r\x85]/),
-        delimiters = source.match(/\r\n|[\n\v\f\r\x85]/g) || [],
-        hunks = uniDiff.hunks,
-        compareLine = options.compareLine || function (lineNumber, line, operation, patchContent) {
-      return line === patchContent;
-    },
-        errorCount = 0,
-        fuzzFactor = options.fuzzFactor || 0,
-        minLine = 0,
-        offset = 0,
-        removeEOFNL,
-        addEOFNL;
-    /**
-     * Checks if the hunk exactly fits on the provided location
-     */
-
-
-    function hunkFits(hunk, toPos) {
-      for (var j = 0; j < hunk.lines.length; j++) {
-        var line = hunk.lines[j],
-            operation = line.length > 0 ? line[0] : ' ',
-            content = line.length > 0 ? line.substr(1) : line;
-
-        if (operation === ' ' || operation === '-') {
-          // Context sanity check
-          if (!compareLine(toPos + 1, lines[toPos], operation, content)) {
-            errorCount++;
-
-            if (errorCount > fuzzFactor) {
-              return false;
-            }
-          }
-
-          toPos++;
-        }
-      }
-
-      return true;
-    } // Search best fit offsets for each hunk based on the previous ones
-
-
-    for (var i = 0; i < hunks.length; i++) {
-      var hunk = hunks[i],
-          maxLine = lines.length - hunk.oldLines,
-          localOffset = 0,
-          toPos = offset + hunk.oldStart - 1;
-      var iterator = distanceIterator(toPos, minLine, maxLine);
-
-      for (; localOffset !== undefined; localOffset = iterator()) {
-        if (hunkFits(hunk, toPos + localOffset)) {
-          hunk.offset = offset += localOffset;
-          break;
-        }
-      }
-
-      if (localOffset === undefined) {
-        return false;
-      } // Set lower text limit to end of the current hunk, so next ones don't try
-      // to fit over already patched text
-
-
-      minLine = hunk.offset + hunk.oldStart + hunk.oldLines;
-    } // Apply patch hunks
-
-
-    var diffOffset = 0;
-
-    for (var _i = 0; _i < hunks.length; _i++) {
-      var _hunk = hunks[_i],
-          _toPos = _hunk.oldStart + _hunk.offset + diffOffset - 1;
-
-      diffOffset += _hunk.newLines - _hunk.oldLines;
-
-      if (_toPos < 0) {
-        // Creating a new file
-        _toPos = 0;
-      }
-
-      for (var j = 0; j < _hunk.lines.length; j++) {
-        var line = _hunk.lines[j],
-            operation = line.length > 0 ? line[0] : ' ',
-            content = line.length > 0 ? line.substr(1) : line,
-            delimiter = _hunk.linedelimiters[j];
-
-        if (operation === ' ') {
-          _toPos++;
-        } else if (operation === '-') {
-          lines.splice(_toPos, 1);
-          delimiters.splice(_toPos, 1);
-          /* istanbul ignore else */
-        } else if (operation === '+') {
-          lines.splice(_toPos, 0, content);
-          delimiters.splice(_toPos, 0, delimiter);
-          _toPos++;
-        } else if (operation === '\\') {
-          var previousOperation = _hunk.lines[j - 1] ? _hunk.lines[j - 1][0] : null;
-
-          if (previousOperation === '+') {
-            removeEOFNL = true;
-          } else if (previousOperation === '-') {
-            addEOFNL = true;
-          }
-        }
-      }
-    } // Handle EOFNL insertion/removal
-
-
-    if (removeEOFNL) {
-      while (!lines[lines.length - 1]) {
-        lines.pop();
-        delimiters.pop();
-      }
-    } else if (addEOFNL) {
-      lines.push('');
-      delimiters.push('\n');
-    }
-
-    for (var _k = 0; _k < lines.length - 1; _k++) {
-      lines[_k] = lines[_k] + delimiters[_k];
-    }
-
-    return lines.join('');
-  } // Wrapper that supports multiple file patches via callbacks.
-
-
-  function applyPatches(uniDiff, options) {
-    if (typeof uniDiff === 'string') {
-      uniDiff = parsePatch(uniDiff);
-    }
-
-    var currentIndex = 0;
-
-    function processIndex() {
-      var index = uniDiff[currentIndex++];
-
-      if (!index) {
-        return options.complete();
-      }
-
-      options.loadFile(index, function (err, data) {
-        if (err) {
-          return options.complete(err);
-        }
-
-        var updatedContent = applyPatch(data, index, options);
-        options.patched(index, updatedContent, function (err) {
-          if (err) {
-            return options.complete(err);
-          }
-
-          processIndex();
-        });
-      });
-    }
-
-    processIndex();
-  }
-
-  function structuredPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options) {
-    if (!options) {
-      options = {};
-    }
-
-    if (typeof options.context === 'undefined') {
-      options.context = 4;
-    }
-
-    var diff = diffLines(oldStr, newStr, options);
-    diff.push({
-      value: '',
-      lines: []
-    }); // Append an empty value to make cleanup easier
-
-    function contextLines(lines) {
-      return lines.map(function (entry) {
-        return ' ' + entry;
-      });
-    }
-
-    var hunks = [];
-    var oldRangeStart = 0,
-        newRangeStart = 0,
-        curRange = [],
-        oldLine = 1,
-        newLine = 1;
-
-    var _loop = function _loop(i) {
-      var current = diff[i],
-          lines = current.lines || current.value.replace(/\n$/, '').split('\n');
-      current.lines = lines;
-
-      if (current.added || current.removed) {
-        var _curRange; // If we have previous context, start with that
-
-
-        if (!oldRangeStart) {
-          var prev = diff[i - 1];
-          oldRangeStart = oldLine;
-          newRangeStart = newLine;
-
-          if (prev) {
-            curRange = options.context > 0 ? contextLines(prev.lines.slice(-options.context)) : [];
-            oldRangeStart -= curRange.length;
-            newRangeStart -= curRange.length;
-          }
-        } // Output our changes
-
-
-        (_curRange = curRange).push.apply(_curRange, _toConsumableArray(lines.map(function (entry) {
-          return (current.added ? '+' : '-') + entry;
-        }))); // Track the updated file position
-
-
-        if (current.added) {
-          newLine += lines.length;
-        } else {
-          oldLine += lines.length;
-        }
-      } else {
-        // Identical context lines. Track line changes
-        if (oldRangeStart) {
-          // Close out any changes that have been output (or join overlapping)
-          if (lines.length <= options.context * 2 && i < diff.length - 2) {
-            var _curRange2; // Overlapping
-
-
-            (_curRange2 = curRange).push.apply(_curRange2, _toConsumableArray(contextLines(lines)));
-          } else {
-            var _curRange3; // end the range and output
-
-
-            var contextSize = Math.min(lines.length, options.context);
-
-            (_curRange3 = curRange).push.apply(_curRange3, _toConsumableArray(contextLines(lines.slice(0, contextSize))));
-
-            var hunk = {
-              oldStart: oldRangeStart,
-              oldLines: oldLine - oldRangeStart + contextSize,
-              newStart: newRangeStart,
-              newLines: newLine - newRangeStart + contextSize,
-              lines: curRange
-            };
-
-            if (i >= diff.length - 2 && lines.length <= options.context) {
-              // EOF is inside this hunk
-              var oldEOFNewline = /\n$/.test(oldStr);
-              var newEOFNewline = /\n$/.test(newStr);
-              var noNlBeforeAdds = lines.length == 0 && curRange.length > hunk.oldLines;
-
-              if (!oldEOFNewline && noNlBeforeAdds) {
-                // special case: old has no eol and no trailing context; no-nl can end up before adds
-                curRange.splice(hunk.oldLines, 0, '\\ No newline at end of file');
-              }
-
-              if (!oldEOFNewline && !noNlBeforeAdds || !newEOFNewline) {
-                curRange.push('\\ No newline at end of file');
-              }
-            }
-
-            hunks.push(hunk);
-            oldRangeStart = 0;
-            newRangeStart = 0;
-            curRange = [];
-          }
-        }
-
-        oldLine += lines.length;
-        newLine += lines.length;
-      }
-    };
-
-    for (var i = 0; i < diff.length; i++) {
-      _loop(i);
-    }
-
-    return {
-      oldFileName: oldFileName,
-      newFileName: newFileName,
-      oldHeader: oldHeader,
-      newHeader: newHeader,
-      hunks: hunks
-    };
-  }
-
-  function createTwoFilesPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options) {
-    var diff = structuredPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options);
-    var ret = [];
-
-    if (oldFileName == newFileName) {
-      ret.push('Index: ' + oldFileName);
-    }
-
-    ret.push('===================================================================');
-    ret.push('--- ' + diff.oldFileName + (typeof diff.oldHeader === 'undefined' ? '' : '\t' + diff.oldHeader));
-    ret.push('+++ ' + diff.newFileName + (typeof diff.newHeader === 'undefined' ? '' : '\t' + diff.newHeader));
-
-    for (var i = 0; i < diff.hunks.length; i++) {
-      var hunk = diff.hunks[i];
-      ret.push('@@ -' + hunk.oldStart + ',' + hunk.oldLines + ' +' + hunk.newStart + ',' + hunk.newLines + ' @@');
-      ret.push.apply(ret, hunk.lines);
-    }
-
-    return ret.join('\n') + '\n';
-  }
-
-  function createPatch(fileName, oldStr, newStr, oldHeader, newHeader, options) {
-    return createTwoFilesPatch(fileName, fileName, oldStr, newStr, oldHeader, newHeader, options);
-  }
-
-  function arrayEqual(a, b) {
-    if (a.length !== b.length) {
-      return false;
-    }
-
-    return arrayStartsWith(a, b);
-  }
-
-  function arrayStartsWith(array, start) {
-    if (start.length > array.length) {
-      return false;
-    }
-
-    for (var i = 0; i < start.length; i++) {
-      if (start[i] !== array[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  function calcLineCount(hunk) {
-    var _calcOldNewLineCount = calcOldNewLineCount(hunk.lines),
-        oldLines = _calcOldNewLineCount.oldLines,
-        newLines = _calcOldNewLineCount.newLines;
-
-    if (oldLines !== undefined) {
-      hunk.oldLines = oldLines;
-    } else {
-      delete hunk.oldLines;
-    }
-
-    if (newLines !== undefined) {
-      hunk.newLines = newLines;
-    } else {
-      delete hunk.newLines;
-    }
-  }
-
-  function merge(mine, theirs, base) {
-    mine = loadPatch(mine, base);
-    theirs = loadPatch(theirs, base);
-    var ret = {}; // For index we just let it pass through as it doesn't have any necessary meaning.
-    // Leaving sanity checks on this to the API consumer that may know more about the
-    // meaning in their own context.
-
-    if (mine.index || theirs.index) {
-      ret.index = mine.index || theirs.index;
-    }
-
-    if (mine.newFileName || theirs.newFileName) {
-      if (!fileNameChanged(mine)) {
-        // No header or no change in ours, use theirs (and ours if theirs does not exist)
-        ret.oldFileName = theirs.oldFileName || mine.oldFileName;
-        ret.newFileName = theirs.newFileName || mine.newFileName;
-        ret.oldHeader = theirs.oldHeader || mine.oldHeader;
-        ret.newHeader = theirs.newHeader || mine.newHeader;
-      } else if (!fileNameChanged(theirs)) {
-        // No header or no change in theirs, use ours
-        ret.oldFileName = mine.oldFileName;
-        ret.newFileName = mine.newFileName;
-        ret.oldHeader = mine.oldHeader;
-        ret.newHeader = mine.newHeader;
-      } else {
-        // Both changed... figure it out
-        ret.oldFileName = selectField(ret, mine.oldFileName, theirs.oldFileName);
-        ret.newFileName = selectField(ret, mine.newFileName, theirs.newFileName);
-        ret.oldHeader = selectField(ret, mine.oldHeader, theirs.oldHeader);
-        ret.newHeader = selectField(ret, mine.newHeader, theirs.newHeader);
-      }
-    }
-
-    ret.hunks = [];
-    var mineIndex = 0,
-        theirsIndex = 0,
-        mineOffset = 0,
-        theirsOffset = 0;
-
-    while (mineIndex < mine.hunks.length || theirsIndex < theirs.hunks.length) {
-      var mineCurrent = mine.hunks[mineIndex] || {
-        oldStart: Infinity
-      },
-          theirsCurrent = theirs.hunks[theirsIndex] || {
-        oldStart: Infinity
-      };
-
-      if (hunkBefore(mineCurrent, theirsCurrent)) {
-        // This patch does not overlap with any of the others, yay.
-        ret.hunks.push(cloneHunk(mineCurrent, mineOffset));
-        mineIndex++;
-        theirsOffset += mineCurrent.newLines - mineCurrent.oldLines;
-      } else if (hunkBefore(theirsCurrent, mineCurrent)) {
-        // This patch does not overlap with any of the others, yay.
-        ret.hunks.push(cloneHunk(theirsCurrent, theirsOffset));
-        theirsIndex++;
-        mineOffset += theirsCurrent.newLines - theirsCurrent.oldLines;
-      } else {
-        // Overlap, merge as best we can
-        var mergedHunk = {
-          oldStart: Math.min(mineCurrent.oldStart, theirsCurrent.oldStart),
-          oldLines: 0,
-          newStart: Math.min(mineCurrent.newStart + mineOffset, theirsCurrent.oldStart + theirsOffset),
-          newLines: 0,
-          lines: []
-        };
-        mergeLines(mergedHunk, mineCurrent.oldStart, mineCurrent.lines, theirsCurrent.oldStart, theirsCurrent.lines);
-        theirsIndex++;
-        mineIndex++;
-        ret.hunks.push(mergedHunk);
-      }
-    }
-
-    return ret;
-  }
-
-  function loadPatch(param, base) {
-    if (typeof param === 'string') {
-      if (/^@@/m.test(param) || /^Index:/m.test(param)) {
-        return parsePatch(param)[0];
-      }
-
-      if (!base) {
-        throw new Error('Must provide a base reference or pass in a patch');
-      }
-
-      return structuredPatch(undefined, undefined, base, param);
-    }
-
-    return param;
-  }
-
-  function fileNameChanged(patch) {
-    return patch.newFileName && patch.newFileName !== patch.oldFileName;
-  }
-
-  function selectField(index, mine, theirs) {
-    if (mine === theirs) {
-      return mine;
-    } else {
-      index.conflict = true;
-      return {
-        mine: mine,
-        theirs: theirs
-      };
-    }
-  }
-
-  function hunkBefore(test, check) {
-    return test.oldStart < check.oldStart && test.oldStart + test.oldLines < check.oldStart;
-  }
-
-  function cloneHunk(hunk, offset) {
-    return {
-      oldStart: hunk.oldStart,
-      oldLines: hunk.oldLines,
-      newStart: hunk.newStart + offset,
-      newLines: hunk.newLines,
-      lines: hunk.lines
-    };
-  }
-
-  function mergeLines(hunk, mineOffset, mineLines, theirOffset, theirLines) {
-    // This will generally result in a conflicted hunk, but there are cases where the context
-    // is the only overlap where we can successfully merge the content here.
-    var mine = {
-      offset: mineOffset,
-      lines: mineLines,
-      index: 0
-    },
-        their = {
-      offset: theirOffset,
-      lines: theirLines,
-      index: 0
-    }; // Handle any leading content
-
-    insertLeading(hunk, mine, their);
-    insertLeading(hunk, their, mine); // Now in the overlap content. Scan through and select the best changes from each.
-
-    while (mine.index < mine.lines.length && their.index < their.lines.length) {
-      var mineCurrent = mine.lines[mine.index],
-          theirCurrent = their.lines[their.index];
-
-      if ((mineCurrent[0] === '-' || mineCurrent[0] === '+') && (theirCurrent[0] === '-' || theirCurrent[0] === '+')) {
-        // Both modified ...
-        mutualChange(hunk, mine, their);
-      } else if (mineCurrent[0] === '+' && theirCurrent[0] === ' ') {
-        var _hunk$lines; // Mine inserted
-
-
-        (_hunk$lines = hunk.lines).push.apply(_hunk$lines, _toConsumableArray(collectChange(mine)));
-      } else if (theirCurrent[0] === '+' && mineCurrent[0] === ' ') {
-        var _hunk$lines2; // Theirs inserted
-
-
-        (_hunk$lines2 = hunk.lines).push.apply(_hunk$lines2, _toConsumableArray(collectChange(their)));
-      } else if (mineCurrent[0] === '-' && theirCurrent[0] === ' ') {
-        // Mine removed or edited
-        removal(hunk, mine, their);
-      } else if (theirCurrent[0] === '-' && mineCurrent[0] === ' ') {
-        // Their removed or edited
-        removal(hunk, their, mine, true);
-      } else if (mineCurrent === theirCurrent) {
-        // Context identity
-        hunk.lines.push(mineCurrent);
-        mine.index++;
-        their.index++;
-      } else {
-        // Context mismatch
-        conflict(hunk, collectChange(mine), collectChange(their));
-      }
-    } // Now push anything that may be remaining
-
-
-    insertTrailing(hunk, mine);
-    insertTrailing(hunk, their);
-    calcLineCount(hunk);
-  }
-
-  function mutualChange(hunk, mine, their) {
-    var myChanges = collectChange(mine),
-        theirChanges = collectChange(their);
-
-    if (allRemoves(myChanges) && allRemoves(theirChanges)) {
-      // Special case for remove changes that are supersets of one another
-      if (arrayStartsWith(myChanges, theirChanges) && skipRemoveSuperset(their, myChanges, myChanges.length - theirChanges.length)) {
-        var _hunk$lines3;
-
-        (_hunk$lines3 = hunk.lines).push.apply(_hunk$lines3, _toConsumableArray(myChanges));
-
-        return;
-      } else if (arrayStartsWith(theirChanges, myChanges) && skipRemoveSuperset(mine, theirChanges, theirChanges.length - myChanges.length)) {
-        var _hunk$lines4;
-
-        (_hunk$lines4 = hunk.lines).push.apply(_hunk$lines4, _toConsumableArray(theirChanges));
-
-        return;
-      }
-    } else if (arrayEqual(myChanges, theirChanges)) {
-      var _hunk$lines5;
-
-      (_hunk$lines5 = hunk.lines).push.apply(_hunk$lines5, _toConsumableArray(myChanges));
-
-      return;
-    }
-
-    conflict(hunk, myChanges, theirChanges);
-  }
-
-  function removal(hunk, mine, their, swap) {
-    var myChanges = collectChange(mine),
-        theirChanges = collectContext(their, myChanges);
-
-    if (theirChanges.merged) {
-      var _hunk$lines6;
-
-      (_hunk$lines6 = hunk.lines).push.apply(_hunk$lines6, _toConsumableArray(theirChanges.merged));
-    } else {
-      conflict(hunk, swap ? theirChanges : myChanges, swap ? myChanges : theirChanges);
-    }
-  }
-
-  function conflict(hunk, mine, their) {
-    hunk.conflict = true;
-    hunk.lines.push({
-      conflict: true,
-      mine: mine,
-      theirs: their
-    });
-  }
-
-  function insertLeading(hunk, insert, their) {
-    while (insert.offset < their.offset && insert.index < insert.lines.length) {
-      var line = insert.lines[insert.index++];
-      hunk.lines.push(line);
-      insert.offset++;
-    }
-  }
-
-  function insertTrailing(hunk, insert) {
-    while (insert.index < insert.lines.length) {
-      var line = insert.lines[insert.index++];
-      hunk.lines.push(line);
-    }
-  }
-
-  function collectChange(state) {
-    var ret = [],
-        operation = state.lines[state.index][0];
-
-    while (state.index < state.lines.length) {
-      var line = state.lines[state.index]; // Group additions that are immediately after subtractions and treat them as one "atomic" modify change.
-
-      if (operation === '-' && line[0] === '+') {
-        operation = '+';
-      }
-
-      if (operation === line[0]) {
-        ret.push(line);
-        state.index++;
-      } else {
-        break;
-      }
-    }
-
-    return ret;
-  }
-
-  function collectContext(state, matchChanges) {
-    var changes = [],
-        merged = [],
-        matchIndex = 0,
-        contextChanges = false,
-        conflicted = false;
-
-    while (matchIndex < matchChanges.length && state.index < state.lines.length) {
-      var change = state.lines[state.index],
-          match = matchChanges[matchIndex]; // Once we've hit our add, then we are done
-
-      if (match[0] === '+') {
-        break;
-      }
-
-      contextChanges = contextChanges || change[0] !== ' ';
-      merged.push(match);
-      matchIndex++; // Consume any additions in the other block as a conflict to attempt
-      // to pull in the remaining context after this
-
-      if (change[0] === '+') {
-        conflicted = true;
-
-        while (change[0] === '+') {
-          changes.push(change);
-          change = state.lines[++state.index];
-        }
-      }
-
-      if (match.substr(1) === change.substr(1)) {
-        changes.push(change);
-        state.index++;
-      } else {
-        conflicted = true;
-      }
-    }
-
-    if ((matchChanges[matchIndex] || '')[0] === '+' && contextChanges) {
-      conflicted = true;
-    }
-
-    if (conflicted) {
-      return changes;
-    }
-
-    while (matchIndex < matchChanges.length) {
-      merged.push(matchChanges[matchIndex++]);
-    }
-
-    return {
-      merged: merged,
-      changes: changes
-    };
-  }
-
-  function allRemoves(changes) {
-    return changes.reduce(function (prev, change) {
-      return prev && change[0] === '-';
-    }, true);
-  }
-
-  function skipRemoveSuperset(state, removeChanges, delta) {
-    for (var i = 0; i < delta; i++) {
-      var changeContent = removeChanges[removeChanges.length - delta + i].substr(1);
-
-      if (state.lines[state.index + i] !== ' ' + changeContent) {
-        return false;
-      }
-    }
-
-    state.index += delta;
-    return true;
-  }
-
-  function calcOldNewLineCount(lines) {
-    var oldLines = 0;
-    var newLines = 0;
-    lines.forEach(function (line) {
-      if (typeof line !== 'string') {
-        var myCount = calcOldNewLineCount(line.mine);
-        var theirCount = calcOldNewLineCount(line.theirs);
-
-        if (oldLines !== undefined) {
-          if (myCount.oldLines === theirCount.oldLines) {
-            oldLines += myCount.oldLines;
-          } else {
-            oldLines = undefined;
-          }
-        }
-
-        if (newLines !== undefined) {
-          if (myCount.newLines === theirCount.newLines) {
-            newLines += myCount.newLines;
-          } else {
-            newLines = undefined;
-          }
-        }
-      } else {
-        if (newLines !== undefined && (line[0] === '+' || line[0] === ' ')) {
-          newLines++;
-        }
-
-        if (oldLines !== undefined && (line[0] === '-' || line[0] === ' ')) {
-          oldLines++;
-        }
-      }
-    });
-    return {
-      oldLines: oldLines,
-      newLines: newLines
-    };
-  } // See: http://code.google.com/p/google-diff-match-patch/wiki/API
-
-
-  function convertChangesToDMP(changes) {
-    var ret = [],
-        change,
-        operation;
-
-    for (var i = 0; i < changes.length; i++) {
-      change = changes[i];
-
-      if (change.added) {
-        operation = 1;
-      } else if (change.removed) {
-        operation = -1;
-      } else {
-        operation = 0;
-      }
-
-      ret.push([operation, change.value]);
-    }
-
-    return ret;
-  }
-
-  function convertChangesToXML(changes) {
-    var ret = [];
-
-    for (var i = 0; i < changes.length; i++) {
-      var change = changes[i];
-
-      if (change.added) {
-        ret.push('<ins>');
-      } else if (change.removed) {
-        ret.push('<del>');
-      }
-
-      ret.push(escapeHTML(change.value));
-
-      if (change.added) {
-        ret.push('</ins>');
-      } else if (change.removed) {
-        ret.push('</del>');
-      }
-    }
-
-    return ret.join('');
-  }
-
-  function escapeHTML(s) {
-    var n = s;
-    n = n.replace(/&/g, '&amp;');
-    n = n.replace(/</g, '&lt;');
-    n = n.replace(/>/g, '&gt;');
-    n = n.replace(/"/g, '&quot;');
-    return n;
-  }
-  /* See LICENSE file for terms of use */
-
-
-  exports.Diff = Diff;
-  exports.diffChars = diffChars;
-  exports.diffWords = diffWords;
-  exports.diffWordsWithSpace = diffWordsWithSpace;
-  exports.diffLines = diffLines;
-  exports.diffTrimmedLines = diffTrimmedLines;
-  exports.diffSentences = diffSentences;
-  exports.diffCss = diffCss;
-  exports.diffJson = diffJson;
-  exports.diffArrays = diffArrays;
-  exports.structuredPatch = structuredPatch;
-  exports.createTwoFilesPatch = createTwoFilesPatch;
-  exports.createPatch = createPatch;
-  exports.applyPatch = applyPatch;
-  exports.applyPatches = applyPatches;
-  exports.parsePatch = parsePatch;
-  exports.merge = merge;
-  exports.convertChangesToDMP = convertChangesToDMP;
-  exports.convertChangesToXML = convertChangesToXML;
-  exports.canonicalize = canonicalize;
-  Object.defineProperty(exports, '__esModule', {
-    value: true
-  });
-});
-},{}],"../lib/sheet/Snippet.js":[function(require,module,exports) {
+},{"../util/Permutation":"../lib/util/Permutation.js","../util/Logger":"../lib/util/Logger.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js","./Harmony":"../lib/harmony/Harmony.js"}],"../lib/sheet/Snippet.js":[function(require,module,exports) {
 "use strict";
 
 var __assign = this && this.__assign || function () {
@@ -9472,25 +8576,15 @@ var __assign = this && this.__assign || function () {
   return __assign.apply(this, arguments);
 };
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var JsDiff = __importStar(require("diff"));
-
 var Measure_1 = require("./Measure");
 
 var Sheet_1 = require("./Sheet");
+
+var Rhythm_1 = require("../rhythmical/Rhythm");
 
 var Snippet =
 /** @class */
@@ -9557,7 +8651,10 @@ function () {
         var offset = houses.filter(function (h) {
           return h < index;
         }).reverse()[0];
-        cells = cells.concat(new Array(offset % 4).fill(''));
+
+        if (offset > 0) {
+          cells = cells.concat(new Array(offset % 4).fill(''));
+        }
       }
 
       cells.push(bar);
@@ -9749,7 +8846,7 @@ function () {
         });
       }
 
-      measure.chords = [].concat(measure.symbols);
+      measure.body = [].concat(measure.symbols);
       delete measure.symbols;
       return measure;
     }).map(function (measure) {
@@ -9761,8 +8858,8 @@ function () {
         delete measure.signs;
       }
 
-      if (measure.chords.length === 0) {
-        delete measure.chords;
+      if (measure.body.length === 0) {
+        delete measure.body;
       }
 
       return measure;
@@ -9775,9 +8872,9 @@ function () {
         return measure;
       }
 
-      if (measure.chords && Object.keys(measure).length === 1) {
-        return measure.chords.length === 1 ? measure.chords[0] : // simplify one chord measures
-        measure.chords;
+      if (measure.body && Object.keys(measure).length === 1) {
+        return measure.body.length === 1 ? measure.body[0] : // simplify one chord measures
+        measure.body;
       }
 
       return measure;
@@ -9853,7 +8950,7 @@ function () {
         });
       }
 
-      measure.chords = measure.symbols;
+      measure.body = measure.symbols;
       delete measure.symbols;
       return measure;
     }).map(function (measure) {
@@ -9865,8 +8962,8 @@ function () {
         delete measure.signs;
       }
 
-      if (measure.chords.length === 0) {
-        delete measure.chords;
+      if (measure.body.length === 0) {
+        delete measure.body;
       }
 
       return measure;
@@ -9879,9 +8976,9 @@ function () {
         return measure;
       }
 
-      if (measure.chords && Object.keys(measure).length === 1) {
-        return measure.chords.length === 1 ? measure.chords[0] : // simplify one chord measures
-        measure.chords;
+      if (measure.body && Object.keys(measure).length === 1) {
+        return measure.body.length === 1 ? measure.body[0] : // simplify one chord measures
+        measure.body;
       }
 
       return measure;
@@ -9890,7 +8987,7 @@ function () {
 
   Snippet.testFormat = function (measures) {
     return measures.map(function (m) {
-      return m.chords;
+      return m.body;
     }).join(' ');
   };
 
@@ -9900,11 +8997,11 @@ function () {
     }
 
     var snippet = measures.map(function (m) {
-      return Measure_1.Measure.from(m, 'chords');
+      return Measure_1.Measure.from(m);
     }).reduce(function (snippet, _a) {
       var signs = _a.signs,
           house = _a.house,
-          chords = _a.chords;
+          body = _a.body;
       var controlSigns = Snippet.getControlSigns(signs || []);
       var start = controlSigns.filter(function (c) {
         return !c.end;
@@ -9918,7 +9015,8 @@ function () {
       }).join(' ');
       var repeatStart = signs && signs.includes('{');
       var repeatEnd = signs && signs.includes('}');
-      return snippet + ("|" + (repeatStart ? ':' : '') + (house || '') + " " + (start ? start + ' ' : '') + (chords ? chords.join(' ') : '') + (end ? ' ' + end : '') + (repeatEnd ? ':' : ''));
+      body = Rhythm_1.Rhythm.from(body);
+      return snippet + ("|" + (repeatStart ? ':' : '') + (house || '') + " " + (start ? start + ' ' : '') + (body ? body.join(' ') : '') + (end ? ' ' + end : '') + (repeatEnd ? ':' : ''));
     }, '');
 
     if (format) {
@@ -9930,11 +9028,6 @@ function () {
 
   Snippet.expand = function (snippet, options) {
     return Snippet.from(Snippet.render(snippet, options));
-  };
-
-  Snippet.diff = function (snippetA, snippetB) {
-    var diffFormat = [Snippet.formatForDiff(snippetA), Snippet.formatForDiff(snippetB)];
-    return JsDiff.diffWords(diffFormat[0], diffFormat[1]);
   };
 
   Snippet.obfuscate = function (snippet, keepFirst, format) {
@@ -9993,550 +9086,7 @@ function () {
 }();
 
 exports.Snippet = Snippet;
-},{"diff":"../node_modules/diff/dist/diff.js","./Measure":"../lib/sheet/Measure.js","./Sheet":"../lib/sheet/Sheet.js"}],"../lib/sheet/Sequence.js":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Voicing_1 = require("../harmony/Voicing");
-
-var Sheet_1 = require("./Sheet");
-
-var Harmony_1 = require("../harmony/Harmony");
-
-var tonal_1 = require("tonal");
-
-var tonal_2 = require("tonal");
-
-var tonal_3 = require("tonal");
-
-var util_1 = require("../util/util");
-
-var Logger_1 = require("../util/Logger");
-
-var Sequence =
-/** @class */
-function () {
-  function Sequence() {}
-
-  Sequence.fraction = function (divisions, whole) {
-    if (whole === void 0) {
-      whole = 1;
-    }
-
-    return divisions.reduce(function (f, d) {
-      return f / d;
-    }, whole);
-  };
-
-  Sequence.time = function (divisions, path, whole) {
-    if (whole === void 0) {
-      whole = 1;
-    }
-
-    return divisions.reduce(function (_a, d, i) {
-      var f = _a.f,
-          p = _a.p;
-      return {
-        f: f / d,
-        p: p + f / d * path[i]
-      };
-    }, {
-      f: whole,
-      p: 0
-    }).p;
-  };
-
-  Sequence.simplePath = function (path) {
-    return path.join('.').replace(/(\.0)*$/, ''); //.split('.');
-  };
-
-  Sequence.haveSamePath = function (a, b) {
-    return Sequence.simplePath(a.path) === Sequence.simplePath(b.path);
-  };
-
-  Sequence.getSignType = function (symbol) {
-    return Object.keys(Sheet_1.Sheet.sequenceSigns).find(function (type) {
-      return Sheet_1.Sheet.sequenceSigns[type].includes(symbol);
-    });
-  };
-
-  Sequence.getOptions = function (options) {
-    return __assign({
-      bpm: 120
-    }, options);
-  };
-
-  Sequence.isOverlapping = function (a, b) {
-    return a.time <= b.time + b.duration && a.time + a.duration >= b.time;
-  };
-
-  Sequence.isInside = function (a, b) {
-    return a.time <= b.time + b.duration && a.time >= b.time;
-  };
-
-  Sequence.renderGrid = function (measures, options) {
-    options = this.getOptions(options);
-    var renderedMeasures = Sheet_1.Sheet.render(measures, options);
-    var flat = Sheet_1.Sheet.flatten(renderedMeasures, true).map(function (event) {
-      return __assign({}, event, {
-        measure: renderedMeasures[event.path[0]]
-      });
-    });
-    return this.renderEvents(flat, options);
-  };
-
-  Sequence.renderMeasures = function (measures, options) {
-    options = this.getOptions(options);
-    var renderedMeasures = Sheet_1.Sheet.render(measures, options); // seperate chords before flattening // => "chords" also used for melody, need rename...
-
-    var chords = renderedMeasures.map(function (e) {
-      return e.chords;
-    });
-    var flat = Sheet_1.Sheet.flatten(chords, true).map(function (event) {
-      return __assign({}, event, {
-        measure: renderedMeasures[event.path[0]],
-        options: renderedMeasures[event.path[0]].options
-      });
-    });
-    return this.renderEvents(flat, options);
-  };
-
-  Sequence.renderEvents = function (events, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    return events // .reduce(Sequence.addLatestOptions(options), [])
-    .reduce(Sequence.addTimeAndDuration(options), []).filter(options.filterEvents || function () {
-      return true;
-    }).map(options.mapEvents || function (e) {
-      return e;
-    }).reduce(Sequence.prolongNotes(options), []);
-  };
-
-  Sequence.render = function (sheet) {
-    sheet = Sheet_1.Sheet.from(sheet);
-    var sequence = [],
-        melody = [],
-        bass = [],
-        chords = [];
-
-    if (sheet.chords) {
-      chords = Sequence.renderMeasures(sheet.chords, sheet.options).map(function (e) {
-        return __assign({}, e, {
-          chord: e.value // to seperate melody from chord later
-
-        });
-      });
-      /* const walk = Sequence.renderGrid(sheet.chords, sheet.options).map(measure => {
-        const feel = measure.options.feel === undefined ? 4 : measure.options.feel;
-        return Array(feel).fill('X')
-      }); */
-
-      /* console.log('grid', Sheet.flatten(walk, true)); */
-
-      bass = chords.reduce(Sequence.renderBass(sheet.options), []).map(Sequence.addFermataToEnd(sheet.options));
-    }
-
-    if (sheet.melody) {
-      melody = Sequence.renderMeasures(sheet.melody, __assign({}, sheet.options, {
-        filterEvents: Sequence.inOut() // play melody only first and last time
-
-      }));
-      chords = chords.map(function (e, i) {
-        return Sequence.duckChordEvent(sheet.options)(e, i, melody);
-      }); // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
-    }
-
-    var voicings = chords.map(Sequence.addFermataToEnd(sheet.options)).reduce(Sequence.renderVoicings(sheet.options), []).reduce(Sequence.pedalNotes(sheet.options), []);
-    sequence = sequence.concat(voicings);
-    sequence = sequence.concat(bass);
-
-    if (melody) {
-      sequence = sequence.concat(melody);
-      sequence = sequence.sort(function (a, b) {
-        return a.time - b.time;
-      });
-      sequence = sequence.filter(Sequence.removeDuplicates(sheet.options));
-    }
-
-    sequence = sequence.map(function (event, index, events) {
-      // const pathEvents = events.filter(e => Sequence.haveSamePath(e, event));
-      event = Sequence.humanizeEvent(sheet.options)(event, index, sequence);
-      event = Sequence.addDynamicVelocity(sheet.options)(event, index, sequence);
-      return event;
-    });
-    sequence = sequence.reduce(Sequence.addSwing(sheet.options), []);
-
-    if (sheet.options.logging) {
-      Logger_1.Logger.logSequence(sequence);
-    }
-
-    return sequence;
-  };
-
-  Sequence.testEvents = function (props) {
-    return function (event) {
-      return props.reduce(function (reduced, prop) {
-        var _a;
-
-        return __assign({}, reduced, (_a = {}, _a[prop] = event[prop], _a));
-      }, {});
-    };
-  };
-
-  Sequence.addLatestOptions = function (options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    return function (events, event, index) {
-      var last = events.length ? events[events.length - 1] : null;
-
-      var combinedOptions = __assign({}, options, last ? last.options : {}, event.options, event.value.options || {});
-
-      return events.concat(__assign({}, event, {
-        options: combinedOptions
-      }));
-    };
-  };
-
-  Sequence.addTimeAndDuration = function (options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    return function (events, event, index) {
-      options = Sequence.getOptions(__assign({}, options, event.options || {}));
-      var pulses = options.pulses || 4;
-      var last = events.length ? events[events.length - 1] : null;
-      var whole = 60 / options.bpm * pulses * event.divisions[0];
-      return events.concat(__assign({}, event, {
-        options: options,
-        velocity: 1,
-        duration: Sequence.fraction(event.divisions, whole),
-        time: last ? last.time + last.duration : 0
-      }));
-    };
-  };
-
-  Sequence.pedalNotes = function (options) {
-    return function (reduced, event, index, events) {
-      if (!options.pedal) {
-        return reduced.concat([event]);
-      }
-
-      var latestEvent;
-      var latest = [].concat(reduced).reverse();
-      latestEvent = latest.find(function (_a) {
-        var time = _a.time,
-            duration = _a.duration,
-            value = _a.value;
-        return value === event.value && time + duration === event.time;
-      });
-
-      if (!!latestEvent) {
-        latestEvent.duration += event.duration;
-        return reduced;
-      } else {
-        return reduced.concat([event]);
-      }
-    };
-  };
-
-  Sequence.prolongNotes = function (options) {
-    return function (reduced, event, index, events) {
-      var type = Sequence.getSignType(event.value);
-
-      if (type !== 'prolong') {
-        return reduced.concat([event]);
-      }
-
-      var latest = [].concat(reduced).reverse();
-      var latestRest = latest.find(function (e) {
-        return Sequence.getSignType(e.value) === 'rest';
-      });
-      var latestEvent = latest.find(function (e) {
-        return !Sequence.getSignType(e.value);
-      });
-
-      if (latestEvent && latest.indexOf(events.indexOf(latestEvent) > events.indexOf(latestRest))) {
-        latestEvent.duration += event.duration;
-      }
-
-      return reduced;
-    };
-  };
-
-  Sequence.renderVoicings = function (options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    return function (events, event, index) {
-      if (!event.chord) {
-        return events.concat([event]);
-      }
-
-      var previousVoicing = [];
-
-      if (index > 0) {
-        var previousEvent_1 = events[index - 1];
-        previousVoicing = previousEvent_1 ? events.filter(function (e) {
-          return Sequence.haveSamePath(previousEvent_1, e);
-        }) : [];
-        previousVoicing = previousVoicing.map(function (e) {
-          return e.value;
-        });
-      }
-
-      var voicingOptions = __assign({}, options.voicings, event.options.voicings);
-
-      var voicing = Voicing_1.Voicing.getNextVoicing(event.chord, previousVoicing, voicingOptions);
-      return events.concat(voicing.map(function (note, index) {
-        return __assign({}, event, {
-          value: note,
-          chord: event.chord
-        });
-      }));
-    };
-  };
-
-  Sequence.addFermataToEnd = function (options) {
-    return function (event, index, events) {
-      var duration = event.duration;
-
-      if (index === events.length - 1 && options.fermataLength) {
-        duration *= options.fermataLength;
-      }
-
-      return __assign({}, event, {
-        duration: duration
-      });
-    };
-  };
-
-  Sequence.renderBass = function (options) {
-    return function (events, event, index, chords) {
-      var duration = event.duration;
-
-      if (!event.chord) {
-        return events.concat([event]);
-      }
-
-      var root = Harmony_1.Harmony.getBassNote(event.chord) + '2';
-      events.push(__assign({}, event, {
-        value: root,
-        duration: duration
-      }));
-      /* const chordsInBar = chords.filter(e => e.path[0] === bar);
-      // place events into feel grid e.g. [0, false, 1, false] for two chords in 4 feel
-      const placed = Permutation.bjorklund(feel, chordsInBar.length).reduce(
-        (chords, current) => {
-          const index = chords.filter(chord => chord !== false).length;
-          chords.push(current ? index : false);
-          return chords;
-        },
-        []
-      );
-                placed.forEach((slot, i) => {
-        const isFirst = slot !== false;
-        if (!isFirst) {
-          slot = placed
-            .slice(0, i)
-            .reverse()
-            .find(s => s !== false);
-          if (slot === undefined) {
-            console.log('no slot before', i);
-            return;
-          }
-        }
-        let chord = chordsInBar[slot];
-        const indexSinceLastRoot = i - placed.indexOf(slot);
-                  const root = Harmony.getBassNote(event.chord) + '2';
-        const fifth = Distance.transpose(root, '5P');
-        const note = indexSinceLastRoot % 2 == 0 ? root : fifth;
-        events.push({
-          ...event,
-          value: note,
-          duration
-        });
-      }); */
-
-      return events;
-    };
-  };
-
-  Sequence.duckChordEvent = function (options) {
-    return function (event, index, events) {
-      if (!event.chord) {
-        return event;
-      }
-
-      var melody = events.filter(function (e) {
-        return !e.chord && Harmony_1.Harmony.isValidNote(e.value);
-      });
-      var topNote = melody.find(function (n) {
-        return Sequence.haveSamePath(n, event) && Harmony_1.Harmony.isValidNote(n.value);
-      } // n => Sequence.isInside(n, event) && Harmony.isValidNote(n.value)
-      ); // TODO: allow contained melody notes to be optional topNotes..
-
-      var surroundingMelody = melody //.filter(n => Math.abs(event.time - n.time) <= duckTime)
-      .filter(function (m) {
-        return Sequence.isOverlapping(event, m);
-      }).sort(function (a, b) {
-        return tonal_1.Note.midi(a.value) - tonal_1.Note.midi(b.value);
-      });
-      var range = options.voicings.range;
-
-      if (surroundingMelody.length) {
-        var below = tonal_2.Distance.transpose(surroundingMelody[0].value, tonal_3.Interval.fromSemitones(-options.voicings.minTopDistance));
-        range = [range[0], below];
-      } else {
-        range = [range[0], range[1]];
-      }
-
-      return __assign({}, event, {
-        options: __assign({}, event.options, {
-          voicings: __assign({}, event.options.voicings || {}, options.tightMelody && topNote ? {
-            topNotes: [topNote.value]
-          } : {}, {
-            range: range
-          })
-        })
-      });
-    };
-  };
-
-  Sequence.humanizeEvent = function (options) {
-    return function (event, index, events) {
-      var durationChange = event.duration * options.humanize.duration;
-      return __assign({}, event, {
-        velocity: util_1.humanize(event.velocity, options.humanize.velocity),
-        duration: util_1.humanize(event.duration, durationChange, -durationChange),
-        time: util_1.humanize(event.time, options.humanize.time, options.humanize.time)
-      });
-    };
-  };
-
-  Sequence.velocityFromIndex = function (options) {
-    return function (event, index, events) {
-      var velocitySpan = options.dynamicVelocityRange[1] - options.dynamicVelocityRange[0];
-      return __assign({}, event, {
-        velocity: event.velocity * index / events.length * velocitySpan + options.dynamicVelocityRange[0]
-      });
-    };
-  };
-
-  Sequence.velocityFromPitch = function (options) {
-    return function (event, index, events) {
-      var midiValues = events.map(function (e) {
-        return tonal_1.Note.midi(e.value);
-      });
-      var maxMidi = util_1.maxArray(midiValues);
-      var avgMidi = util_1.avgArray(midiValues);
-      return __assign({}, event, {
-        velocity: event.velocity * avgMidi / maxMidi
-      });
-    };
-  };
-
-  Sequence.addDynamicVelocity = function (options) {
-    return function (event, index, events) {
-      if (!options.dynamicVelocity) {
-        return event;
-      }
-
-      event.velocity = event.velocity || 1;
-      return options.dynamicVelocity(event, index, events, options);
-    };
-  }; // static addSwing: EventMap = (options) => (event, index, events) => {
-
-
-  Sequence.addSwing = function (options) {
-    return function (events, event, index) {
-      if (!options.swing) {
-        // return event
-        return events.concat([event]);
-      }
-
-      var isOff = Sequence.time(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
-
-      if (!isOff) {
-        // return event
-        return events.concat([event]);
-      }
-
-      var swingOffset = options.swing / 2 * 60 / options.bpm;
-      event.time += swingOffset;
-      event.duration -= swingOffset;
-      event.velocity += 0.1;
-      var eventBefore = [].concat(events).reverse().find(function (b) {
-        return b.time < event.time;
-      }); //const eventBefore = ([].concat(events).reverse().find(b => b.time < event.time));
-
-      if (!eventBefore) {
-        return events.concat([event]);
-      }
-
-      return events.map(function (e, i) {
-        if (Sequence.haveSamePath(e, eventBefore)) {
-          e.duration += swingOffset;
-        }
-
-        return e;
-      }).concat([event]);
-    };
-  };
-
-  Sequence.inOut = function () {
-    return function (event, idnex, events) {
-      return event.measure.firstTime || event.measure.lastTime;
-    };
-  };
-
-  Sequence.removeDuplicates = function (options) {
-    return function (event, index, events) {
-      if (!options.phantomMelody) {
-        var duplicate = events.find(function (e, i) {
-          return i !== index && Harmony_1.Harmony.hasSamePitch(e.value, event.value) && Sequence.haveSamePath(e, event);
-        });
-        return !duplicate || !event.chord; // always choose melody note
-      }
-
-      var melody = events.filter(function (e) {
-        return !e.chord;
-      }).find(function (e, i) {
-        return i !== index && Harmony_1.Harmony.hasSamePitch(e.value, event.value) && Sequence.haveSamePath(e, event);
-      });
-      return !melody;
-    };
-  };
-
-  return Sequence;
-}();
-
-exports.Sequence = Sequence;
-},{"../harmony/Voicing":"../lib/harmony/Voicing.js","./Sheet":"../lib/sheet/Sheet.js","../harmony/Harmony":"../lib/harmony/Harmony.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js","../util/Logger":"../lib/util/Logger.js"}],"../lib/util/Logger.js":[function(require,module,exports) {
+},{"./Measure":"../lib/sheet/Measure.js","./Sheet":"../lib/sheet/Sheet.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../lib/util/Logger.js":[function(require,module,exports) {
 "use strict";
 
 var __assign = this && this.__assign || function () {
@@ -10569,7 +9119,7 @@ var Snippet_1 = require("../sheet/Snippet");
 
 var util_1 = require("./util");
 
-var Sequence_1 = require("../sheet/Sequence");
+var Rhythm_1 = require("../rhythmical/Rhythm");
 
 var Logger =
 /** @class */
@@ -10607,7 +9157,7 @@ function () {
     }); */
     sequence.reduce(function (blocks, event) {
       var alreadyParsed = !!blocks.find(function (b) {
-        return Sequence_1.Sequence.haveSamePath(b, event);
+        return Rhythm_1.Rhythm.haveSamePath(b, event);
       });
 
       if (alreadyParsed) {
@@ -10615,14 +9165,14 @@ function () {
       }
 
       var sameTime = sequence.filter(function (e) {
-        return Sequence_1.Sequence.haveSamePath(e, event);
+        return Rhythm_1.Rhythm.haveSamePath(e, event);
       });
       var degrees;
       var chord = event.chord;
 
       if (!chord) {
         var latestChordBlock = [].concat(blocks).reverse().find(function (b) {
-          return !!b.chord;
+          return b.type === 'chord';
         });
         chord = (latestChordBlock || {}).chord;
       }
@@ -10653,8 +9203,8 @@ function () {
         range: ['C3', 'C6'],
         labels: block.degrees || notes
       });
-      konsole.push(block.chord);
-      konsole.push(Sequence_1.Sequence.simplePath(block.path));
+      konsole.push(block.value);
+      konsole.push(Rhythm_1.Rhythm.simplePath(block.path));
       Logger.logCustom(konsole, console.log);
     });
   };
@@ -11061,7 +9611,7 @@ function () {
 }();
 
 exports.Logger = Logger;
-},{"tonal":"../node_modules/tonal/index.js","../harmony/Harmony":"../lib/harmony/Harmony.js","../harmony/Voicing":"../lib/harmony/Voicing.js","../sheet/Snippet":"../lib/sheet/Snippet.js","./util":"../lib/util/util.js","../sheet/Sequence":"../lib/sheet/Sequence.js"}],"../lib/Band.js":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","../harmony/Harmony":"../lib/harmony/Harmony.js","../harmony/Voicing":"../lib/harmony/Voicing.js","../sheet/Snippet":"../lib/sheet/Snippet.js","./util":"../lib/util/util.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../lib/Band.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12958,6 +11508,22 @@ exports.Trio = Trio;
 },{"./util/util":"../lib/util/util.js","./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./musicians/Improvisor":"../lib/musicians/Improvisor.js"}],"../lib/sheet/RealParser.js":[function(require,module,exports) {
 "use strict";
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -13021,7 +11587,6 @@ function () {
       });
 
       if (sectionStart) {
-        console.log('sectionstart', sectionStart);
         signs = signs.filter(function (s) {
           return s !== sectionStart;
         });
@@ -13106,7 +11671,13 @@ function () {
       parsed.measures.push(parsed.measure);
     }
 
-    return parsed.measures;
+    return parsed.measures.map(function (measure) {
+      var chords = [].concat(measure.chords);
+      delete measure.chords;
+      return __assign({}, measure, {
+        body: chords
+      });
+    });
   };
 
   RealParser.parse = function (raw) {
@@ -13688,8 +12259,895 @@ exports.Voicing = Voicing_1.Voicing;
 var Permutation_1 = require("./util/Permutation");
 
 exports.Permutation = Permutation_1.Permutation;
-},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../lib/util/Pattern.js":[function(require,module,exports) {
+},{"./Band":"../lib/Band.js","./musicians/Pianist":"../lib/musicians/Pianist.js","./musicians/Drummer":"../lib/musicians/Drummer.js","./musicians/Bassist":"../lib/musicians/Bassist.js","./instruments/Instrument":"../lib/instruments/Instrument.js","./musicians/Musician":"../lib/musicians/Musician.js","./instruments/Synthesizer":"../lib/instruments/Synthesizer.js","./instruments/Sampler":"../lib/instruments/Sampler.js","./instruments/PlasticDrums":"../lib/instruments/PlasticDrums.js","./Trio":"../lib/Trio.js","./util/util":"../lib/util/util.js","./Pulse":"../lib/Pulse.js","./sheet/RealParser":"../lib/sheet/RealParser.js","./instruments/MidiOut":"../lib/instruments/MidiOut.js","./musicians/Permutator":"../lib/musicians/Permutator.js","./harmony/Voicing":"../lib/harmony/Voicing.js","./util/Permutation":"../lib/util/Permutation.js"}],"../lib/player/Leadsheet.js":[function(require,module,exports) {
 "use strict";
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Leadsheet =
+/** @class */
+function () {
+  function Leadsheet(sheet) {
+    Object.assign(this, Leadsheet.from(sheet));
+  }
+
+  Leadsheet.from = function (sheet) {
+    sheet.options = sheet.options || {};
+    return __assign({}, sheet, {
+      options: __assign({
+        forms: 1,
+        pedal: false,
+        real: true,
+        tightMelody: true,
+        bpm: 120,
+        swing: 0,
+        fermataLength: 4,
+        feel: 4,
+        pulses: 4
+      }, sheet.options, {
+        humanize: __assign({
+          velocity: 0.1,
+          time: 0.002,
+          duration: 0.002
+        }, sheet.options.humanize || {}),
+        voicings: __assign({
+          minBottomDistance: 3,
+          minTopDistance: 2,
+          logging: false,
+          maxVoices: 4,
+          range: ['C3', 'C6'],
+          rangeBorders: [1, 1],
+          maxDistance: 7,
+          idleChance: 1
+        }, sheet.options.voicings || {})
+      })
+    });
+  };
+
+  return Leadsheet;
+}();
+
+exports.Leadsheet = Leadsheet;
+},{}],"../lib/player/Sequence.js":[function(require,module,exports) {
+"use strict";
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Voicing_1 = require("../harmony/Voicing");
+
+var Sheet_1 = require("../sheet/Sheet");
+
+var Harmony_1 = require("../harmony/Harmony");
+
+var tonal_1 = require("tonal");
+
+var tonal_2 = require("tonal");
+
+var tonal_3 = require("tonal");
+
+var util_1 = require("../util/util");
+
+var Logger_1 = require("../util/Logger");
+
+var __1 = require("..");
+
+var tonal_4 = require("tonal");
+
+var Pattern_1 = require("../util/Pattern");
+
+var Leadsheet_1 = require("./Leadsheet");
+
+var Rhythm_1 = require("../rhythmical/Rhythm");
+
+var Sequence =
+/** @class */
+function () {
+  function Sequence() {}
+
+  Sequence.getSignType = function (symbol) {
+    return Object.keys(Sheet_1.Sheet.sequenceSigns).find(function (type) {
+      return Sheet_1.Sheet.sequenceSigns[type].includes(symbol);
+    });
+  };
+
+  Sequence.getOptions = function (options) {
+    return __assign({
+      bpm: 120
+    }, options);
+  };
+
+  Sequence.isBefore = function (a, b) {
+    return a.time < b.time + b.duration;
+  };
+
+  Sequence.isAfter = function (a, b) {
+    return a.time + a.duration > b.time;
+  };
+
+  Sequence.isOverlapping = function (a, b) {
+    return this.isBefore(a, b) && this.isAfter(a, b);
+  };
+
+  Sequence.isTouching = function (a, b) {
+    return a.time <= b.time + b.duration && a.time + a.duration >= b.time;
+  };
+
+  Sequence.isInside = function (a, b) {
+    return a.time >= b.time && a.time + a.duration <= b.time + b.duration;
+  };
+
+  Sequence.isOff = function (event) {
+    return Rhythm_1.Rhythm.oldTime(event.divisions.slice(1), event.path.slice(1), 8) % 2 === 1;
+  };
+
+  Sequence.renderGrid = function (measures, options) {
+    options = this.getOptions(options);
+    var renderedMeasures = Sheet_1.Sheet.render(measures, options);
+    var flat = Rhythm_1.Rhythm.flatten(renderedMeasures).map(function (event) {
+      return __assign({}, event, {
+        measure: renderedMeasures[event.path[0]]
+      });
+    });
+    return this.renderEvents(flat, options);
+  };
+
+  Sequence.renderMeasures = function (measures, options) {
+    options = this.getOptions(options);
+    var renderedMeasures = Sheet_1.Sheet.render(measures, __assign({}, options)); // TODO add measureStartTime / measureEndTime for easier access later
+    // seperate chords before flattening // => "chords" also used for melody, need rename...
+
+    var chords = renderedMeasures.map(function (e) {
+      return e.body;
+    });
+    var flat = Rhythm_1.Rhythm.flatten(chords).map(function (event) {
+      return __assign({}, event, {
+        measure: renderedMeasures[event.path[0]],
+        options: renderedMeasures[event.path[0]].options
+      });
+    });
+    return this.renderEvents(flat, options);
+  };
+
+  Sequence.fillGrooves = function (groove, sourceEvents, mapFn, options) {
+    var _this = this;
+
+    if (mapFn === void 0) {
+      mapFn = function mapFn(_a) {
+        var target = _a.target;
+        return target;
+      };
+    }
+
+    var _a = Sequence.getOptions(options),
+        bpm = _a.bpm,
+        pulses = _a.pulses,
+        offsPlayNext = _a.offsPlayNext;
+
+    options = {
+      bpm: bpm,
+      pulses: pulses,
+      offsPlayNext: offsPlayNext
+    };
+    var grooveEvents, grooveMeasures;
+
+    if (typeof groove !== 'function') {
+      grooveMeasures = groove;
+      grooveEvents = Sequence.renderMeasures(grooveMeasures, options);
+    }
+
+    if (!sourceEvents.length) {
+      console.error('no events given to fillGrooves');
+      return sourceEvents;
+    }
+
+    var last = sourceEvents[sourceEvents.length - 1];
+    var events = [];
+    var bar = 0;
+    var barLength = 60 / options.bpm * (options.pulses || 4);
+
+    var _loop_1 = function _loop_1() {
+      if (typeof groove === 'function') {
+        grooveMeasures = groove();
+        grooveEvents = Sequence.renderMeasures(grooveMeasures, options);
+      }
+
+      var time = bar * barLength;
+      var insert = grooveEvents.map(function (e) {
+        return __assign({}, e, {
+          path: Rhythm_1.Rhythm.addPaths([bar], e.path),
+          time: e.time + time
+        });
+      }).filter(function (e) {
+        return e.value !== 0;
+      }).filter(function (e) {
+        return e.duration > 0;
+      }).map(function (target, index) {
+        var source = sourceEvents.find(function (chordEvent) {
+          return _this.isOverlapping(target, chordEvent);
+        });
+        source = Sequence.getNextChordOff({
+          target: target,
+          source: source,
+          sourceEvents: sourceEvents,
+          options: options
+        }) || source;
+
+        if (!source) {
+          console.warn('no source found for target', target, sourceEvents);
+          return;
+        }
+
+        return mapFn({
+          target: target,
+          source: source,
+          index: index,
+          grooveEvents: grooveEvents,
+          sourceEvents: sourceEvents,
+          options: options
+        });
+      }).filter(function (e) {
+        return !!e;
+      });
+      bar += grooveMeasures.length; // number of bars added
+
+      events = events.concat(insert);
+    };
+
+    while (bar < last.path[0]) {
+      _loop_1();
+    }
+
+    return events;
+  };
+
+  Sequence.insertGrooves = function (groove, sourceEvents, mergeFn, options) {
+    if (mergeFn === void 0) {
+      mergeFn = function mergeFn(_a) {
+        var target = _a.target;
+        return target;
+      };
+    }
+
+    var _a = Sequence.getOptions(options),
+        bpm = _a.bpm,
+        pulses = _a.pulses,
+        offsPlayNext = _a.offsPlayNext;
+
+    options = {
+      bpm: bpm,
+      pulses: pulses,
+      offsPlayNext: offsPlayNext
+    };
+    var grooveEvents;
+
+    if (typeof groove !== 'function') {
+      grooveEvents = Sequence.renderMeasures(groove, options);
+    }
+
+    return sourceEvents.reduce(function (events, source) {
+      if (typeof groove === 'function') {
+        grooveEvents = Sequence.renderMeasures(groove(source, events), options);
+      }
+
+      var insert = grooveEvents.map(function (e) {
+        return __assign({}, e, {
+          path: Rhythm_1.Rhythm.addPaths(source.path, e.path),
+          time: e.time + source.time
+        });
+      }).map(function (target, index) {
+        var next = Sequence.getNextChordOff({
+          target: target,
+          source: source,
+          sourceEvents: sourceEvents,
+          options: options
+        });
+        index = next ? 0 : index;
+        return mergeFn({
+          target: target,
+          source: next || source,
+          index: index,
+          grooveEvents: grooveEvents,
+          sourceEvents: sourceEvents,
+          options: options
+        });
+      }).filter(function (e) {
+        return e.value !== 0;
+      }).filter(function (e) {
+        return e.duration > 0;
+      }) // remove all events that overlap?!?! maybe just cut the duration at the end?
+      .filter(function (e) {
+        return e.time + e.duration <= source.time + source.duration;
+      });
+      events = events.concat(insert);
+      return events;
+    }, []);
+  };
+
+  Sequence.melodyGroove = function () {
+    return function (_a) {
+      var target = _a.target,
+          source = _a.source,
+          index = _a.index,
+          grooveEvents = _a.grooveEvents;
+      var root = Harmony_1.Harmony.getBassNote(source.chord, true); // TODO use required/optional notes?!
+
+      var scales = __1.util.getChordScales(source.chord, 'Diatonic').filter(function (s) {
+        return tonal_4.Scale.notes('C', s).length === 7;
+      });
+
+      if (!scales.length) {
+        console.warn('no scales for', source.chord);
+      }
+
+      var scale = root + ' ' + scales[0];
+      var pattern = grooveEvents.map(function (e) {
+        return e.value;
+      });
+      var notes = Pattern_1.Pattern.scale(scale, pattern, ['F1', 'F#3']);
+      return __assign({}, target, {
+        value: tonal_1.Note.simplify(notes[index]),
+        degree: pattern[index]
+      });
+    };
+  };
+
+  Sequence.chordGroove = function () {
+    return function (_a) {
+      var target = _a.target,
+          source = _a.source;
+      return __assign({}, source, target, {
+        value: source.value,
+        chord: source.chord,
+        type: 'chord',
+        duration: target.duration * target.value
+      });
+    };
+  };
+
+  Sequence.renderEvents = function (events, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    events = events // .reduce(Sequence.addLatestOptions(options), [])
+    .reduce(Sequence.addTimeAndDuration(options), []).filter(options.filterEvents || function () {
+      return true;
+    }).map(options.mapEvents || function (e) {
+      return e;
+    }).reduce(Sequence.prolongNotes(options), []);
+
+    if (options.reduceEvents) {
+      events = events.reduce(options.reduceEvents, []);
+    }
+
+    return events;
+  };
+
+  Sequence.renderGroove = function (sequence, options) {
+    if (!options.groove) {
+      var voicings = sequence = sequence.reduce(Sequence.renderVoicings(options), []);
+      return sequence.concat(voicings);
+    }
+
+    return Object.keys(options.groove).reduce(function (groovyEvents, current) {
+      return groovyEvents.concat(options.groove[current](sequence, options));
+    }, []);
+  };
+
+  Sequence.render = function (sheet) {
+    sheet = Leadsheet_1.Leadsheet.from(sheet);
+    var sequence = [],
+        melody = [],
+        bass = [],
+        chords = [];
+
+    if (sheet.chords) {
+      chords = Sequence.renderMeasures(sheet.chords, sheet.options).map(function (e) {
+        return __assign({}, e, {
+          chord: e.value,
+          type: 'chord'
+        });
+      });
+      /* const walk = Sequence.renderGrid(sheet.chords, sheet.options).map(measure => {
+        const feel = measure.options.feel === undefined ? 4 : measure.options.feel;
+        return Array(feel).fill('X')
+      }); */
+
+      /* console.log('grid', Sheet.flatten(walk, true)); */
+
+      bass = chords.reduce(Sequence.renderBass(sheet.options), []);
+      /* bass = bass.map(Sequence.addFermataToEnd(sheet.options)); */
+    }
+
+    if (sheet.melody) {
+      melody = Sequence.renderMeasures(sheet.melody, __assign({}, sheet.options, {
+        filterEvents: Sequence.inOut() // play melody only first and last time
+
+      })).map(function (e) {
+        return __assign({}, e, {
+          type: 'melody'
+        });
+      });
+      chords = chords.map(function (e, i) {
+        return Sequence.duckChordEvent(sheet.options)(e, i, melody);
+      }); // sequence = sequence.map(Sequence.duckChordEvent(sheet.options));
+    }
+    /* const voicings = chords
+    .map(Sequence.addFermataToEnd(sheet.options))
+    .reduce(Sequence.renderVoicings(sheet.options), [])
+    .reduce(Sequence.pedalNotes(sheet.options), []);
+    sequence = sequence.concat(voicings);
+    */
+
+
+    sequence = sequence.concat(chords); // not voiced yet..
+    //.map(Sequence.addFermataToEnd(sheet.options))
+    // .reduce(Sequence.renderVoicings(sheet.options), [])
+    //.reduce(Sequence.pedalNotes(sheet.options), [])
+
+    sequence = sequence.concat(bass);
+
+    if (melody) {
+      sequence = sequence.concat(melody);
+      sequence = sequence.sort(function (a, b) {
+        return a.time - b.time;
+      });
+      sequence = sequence.filter(Sequence.removeDuplicates(sheet.options));
+    }
+
+    sequence = Sequence.renderGroove(sequence, sheet.options);
+    sequence = sequence.map(function (event, index, events) {
+      // const pathEvents = events.filter(e => Rhythm.haveSamePath(e, event));
+      event = Sequence.humanizeEvent(sheet.options)(event, index, sequence);
+      event = Sequence.addDynamicVelocity(sheet.options)(event, index, sequence);
+      return event;
+    });
+    sequence = sequence.reduce(Sequence.addSwing(sheet.options), []);
+
+    if (sheet.options.logging) {
+      Logger_1.Logger.logSequence(sequence);
+    }
+
+    return sequence;
+  };
+
+  Sequence.testEvents = function (props) {
+    return function (event) {
+      return props.reduce(function (reduced, prop) {
+        var _a;
+
+        return __assign({}, reduced, (_a = {}, _a[prop] = event[prop], _a));
+      }, {});
+    };
+  };
+
+  Sequence.addLatestOptions = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return function (events, event, index) {
+      var last = events.length ? events[events.length - 1] : null;
+
+      var combinedOptions = __assign({}, options, last ? last.options : {}, event.options, event.value.options || {});
+
+      return events.concat(__assign({}, event, {
+        options: combinedOptions
+      }));
+    };
+  };
+
+  Sequence.addTimeAndDuration = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return function (events, event, index) {
+      options = Sequence.getOptions(__assign({}, options, event.options || {}));
+      var pulses = options.pulses || 4;
+      var last = events.length ? events[events.length - 1] : null;
+      var whole = 60 / options.bpm * pulses * event.divisions[0];
+      return events.concat(__assign({}, event, {
+        options: options,
+        velocity: 1,
+        duration: Rhythm_1.Rhythm.oldDuration(event.divisions, whole),
+        time: last ? last.time + last.duration : 0
+      }));
+    };
+  };
+
+  Sequence.pedalNotes = function (options) {
+    return function (reduced, event, index, events) {
+      if (!options.pedal) {
+        return reduced.concat([event]);
+      }
+
+      var latestEvent;
+      var latest = [].concat(reduced).reverse();
+      latestEvent = latest.find(function (_a) {
+        var time = _a.time,
+            duration = _a.duration,
+            value = _a.value;
+        return value === event.value && time + duration === event.time;
+      });
+
+      if (!!latestEvent) {
+        latestEvent.duration += event.duration;
+        return reduced;
+      } else {
+        return reduced.concat([event]);
+      }
+    };
+  };
+
+  Sequence.prolongNotes = function (options) {
+    return function (reduced, event, index, events) {
+      var type = Sequence.getSignType(event.value);
+
+      if (type !== 'prolong') {
+        return reduced.concat([event]);
+      }
+
+      var latest = [].concat(reduced).reverse();
+      var latestRest = latest.find(function (e) {
+        return Sequence.getSignType(e.value) === 'rest';
+      });
+      var latestEvent = latest.find(function (e) {
+        return !Sequence.getSignType(e.value);
+      });
+
+      if (latestEvent && latest.indexOf(events.indexOf(latestEvent) > events.indexOf(latestRest))) {
+        latestEvent.duration += event.duration;
+      }
+
+      return reduced;
+    };
+  };
+
+  Sequence.renderVoicings = function (options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    return function (events, event, index) {
+      if (event.type !== 'chord') {
+        return events.concat([event]);
+      }
+
+      var previousVoicing = [];
+
+      if (index > 0) {
+        var previousEvent_1 = events[index - 1];
+        previousVoicing = previousEvent_1 ? events.filter(function (e) {
+          return Rhythm_1.Rhythm.haveSamePath(previousEvent_1, e);
+        }) : [];
+        previousVoicing = previousVoicing.map(function (e) {
+          return e.value;
+        });
+      }
+
+      var voicingOptions = __assign({}, options.voicings, event.options.voicings);
+
+      var voicing = Voicing_1.Voicing.getNextVoicing(event.value, previousVoicing, voicingOptions);
+
+      if (!voicing) {
+        console.error("error getting voicing for chord \"" + event.value + "\" after voicing " + previousVoicing + ", using options " + voicingOptions);
+        return events;
+      }
+
+      return events.concat(voicing.map(function (note, index) {
+        return __assign({}, event, {
+          value: note,
+          type: 'chordnote',
+          chord: event.chord
+        });
+      }));
+    };
+  };
+
+  Sequence.addFermataToEnd = function (options) {
+    return function (event, index, events) {
+      var duration = event.duration;
+
+      if (index === events.length - 1 && options.fermataLength) {
+        duration *= options.fermataLength;
+      }
+
+      return __assign({}, event, {
+        duration: duration
+      });
+    };
+  };
+
+  Sequence.renderBass = function (options) {
+    return function (events, event) {
+      var duration = event.duration;
+
+      if (event.type !== 'chord') {
+        return events.concat([event]);
+      }
+
+      var root = Harmony_1.Harmony.getBassNote(event.value) + '2';
+      events.push(__assign({}, event, {
+        value: root,
+        type: 'bass',
+        duration: duration
+      }));
+      return events;
+    };
+  };
+
+  Sequence.duckChordEvent = function (options) {
+    return function (event, index, events) {
+      if (event.type !== 'chord') {
+        return event;
+      }
+
+      var melody = events.filter(function (e) {
+        return !e.chord && Harmony_1.Harmony.isValidNote(e.value);
+      });
+      var topNote;
+
+      if (options.tightMelody) {
+        topNote = melody.find(function (n) {
+          return Rhythm_1.Rhythm.haveSamePath(n, event) && Harmony_1.Harmony.isValidNote(n.value);
+        } // n => Sequence.isInside(n, event) && Harmony.isValidNote(n.value)
+        );
+      } // TODO: allow contained melody notes to be optional topNotes..
+
+
+      var surroundingMelody = melody //.filter(n => Math.abs(event.time - n.time) <= duckTime)
+      .filter(function (m) {
+        return Sequence.isTouching(event, m);
+      })
+      /* .filter(m => Sequence.isOverlapping(event, m)) */
+      .sort(function (a, b) {
+        return tonal_1.Note.midi(a.value) - tonal_1.Note.midi(b.value);
+      });
+      var range = options.voicings.range;
+
+      if (!topNote && surroundingMelody.length) {
+        var below = tonal_2.Distance.transpose(surroundingMelody[0].value, tonal_3.Interval.fromSemitones(-options.voicings.minTopDistance));
+        range = [range[0], below];
+      } else {
+        range = [range[0], range[1]];
+      }
+
+      return __assign({}, event, {
+        options: __assign({}, event.options, {
+          voicings: __assign({}, event.options.voicings || {}, topNote ? {
+            topNotes: [topNote.value]
+          } : {}, {
+            range: range
+          })
+        })
+      });
+    };
+  };
+
+  Sequence.humanizeEvent = function (options) {
+    return function (event, index, events) {
+      var durationChange = event.duration * options.humanize.duration;
+      return __assign({}, event, {
+        velocity: util_1.humanize(event.velocity, options.humanize.velocity),
+        duration: util_1.humanize(event.duration, durationChange, -durationChange),
+        time: util_1.humanize(event.time, options.humanize.time, options.humanize.time)
+      });
+    };
+  };
+
+  Sequence.velocityFromIndex = function (options) {
+    return function (event, index, events) {
+      var velocitySpan = options.dynamicVelocityRange[1] - options.dynamicVelocityRange[0];
+      return __assign({}, event, {
+        velocity: event.velocity * index / events.length * velocitySpan + options.dynamicVelocityRange[0]
+      });
+    };
+  };
+
+  Sequence.velocityFromPitch = function (options) {
+    return function (event, index, events) {
+      var midiValues = events.map(function (e) {
+        return tonal_1.Note.midi(e.value);
+      });
+      var maxMidi = util_1.maxArray(midiValues);
+      var avgMidi = util_1.avgArray(midiValues);
+      return __assign({}, event, {
+        velocity: event.velocity * avgMidi / maxMidi
+      });
+    };
+  };
+
+  Sequence.addDynamicVelocity = function (options) {
+    return function (event, index, events) {
+      if (!options.dynamicVelocity) {
+        return event;
+      }
+
+      event.velocity = event.velocity || 1;
+      return options.dynamicVelocity(event, index, events, options);
+    };
+  }; // static addSwing: EventMap = (options) => (event, index, events) => {
+
+
+  Sequence.addSwing = function (options) {
+    return function (events, event, index) {
+      if (!options.swing) {
+        // return event
+        return events.concat([event]);
+      }
+
+      var isOff = Sequence.isOff(event);
+
+      if (!isOff) {
+        // return event
+        return events.concat([event]);
+      }
+
+      var swingOffset = options.swing / 2 * 60 / options.bpm;
+      event = __assign({}, event, {
+        time: event.time + swingOffset,
+
+        /* color: 'black', */
+        duration: event.duration - swingOffset,
+        velocity: event.velocity + 0.1
+      });
+      return events.concat([event]);
+      /* const eventBefore = []
+        .concat(events)
+        .reverse()
+        .find(b => b.time < event.time);
+      if (!eventBefore) {
+        return events.concat([event]);
+      }
+      return events
+        .map((e, i) => {
+          if (Rhythm.haveSamePath(e, eventBefore)) {
+            e.duration += swingOffset;
+          }
+          return e;
+        })
+        .concat([event]); */
+    };
+  };
+
+  Sequence.inOut = function () {
+    return function (event, index, events) {
+      return event.measure.form === 0 || event.measure.form === event.measure.totalForms;
+    };
+  };
+
+  Sequence.removeDuplicates = function (options) {
+    return function (event, index, events) {
+      if (!options.phantomMelody) {
+        var duplicate = events.find(function (e, i) {
+          return i !== index && Harmony_1.Harmony.hasSamePitch(e.value, event.value) && Rhythm_1.Rhythm.haveSamePath(e, event);
+        });
+        return !duplicate || !event.chord; // always choose melody note
+      }
+
+      var melody = events.filter(function (e) {
+        return e.type !== 'chord';
+      }).find(function (e, i) {
+        return i !== index && Harmony_1.Harmony.hasSamePitch(e.value, event.value) && Rhythm_1.Rhythm.haveSamePath(e, event);
+      });
+      return !melody;
+    };
+  };
+
+  Sequence.getNextChordOff = function (_a) {
+    var target = _a.target,
+        source = _a.source,
+        sourceEvents = _a.sourceEvents,
+        options = _a.options;
+
+    if (options.offsPlayNext && Sequence.isOff(target)) {
+      var eigth = 60 / options.bpm / 2;
+      var next = sourceEvents[sourceEvents.indexOf(source) + 1];
+
+      if (next && next.time - target.time <= eigth) {
+        return next;
+      }
+    }
+  };
+
+  return Sequence;
+}();
+
+exports.Sequence = Sequence; // OLD bass trying bjorklund
+
+/*
+       const chordsInBar = chords.filter(e => e.path[0] === bar);
+      // place events into feel grid e.g. [0, false, 1, false] for two chords in 4 feel
+      const placed = Permutation.bjorklund(feel, chordsInBar.length).reduce(
+        (chords, current) => {
+          const index = chords.filter(chord => chord !== false).length;
+          chords.push(current ? index : false);
+          return chords;
+        },
+        []
+      );
+
+      placed.forEach((slot, i) => {
+        const isFirst = slot !== false;
+        if (!isFirst) {
+          slot = placed
+            .slice(0, i)
+            .reverse()
+            .find(s => s !== false);
+          if (slot === undefined) {
+            console.log('no slot before', i);
+            return;
+          }
+        }
+        let chord = chordsInBar[slot];
+        const indexSinceLastRoot = i - placed.indexOf(slot);
+
+        const root = Harmony.getBassNote(event.value) + '2';
+        const fifth = Distance.transpose(root, '5P');
+        const note = indexSinceLastRoot % 2 == 0 ? root : fifth;
+        events.push({
+          ...event,
+          value: note,
+          duration
+        });
+      });
+
+      */
+},{"../harmony/Voicing":"../lib/harmony/Voicing.js","../sheet/Sheet":"../lib/sheet/Sheet.js","../harmony/Harmony":"../lib/harmony/Harmony.js","tonal":"../node_modules/tonal/index.js","../util/util":"../lib/util/util.js","../util/Logger":"../lib/util/Logger.js","..":"../lib/index.js","../util/Pattern":"../lib/util/Pattern.js","./Leadsheet":"../lib/player/Leadsheet.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../lib/util/Pattern.js":[function(require,module,exports) {
+"use strict";
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13702,6 +13160,10 @@ var __1 = require("..");
 var Harmony_1 = require("../harmony/Harmony");
 
 var tonal_2 = require("tonal");
+
+var Sequence_1 = require("../player/Sequence");
+
+var Rhythm_1 = require("../rhythmical/Rhythm");
 
 var Pattern =
 /** @class */
@@ -13913,11 +13375,21 @@ function () {
     });
   };
 
+  Pattern.renderEvents = function (lines, options) {
+    var flat = Rhythm_1.Rhythm.flatten(lines);
+    var events = Sequence_1.Sequence.renderEvents(flat, options).map(function (e) {
+      return __assign({}, e, {
+        note: tonal_2.Note.simplify(e.value.note)
+      });
+    });
+    return events;
+  };
+
   return Pattern;
 }();
 
 exports.Pattern = Pattern;
-},{"tonal":"../node_modules/tonal/index.js","..":"../lib/index.js","../harmony/Harmony":"../lib/harmony/Harmony.js"}],"../src/symbols.ts":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","..":"../lib/index.js","../harmony/Harmony":"../lib/harmony/Harmony.js","../player/Sequence":"../lib/player/Sequence.js","../rhythmical/Rhythm":"../lib/rhythmical/Rhythm.js"}],"../src/symbols.ts":[function(require,module,exports) {
 "use strict";
 
 var __importStar = this && this.__importStar || function (mod) {
@@ -14324,1800 +13796,7 @@ function randomChord(group) {
 }
 
 exports.randomChord = randomChord;
-},{"tonal-chord":"../node_modules/tonal-chord/build/es6.js","tonal-scale":"../node_modules/tonal-scale/build/es6.js"}],"../src/harmony/Harmony.ts":[function(require,module,exports) {
-"use strict";
-
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var tonal_1 = require("tonal");
-
-var tonal_2 = require("tonal");
-
-var tonal_3 = require("tonal");
-
-var tonal_4 = require("tonal");
-
-var util_1 = require("../util/util");
-
-var Harmony =
-/** @class */
-function () {
-  function Harmony() {}
-
-  Harmony.isBlack = function (note) {
-    return tonal_1.Note.props(note)['acc'] !== '';
-  };
-
-  Harmony.hasSamePitch = function (noteA, noteB, ignoreOctave) {
-    if (ignoreOctave === void 0) {
-      ignoreOctave = false;
-    }
-
-    if (ignoreOctave || util_1.isPitchClass(noteA) || util_1.isPitchClass(noteB)) {
-      return tonal_1.Note.props(noteA).chroma === tonal_1.Note.props(noteB).chroma;
-    }
-
-    return tonal_1.Note.midi(noteA) === tonal_1.Note.midi(noteB);
-  };
-
-  Harmony.getTonalChord = function (chord) {
-    if (!chord) {
-      return null;
-    }
-
-    var root = Harmony.getBassNote(chord, true) || '';
-    var symbol = chord.replace(root, '');
-    symbol = symbol.split('/')[0]; // ignore slash
-    // check if already a proper tonal chord
-
-    if (!!Object.keys(Harmony.irealToTonal).find(function (i) {
-      return Harmony.irealToTonal[i] === symbol;
-    })) {
-      return root + symbol;
-    }
-
-    symbol = Harmony.irealToTonal[symbol];
-
-    if (symbol === undefined) {
-      return null;
-    }
-
-    return root + symbol;
-  };
-
-  Harmony.getBassNote = function (chord, ignoreSlash) {
-    if (ignoreSlash === void 0) {
-      ignoreSlash = false;
-    }
-
-    if (!chord) {
-      return null;
-    }
-
-    if (!ignoreSlash && chord.includes('/')) {
-      return chord.split('/')[1];
-    }
-
-    var match = chord.match(/^([A-G][b|#]?)/);
-
-    if (!match || !match.length) {
-      return '';
-    }
-
-    return match[0];
-  };
-
-  Harmony.transposeChord = function (chord, interval) {
-    if (!chord) {
-      return chord;
-    }
-
-    var tokens = tonal_2.Chord.tokenize(Harmony.getTonalChord(chord));
-    var root = tonal_4.Distance.transpose(tokens[0], interval);
-    root = tonal_1.Note.simplify(root);
-    return root + tokens[1];
-  };
-
-  Harmony.getMidi = function (note, offset) {
-    if (offset === void 0) {
-      offset = 0;
-    }
-
-    return tonal_1.Note.midi(note) - offset;
-  };
-
-  Harmony.intervalComplement = function (interval) {
-    var fix = {
-      '8P': '1P',
-      '8d': '1A',
-      '8A': '1d',
-      '1A': '8d',
-      '1d': '8A'
-    };
-    var fixIndex = Object.keys(fix).find(function (key) {
-      return interval.match(key);
-    });
-
-    if (fixIndex) {
-      return fix[fixIndex];
-    }
-
-    return tonal_3.Interval.invert(interval);
-  };
-
-  Harmony.invertInterval = function (interval) {
-    if (!interval) {
-      return null;
-    }
-
-    var positive = interval.replace('-', '');
-    var complement = Harmony.intervalComplement(positive);
-    var isNegative = interval.length > positive.length;
-    return (isNegative ? '' : '-') + complement;
-  };
-  /** Transforms interval into one octave (octave+ get octaved down) */
-
-
-  Harmony.fixInterval = function (interval, simplify) {
-    if (interval === void 0) {
-      interval = '';
-    }
-
-    if (simplify === void 0) {
-      simplify = false;
-    }
-
-    var fix = {
-      '0A': '1P',
-      '-0A': '1P'
-    };
-
-    if (simplify) {
-      fix = __assign({}, fix, {
-        '8P': '1P',
-        '-8P': '1P'
-      });
-      interval = tonal_3.Interval.simplify(interval);
-    }
-
-    if (Object.keys(fix).includes(interval)) {
-      return fix[interval];
-    }
-
-    return interval;
-  };
-  /** inverts the interval if it does not go to the desired direction */
-
-
-  Harmony.forceDirection = function (interval, direction, noUnison) {
-    if (noUnison === void 0) {
-      noUnison = false;
-    }
-
-    var semitones = tonal_3.Interval.semitones(interval);
-
-    if (direction === 'up' && semitones < 0 || direction === 'down' && semitones > 0) {
-      return Harmony.invertInterval(interval);
-    }
-
-    if (interval === '1P' && noUnison) {
-      return (direction === 'down' ? '-' : '') + '8P';
-    }
-
-    return interval;
-  }; // use Interval.ic?
-
-
-  Harmony.minInterval = function (interval, direction, noUnison) {
-    interval = Harmony.fixInterval(interval, true);
-
-    if (direction) {
-      return Harmony.forceDirection(interval, direction, noUnison);
-    }
-
-    var inversion = Harmony.invertInterval(interval);
-
-    if (Math.abs(tonal_3.Interval.semitones(inversion)) < Math.abs(tonal_3.Interval.semitones(interval))) {
-      interval = inversion;
-    }
-
-    return interval;
-  }; // returns array of intervals that lead the voices of chord A to chordB
-
-
-  Harmony.minIntervals = function (chordA, chordB) {
-    return chordA.map(function (n, i) {
-      return Harmony.minInterval(tonal_4.Distance.interval(n, chordB[i]));
-    });
-  };
-
-  Harmony.mapMinInterval = function (direction) {
-    return function (interval) {
-      return Harmony.minInterval(interval, direction);
-    };
-  }; // sort function
-
-
-  Harmony.sortMinInterval = function (preferredDirection, accessor) {
-    if (preferredDirection === void 0) {
-      preferredDirection = 'up';
-    }
-
-    if (accessor === void 0) {
-      accessor = function accessor(i) {
-        return i;
-      };
-    }
-
-    return function (a, b) {
-      var diff = Math.abs(tonal_3.Interval.semitones(accessor(a))) - Math.abs(tonal_3.Interval.semitones(accessor(b)));
-
-      if (diff === 0) {
-        return preferredDirection === 'up' ? -1 : 1;
-      }
-
-      return diff;
-    };
-  };
-  /** Returns the note with the least distance to "from" */
-
-
-  Harmony.getNearestNote = function (from, to, direction) {
-    var interval = Harmony.minInterval(tonal_4.Distance.interval(tonal_1.Note.pc(from), tonal_1.Note.pc(to)), direction);
-    return tonal_4.Distance.transpose(from, interval) + '';
-  };
-
-  Harmony.isValidNote = function (note) {
-    return !!note.match(/^[A-Ga-g][b|#]*[0-9]?$/);
-  };
-  /** Returns the note with the least distance to "from". TODO: add range */
-
-
-  Harmony.getNearestTargets = function (from, targets, preferredDirection, flip) {
-    if (preferredDirection === void 0) {
-      preferredDirection = 'down';
-    }
-
-    if (flip === void 0) {
-      flip = false;
-    }
-
-    var intervals = targets.map(function (target) {
-      return tonal_4.Distance.interval(tonal_1.Note.pc(from), target);
-    }).map(Harmony.mapMinInterval(preferredDirection)).sort(Harmony.sortMinInterval(preferredDirection));
-    /* if (flip) {
-        intervals = intervals.reverse();
-    } */
-
-    return intervals.map(function (i) {
-      return tonal_4.Distance.transpose(from, i);
-    });
-  };
-
-  Harmony.intervalMatrix = function (from, to) {
-    return to.map(function (note) {
-      return from.map(function (n) {
-        return tonal_4.Distance.interval(n, note);
-      }).map(function (d) {
-        return Harmony.minInterval(d);
-      });
-    }
-    /* .map(i => i.slice(0, 2) === '--' ? i.slice(1) : i) */
-    );
-  }; // mapping for ireal chords to tonal symbols, see getTonalChord
-
-
-  Harmony.irealToTonal = {
-    "^7": "M7",
-    "7": "7",
-    "-7": "m7",
-    "h7": "m7b5",
-    "7#9": "7#9",
-    "7b9": "7b9",
-    "^7#5": "M7#5",
-    "": "",
-    "6": "6",
-    "9": "9",
-    "-6": "m6",
-    "o7": "o7",
-    "h": "m7b5",
-    "-^7": "mM7",
-    "o": "o",
-    "^9": "M9",
-    "7#11": "7#11",
-    "7#5": "7#5",
-    "-": "m",
-    "7sus": "7sus",
-    "69": "M69",
-    "7b13": "7b13",
-    "^": "M",
-    "+": "+",
-    "7b9b5": "7b5b9",
-    "-9": "m9",
-    "9sus": "9sus",
-    "7b9sus": "7b9sus",
-    "7b9#5": "7#5b9",
-    "13": "13",
-    "^7#11": "M7#11",
-    "-7b5": "m7b5",
-    "^13": "M13",
-    "7#9b5": "7b5#9",
-    "-11": "m11",
-    "11": "11",
-    "7b5": "7b5",
-    "9#5": "9#5",
-    "13b9": "13b9",
-    "9#11": "9#11",
-    "13#11": "13#11",
-    "-b6": "mb6",
-    "7#9#5": "7#5#9",
-    "-69": "m69",
-    "13sus": "13sus",
-    "^9#11": "M9#11",
-    "7b9#9": "7b9#9",
-    "sus": "sus",
-    "7#9#11": "7#9#11",
-    "7b9b13": "7b9b13",
-    "7b9#11": "7b9#11",
-    "13#9": "13#9",
-    "9b5": "9b5",
-    "-^9": "mM9",
-    "2": "Madd9",
-    "-#5": "m#5",
-    "7+": "7#5",
-    "7sus4": "7sus",
-    "M69": "M69"
-  };
-  Harmony.pitchRegex = /^([A-G^][b|#]?)/;
-  return Harmony;
-}();
-
-exports.Harmony = Harmony;
-},{"tonal":"../node_modules/tonal/index.js","../util/util":"../src/util/util.ts"}],"../src/instruments/Instrument.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Harmony_1 = require("../harmony/Harmony");
-
-var Instrument =
-/** @class */
-function () {
-  function Instrument(_a) {
-    var _b = _a === void 0 ? {} : _a,
-        context = _b.context,
-        gain = _b.gain,
-        mix = _b.mix,
-        onTrigger = _b.onTrigger,
-        midiOffset = _b.midiOffset;
-
-    this.midiOffset = 0;
-    this.gain = 1;
-    this.activeEvents = [];
-    this.onTrigger = onTrigger;
-    this.midiOffset = midiOffset || this.midiOffset;
-    this.gain = gain || this.gain;
-    this.init({
-      context: context,
-      mix: mix
-    });
-  }
-
-  Instrument.prototype.init = function (_a) {
-    var context = _a.context,
-        mix = _a.mix;
-
-    if (!context && (!mix || !mix.context)) {
-      console.warn("you should pass a context or a mix (gainNode) to a new Instrument. \n            You can also Call init with {context,mix} to setup the Instrument later");
-      return;
-    }
-
-    this.context = context || mix.context;
-    this.mix = mix || this.context.destination;
-  };
-
-  Instrument.prototype.playNotes = function (notes, settings) {
-    var _this = this;
-
-    if (settings === void 0) {
-      settings = {};
-    }
-
-    var deadline = settings.deadline || this.context.currentTime;
-    settings = Object.assign({
-      duration: 2000,
-      gain: 1
-    }, settings, {
-      deadline: deadline
-    });
-
-    if (settings.interval) {
-      // call recursively with single notes at interval
-      return notes.map(function (note, index) {
-        _this.playNotes([note], Object.assign({}, settings, {
-          interval: 0,
-          deadline: deadline + index * settings.interval
-        }));
-      });
-    }
-
-    var midi = notes.map(function (note) {
-      return Harmony_1.Harmony.getMidi(note, _this.midiOffset);
-    });
-    var noteOff = settings.deadline + settings.duration / 1000;
-    var notesOn = notes.map(function (note, index) {
-      return {
-        note: note,
-        midi: midi[index],
-        gain: settings.gain,
-        noteOff: noteOff,
-        deadline: settings.deadline
-      };
-    });
-
-    if (settings.pulse && this.onTrigger) {
-      settings.pulse.clock.callbackAtTime(function (deadline) {
-        _this.activeEvents = _this.activeEvents.concat(notesOn);
-
-        _this.onTrigger({
-          on: notesOn,
-          off: [],
-          active: _this.activeEvents
-        });
-      }, settings.deadline);
-    }
-
-    if (settings.duration && settings.pulse) {
-      settings.pulse.clock.callbackAtTime(function (deadline) {
-        // find out which notes need to be deactivated
-        var notesOff = notes.filter(function (note) {
-          return !_this.activeEvents.find(function (event) {
-            var keep = note === event.note && event.noteOff > deadline;
-
-            if (keep) {
-              console.log('keep', note);
-            }
-
-            return keep;
-          });
-        }).map(function (note) {
-          return _this.activeEvents.find(function (e) {
-            return e.note === note;
-          });
-        });
-        _this.activeEvents = _this.activeEvents.filter(function (e) {
-          return !notesOff.includes(e);
-        });
-
-        if (_this.onTrigger) {
-          _this.onTrigger({
-            on: [],
-            off: notesOff,
-            active: _this.activeEvents
-          });
-        }
-      }, noteOff);
-    }
-
-    return this.playKeys(midi, settings);
-  };
-
-  Instrument.prototype.playKeys = function (keys, settings) {// TODO: fire callbacks after keys.map((key,i)=>i*settings.interval)?
-  };
-
-  return Instrument;
-}();
-
-exports.Instrument = Instrument;
-},{"../harmony/Harmony":"../src/harmony/Harmony.ts"}],"../src/instruments/Synthesizer.ts":[function(require,module,exports) {
-"use strict";
-
-var __extends = this && this.__extends || function () {
-  var _extendStatics = function extendStatics(d, b) {
-    _extendStatics = Object.setPrototypeOf || {
-      __proto__: []
-    } instanceof Array && function (d, b) {
-      d.__proto__ = b;
-    } || function (d, b) {
-      for (var p in b) {
-        if (b.hasOwnProperty(p)) d[p] = b[p];
-      }
-    };
-
-    return _extendStatics(d, b);
-  };
-
-  return function (d, b) {
-    _extendStatics(d, b);
-
-    function __() {
-      this.constructor = d;
-    }
-
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-  };
-}();
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Instrument_1 = require("./Instrument");
-
-var tonal_1 = require("tonal");
-
-var util_1 = require("../util/util");
-
-var Synthesizer =
-/** @class */
-function (_super) {
-  __extends(Synthesizer, _super);
-
-  function Synthesizer(props) {
-    var _this = _super.call(this, props) || this;
-
-    _this.duration = 200;
-    _this.type = 'sine';
-    _this.gain = 0.9;
-    _this.attack = .05;
-    _this.decay = .05;
-    _this.sustain = .4;
-    _this.release = .1;
-    _this.duration = props.duration || _this.duration;
-    _this.type = props.type || _this.type;
-    _this.gain = props.gain || _this.gain;
-    return _this;
-  }
-
-  Synthesizer.prototype.getVoice = function (type, gain, key) {
-    if (type === void 0) {
-      type = 'sine';
-    }
-
-    if (gain === void 0) {
-      gain = 0;
-    }
-
-    var frequency = tonal_1.Note.freq(key);
-    var oscNode = this.context.createOscillator();
-    oscNode.type = type;
-    var gainNode = this.context.createGain();
-    oscNode.connect(gainNode);
-    gainNode.gain.value = typeof gain === 'number' ? gain : 0.8;
-    gainNode.connect(this.mix);
-    oscNode.frequency.value = frequency;
-    return {
-      oscNode: oscNode,
-      gainNode: gainNode,
-      key: key,
-      frequency: frequency
-    };
-  };
-
-  Synthesizer.prototype.lowestGain = function (a, b) {
-    return a.gain.gain.value < b.gain.gain.value ? -1 : 0;
-  };
-
-  Synthesizer.prototype.startKeys = function (keys, settings) {
-    if (settings === void 0) {
-      settings = {};
-    }
-  };
-
-  Synthesizer.prototype.playKeys = function (keys, settings) {
-    var _this = this;
-
-    if (settings === void 0) {
-      settings = {};
-    }
-
-    _super.prototype.playKeys.call(this, keys, settings); // fires callback   
-    //const time = this.context.currentTime + settings.deadline / 1000;
-
-
-    var time = settings.deadline || this.context.currentTime;
-    var interval = settings.interval || 0;
-    return keys.map(function (key, i) {
-      var delay = i * interval;
-      var _a = [settings.endless, settings.attack || _this.attack, settings.decay || _this.decay, settings.sustain || _this.sustain, settings.release || _this.release, (settings.duration || _this.duration) / 1000, (settings.gain || 1) * _this.gain],
-          endless = _a[0],
-          attack = _a[1],
-          decay = _a[2],
-          sustain = _a[3],
-          release = _a[4],
-          duration = _a[5],
-          gain = _a[6];
-
-      var voice = _this.getVoice(_this.type, 0, key);
-
-      util_1.adsr({
-        attack: attack,
-        decay: decay,
-        sustain: sustain,
-        release: release,
-        gain: gain,
-        duration: duration,
-        endless: endless
-      }, time + delay, voice.gainNode.gain);
-      voice.oscNode.start(settings.deadline + delay);
-      return voice;
-    });
-  };
-
-  Synthesizer.prototype.stopVoice = function (voice, settings) {
-    if (settings === void 0) {
-      settings = {};
-    }
-
-    if (!voice) {
-      return;
-    }
-
-    var time = settings.deadline || this.context.currentTime;
-    voice.gainNode.gain.setTargetAtTime(0, time, settings.release || this.release); //voice.oscNode.stop()
-  };
-
-  Synthesizer.prototype.stopVoices = function (voices, settings) {
-    var _this = this;
-
-    voices.forEach(function (voice) {
-      _this.stopVoice(voice, settings);
-    });
-  };
-
-  return Synthesizer;
-}(Instrument_1.Instrument);
-
-exports.Synthesizer = Synthesizer;
-},{"./Instrument":"../src/instruments/Instrument.ts","tonal":"../node_modules/tonal/index.js","../util/util":"../src/util/util.ts"}],"../src/util/util.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var tonal_1 = require("tonal");
-
-var Synthesizer_1 = require("../instruments/Synthesizer");
-
-var symbols_1 = require("../symbols");
-
-var Harmony_1 = require("../harmony/Harmony");
-
-var steps = {
-  '1P': ['1', '8'],
-  '2m': ['b9', 'b2'],
-  '2M': ['9', '2'],
-  '2A': ['#9', '#2'],
-  '3m': ['b3'],
-  '3M': ['3'],
-  '4P': ['11', '4'],
-  '4A': ['#11', '#4'],
-  '5d': ['b5'],
-  '5P': ['5'],
-  '5A': ['#5'],
-  '6m': ['b13', 'b6'],
-  '6M': ['13', '6'],
-  '7m': ['b7'],
-  '7M': ['7', '^7', 'maj7']
-};
-/*
-Lower Interval Limits (just guidelines):
-2m: E3-F3
-2M: Eb3-F3
-3m: C3-Eb3
-3M: Bb2-D3
-4P: Bb2-Eb3
-5D: B2-F3
-5P: Bb1-F2
-6m: F2-Db3
-6M: F2-D3
-7m: F2-Eb3
-7m: F2-E3
-8P: -
-
-more rough: top note should be D3 or higher.
-taken from https://www.youtube.com/watch?v=iW6YeDJklhQ
-*/
-
-function randomNumber(n) {
-  return Math.floor(Math.random() * n);
-}
-
-exports.randomNumber = randomNumber;
-
-function arraySum(array) {
-  return array.reduce(function (s, i) {
-    return s + i;
-  }, 0);
-}
-
-exports.arraySum = arraySum;
-
-function randomElement(array, weighted) {
-  if (!weighted) {
-    return array[randomNumber(array.length)];
-  }
-
-  var r = randomNumber(arraySum(weighted)) + 1;
-  var total = weighted.reduce(function (abs, w, i) {
-    return abs.concat(w + (abs.length ? abs[i - 1] : 0));
-  }, []);
-  return array[total.indexOf(total.find(function (s, i) {
-    return s >= r;
-  }))];
-}
-
-exports.randomElement = randomElement;
-
-function shuffleArray(a) {
-  var _a;
-
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    _a = [a[j], a[i]], a[i] = _a[0], a[j] = _a[1];
-  }
-
-  return a;
-}
-
-exports.shuffleArray = shuffleArray;
-/** OLD SHEET / RHYTHM STUFF */
-
-/** Travels path along measures */
-
-function getPath(path, measures, traveled) {
-  if (traveled === void 0) {
-    traveled = [];
-  }
-
-  if (!Array.isArray(measures[path[0]]) || path.length === 1) {
-    return measures[Math.min(path[0], measures.length - 1)];
-  }
-
-  return this.getPath(path.slice(1), measures[path[0]], traveled.concat(path[0]));
-}
-
-exports.getPath = getPath;
-
-function getDuration(divisions, noteLength, measureLength) {
-  if (noteLength === void 0) {
-    noteLength = 1;
-  }
-
-  if (measureLength === void 0) {
-    measureLength = 1;
-  }
-
-  return noteLength * divisions.reduce(function (f, d) {
-    return f / d;
-  }, 1000) * measureLength; // fraction of one
-}
-
-exports.getDuration = getDuration;
-
-function resolveChords(pattern, measures, path, divisions) {
-  var _this = this;
-
-  if (divisions === void 0) {
-    divisions = [];
-  }
-
-  if (Array.isArray(pattern)) {
-    // division: array of children lengths down the path (to calculate fraction)
-    divisions = [].concat(divisions, [pattern.length]);
-    return pattern.map(function (p, i) {
-      return _this.resolveChords(p, measures, path.concat([i]), divisions);
-    });
-  }
-
-  if (pattern === 0) {
-    return 0;
-  }
-
-  var fraction = getDuration(divisions, pattern);
-
-  if (fraction === 0) {
-    console.warn('fraction is 0', pattern);
-  }
-
-  if (fraction === NaN) {
-    console.warn('fraction NaN', divisions, pattern);
-  }
-
-  return {
-    chord: this.getPath(path, measures),
-    pattern: pattern,
-    path: path,
-    divisions: divisions,
-    fraction: fraction
-  };
-}
-
-exports.resolveChords = resolveChords;
-
-function hasOff(pattern, division) {
-  if (division === void 0) {
-    division = 3;
-  }
-
-  return Array.isArray(pattern) && pattern.length === division && pattern[division - 1] !== 0;
-}
-
-exports.hasOff = hasOff; // replaces offs on last beat with next chord + erases next one
-
-function offbeatReducer(settings) {
-  var _this = this; // TODO: find out why some offbeats sound sketchy
-
-
-  return function (measures, bar, index) {
-    var last = index > 0 ? measures[index - 1] : null;
-
-    if (last && _this.hasOff(last[settings.cycle - 1], settings.division)) {
-      last[settings.cycle - 1][settings.division - 1] = bar[0];
-      bar[0] = 0;
-    }
-
-    return measures.concat([bar]);
-  };
-}
-
-exports.offbeatReducer = offbeatReducer;
-
-function randomSynth(mix, allowed, settings) {
-  if (allowed === void 0) {
-    allowed = ['sine', 'triangle', 'square', 'sawtooth'];
-  }
-
-  if (settings === void 0) {
-    settings = {};
-  }
-
-  var gains = {
-    sine: 0.9,
-    triangle: 0.8,
-    square: 0.2,
-    sawtooth: 0.3
-  };
-  var wave = randomElement(allowed);
-  return new Synthesizer_1.Synthesizer(Object.assign({
-    gain: gains[wave],
-    type: wave,
-    mix: mix
-  }, settings));
-}
-
-exports.randomSynth = randomSynth;
-
-function adsr(_a, time, param) {
-  var attack = _a.attack,
-      decay = _a.decay,
-      sustain = _a.sustain,
-      release = _a.release,
-      gain = _a.gain,
-      duration = _a.duration,
-      endless = _a.endless; // console.log('adsr', attack, decay, sustain, release, gain, duration, time);
-
-  param.linearRampToValueAtTime(gain, time + attack);
-  param.setTargetAtTime(sustain * gain, time + Math.min(attack + decay, duration), decay);
-
-  if (!endless) {
-    param.setTargetAtTime(0, time + Math.max(duration - attack - decay, attack + decay, duration), release);
-  }
-}
-
-exports.adsr = adsr;
-
-function randomDelay(maxMs) {
-  return Math.random() * maxMs * 2 / 1000;
-}
-
-exports.randomDelay = randomDelay;
-
-function isInRange(note, range) {
-  return tonal_1.Distance.semitones(note, range[0]) <= 0 && tonal_1.Distance.semitones(note, range[1]) >= 0;
-}
-
-exports.isInRange = isInRange;
-
-function transposeNotes(notes, interval) {
-  return notes.map(function (note) {
-    return tonal_1.Distance.transpose(note, interval);
-  });
-}
-
-exports.transposeNotes = transposeNotes;
-
-function transposeToRange(notes, range, times) {
-  if (times === void 0) {
-    times = 0;
-  }
-
-  if (times > 10) {
-    return notes;
-  }
-
-  if (notes.find(function (note) {
-    return tonal_1.Distance.semitones(note, range[0]) > 0;
-  })) {
-    notes = notes.map(function (note) {
-      return tonal_1.Distance.transpose(note, '8P');
-    });
-    console.log('tp up');
-    return transposeToRange(notes, range, ++times);
-  }
-
-  if (notes.find(function (note) {
-    return tonal_1.Distance.semitones(note, range[1]) < 0;
-  })) {
-    console.log('tp down');
-    notes = notes.map(function (note) {
-      return tonal_1.Distance.transpose(note, '-8P');
-    });
-    return transposeToRange(notes, range, ++times);
-  }
-
-  return notes;
-}
-
-exports.transposeToRange = transposeToRange;
-
-function getAverageMidi(notes, offset) {
-  return notes.reduce(function (sum, note) {
-    return sum + Harmony_1.Harmony.getMidi(note, offset);
-  }, 0) / notes.length;
-}
-
-exports.getAverageMidi = getAverageMidi;
-
-function getDistancesToRangeEnds(notes, range) {
-  if (notes.length > 2) {
-    notes = [notes[0], notes[notes.length - 1]];
-  }
-
-  var midi = notes.map(function (n) {
-    return Harmony_1.Harmony.getMidi(n);
-  });
-  var rangeMidi = range.map(function (n) {
-    return Harmony_1.Harmony.getMidi(n);
-  });
-  return [midi[0] - rangeMidi[0], rangeMidi[1] - midi[1]];
-}
-
-exports.getDistancesToRangeEnds = getDistancesToRangeEnds;
-
-function getRangePosition(note, range) {
-  note = Harmony_1.Harmony.getMidi(note);
-  range = range.map(function (n) {
-    return Harmony_1.Harmony.getMidi(n);
-  });
-  var semitones = [note - range[0], range[1] - range[0]];
-  return semitones[0] / semitones[1];
-}
-
-exports.getRangePosition = getRangePosition;
-
-function getRangeDirection(note, range, defaultDirection, border) {
-  if (defaultDirection === void 0) {
-    defaultDirection = 'down';
-  }
-
-  if (border === void 0) {
-    border = 0;
-  }
-
-  var position = getRangePosition(note, range);
-
-  if (position <= border) {
-    return {
-      direction: 'up',
-      force: true
-    };
-  }
-
-  if (position >= 1 - border) {
-    return {
-      direction: 'down',
-      force: true
-    };
-  }
-
-  return {
-    direction: defaultDirection,
-    force: false
-  };
-}
-
-exports.getRangeDirection = getRangeDirection; // accepts both strings or numbers where negative means minor, 
-// returns unified step string that can be turned into an interval
-
-function getStep(step) {
-  if (typeof step === 'number' && step < 0) {
-    step = 'b' + step * -1;
-  }
-
-  return step + ''; // to string
-}
-
-exports.getStep = getStep;
-
-function getIntervalFromStep(step) {
-  step = getStep(step);
-  var interval = Object.keys(steps).find(function (i) {
-    return steps[i].includes(step);
-  });
-
-  if (!interval) {// console.warn(`step ${step} has no defined inteval`);
-  }
-
-  return interval;
-}
-
-exports.getIntervalFromStep = getIntervalFromStep;
-
-function getStepsFromDegree(degree) {
-  return;
-}
-
-exports.getStepsFromDegree = getStepsFromDegree;
-
-function getStepsInChord(notes, chord, min) {
-  if (min === void 0) {
-    min = false;
-  }
-
-  var root = tonal_1.Chord.tokenize(Harmony_1.Harmony.getTonalChord(chord))[0];
-  return notes.map(function (note) {
-    var interval = tonal_1.Distance.interval(root, tonal_1.Note.pc(note));
-    return getStepFromInterval(interval, min);
-  });
-}
-
-exports.getStepsInChord = getStepsInChord;
-
-function getStepInChord(note, chord, min) {
-  if (min === void 0) {
-    min = false;
-  }
-
-  return getStepFromInterval(tonal_1.Distance.interval(tonal_1.Chord.tokenize(Harmony_1.Harmony.getTonalChord(chord))[0], tonal_1.Note.pc(note), min));
-}
-
-exports.getStepInChord = getStepInChord;
-
-function getChordScales(chord, group) {
-  if (group === void 0) {
-    group = 'Diatonic';
-  }
-
-  var tokens = tonal_1.Chord.tokenize(Harmony_1.Harmony.getTonalChord(chord));
-  /* const isSuperset = PcSet.isSupersetOf(Chord.intervals(tokens[1])); */
-
-  return symbols_1.scaleNames(group).filter(function (name) {
-    /* isSuperset(Scale.intervals(name)) */
-    return tonal_1.PcSet.isSupersetOf(tonal_1.Chord.intervals(tokens[1]), tonal_1.Scale.intervals(name));
-  });
-}
-
-exports.getChordScales = getChordScales;
-
-function pickChordScale(chord, group) {
-  if (group === void 0) {
-    group = 'Diatonic';
-  }
-
-  var scales = getChordScales(chord);
-
-  if (!scales.length) {
-    console.warn("cannot pick chord scale: no scales found for chord " + chord + " in group " + group);
-    return;
-  }
-
-  return scales[0];
-}
-
-exports.pickChordScale = pickChordScale;
-
-function findDegree(degreeOrStep, intervalsOrSteps) {
-  var intervals = intervalsOrSteps.map(function (i) {
-    return isInterval(i) ? i : getIntervalFromStep(i);
-  });
-
-  if (typeof degreeOrStep === 'number') {
-    // is degree
-    var degree_1 = Math.abs(degreeOrStep);
-    return intervals.find(function (i) {
-      i = Harmony_1.Harmony.minInterval(i, 'up');
-
-      if (!steps[i]) {
-        console.error('interval', i, 'is not valid', intervals);
-      }
-
-      return !!steps[i].find(function (step) {
-        return getDegreeFromStep(step) === degree_1;
-      });
-    });
-  } // is step
-
-
-  var step = getStep(degreeOrStep);
-  return intervals.find(function (i) {
-    return i.includes(step) || i === getIntervalFromStep(step);
-  });
-}
-
-exports.findDegree = findDegree;
-
-function hasDegree(degree, intervals) {
-  return !!findDegree(degree, intervals);
-}
-
-exports.hasDegree = hasDegree;
-
-function hasAllDegrees(degrees, intervals) {
-  return degrees.reduce(function (res, d) {
-    return res && hasDegree(d, intervals);
-  }, true);
-}
-
-exports.hasAllDegrees = hasAllDegrees;
-
-function getScaleDegree(degree, scale) {
-  return findDegree(degree, tonal_1.Scale.intervals(scale));
-}
-
-exports.getScaleDegree = getScaleDegree;
-
-function getScalePattern(pattern, scale) {
-  return pattern.map(function (degree) {
-    return getScaleDegree(degree, scale);
-  });
-}
-
-exports.getScalePattern = getScalePattern;
-
-function renderIntervals(intervals, root) {
-  return intervals.map(function (i) {
-    return tonal_1.Distance.transpose(root, i);
-  });
-}
-
-exports.renderIntervals = renderIntervals;
-
-function renderSteps(steps, root) {
-  return renderIntervals(steps.map(function (step) {
-    return getIntervalFromStep(step);
-  }), root);
-}
-
-exports.renderSteps = renderSteps;
-
-function permutateIntervals(intervals, pattern) {
-  return pattern.map(function (d) {
-    return findDegree(d, intervals);
-  });
-}
-
-exports.permutateIntervals = permutateIntervals;
-
-function getStepFromInterval(interval, min) {
-  if (min === void 0) {
-    min = false;
-  }
-
-  var step = steps[interval] || [];
-
-  if (min) {
-    return step[1] || step[0] || 0;
-  }
-
-  return step[0] || 0;
-}
-
-exports.getStepFromInterval = getStepFromInterval;
-
-function getDegreeFromInterval(interval, simplify) {
-  if (interval === void 0) {
-    interval = '-1';
-  }
-
-  if (simplify === void 0) {
-    simplify = false;
-  }
-
-  var fixed = Harmony_1.Harmony.fixInterval(interval + '', simplify) || '';
-  var match = fixed.match(/[-]?([1-9])+/);
-
-  if (!match) {
-    return 0;
-  }
-
-  return Math.abs(parseInt(match[0], 10));
-}
-
-exports.getDegreeFromInterval = getDegreeFromInterval;
-
-function getDegreeFromStep(step) {
-  step = getStep(step);
-  var match = step.match(/([1-9])+/);
-
-  if (!match || !match.length) {
-    return 0;
-  }
-
-  return parseInt(match[0], 10);
-}
-
-exports.getDegreeFromStep = getDegreeFromStep;
-
-function getDegreeInChord(degree, chord) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var intervals = tonal_1.Chord.intervals(chord);
-  var tokens = tonal_1.Chord.tokenize(chord);
-  return tonal_1.Distance.transpose(tokens[0], findDegree(degree, intervals));
-}
-
-exports.getDegreeInChord = getDegreeInChord;
-
-function getPatternInChord(pattern, chord) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var intervals = tonal_1.Chord.intervals(chord);
-  var tokens = tonal_1.Chord.tokenize(chord);
-  var permutation;
-
-  if (hasAllDegrees(pattern, intervals)) {
-    permutation = permutateIntervals(intervals, pattern);
-  } else {
-    // not all degrees of the pattern are in the chord > get scale
-    var scale = pickChordScale(chord);
-    permutation = permutateIntervals(tonal_1.Scale.intervals(scale), pattern);
-  }
-
-  if (tokens[0]) {
-    return renderIntervals(permutation, tokens[0]);
-  }
-
-  return permutation;
-}
-
-exports.getPatternInChord = getPatternInChord; // TODO: other way around: find fixed interval pattern in a scale
-// TODO: motives aka start pattern from same note in different scale
-// TODO: motives aka start pattern from different note in same scale
-// TODO: motives aka start pattern from different note in different scale
-
-function getDigitalPattern(chord) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var intervals = tonal_1.Chord.intervals(chord);
-
-  if (intervals.includes('3m')) {
-    return [1, 3, 4, 5];
-  } else if (intervals.includes('3M')) {
-    return [1, 2, 3, 5];
-  } else {
-    return [1, 1, 1, 1];
-  }
-}
-
-exports.getDigitalPattern = getDigitalPattern;
-
-function renderDigitalPattern(chord) {
-  return getPatternInChord(getDigitalPattern(chord), chord);
-}
-
-exports.renderDigitalPattern = renderDigitalPattern;
-
-function getGuideTones(chord) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  return getPatternInChord([3, 7], chord);
-}
-
-exports.getGuideTones = getGuideTones;
-
-function isFirstInPath(path, index) {
-  return path.slice(index).reduce(function (sum, value) {
-    return sum + value;
-  }, 0) === 0;
-}
-
-exports.isFirstInPath = isFirstInPath;
-
-function isBarStart(path) {
-  return isFirstInPath(path, 1);
-}
-
-exports.isBarStart = isBarStart;
-
-function isFormStart(path) {
-  return isFirstInPath(path, 0);
-}
-
-exports.isFormStart = isFormStart;
-
-function isOffbeat(path) {
-  return path[2] !== 0;
-}
-
-exports.isOffbeat = isOffbeat;
-
-function otherDirection(direction, defaultDirection) {
-  if (direction === 'up') {
-    return 'down';
-  } else if (direction === 'down') {
-    return 'up';
-  }
-
-  return defaultDirection;
-}
-
-exports.otherDirection = otherDirection;
-
-function totalDiff(diff) {
-  var total = diff.reduce(function (weight, diff) {
-    weight.added += diff.added ? diff.count : 0;
-    weight.removed += diff.added ? diff.count : 0;
-    weight.kept += !diff.added && !diff.removed ? diff.count : 0;
-    return weight;
-  }, {
-    added: 0,
-    removed: 0,
-    kept: 0,
-    balance: 0
-  });
-  total.balance = total.added - total.removed;
-  total.changes = total.added + total.removed;
-  return total;
-}
-
-exports.totalDiff = totalDiff;
-/** Reorders the given notes to contain the given step as close as possible */
-
-function sortByDegree(notes, degree) {
-  degree = Math.max(degree, (degree + 8) % 8);
-  /* const semitones = Interval.semitones(interval); */
-
-  var diffDegrees = function diffDegrees(a, b) {
-    return Math.abs(getDegreeFromInterval(tonal_1.Distance.interval(a, b) + '') - degree);
-  };
-  /* const diffTones = (a, b) => Math.abs(Distance.interval(a, b) - semitones); */
-
-
-  notes = notes.slice(1).reduce(function (chain, note) {
-    var closest = notes.filter(function (n) {
-      return !chain.includes(n);
-    }).sort(function (a, b) {
-      return diffDegrees(chain[0], a) < diffDegrees(chain[0], b) ? -1 : 1;
-    });
-    chain.unshift(closest[0]);
-    return chain;
-  }, [notes[0]]).reverse();
-  return notes;
-}
-
-exports.sortByDegree = sortByDegree;
-/** Returns the given notes with octaves either moving bottom up or top down */
-
-function renderAbsoluteNotes(notes, octave, direction) {
-  if (octave === void 0) {
-    octave = 3;
-  }
-
-  if (direction === void 0) {
-    direction = 'up';
-  }
-
-  return notes.reduce(function (absolute, current, index, notes) {
-    if (index === 0) {
-      return [current + octave];
-    }
-
-    var interval = tonal_1.Distance.interval(notes[index - 1], current);
-    interval = Harmony_1.Harmony.minInterval(interval, direction);
-
-    if (interval === '1P') {
-      interval = direction === 'down' ? '-8P' : '8P';
-    }
-
-    absolute.push(tonal_1.Distance.transpose(absolute[index - 1], interval + ''));
-    return absolute;
-  }, []);
-}
-
-exports.renderAbsoluteNotes = renderAbsoluteNotes;
-
-function getIntervals(notes) {
-  return notes.reduce(function (intervals, note, index, notes) {
-    if (index === 0) {
-      return [];
-    }
-
-    intervals.push(tonal_1.Distance.interval(notes[index - 1], note));
-    return intervals;
-  }, []);
-}
-
-exports.getIntervals = getIntervals;
-
-function isInterval(interval) {
-  return typeof tonal_1.Interval.semitones(interval) === 'number';
-}
-
-exports.isInterval = isInterval;
-
-function smallestInterval(intervals) {
-  return intervals.reduce(function (min, current) {
-    if (!min || tonal_1.Interval.semitones(current) < tonal_1.Interval.semitones(min)) {
-      return current;
-    }
-
-    return min;
-  });
-}
-
-exports.smallestInterval = smallestInterval;
-
-function sortNotes(notes, direction) {
-  if (direction === void 0) {
-    direction = 'up';
-  }
-
-  return notes.sort(function (a, b) {
-    return Harmony_1.Harmony.getMidi(a) - Harmony_1.Harmony.getMidi(b);
-  });
-}
-
-exports.sortNotes = sortNotes;
-
-function analyzeVoicing(notes, root) {
-  if (!notes || notes.length < 2) {
-    throw new Error('Can only analyze Voicing with at least two notes');
-  }
-
-  notes = sortNotes(notes);
-  root = root || notes[0]; // TODO: get degrees
-
-  var intervals = getIntervals(notes);
-  var sortedIntervals = intervals.sort(Harmony_1.Harmony.sortMinInterval());
-  return {
-    notes: notes,
-    minInterval: sortedIntervals[0],
-    maxInterval: sortedIntervals[sortedIntervals.length - 1],
-    intervals: intervals,
-    spread: tonal_1.Distance.interval(notes[0], notes[notes.length - 1])
-  };
-}
-
-exports.analyzeVoicing = analyzeVoicing;
-
-function semitoneDifference(intervals) {
-  return intervals.reduce(function (semitones, interval) {
-    return semitones + Math.abs(tonal_1.Interval.semitones(interval));
-  }, 0);
-}
-
-exports.semitoneDifference = semitoneDifference;
-
-function semitoneMovement(intervals) {
-  return intervals.reduce(function (semitones, interval) {
-    return semitones + tonal_1.Interval.semitones(interval);
-  }, 0);
-}
-
-exports.semitoneMovement = semitoneMovement;
-
-function longestChild(array) {
-  return array.reduce(function (max, current) {
-    return current.length > max.length ? current : max;
-  }, array[0]);
-}
-
-exports.longestChild = longestChild;
-
-function maxArray(array) {
-  if (!array || !array.length) {
-    return;
-  }
-
-  return array.reduce(function (max, item) {
-    return Math.max(max, item);
-  }, array[0]);
-}
-
-exports.maxArray = maxArray;
-
-function avgArray(array) {
-  if (!array || !array.length) {
-    return;
-  }
-
-  return array.reduce(function (sum, item) {
-    return sum + item;
-  }, 0) / array.length;
-}
-
-exports.avgArray = avgArray;
-
-function humanize(value, amount, offset) {
-  if (amount === void 0) {
-    amount = 0.01;
-  }
-
-  if (offset === void 0) {
-    offset = 0;
-  }
-
-  return value + (Math.random() - 0.5) * 2 * amount + offset;
-}
-
-exports.humanize = humanize;
-
-function isPitchClass(note) {
-  return tonal_1.Note.pc(note) === note;
-}
-
-exports.isPitchClass = isPitchClass;
-
-function mapTree(tree, modifier, simplify, path, siblings, position) {
-  if (simplify === void 0) {
-    simplify = false;
-  }
-
-  if (path === void 0) {
-    path = [];
-  }
-
-  if (siblings === void 0) {
-    siblings = [];
-  }
-
-  if (position === void 0) {
-    position = 0;
-  } // skip current tree if only one child
-
-
-  if (simplify && Array.isArray(tree) && tree.length === 1) {
-    return mapTree(tree[0], modifier, simplify, path, siblings, position);
-  }
-
-  var fraction = siblings.reduce(function (f, d) {
-    return f / d;
-  }, 1);
-
-  if (!Array.isArray(tree)) {
-    return modifier ? modifier(tree, {
-      path: path,
-      siblings: siblings,
-      fraction: fraction,
-      position: position
-    }) : tree;
-  }
-
-  if (Array.isArray(tree)) {
-    siblings = siblings.concat([tree.length]);
-    fraction = fraction / tree.length;
-    return tree.map(function (subtree, index) {
-      return mapTree(subtree, modifier, simplify, path.concat([index]), siblings, position + index * fraction);
-    });
-  }
-}
-
-exports.mapTree = mapTree;
-
-function flattenTree(tree) {
-  var flat = [];
-  mapTree(tree, function (value, props) {
-    return flat.push(Object.assign(props, {
-      value: value
-    }));
-  });
-  return flat;
-}
-
-exports.flattenTree = flattenTree;
-
-function expandTree(tree) {// TODO
-}
-
-exports.expandTree = expandTree;
-/* Returns true if the given intervals are all present in the chords interval structure
-Intervals can be appendend with "?" to indicate that those degrees could also be omitted
-(but when present they should match)
-*/
-
-function chordHasIntervals(chord, intervals) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var has = tonal_1.Chord.intervals(chord);
-  return intervals.reduce(function (match, current) {
-    var isOptional = current.includes('?');
-    var isForbidden = current.includes('!');
-
-    if (isOptional) {
-      current = current.replace('?', '');
-      return (!hasDegree(getDegreeFromInterval(current), has) || has.includes(current)) && match;
-    }
-
-    if (isForbidden) {
-      current = current.replace('!', '');
-      return !hasDegree(getDegreeFromInterval(current), has);
-    }
-
-    return has.includes(current) && match;
-  }, true);
-}
-
-exports.chordHasIntervals = chordHasIntervals;
-
-function isDominantChord(chord) {
-  return chordHasIntervals(chord, ['3M', '7m']) || chordHasIntervals(chord, ['!3', '4P', '7m']);
-}
-
-exports.isDominantChord = isDominantChord;
-
-function isMajorChord(chord) {
-  return chordHasIntervals(chord, ['3M', '7M?']);
-}
-
-exports.isMajorChord = isMajorChord;
-
-function isMinorChord(chord) {
-  return chordHasIntervals(chord, ['3m']);
-}
-
-exports.isMinorChord = isMinorChord;
-
-function isMinorTonic(chord) {
-  return chordHasIntervals(chord, ['3m', '5P', '13M?', '7M?']);
-}
-
-exports.isMinorTonic = isMinorTonic;
-
-function getChordType(chord) {
-  if (isDominantChord(chord)) {
-    return 'dominant';
-  }
-
-  if (isMajorChord(chord)) {
-    return 'major';
-  }
-
-  if (isMinorTonic(chord)) {
-    return 'minor-tonic';
-  }
-
-  if (isMinorChord(chord)) {
-    return 'minor';
-  }
-}
-
-exports.getChordType = getChordType;
-
-function getChordNotes(chord, validate) {
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var tokens = tonal_1.Chord.tokenize(chord);
-  var notes = tonal_1.Chord.notes(chord);
-  return notes.filter(function (note) {
-    var interval = tonal_1.Distance.interval(tokens[0], note);
-    return !validate || validate(note, {
-      root: tokens[0],
-      symbol: tokens[1],
-      interval: interval,
-      step: getStepFromInterval(interval),
-      degree: getDegreeFromInterval(interval + '')
-    });
-  });
-}
-
-exports.getChordNotes = getChordNotes;
-
-function validateWithoutRoot(note, _a) {
-  var degree = _a.degree;
-  return degree !== 1;
-}
-
-exports.validateWithoutRoot = validateWithoutRoot; // OLD...
-
-function getVoicing(chord, _a) {
-  var _b = _a === void 0 ? {} : _a,
-      voices = _b.voices,
-      previousVoicing = _b.previousVoicing,
-      omitRoot = _b.omitRoot,
-      quartal = _b.quartal;
-
-  chord = Harmony_1.Harmony.getTonalChord(chord);
-  var tokens = tonal_1.Chord.tokenize(chord);
-  var notes = tonal_1.Chord.notes(chord);
-
-  if (omitRoot) {
-    notes = notes.filter(function (n) {
-      return n !== tokens[0];
-    });
-  }
-
-  if (quartal) {}
-
-  if (previousVoicing) {}
-
-  return notes;
-}
-
-exports.getVoicing = getVoicing;
-
-function semitoneDistance(noteA, noteB) {
-  return tonal_1.Interval.semitones(tonal_1.Distance.interval(noteA, noteB) + '');
-}
-
-exports.semitoneDistance = semitoneDistance;
-
-function noteArray(range) {
-  var slots = tonal_1.Interval.semitones(tonal_1.Distance.interval(range[0], range[1]) + '');
-  return new Array(slots + 1).fill('').map(function (v, i) {
-    return tonal_1.Distance.transpose(range[0], tonal_1.Interval.fromSemitones(i)) + '';
-  }).map(function (n) {
-    return tonal_1.Note.simplify(n);
-  });
-}
-
-exports.noteArray = noteArray;
-
-function factorial(n) {
-  var value = 1;
-
-  for (var i = 2; i <= n; ++i) {
-    value *= i;
-  }
-
-  return value;
-}
-
-exports.factorial = factorial; // finds best combination following the given notes, based on minimal movement
-
-/* export function bestCombination(notes, combinations = []) {
-    return combinations.reduce((best, current) => {
-        const currentMovement = voicingDifference(notes, current);
-        const bestMovement = voicingDifference(notes, best);
-        if (Math.abs(currentMovement) < Math.abs(bestMovement)) {
-            return current;
-        }
-        return best;
-    });
-} */
-
-/* export function sortCombinationsByMovement(notes, combinations, direction: intervalDirection = 'up', min = true) {
-    const movements = combinations.map((combination) => ({
-        movement: voicingMovement(notes, combination, min),
-        combination
-    }));
-    let right = movements.filter(move => direction === 'up' ? move >= 0 : move <= 0);
-    if (!right.length) {
-        right = movements;
-    }
-    let sorted = right.sort((a, b) => a.movement - b.movement);
-    if (direction === 'down') {
-        sorted = sorted.reverse();
-    }
-    return sorted.map(movement => movement.combination);
-}
- */
-},{"tonal":"../node_modules/tonal/index.js","../instruments/Synthesizer":"../src/instruments/Synthesizer.ts","../symbols":"../src/symbols.ts","../harmony/Harmony":"../src/harmony/Harmony.ts"}],"demo-patterns.js":[function(require,module,exports) {
+},{"tonal-chord":"../node_modules/tonal-chord/build/es6.js","tonal-scale":"../node_modules/tonal-scale/build/es6.js"}],"demo-patterns.js":[function(require,module,exports) {
 "use strict";
 
 var _tonal = require("tonal");
@@ -16131,8 +13810,6 @@ var _Numeric = require("../lib/util/Numeric");
 var _Pattern = require("../lib/util/Pattern");
 
 var _symbols = require("../src/symbols");
-
-var _util = require("../src/util/util");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
@@ -16572,7 +14249,7 @@ window.onload = function () {
     Tone.Transport.stop();
   });
 };
-},{"tonal":"../node_modules/tonal/index.js","tonal-array":"../node_modules/tonal-array/build/es6.js","tone":"../node_modules/tone/build/Tone.js","../lib/util/Numeric":"../lib/util/Numeric.js","../lib/util/Pattern":"../lib/util/Pattern.js","../src/symbols":"../src/symbols.ts","../src/util/util":"../src/util/util.ts"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"tonal":"../node_modules/tonal/index.js","tonal-array":"../node_modules/tonal-array/build/es6.js","tone":"../node_modules/tone/build/Tone.js","../lib/util/Numeric":"../lib/util/Numeric.js","../lib/util/Pattern":"../lib/util/Pattern.js","../src/symbols":"../src/symbols.ts"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -16599,7 +14276,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59503" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63042" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

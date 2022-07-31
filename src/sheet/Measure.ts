@@ -1,9 +1,11 @@
 import { JumpSign, Sheet, SheetState } from './Sheet';
 import { SequenceOptions } from '../player/Sequence';
-import { NestedRhythm } from '../rhythmical/Rhythm';
 
 export type MeasureOrBody<T> = Measure<T> | T[] | T;
 export type Measures<T> = Array<MeasureOrBody<T>>;
+
+// borrowed from rhythmical to avoid dependency
+export interface NestedRhythm<T> extends Array<T | NestedRhythm<T>> { }
 
 export interface RenderedMeasure<T> extends Measure<T> {
   index: number; // the corresponding index of the sheet measure (from where it was rendered)

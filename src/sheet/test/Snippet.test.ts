@@ -1,11 +1,4 @@
 import { Snippet } from "../Snippet";
-import { totalDiff } from '../../util/util';
-import * as JsDiff from 'diff';
-import { Measure } from '../Measure';
-
-/* test.only('Snippet.testFormat', () => {
-    expect(Snippet.testFormat(['C', 'F', 'B'])).toBe('C F B');
-}) */
 
 test('Snippet.parse2', () => {
   expect(Snippet.nest(`f . a c . e`)).toEqual(['f', ['a', 'c'], 'e']);
@@ -201,7 +194,7 @@ test('Snippet.format with offset', () => {
 |2 F7  |  F7  |  C7   |  G7   |`);
 });
 
-test('Snippet.diff', () => {
+/* test('Snippet.diff', () => {
   const snippetA = `
     |: C7  |  F7  |  C7   |  C7   |
     |1 A7  |  D7  |  D-7  |  G7  :|
@@ -225,7 +218,7 @@ test('Snippet.diff', () => {
   expect(total.removed).toBe(1);
   expect(total.kept).toBe(52);
   expect(total.changes).toBe(2);
-});
+}); */
 
 test('Snippet.render', () => {
   expect(Snippet.render(`

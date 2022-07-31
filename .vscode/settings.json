@@ -1,4 +1,5 @@
 {
     "todo-tree.expanded": true,
-    "eslint.enable": false
+    "eslint.enable": false,
+    "todo-tree.tree.expanded": true
 }

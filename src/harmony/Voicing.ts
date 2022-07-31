@@ -1,4 +1,4 @@
-import { Permutation } from '../util/Permutation';
+import { Permutation, ConstraintFilter, PathValidator } from '../util/Permutation';
 import { Logger } from '../util/Logger';
 import { Chord } from 'tonal';
 import { Note } from 'tonal';
@@ -33,6 +33,9 @@ export declare type VoicingValidation = {
   bottomNotes?: string[]; // accepted top notes
   bottomDegrees?: number[]; // accepted bottom degrees
   omitNotes?: string[];
+  unique?: boolean; // if true, no pitch can be picked twice
+  maxNotes?: number; // if true, no pitch can be picked twice
+  minNotes?: number; // if true, no pitch can be picked twice
   /* custom validator for permutation of notes */
   validatePermutation?: (path: string[], next: string, array: string[]) => boolean;
   /* Custom sort function for choices. Defaults to smaller difference. */
@@ -233,6 +236,70 @@ export class Voicing {
     );
   }
 
+
+  static validators(options?: VoicingValidation): PathValidator<string>[] {
+    options = {
+      minTopDistance: 3, // min semitones between the two top notes
+      minNotes: 3,
+      ...options,
+    }
+    // TODO: add
+    /*    Voicing.notesAtPositionValidator(options.topNotes, lastPosition),
+        Voicing.notesAtPositionValidator(options.bottomNotes, 0),
+        Voicing.degreesAtPositionValidator(options.topDegrees, lastPosition, options.root),
+        Voicing.degreesAtPositionValidator(options.bottomDegrees, 0, options.root),
+        Voicing.validateInterval(interval => Interval.semitones(interval) <= options.maxDistance),
+        Voicing.validateInterval((interval, { path, array }) => array.length === 1 || path.length === 1 || Interval.semitones(interval) >= options.minDistance),
+        Voicing.validateInterval((interval, { array }) => array.length !== 1 || Interval.semitones(interval) >= options.minTopDistance),
+        Voicing.validateInterval((interval, { path }) => path.length !== 1 || Interval.semitones(interval) >= options.minBottomDistance)
+    */
+    return [
+      Permutation.validator.min(options.minNotes),
+      path => {
+        return path.length > 1 && Interval.semitones(Distance.interval(path[path.length - 2], path[path.length - 1])) >= options.minTopDistance
+      }
+    ]
+  }
+
+  static intervalCollector(validate: (interval: string, path, next) => boolean) {
+    return (pitches) => (collected, solutions) => {
+      if (!collected.length) { return pitches; }
+      return pitches.filter(pitch => {
+        const interval = Distance.interval(collected[collected.length - 1], pitch) + '';
+        return validate(interval, collected[collected.length - 1], pitch);
+      })
+    }
+  }
+
+  static collectors(options?: VoicingValidation): any[] {
+    options = {
+      maxDistance: 6, // max semitones between any two sequential notes
+      minDistance: 1, // min semitones between two notes
+      minBottomDistance: 3, // min semitones between the two bottom notes
+      unique: true,
+      maxNotes: 4,
+      ...options,
+    }
+
+    return [
+      Permutation.collector.maxItems(options.maxNotes),
+      Permutation.collector.unique(options.unique),
+      Voicing.intervalCollector(Permutation.validate([
+        interval => Interval.semitones(interval) <= options.maxDistance,
+        interval => Interval.semitones(interval) >= options.minDistance,
+        (interval, path) => path.length !== 1 || Interval.semitones(interval) >= options.minBottomDistance
+      ])),
+    ]
+  }
+
+  static search(pitches: string[], options: VoicingValidation = {}) {
+    return Permutation.search(
+      Permutation.collect(pitches, Voicing.collectors(options)),
+      Permutation.validate(Voicing.validators(options))
+    );
+  }
+
+
   /** Configurable Validator that sorts out note combinations with untasty intervals.  */
   static voicingValidator(options?: VoicingValidation) {
     options = {
@@ -256,6 +323,8 @@ export class Voicing {
       )(path, next, array);
     }
   }
+
+
 
   /** Validates the interval to the next note. You can write your own logic inside the validate fn. */
   static validateInterval(validate: (interval: string, { path, next, array }) => boolean) {

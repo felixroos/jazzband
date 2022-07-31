@@ -134,7 +134,6 @@ export class Harmony {
     return Note.midi(note) - offset;
   }
 
-
   static intervalComplement(interval) {
     const fix = {
       '8P': '1P',
