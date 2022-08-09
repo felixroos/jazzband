@@ -1,3 +1,9 @@
+# This lib has been archived!
+
+I stopped working on this lib, as I moved to developing [strudel](https://github.com/tidalcycles/strudel).
+
+---
+
 # jazzband
 
 This package contains a jazz band that is able to accompany your playing!
